@@ -4,8 +4,5 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/piqnt/cutout.git"
-  },
-  "dependencies": {
-    "tweenjs": "latest"
   }
 }
