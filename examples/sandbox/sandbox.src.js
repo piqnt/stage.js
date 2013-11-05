@@ -1,24 +1,66 @@
+// create shortcut
 var C = Cutout;
 
+// UI root
 function Game(canvas) {
   Game.prototype._super.call(this);
 
-  var column = C.column(C.align.center).appendTo(this).align(C.align.center);
-  for ( var j = 0; j < 9; j++) {
-    var row = C.row(C.align.center).appendTo(column);
-    for ( var i = 0; i < 9; i++) {
-      // colors as frames
-      C.anim("boxes", "box_").id(i).appendTo(row).align(null, C.align.center)
-          .attr(Mouse.ON_MOVE, click);
-    }
-  }
+  this.canvas = canvas;
+
+  this.addboxes();
+
+  this.resize();
+  window.addEventListener("resize", this.resize.bind(this), false);
+
+  Mouse.listen(this, true);
+}
+
+// game is a cutout
+Game.prototype = new Cutout();
+Game.prototype._super = Cutout;
+Game.prototype.constructor = Game;
+
+Game.prototype.paint = function() {
+  // tick tweening
+  TWEEN.update();
+};
+
+Game.prototype.resize = function() {
+  var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+  var height = (window.innerHeight > 0) ? window.innerHeight : screen.height;
+
+  console.log("Size: " + width + " x " + height);
+
+  // resize canvas
+  this.canvas.width = width;
+  this.canvas.height = height;
+
+  // size relative to image graphics
+  this.size(1000, 1000);
+
+  // scale it to fit in screen
+  this.scaleTo(width, height, C.scale.fit);
+
+  // move it to center
+  this.align(C.align.center, C.align.center).offset(width / 2, height / 2);
+};
+
+Game.prototype.addboxes = function() {
 
   var last = null;
+  var column = C.column().appendTo(this).align(C.align.center);
+  for ( var j = 0; j < 9; j++) {
+    var row = C.row().appendTo(column);
+    for ( var i = 0; i < 9; i++) {
+      // colors as frames
+      var box = C.anim("boxes", "box_").id(i).appendTo(row);
 
-  function click(ev, point) {
-    if (this !== last) {
-      last = this;
-      play.bind(this)();
+      box.attr(Mouse.ON_MOVE, function(ev, point) {
+        if (this !== last) {
+          last = this;
+          play.bind(this)();
+        }
+      });
     }
   }
 
@@ -73,41 +115,9 @@ function Game(canvas) {
 
     return true;
   }
-
-  var resize = function() {
-    var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-    var height = (window.innerHeight > 0) ? window.innerHeight : screen.height;
-
-    canvas.width = width;
-    canvas.height = height;
-
-    console.log("Size: " + width + " x " + height);
-
-    // size relative to image graphics
-    this.size(1000, 1000);
-
-    // scale it to fit in screen
-    this.scaleTo(width, height, C.scale.fit);
-
-    // move it to center
-    this.align(C.align.center, C.align.center).offset(width / 2, height / 2);
-
-  }.bind(this);
-
-  resize();
-  window.addEventListener("resize", resize, false);
-
-  Mouse.listen(this, true);
-}
-
-Game.prototype = new Cutout();
-Game.prototype._super = Cutout;
-Game.prototype.constructor = Game;
-
-Game.prototype.paint = function() {
-  TWEEN.update();
 };
 
+// register texture(s)
 Cutout.addTexture({
   name : "boxes",
   imagePath : "boxes.png",
@@ -123,6 +133,7 @@ Cutout.addTexture({
       { name : "box_g", x : 90, y : 30, width : 30, height : 30 },
   ] });
 
+// loading process
 window.addEventListener("load", function() {
   console.log("On load.");
   console.log("Initing...");
