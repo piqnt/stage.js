@@ -125,29 +125,26 @@ Cutout.addTexture({
 
 window.addEventListener("load", function() {
   console.log("On load.");
+  console.log("Initing...");
 
   var game = null, canvas = null, context = null;
 
-  function init() {
-    console.log("Initing...");
+  canvas = document.createElement("canvas");
+  canvas.style.position = "absolute";
 
-    canvas = document.createElement("canvas");
-    canvas.style.position = "absolute";
+  var body = document.body;
+  body.insertBefore(canvas, body.firstChild);
 
-    var body = document.body;
-    body.insertBefore(canvas, body.firstChild);
+  context = canvas.getContext("2d");
 
-    context = canvas.getContext("2d");
-
-    Cutout.loadImages(function(src, handleComplete, handleError) {
-      var image = new Image();
-      console.log("Loading: " + src);
-      image.onload = handleComplete;
-      image.onerror = handleError;
-      image.src = src;
-      return image;
-    }, start);
-  }
+  Cutout.loadImages(function(src, handleComplete, handleError) {
+    var image = new Image();
+    console.log("Loading image: " + src);
+    image.onload = handleComplete;
+    image.onerror = handleError;
+    image.src = src;
+    return image;
+  }, start);
 
   function start() {
     console.log("Images loaded.");
@@ -162,7 +159,5 @@ window.addEventListener("load", function() {
     game.render(context);
     requestAnimationFrame(render);
   }
-
-  init();
 
 }, false);
