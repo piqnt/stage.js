@@ -83,7 +83,7 @@ Cutout.prototype.tick = function(context) {
 
   context.save();
 
-  var m = this.getMatrix();
+  var m = this.matrix();
   context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
   this.paint(context);
@@ -116,7 +116,7 @@ Cutout.prototype.validateDown = function() {
 Cutout.prototype.validateUp = function() {
 };
 
-Cutout.prototype.getMatrix = function() {
+Cutout.prototype.matrix = function() {
   if (this._transformed) {
     this._transformed = false;
 
@@ -283,7 +283,7 @@ Cutout.prototype.show = function() {
 };
 
 Cutout.prototype.publish = function(name, event, point) {
-  point = this.getMatrix().reverse().map(point);
+  point = this.matrix().reverse().map(point);
 
   if (!this.spy && !this.isInside(point)) {
     return;
@@ -893,7 +893,7 @@ Cutout.row = function(valign) {
       child.align(null, valign);
       child.offset(this._width, null);
       if (child._visible) {
-        child.getMatrix();
+        child.matrix();
         child._transformed = true;
         this._width += child._boxWidth;
       }
@@ -923,7 +923,7 @@ Cutout.column = function(halign) {
       child.align(halign, null);
       child.offset(null, this._height);
       if (child._visible) {
-        child.getMatrix();
+        child.matrix();
         child._transformed = true;
         this._height += child._boxHeight;
       }
