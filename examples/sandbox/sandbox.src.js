@@ -5,13 +5,13 @@ function Game() {
   Game.prototype._super.call(this);
   this.spy = true;
 
-  var column = Cutout.column(0).align(0, 0).appendTo(this);
-  for ( var j = 0; j < 11; j++) {
-    var row = Cutout.row(0).appendTo(column);
-    row.height = 60;
-    for ( var i = 0; i < 11; i++) {
-      Cutout.anim("boxes", "box_").id(i).appendTo(row).attr("handleMouseMove",
-          click).align(null, 0);
+  var column = Cutout.column(Cutout.align.middle).align(Cutout.align.middle)
+      .appendTo(this);
+  for ( var j = 0; j < 9; j++) {
+    var row = Cutout.row(Cutout.align.middle).appendTo(column);
+    for ( var i = 0; i < 9; i++) {
+      Cutout.anim("boxes", "box_").id(i).appendTo(row).attr(Mouse.ON_MOVE,
+          click).align(null, Cutout.align.middle);
     }
   }
 
@@ -33,6 +33,7 @@ function Game() {
 
     // tweening current values
     var value = tweening.value = tweening.value || {};
+
     // tweening target values
     var target = tweening.target = tweening.target || {};
 
@@ -58,22 +59,24 @@ function Game() {
     }
 
     tweening.tween.onComplete(function() {
-      if (reset) {
-        tweening.reset = window.setTimeout(function() {
-          this.gotoFrame(1);
-          tweening.reset = null;
-        }.bind(this), U.random(2000, 12000));
-      }
-    }.bind(this));
-
-    tweening.tween.to(target, reset ? U.random(5000, 10000) : 2000).repeat(0)
-        .yoyo(false).start();
-
-    if (!reset) {
       tweening.reset && window.clearTimeout(tweening.reset);
       tweening.reset = window.setTimeout(function() {
-        play.bind(this)(true);
-      }.bind(this), U.random(5000, 25000));
+        tweening.reset = null;
+        if (reset) {
+          this.gotoFrame(1);
+        } else {
+          play.bind(this)(true);
+        }
+      }.bind(this), reset ? U.random(5000, 10000) : U.random(1000, 3000));
+    }.bind(this));
+
+    tweening.tween.to(target, reset ? U.random(10000, 20000) : 2000).start();
+
+    if (!reset) {
+      // tweening.reset && window.clearTimeout(tweening.reset);
+      // tweening.reset = window.setTimeout(function() {
+      // play.bind(this)(true);
+      // }.bind(this), U.random(5000, 25000));
     }
 
     return true;
@@ -97,16 +100,12 @@ Game.prototype.paint = function() {
 Game.prototype.resize = function() {
   var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
   var height = (window.innerHeight > 0) ? window.innerHeight : screen.height;
-  this.ratio = window.devicePixelRatio || 1;
 
-  DEBUG && console.log("Size: " + width + " x " + height + " / " + this.ratio);
+  DEBUG && console.log("Size: " + width + " x " + height);
 
-  this.height = 1000;
-  this.width = 1000;
+  this.size(1000, 1000).scaleTo(width, height, "fit");
 
-  this.scaleTo(width / this.ratio, height / this.ratio, "fit");
+  this.align(0, 0).offset(width / 2, height / 2);
 
-  this.align(0, 0).translate(width / 2, height / 2);
-
-  this.notif(Cutout.on_size);
+  this.postNotif(Cutout.on_size);
 };

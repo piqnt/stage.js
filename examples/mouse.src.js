@@ -9,6 +9,11 @@ Mouse.MOVE = Mouse.isTouchSupported ? "touchmove" : "mousemove";
 Mouse.END = Mouse.isTouchSupported ? "touchend" : "mouseup";
 Mouse.CLICK = "click";
 
+Mouse.ON_CLICK = "handleMouseClick";
+Mouse.ON_END = "handleMouseEnd";
+Mouse.ON_START = "handleMouseStart";
+Mouse.ON_MOVE = "handleMouseMove";
+
 Mouse.get = function(event, elem) {
   elem = elem || document.body;
 
@@ -60,7 +65,7 @@ Mouse.listen = function(listener, move) {
       DEBUG && console.log("Mouse Start: " + Mouse.x + "x" + Mouse.y);
       !move && document.addEventListener(Mouse.MOVE, mouseMove);
       event.preventDefault();
-      this.publish("handleMouseStart", event, Mouse);
+      this.publish(Mouse.ON_START, event, Mouse);
 
       start = {
         x : Mouse.x,
@@ -78,10 +83,10 @@ Mouse.listen = function(listener, move) {
       DEBUG && console.log("Mouse End: " + Mouse.x + "x" + Mouse.y);
       !move && document.removeEventListener(Mouse.MOVE, mouseMove);
       event.preventDefault();
-      this.publish("handleMouseEnd", event, Mouse);
+      this.publish(Mouse.ON_END, event, Mouse);
 
       if (start && start.x == Mouse.x && start.y == Mouse.y) {
-        this.publish("handleMouseClick", event, Mouse);
+        this.publish(Mouse.ON_CLICK, event, Mouse);
         click = start;
       }
       start = null;
@@ -95,7 +100,7 @@ Mouse.listen = function(listener, move) {
       Mouse.get(event);
       // DEBUG && console.log("Mouse Move: " + Mouse.x + "x" + Mouse.y);
       event.preventDefault();
-      this.publish("handleMouseMove", event, Mouse);
+      this.publish(Mouse.ON_MOVE, event, Mouse);
     } catch (e) {
       console.log(e);
     }
@@ -107,7 +112,7 @@ Mouse.listen = function(listener, move) {
       DEBUG && console.log("Mouse Click: " + Mouse.x + "x" + Mouse.y);
       event.preventDefault();
       if (!click) {
-        this.publish("handleMouseClick", event, Mouse);
+        this.publish(Mouse.ON_CLICK, event, Mouse);
       }
     } catch (e) {
       console.log(e);
