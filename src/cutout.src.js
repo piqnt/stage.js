@@ -339,9 +339,9 @@ Cutout.prototype.height = function(y) {
 };
 
 Cutout.prototype.scaleTo = function(width, height, mode) {
-  if (mode == "slice") {
+  if (mode == Cutout.scale.slice) {
     this.scale(Math.max(width / this._width, height / this._height));
-  } else if (mode == "fit") {
+  } else if (mode == Cutout.scale.fit) {
     this.scale(Math.min(width / this._width, height / this._height));
   }
   return this;
@@ -418,6 +418,11 @@ Cutout.prototype.align = function(outH, outV, inH, inV) {
 };
 
 // Static
+
+Cutout.scale = {
+  fit : "fit",
+  slice : "slice"
+};
 
 Cutout.align = {
   top : -1,

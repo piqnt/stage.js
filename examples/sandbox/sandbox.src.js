@@ -5,14 +5,13 @@ var C = Cutout;
 
 function Game() {
   Game.prototype._super.call(this);
-  this.spy = true;
 
-  var column = C.column(C.align.center).align(C.align.center).appendTo(this);
+  var column = C.column(C.align.center).appendTo(this).align(C.align.center);
   for ( var j = 0; j < 9; j++) {
     var row = C.row(C.align.center).appendTo(column);
     for ( var i = 0; i < 9; i++) {
-      C.anim("boxes", "box_").id(i).appendTo(row).attr(Mouse.ON_MOVE, click)
-          .align(null, C.align.center);
+      C.anim("boxes", "box_").id(i).appendTo(row).align(null, C.align.center)
+          .attr(Mouse.ON_MOVE, click);
     }
   }
 
@@ -73,12 +72,12 @@ function Game() {
 
     tweening.tween.to(target, reset ? U.random(10000, 20000) : 2000).start();
 
-    if (!reset) {
-      // tweening.reset && window.clearTimeout(tweening.reset);
-      // tweening.reset = window.setTimeout(function() {
-      // play.bind(this)(true);
-      // }.bind(this), U.random(5000, 25000));
-    }
+    // if (!reset) {
+    // tweening.reset && window.clearTimeout(tweening.reset);
+    // tweening.reset = window.setTimeout(function() {
+    // play.bind(this)(true);
+    // }.bind(this), U.random(5000, 25000));
+    // }
 
     return true;
   }
@@ -104,8 +103,13 @@ Game.prototype.resize = function() {
 
   DEBUG && console.log("Size: " + width + " x " + height);
 
-  this.size(1000, 1000).scaleTo(width, height, "fit");
+  // size relative to image graphics
+  this.size(1000, 1000);
 
+  // scale it to fit in screen
+  this.scaleTo(width, height, C.scale.fit);
+
+  // move it to center
   this.align(C.align.center, C.align.center).offset(width / 2, height / 2);
 
   this.postNotif(C.notif.size);
