@@ -1,17 +1,18 @@
 if (typeof DEBUG === 'undefined')
   DEBUG = true;
 
+var C = Cutout;
+
 function Game() {
   Game.prototype._super.call(this);
   this.spy = true;
 
-  var column = Cutout.column(Cutout.align.middle).align(Cutout.align.middle)
-      .appendTo(this);
+  var column = C.column(C.align.center).align(C.align.center).appendTo(this);
   for ( var j = 0; j < 9; j++) {
-    var row = Cutout.row(Cutout.align.middle).appendTo(column);
+    var row = C.row(C.align.center).appendTo(column);
     for ( var i = 0; i < 9; i++) {
-      Cutout.anim("boxes", "box_").id(i).appendTo(row).attr(Mouse.ON_MOVE,
-          click).align(null, Cutout.align.middle);
+      C.anim("boxes", "box_").id(i).appendTo(row).attr(Mouse.ON_MOVE, click)
+          .align(null, C.align.center);
     }
   }
 
@@ -89,8 +90,8 @@ function Game() {
   Mouse.listen(this, true);
 }
 
-Game.prototype = new Cutout();
-Game.prototype._super = Cutout;
+Game.prototype = new C();
+Game.prototype._super = C;
 Game.prototype.constructor = Game;
 
 Game.prototype.paint = function() {
@@ -105,7 +106,7 @@ Game.prototype.resize = function() {
 
   this.size(1000, 1000).scaleTo(width, height, "fit");
 
-  this.align(0, 0).offset(width / 2, height / 2);
+  this.align(C.align.center, C.align.center).offset(width / 2, height / 2);
 
-  this.postNotif(Cutout.on_size);
+  this.postNotif(C.notif.size);
 };

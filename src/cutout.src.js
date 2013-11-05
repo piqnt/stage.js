@@ -215,10 +215,10 @@ Cutout.prototype.append = function() {
     child.remove();
     this._children.push(child);
     child._parent = this;
-    child.postNotif(Cutout.on_parent);
+    child.postNotif(Cutout.notif.parent);
   }
 
-  this.postNotif(Cutout.on_children);
+  this.postNotif(Cutout.notif.children);
   return this;
 };
 
@@ -228,10 +228,10 @@ Cutout.prototype.prepend = function() {
     child.remove();
     this._children.unshift(child);
     child._parent = this;
-    child.postNotif(Cutout.on_parent);
+    child.postNotif(Cutout.notif.parent);
   }
 
-  this.postNotif(Cutout.on_children);
+  this.postNotif(Cutout.notif.children);
   return this;
 };
 
@@ -241,7 +241,7 @@ Cutout.prototype.removeChild = function(child) {
     this._children.splice(index, 1);
     child._parent = null;
   }
-  this.postNotif(Cutout.on_children);
+  this.postNotif(Cutout.notif.children);
 };
 
 Cutout.prototype.empty = function() {
@@ -249,7 +249,7 @@ Cutout.prototype.empty = function() {
   for ( var i = 0; i < children.length; i++) {
     children[i]._parent = null;
   }
-  this.postNotif(Cutout.on_children);
+  this.postNotif(Cutout.notif.children);
   return this;
 };
 
@@ -271,14 +271,14 @@ Cutout.prototype.remove = function() {
 Cutout.prototype.hide = function() {
   this._visible = false;
 
-  this.postNotif(Cutout.on_size);
+  this.postNotif(Cutout.notif.size);
   return this;
 };
 
 Cutout.prototype.show = function() {
   this._visible = true;
 
-  this.postNotif(Cutout.on_size);
+  this.postNotif(Cutout.notif.size);
   return this;
 };
 
@@ -320,7 +320,7 @@ Cutout.prototype.size = function(x, y) {
   }
 
   // this._transformed = true;
-  this.postNotif(Cutout.on_size);
+  this.postNotif(Cutout.notif.size);
   return this;
 };
 
@@ -354,7 +354,7 @@ Cutout.prototype.scale = function(x, y) {
   this._scaleY = y;
 
   this._transformed = true;
-  this.postNotif(Cutout.on_size);
+  this.postNotif(Cutout.notif.size);
   return this;
 };
 
@@ -365,7 +365,7 @@ Cutout.prototype.skew = function(x, y) {
   this._skewX = y;
 
   this._transformed = true;
-  this.postNotif(Cutout.on_size);
+  this.postNotif(Cutout.notif.size);
   return this;
 };
 
@@ -373,7 +373,7 @@ Cutout.prototype.rotate = function(angle) {
   this._rotation = angle;
 
   this._transformed = true;
-  this.postNotif(Cutout.on_size);
+  this.postNotif(Cutout.notif.size);
   return this;
 };
 
@@ -406,8 +406,8 @@ Cutout.prototype.align = function(outH, outV, inH, inV) {
   U.isNum(inV) && (this._inV = inV / 2 + 0.5);
 
   this.validateDown = function() {
-    if (!this.clearNotif(Cutout.on_size, Cutout.on_parent,
-        Cutout.on_parent_size)) {
+    if (!this.clearNotif(Cutout.notif.size, Cutout.notif.parent,
+        Cutout.notif.parent_size)) {
       return;
     }
     this._transformed = true;
@@ -428,17 +428,19 @@ Cutout.align = {
   center : 0
 };
 
-Cutout.on_children = "children";
-Cutout.on_child_children = "child.children";
-Cutout.on_parent_children = "parent.children";
+Cutout.notif = {
+  children : "children",
+  child_children : "child.children",
+  parent_children : "parent.children",
 
-Cutout.on_parent = "parent";
-Cutout.on_child_parent = "child.parent";
-Cutout.on_parent_parent = "parent.parent";
+  parent : "parent",
+  child_parent : "child.parent",
+  parent_parent : "parent.parent",
 
-Cutout.on_size = "size";
-Cutout.on_child_size = "child.size";
-Cutout.on_parent_size = "parent.size";
+  size : "size",
+  child_size : "child.size",
+  parent_size : "parent.size",
+};
 
 Cutout.textures = {};
 Cutout.images = {};
@@ -810,7 +812,7 @@ Cutout.Anim.prototype.gotoLabel = function(name) {
 
 Cutout.Anim.prototype.setValue = function(value) {
   this.gotoLabel(this.prefix + value);
-  this.postNotif(Cutout.on_size);
+  this.postNotif(Cutout.notif.size);
   return this;
 };
 
@@ -873,7 +875,7 @@ Cutout.String.prototype.setValue = function(value) {
     }
   }
 
-  this.postNotif(Cutout.on_size);
+  this.postNotif(Cutout.notif.size);
   return this;
 };
 
@@ -881,7 +883,7 @@ Cutout.row = function(valign) {
   var co = new Cutout();
   co.spy = true;
   co.validateUp = function() {
-    if (!this.clearNotif(Cutout.on_child_size, Cutout.on_children)) {
+    if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
       return;
     }
 
@@ -901,7 +903,7 @@ Cutout.row = function(valign) {
       this._height = Math.max(this._height, child._boxHeight);
     }
 
-    this.postNotif(Cutout.on_size);
+    this.postNotif(Cutout.notif.size);
     return this;
   };
   return co;
@@ -911,7 +913,7 @@ Cutout.column = function(halign) {
   var co = new Cutout();
   co.spy = true;
   co.validateUp = function() {
-    if (!this.clearNotif(Cutout.on_child_size, Cutout.on_children)) {
+    if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
       return;
     }
 
@@ -930,7 +932,7 @@ Cutout.column = function(halign) {
       this._width = Math.max(this._width, child._boxWidth);
     }
 
-    this.postNotif(Cutout.on_size);
+    this.postNotif(Cutout.notif.size);
     return this;
   };
   return co;
