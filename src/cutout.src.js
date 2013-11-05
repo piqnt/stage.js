@@ -453,12 +453,12 @@ Cutout.images = {};
 Cutout.loadImages = function(imageLoader, completeCallback) {
   var imageCount = 0;
   var handleComplete = function() {
-    DEBUG && console.log("Loading image completed.");
+    console.log("Loading image completed.");
     checkComplete();
   };
 
   var handleError = function(msg) {
-    DEBUG && console.log("Error loading image: " + msg);
+    console.log("Error loading image: " + msg);
     checkComplete();
   };
 

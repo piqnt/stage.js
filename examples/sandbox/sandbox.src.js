@@ -1,15 +1,13 @@
-if (typeof DEBUG === 'undefined')
-  DEBUG = true;
-
 var C = Cutout;
 
-function Game() {
+function Game(canvas) {
   Game.prototype._super.call(this);
 
   var column = C.column(C.align.center).appendTo(this).align(C.align.center);
   for ( var j = 0; j < 9; j++) {
     var row = C.row(C.align.center).appendTo(column);
     for ( var i = 0; i < 9; i++) {
+      // colors as frames
       C.anim("boxes", "box_").id(i).appendTo(row).align(null, C.align.center)
           .attr(Mouse.ON_MOVE, click);
     }
@@ -26,6 +24,7 @@ function Game() {
 
   function play(reset) {
 
+    // random color
     !reset && this.randomFrame();
 
     // tweening objects
@@ -72,45 +71,98 @@ function Game() {
 
     tweening.tween.to(target, reset ? U.random(10000, 20000) : 2000).start();
 
-    // if (!reset) {
-    // tweening.reset && window.clearTimeout(tweening.reset);
-    // tweening.reset = window.setTimeout(function() {
-    // play.bind(this)(true);
-    // }.bind(this), U.random(5000, 25000));
-    // }
-
     return true;
   }
 
-  this.resize();
+  var resize = function() {
+    var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+    var height = (window.innerHeight > 0) ? window.innerHeight : screen.height;
 
-  window.addEventListener("resize", this.resize.bind(this), false);
+    canvas.width = width;
+    canvas.height = height;
+
+    console.log("Size: " + width + " x " + height);
+
+    // size relative to image graphics
+    this.size(1000, 1000);
+
+    // scale it to fit in screen
+    this.scaleTo(width, height, C.scale.fit);
+
+    // move it to center
+    this.align(C.align.center, C.align.center).offset(width / 2, height / 2);
+
+  }.bind(this);
+
+  resize();
+  window.addEventListener("resize", resize, false);
 
   Mouse.listen(this, true);
 }
 
-Game.prototype = new C();
-Game.prototype._super = C;
+Game.prototype = new Cutout();
+Game.prototype._super = Cutout;
 Game.prototype.constructor = Game;
 
 Game.prototype.paint = function() {
   TWEEN.update();
 };
 
-Game.prototype.resize = function() {
-  var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-  var height = (window.innerHeight > 0) ? window.innerHeight : screen.height;
+Cutout.addTexture({
+  name : "boxes",
+  imagePath : "boxes.png",
+  imageRatio : 2,
+  cuts : [
+      { name : "box_d", x : 0, y : 0, width : 30, height : 30 },
+      { name : "box_l", x : 0, y : 30, width : 30, height : 30 },
+      { name : "box_r", x : 30, y : 0, width : 30, height : 30 },
+      { name : "box_p", x : 30, y : 30, width : 30, height : 30 },
+      { name : "box_b", x : 60, y : 0, width : 30, height : 30 },
+      { name : "box_o", x : 60, y : 30, width : 30, height : 30 },
+      { name : "box_y", x : 90, y : 0, width : 30, height : 30 },
+      { name : "box_g", x : 90, y : 30, width : 30, height : 30 },
+  ] });
 
-  DEBUG && console.log("Size: " + width + " x " + height);
+window.addEventListener("load", function() {
+  console.log("On load.");
 
-  // size relative to image graphics
-  this.size(1000, 1000);
+  var game = null, canvas = null, context = null;
 
-  // scale it to fit in screen
-  this.scaleTo(width, height, C.scale.fit);
+  function init() {
+    console.log("Initing...");
 
-  // move it to center
-  this.align(C.align.center, C.align.center).offset(width / 2, height / 2);
+    canvas = document.createElement("canvas");
+    canvas.style.position = "absolute";
 
-  this.postNotif(C.notif.size);
-};
+    var body = document.body;
+    body.insertBefore(canvas, body.firstChild);
+
+    context = canvas.getContext("2d");
+
+    Cutout.loadImages(function(src, handleComplete, handleError) {
+      var image = new Image();
+      console.log("Loading: " + src);
+      image.onload = handleComplete;
+      image.onerror = handleError;
+      image.src = src;
+      return image;
+    }, start);
+  }
+
+  function start() {
+    console.log("Images loaded.");
+    console.log("Starting...");
+    game = new Game(canvas);
+    requestAnimationFrame(render);
+  }
+
+  function render() {
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    game.render(context);
+    requestAnimationFrame(render);
+  }
+
+  init();
+
+}, false);
