@@ -219,6 +219,14 @@ Cutout.prototype.clearNotif = function() {
   return found;
 };
 
+Cutout.prototype.children = function(i) {
+  if (typeof i === "undefined") {
+    return this._children;
+  } else {
+    return this._children[i];
+  }
+};
+
 Cutout.prototype.append = function() {
   for ( var i = 0; i < arguments.length; i++) {
     var child = arguments[i];
@@ -432,7 +440,7 @@ Cutout.scale = {
 };
 
 Cutout.align = {
-  start: -1,
+  start : -1,
   end : +1,
   center : 0
 };
