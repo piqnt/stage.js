@@ -32,6 +32,7 @@ function Cutout() {
   this._pivotX = null;
   this._pivotY = null;
 
+  this._aligned = false;
   this._outH = 0;
   this._outV = 0;
   this._inH = 0;
@@ -71,46 +72,55 @@ Cutout.prototype.id = function(id) {
   }
 };
 
-Cutout.prototype.render = function(context) {
-  this.validate();
-  this.tick(context);
+Cutout.prototype.traverse = function(callback, reverse) {
+  callback.call(this, function() {
+    var length = this._children.length;
+    for ( var i = 0; i < length; i++) {
+      this._children[reverse ? length - 1 - i : i].traverse(callback);
+    }
+  }.bind(this));
 };
 
-Cutout.prototype.tick = function(context) {
-  if (!this._visible) {
-    return;
-  }
+Cutout.prototype.render = function(context) {
 
-  context.save();
+  // validate
+  this.traverse(function(children) {
+    if (!this._visible) {
+      return;
+    }
+    this.validateDown();
+    children();
+    this.validateUp();
+  });
 
-  var m = this.matrix();
-  context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
+  // paint
+  this.traverse(function(children) {
+    if (!this._visible) {
+      return;
+    }
 
-  this.paint(context);
+    context.save();
 
-  for ( var i = 0; i < this._children.length; i++) {
-    this._children[i].tick(context, false);
-  }
+    var m = this.matrix();
+    context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
-  context.restore();
+    this.paint(context);
+
+    children();
+
+    context.restore();
+  });
 };
 
 Cutout.prototype.paint = function(context) {
 };
 
-Cutout.prototype.validate = function() {
-  if (!this._visible) {
-    return;
-  }
-
-  this.validateDown();
-  for ( var i = 0; i < this._children.length; i++) {
-    this._children[i].validate();
-  }
-  this.validateUp();
-};
-
 Cutout.prototype.validateDown = function() {
+  if (this._aligned
+      && this.clearNotif(Cutout.notif.size, Cutout.notif.parent,
+          Cutout.notif.parent_size)) {
+    this._transformed = true;
+  }
 };
 
 Cutout.prototype.validateUp = function() {
@@ -283,23 +293,27 @@ Cutout.prototype.show = function() {
 };
 
 Cutout.prototype.publish = function(name, event, point) {
-  point = this.matrix().reverse().map(point);
+  if (point) {
+    point = this.matrix().reverse().map(point);
 
-  if (!this.spy && !this.isInside(point)) {
-    return;
+    if (!this.spy && !this.isInside(point)) {
+      return;
+    }
   }
 
   var handler = this[name];
-  if (U.isFunction(handler)) {
+  if (CutoutUtils.isFunction(handler)) {
     if (handler.call(this, event, point)) {
       return true;
     }
   }
 
-  for ( var i = this._children.length - 1; i >= 0; i--) {
-    var child = this._children[i];
-    if (child._visible && child.publish(name, event, point)) {
-      return true;
+  if (point) {
+    for ( var i = this._children.length - 1; i >= 0; i--) {
+      var child = this._children[i];
+      if (child._visible && child.publish(name, event, point)) {
+        return true;
+      }
     }
   }
 
@@ -387,8 +401,8 @@ Cutout.prototype.offset = function(x, y) {
 
 Cutout.prototype.pivot = function(x, y) {
   y = typeof y === "undefined" ? x : y;
-  this._pivotX = U.isNum(x) ? (x / 2 + 0.5) : x;
-  this._pivotY = U.isNum(y) ? (y / 2 + 0.5) : y;
+  this._pivotX = CutoutUtils.isNum(x) ? (x / 2 + 0.5) : x;
+  this._pivotY = CutoutUtils.isNum(y) ? (y / 2 + 0.5) : y;
 
   this._transformed = true;
   return this;
@@ -400,19 +414,12 @@ Cutout.prototype.align = function(outH, outV, inH, inV) {
   inH = typeof inH !== "undefined" ? inH : outH;
   inV = typeof inV !== "undefined" ? inV : outV;
 
-  U.isNum(outH) && (this._outH = outH / 2 + 0.5);
-  U.isNum(outV) && (this._outV = outV / 2 + 0.5);
-  U.isNum(inH) && (this._inH = inH / 2 + 0.5);
-  U.isNum(inV) && (this._inV = inV / 2 + 0.5);
+  CutoutUtils.isNum(outH) && (this._outH = outH / 2 + 0.5);
+  CutoutUtils.isNum(outV) && (this._outV = outV / 2 + 0.5);
+  CutoutUtils.isNum(inH) && (this._inH = inH / 2 + 0.5);
+  CutoutUtils.isNum(inV) && (this._inV = inV / 2 + 0.5);
 
-  this.validateDown = function() {
-    if (!this.clearNotif(Cutout.notif.size, Cutout.notif.parent,
-        Cutout.notif.parent_size)) {
-      return;
-    }
-    this._transformed = true;
-  }.bind(this);
-
+  this._aligned = true;
   this._transformed = true;
   return this;
 };
@@ -425,11 +432,8 @@ Cutout.scale = {
 };
 
 Cutout.align = {
-  top : -1,
-  bottom : +1,
-  left : -1,
-  right : +1,
-  middle : 0,
+  start: -1,
+  end : +1,
   center : 0
 };
 
@@ -559,8 +563,8 @@ Cutout.Cut = function(image, cut, ratio) {
 
   this.dx = 0;
   this.dy = 0;
-  this.dw = cut.w * ratio;
-  this.dh = cut.h * ratio;
+  this.dw = cut.w;
+  this.dh = cut.h;
 };
 
 Cutout.Cut.prototype.toString = function() {
@@ -792,7 +796,7 @@ Cutout.Anim.prototype.setFrames = function(cuts) {
 };
 
 Cutout.Anim.prototype.gotoFrame = function(frame) {
-  this._frame = U.rotate(frame, this._frames.length);
+  this._frame = CutoutUtils.rotate(frame, this._frames.length);
   this._cut = this._frames[this._frame];
   this._width = this._cut.dw;
   this._height = this._cut.dh;
@@ -828,7 +832,7 @@ Cutout.Anim.prototype.play = function(reset) {
 
 Cutout.Anim.prototype.stop = function(frame) {
   this._startTime = null;
-  if (U.isNum(frame)) {
+  if (CutoutUtils.isNum(frame)) {
     this.gotoFrame(frame);
   }
   return this;
@@ -888,6 +892,8 @@ Cutout.row = function(valign) {
   var co = new Cutout();
   co.spy = true;
   co.validateUp = function() {
+    Cutout.prototype.validateUp.call(this);
+
     if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
       return;
     }
@@ -918,6 +924,7 @@ Cutout.column = function(halign) {
   var co = new Cutout();
   co.spy = true;
   co.validateUp = function() {
+    Cutout.prototype.validateUp.call(this);
     if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
       return;
     }
@@ -945,19 +952,19 @@ Cutout.column = function(halign) {
 
 // Utilities
 
-function U() {
+function CutoutUtils() {
 
 }
 
-U.rad2deg = function(rad) {
+CutoutUtils.rad2deg = function(rad) {
   return rad / Math.PI * 180.0;
 };
 
-U.deg2rad = function(deg) {
+CutoutUtils.deg2rad = function(deg) {
   return deg / 180.0 * Math.PI;
 };
 
-U.random = function(min, max) {
+CutoutUtils.random = function(min, max) {
   if (min == undefined) {
     min = 1;
   }
@@ -971,7 +978,7 @@ U.random = function(min, max) {
   return Math.random() * (max - min) + min;
 };
 
-U.rotate = function(num, min, max) {
+CutoutUtils.rotate = function(num, min, max) {
   max = max || 0;
   if (max > min) {
     return (num - min) % (max - min) + (num < 0 ? max : min);
@@ -980,14 +987,14 @@ U.rotate = function(num, min, max) {
   }
 };
 
-U.size = function(x, y) {
+CutoutUtils.size = function(x, y) {
   return Math.sqrt(x * x + y * y);
 };
 
-U.isNum = function(x) {
+CutoutUtils.isNum = function(x) {
   return typeof x === "number";
 };
 
-U.isFunction = function(x) {
+CutoutUtils.isFunction = function(x) {
   return typeof x === "function";
 };

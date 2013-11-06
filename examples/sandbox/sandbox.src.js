@@ -1,5 +1,5 @@
 // create shortcut
-var C = Cutout;
+var C = Cutout, U = CutoutUtils;
 
 // UI root
 function Game(canvas) {
@@ -35,11 +35,8 @@ Game.prototype.resize = function() {
   this.canvas.width = width;
   this.canvas.height = height;
 
-  // size relative to image graphics
-  this.size(1000, 1000);
-
-  // scale it to fit in screen
-  this.scaleTo(width, height, C.scale.fit);
+  // size relative to image graphics, scaled to fit in screen
+  this.size(500, 500).scaleTo(width, height, C.scale.fit);
 
   // move it to center
   this.align(C.align.center, C.align.center).offset(width / 2, height / 2);
