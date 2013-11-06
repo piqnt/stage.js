@@ -361,7 +361,9 @@ Cutout.prototype.height = function(y) {
 };
 
 Cutout.prototype.scaleTo = function(width, height, mode) {
-  if (mode == Cutout.scale.slice) {
+  if (!mode) {
+    this.scale(width / this._width, height / this._height);
+  } else if (mode == Cutout.scale.slice) {
     this.scale(Math.max(width / this._width, height / this._height));
   } else if (mode == Cutout.scale.fit) {
     this.scale(Math.min(width / this._width, height / this._height));
