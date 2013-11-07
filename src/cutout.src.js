@@ -82,34 +82,40 @@ Cutout.prototype.traverse = function(callback, reverse) {
 };
 
 Cutout.prototype.render = function(context) {
+  this.traverseValidate();
+  this.traversePaint(context);
+};
 
-  // validate
-  this.traverse(function(children) {
-    if (!this._visible) {
-      return;
-    }
-    this.validateDown();
-    children();
-    this.validateUp();
-  });
+Cutout.prototype.traversePaint = function(context) {
+  if (!this._visible) {
+    return;
+  }
 
-  // paint
-  this.traverse(function(children) {
-    if (!this._visible) {
-      return;
-    }
+  context.save();
 
-    context.save();
+  var m = this.matrix();
+  context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
-    var m = this.matrix();
-    context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
+  this.paint(context);
 
-    this.paint(context);
+  var length = this._children.length;
+  for ( var i = 0; i < length; i++) {
+    this._children[i].traversePaint(context);
+  }
 
-    children();
+  context.restore();
+};
 
-    context.restore();
-  });
+Cutout.prototype.traverseValidate = function() {
+  if (!this._visible) {
+    return;
+  }
+  this.validateDown();
+  var length = this._children.length;
+  for ( var i = 0; i < length; i++) {
+    this._children[i].traverseValidate();
+  }
+  this.validateUp();
 };
 
 Cutout.prototype.paint = function(context) {
