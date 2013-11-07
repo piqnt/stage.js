@@ -47,10 +47,10 @@ Game.prototype.addboxes = function() {
   var last = null;
   var column = C.column().appendTo(this).align(C.align.center);
   for ( var j = 0; j < 9; j++) {
-    var row = C.row().appendTo(column);
+    var row = C.row(j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
       // colors as frames
-      var box = C.anim("boxes", "box_").id(i).appendTo(row);
+      var box = C.anim("boxes", "box_").id(j + "-" + i).appendTo(row);
 
       box.attr(Mouse.ON_MOVE, function(ev, point) {
         if (this !== last) {

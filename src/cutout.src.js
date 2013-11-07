@@ -41,8 +41,18 @@ function Cutout() {
   this._offsetX = 0;
   this._offsetY = 0;
 
-  this._matrix = new Cutout.Matrix();
+  // relative to parent
+  this._relativeMatrix = new Cutout.Matrix();
 
+  // relative to root
+  this._absoluteMatrix = new Cutout.Matrix();
+  this._absoluteMatrix._time = 0;
+  this._absoluteMatrix._parentTime = -1;
+
+  // not translation
+  this._boxMatrix = new Cutout.Matrix();
+  this._boxX = 0;
+  this._boxY = 0;
   this._boxWidth = this._width;
   this._boxHeight = this._height;
 
@@ -93,8 +103,9 @@ Cutout.prototype.traversePaint = function(context) {
 
   context.save();
 
-  var m = this.matrix();
-  context.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
+  var m = this.absoluteMatrix();
+
+  context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
   this.paint(context);
 
@@ -103,7 +114,7 @@ Cutout.prototype.traversePaint = function(context) {
     this._children[i].traversePaint(context);
   }
 
-  context.restore();
+  // context.restore();
 };
 
 Cutout.prototype.traverseValidate = function() {
@@ -132,68 +143,98 @@ Cutout.prototype.validateDown = function() {
 Cutout.prototype.validateUp = function() {
 };
 
-Cutout.prototype.matrix = function() {
-  if (this._transformed) {
-    this._transformed = false;
+Cutout.prototype.absoluteMatrix = function() {
 
-    var m = this._matrix;
+  var m = this._absoluteMatrix;
 
-    this._matrix.identity();
-
-    if (this._pivotX !== null && this._pivotY != null) {
-      // pivot
-      this._matrix.translate(-this._pivotX * this._width, -this._pivotY
-          * this._height);
+  if (this._parent) {
+    if (this._transformed
+        || this._parent._absoluteMatrix._time !== m._parentTime) {
+      m.copyFrom(this.relativeMatrix()).concat(this._parent._absoluteMatrix);
+      m._parentTime = this._parent._absoluteMatrix._time;
+      m._time += 1;
     }
-
-    this._matrix.scale(this._scaleX, this._scaleY);
-    this._matrix.rotate(this._rotation);
-    this._matrix.skew(this._skewX, this._skewX);
-
-    if (this._pivotX !== null && this._pivotY != null) {
-      // pivot
-      this._matrix.translate(this._pivotX * this._width, this._pivotY
-          * this._height);
-
-      this._boxWidth = this._width;
-      this._boxHeight = this._height;
-
-    } else {
-      // box
-      var x = this._width;
-      var y = this._height;
-      var x00 = 0;
-      var x01 = m.a * x;
-      var x10 = m.c * y;
-      var x11 = m.a * x + m.c * y;
-      var xMin = Math.min(x00, x01, x10, x11);
-      var xMax = Math.max(x00, x01, x10, x11);
-
-      var y00 = 0;
-      var y01 = m.b * x;
-      var y10 = m.d * y;
-      var y11 = m.b * x + m.d * y;
-      var yMin = Math.min(y00, y01, y10, y11);
-      var yMax = Math.max(y00, y01, y10, y11);
-
-      this._boxWidth = xMax - xMin;
-      this._boxHeight = yMax - yMin;
-
-      this._matrix.translate(-xMin, -yMin);
+  } else {
+    if (this._transformed) {
+      m.copyFrom(this.relativeMatrix());
+      m._time += 1;
     }
-
-    this._matrix.translate(-this._inH * this._boxWidth, -this._inV
-        * this._boxHeight);
-
-    var x = this._offsetX;
-    var y = this._offsetY;
-    if (this._parent) {
-      this._outH && (x += this._outH * this._parent._width);
-      this._outV && (y += this._outV * this._parent._height);
-    }
-    this._matrix.translate(x, y);
   }
-  return this._matrix;
+  return m;
+};
+Cutout.prototype.relativeMatrix = function() {
+  if (!this._transformed) {
+    return this._relativeMatrix;
+  }
+  this._transformed = false;
+
+  var m = this._relativeMatrix;
+
+  m.identity();
+  if (this._pivotX !== null && this._pivotY !== null) {
+    m.translate(-this._pivotX * this._width, -this._pivotY * this._height);
+  }
+  m.scale(this._scaleX, this._scaleY);
+  m.rotate(this._rotation);
+  m.skew(this._skewX, this._skewX);
+  if (this._pivotX !== null && this._pivotY !== null) {
+    m.translate(this._pivotX * this._width, this._pivotY * this._height);
+  }
+
+  this.boxMatrix(true);
+
+  var x = this._offsetX - this._boxX - this._inH * this._boxWidth;
+  var y = this._offsetY - this._boxY - this._inV * this._boxHeight;
+
+  if (this._parent) {
+    this._outH && (x += this._outH * this._parent._width);
+    this._outV && (y += this._outV * this._parent._height);
+  }
+
+  m.translate(x, y);
+
+  return m;
+};
+
+Cutout.prototype.boxMatrix = function(force) {
+  if (!force && !this._transformed) {
+    return;
+  }
+
+  if (this._pivotX !== null && this._pivotY != null) {
+    this._boxX = 0;
+    this._boxY = 0;
+    this._boxWidth = this._width;
+    this._boxHeight = this._height;
+    return;
+  }
+
+  var m = this._boxMatrix;
+  m.identity();
+  m.scale(this._scaleX, this._scaleY);
+  m.rotate(this._rotation);
+  m.skew(this._skewX, this._skewX);
+
+  var x = this._width;
+  var y = this._height;
+  var x00 = 0;
+  var x01 = m.a * x;
+  var x10 = m.c * y;
+  var x11 = m.a * x + m.c * y;
+  var xMin = Math.min(x00, x01, x10, x11);
+  var xMax = Math.max(x00, x01, x10, x11);
+
+  var y00 = 0;
+  var y01 = m.b * x;
+  var y10 = m.d * y;
+  var y11 = m.b * x + m.d * y;
+  var yMin = Math.min(y00, y01, y10, y11);
+  var yMax = Math.max(y00, y01, y10, y11);
+
+  this._boxX = xMin;
+  this._boxY = yMin;
+  this._boxWidth = xMax - xMin;
+  this._boxHeight = yMax - yMin;
 };
 
 Cutout.prototype.toString = function() {
@@ -308,7 +349,7 @@ Cutout.prototype.show = function() {
 
 Cutout.prototype.publish = function(name, event, point) {
   if (point) {
-    point = this.matrix().reverse().map(point);
+    point = this.relativeMatrix().reverse().map(point);
 
     if (!this.spy && !this.isInside(point)) {
       return;
@@ -885,12 +926,15 @@ Cutout.String.prototype.setValue = function(value) {
   if (!value.length) {
     value = value + "";
   }
+  var oldwidth = this._width;
   this._width = 0;
   for ( var i = 0; i < Math.max(this._children.length, value.length); i++) {
     var digit = i < this._children.length ? this._children[i] : Cutout.anim(
         this.texture, this.prefix).appendTo(this);
 
+    // TODO: only call on changed
     digit.offset(this._width, null);
+
     if (i < value.length) {
       digit.setValue(value[i]).show();
       this._width += digit._width;
@@ -899,8 +943,9 @@ Cutout.String.prototype.setValue = function(value) {
       digit.hide();
     }
   }
-
-  this.postNotif(Cutout.notif.size);
+  if (oldwidth !== this._width || oldheight !== this._height) {
+    this.postNotif(Cutout.notif.size);
+  }
   return this;
 };
 
@@ -914,23 +959,30 @@ Cutout.row = function(valign) {
       return;
     }
 
+    var oldwidth = this._width;
+    var oldheight = this._height;
+
     this._width = 0;
     this._height = 0;
 
     for ( var i = 0; i < this._children.length; i++) {
       var child = this._children[i];
+
+      // TODO: only call on changed
       child.align(null, valign);
       child.offset(this._width, null);
+
       if (child._visible) {
-        child.matrix();
-        child._transformed = true;
+        child.boxMatrix();
         this._width += child._boxWidth;
       }
-
       this._height = Math.max(this._height, child._boxHeight);
     }
 
-    this.postNotif(Cutout.notif.size);
+    if (oldwidth !== this._width || oldheight !== this._height) {
+      this.postNotif(Cutout.notif.size);
+    }
+
     return this;
   };
   return co;
@@ -945,22 +997,30 @@ Cutout.column = function(halign) {
       return;
     }
 
+    var oldwidth = this._width;
+    var oldheight = this._height;
+
     this._width = 0;
     this._height = 0;
 
     for ( var i = 0; i < this._children.length; i++) {
       var child = this._children[i];
+
+      // TODO: only call on changed
       child.align(halign, null);
       child.offset(null, this._height);
+
       if (child._visible) {
-        child.matrix();
-        child._transformed = true;
+        child.boxMatrix();
         this._height += child._boxHeight;
       }
       this._width = Math.max(this._width, child._boxWidth);
     }
 
-    this.postNotif(Cutout.notif.size);
+    if (oldwidth !== this._width || oldheight !== this._height) {
+      this.postNotif(Cutout.notif.size);
+    }
+
     return this;
   };
   return co;
