@@ -52,7 +52,7 @@ function Cutout() {
   this._absoluteMatrix._time = 0;
   this._absoluteMatrix._parentTime = -1;
 
-  // not translation
+  // no-translation
   this._boxMatrix = new Cutout.Matrix();
   this._boxX = 0;
   this._boxY = 0;
@@ -65,6 +65,9 @@ function Cutout() {
   this._parent = null;
 
   this._notifs = {};
+
+  this._tickersCapture = [];
+  this._tickersBubble = [];
 };
 
 Cutout.prototype.attr = function(name, value) {
@@ -95,8 +98,37 @@ Cutout.prototype.traverse = function(callback, reverse) {
 };
 
 Cutout.prototype.render = function(context) {
-  this.traverseValidate();
+  this.tick();
   this.traversePaint(context);
+};
+
+Cutout.prototype.tick = function() {
+  if (!this._visible) {
+    return;
+  }
+
+  var length = this._tickersCapture.length;
+  for ( var i = 0; i < length; i++) {
+    this._tickersCapture[i].call(this);
+  }
+
+  var length = this._children.length;
+  for ( var i = 0; i < length; i++) {
+    this._children[i].tick();
+  }
+
+  var length = this._tickersBubble.length;
+  for ( var i = 0; i < length; i++) {
+    this._tickersBubble[i].call(this);
+  }
+};
+
+Cutout.prototype.addTicker = function(ticker, capture) {
+  if (capture) {
+    this._tickersCapture.push(ticker);
+  } else {
+    this._tickersBubble.push(ticker);
+  }
 };
 
 Cutout.prototype.traversePaint = function(context) {
@@ -117,44 +149,18 @@ Cutout.prototype.traversePaint = function(context) {
     this._children[i].traversePaint(context);
   }
 
-  // context.restore();
-};
-
-Cutout.prototype.traverseValidate = function() {
-  if (!this._visible) {
-    return;
-  }
-  this.validateDown();
-  var length = this._children.length;
-  for ( var i = 0; i < length; i++) {
-    this._children[i].traverseValidate();
-  }
-  this.validateUp();
 };
 
 Cutout.prototype.paint = function(context) {
 };
 
-Cutout.prototype.validateDown = function() {
-  if (this._aligned
-      && this.clearNotif(Cutout.notif.size, Cutout.notif.parent,
-          Cutout.notif.parent_size)) {
-    this._transformed = true;
-  }
-};
-
-Cutout.prototype.validateUp = function() {
-};
-
 Cutout.prototype.absoluteMatrix = function() {
-
   var m = this._absoluteMatrix;
-
   if (this._parent) {
-    if (this._transformed
-        || this._parent._absoluteMatrix._time !== m._parentTime) {
-      m.copyFrom(this.relativeMatrix()).concat(this._parent._absoluteMatrix);
-      m._parentTime = this._parent._absoluteMatrix._time;
+    var pm = this._parent._absoluteMatrix;
+    if (this._transformed || pm._time !== m._parentTime) {
+      m.copyFrom(this.relativeMatrix()).concat(pm);
+      m._parentTime = pm._time;
       m._time += 1;
     }
   } else {
@@ -480,7 +486,15 @@ Cutout.prototype.align = function(outH, outV, inH, inV) {
   CutoutUtils.isNum(inH) && (this._inH = inH / 2 + 0.5);
   CutoutUtils.isNum(inV) && (this._inV = inV / 2 + 0.5);
 
-  this._aligned = true;
+  this.addTicker(function() {
+    if (this._aligned
+        && this.clearNotif(Cutout.notif.size, Cutout.notif.parent,
+            Cutout.notif.parent_size)) {
+      this._transformed = true;
+    }
+  }, true);
+
+  this._aligned = !!(this._outH || this._outV || this._inH || this._inV);
   this._transformed = true;
   return this;
 };
@@ -956,11 +970,12 @@ Cutout.String.prototype.setValue = function(value) {
 };
 
 Cutout.row = function(valign) {
-  var co = new Cutout();
-  co.spy = true;
-  co.validateUp = function() {
-    Cutout.prototype.validateUp.call(this);
+  return new Cutout().row(valign);
+};
 
+Cutout.prototype.row = function(valign) {
+  this.spy = true;
+  this.addTicker(function() {
     if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
       return;
     }
@@ -988,17 +1003,17 @@ Cutout.row = function(valign) {
     if (oldwidth !== this._width || oldheight !== this._height) {
       this.postNotif(Cutout.notif.size);
     }
-
-    return this;
-  };
-  return co;
+  }, false);
+  return this;
 };
 
 Cutout.column = function(halign) {
-  var co = new Cutout();
-  co.spy = true;
-  co.validateUp = function() {
-    Cutout.prototype.validateUp.call(this);
+  return new Cutout().column(halign);
+};
+
+Cutout.prototype.column = function(halign) {
+  this.spy = true;
+  this.addTicker(function() {
     if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
       return;
     }
@@ -1026,10 +1041,8 @@ Cutout.column = function(halign) {
     if (oldwidth !== this._width || oldheight !== this._height) {
       this.postNotif(Cutout.notif.size);
     }
-
-    return this;
-  };
-  return co;
+  }, false);
+  return this;
 };
 
 // Utilities
