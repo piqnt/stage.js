@@ -1,3 +1,6 @@
+if (typeof DEBUG === 'undefined')
+  DEBUG = true;
+
 var Mouse = {
   x : 0,
   y : 0,
@@ -56,7 +59,7 @@ Mouse.listen = function(listener, move) {
   mouseStart = function(event) {
     try {
       Mouse.get(event);
-      console.log("Mouse Start: " + Mouse.x + "x" + Mouse.y);
+      DEBUG && console.log("Mouse Start: " + Mouse.x + "x" + Mouse.y);
       !move && document.addEventListener("touchmove", mouseMove);
       !move && document.addEventListener("mousemove", mouseMove);
       event.preventDefault();
@@ -75,14 +78,14 @@ Mouse.listen = function(listener, move) {
   mouseEnd = function(event) {
     try {
       // Mouse.get(event); Invalid, last Mouse is used instead!
-      console.log("Mouse End: " + Mouse.x + "x" + Mouse.y);
+      DEBUG && console.log("Mouse End: " + Mouse.x + "x" + Mouse.y);
       !move && document.removeEventListener("touchmove", mouseMove);
       !move && document.removeEventListener("mousemove", mouseMove);
       event.preventDefault();
       this.publish(Mouse.ON_END, event, Mouse);
 
       if (start && start.x == Mouse.x && start.y == Mouse.y) {
-        console.log("+Mouse Click: " + Mouse.x + "x" + Mouse.y);
+        DEBUG && console.log("+Mouse Click");
         this.publish(Mouse.ON_CLICK, event, Mouse);
         click = start;
       }
@@ -95,7 +98,7 @@ Mouse.listen = function(listener, move) {
   mouseMove = function(event) {
     try {
       Mouse.get(event);
-      // console.log("Mouse Move: " + Mouse.x + "x" + Mouse.y);
+      // DEBUG && console.log("Mouse Move: " + Mouse.x + "x" + Mouse.y);
       event.preventDefault();
       this.publish(Mouse.ON_MOVE, event, Mouse);
     } catch (e) {
@@ -105,11 +108,13 @@ Mouse.listen = function(listener, move) {
 
   mouseClick = function(event) {
     try {
-      console.log("Mouse Click: " + Mouse.x + "x" + Mouse.y);
+      DEBUG && console.log("Mouse Click: " + Mouse.x + "x" + Mouse.y);
       Mouse.get(event);
       event.preventDefault();
       if (!click) {
         this.publish(Mouse.ON_CLICK, event, Mouse);
+      } else {
+        DEBUG && console.log("-Mouse Click");
       }
     } catch (e) {
       console.log(e);

@@ -17,6 +17,9 @@
  under the License.
  */
 
+if (typeof DEBUG === 'undefined')
+  DEBUG = true;
+
 function Cutout() {
   this._id = "";
 
@@ -162,6 +165,7 @@ Cutout.prototype.absoluteMatrix = function() {
   }
   return m;
 };
+
 Cutout.prototype.relativeMatrix = function() {
   if (!this._transformed) {
     return this._relativeMatrix;
@@ -514,12 +518,12 @@ Cutout.images = {};
 Cutout.loadImages = function(imageLoader, completeCallback) {
   var imageCount = 0;
   var handleComplete = function() {
-    console.log("Loading image completed.");
+    DEBUG && console.log("Loading image completed.");
     checkComplete();
   };
 
   var handleError = function(msg) {
-    console.log("Error loading image: " + msg);
+    DEBUG && console.log("Error loading image: " + msg);
     checkComplete();
   };
 
@@ -927,6 +931,8 @@ Cutout.String.prototype.setValue = function(value) {
     value = value + "";
   }
   var oldwidth = this._width;
+  var oldheight = this._height;
+
   this._width = 0;
   for ( var i = 0; i < Math.max(this._children.length, value.length); i++) {
     var digit = i < this._children.length ? this._children[i] : Cutout.anim(
