@@ -5,6 +5,9 @@ var Mouse = {
   x : 0,
   y : 0,
 };
+Mouse.toString = function() {
+  return x + "x" + y;
+};
 
 Mouse.ON_CLICK = "handleMouseClick";
 Mouse.ON_END = "handleMouseEnd";
@@ -59,7 +62,7 @@ Mouse.listen = function(listener, move) {
   mouseStart = function(event) {
     try {
       Mouse.get(event);
-      DEBUG && console.log("Mouse Start: " + Mouse.x + "x" + Mouse.y);
+      DEBUG && console.log("Mouse Start: " + Mouse);
       !move && document.addEventListener("touchmove", mouseMove);
       !move && document.addEventListener("mousemove", mouseMove);
       event.preventDefault();
@@ -78,7 +81,7 @@ Mouse.listen = function(listener, move) {
   mouseEnd = function(event) {
     try {
       // Mouse.get(event); Invalid, last Mouse is used instead!
-      DEBUG && console.log("Mouse End: " + Mouse.x + "x" + Mouse.y);
+      DEBUG && console.log("Mouse End: " + Mouse);
       !move && document.removeEventListener("touchmove", mouseMove);
       !move && document.removeEventListener("mousemove", mouseMove);
       event.preventDefault();
@@ -108,7 +111,7 @@ Mouse.listen = function(listener, move) {
 
   mouseClick = function(event) {
     try {
-      DEBUG && console.log("Mouse Click: " + Mouse.x + "x" + Mouse.y);
+      DEBUG && console.log("Mouse Click: " + Mouse);
       Mouse.get(event);
       event.preventDefault();
       if (!click) {
