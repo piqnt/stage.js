@@ -5,8 +5,9 @@ var Mouse = {
   x : 0,
   y : 0,
 };
+
 Mouse.toString = function() {
-  return x + "x" + y;
+  return this.x + "x" + this.y;
 };
 
 Mouse.ON_CLICK = "handleMouseClick";
