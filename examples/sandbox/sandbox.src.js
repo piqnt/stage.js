@@ -16,7 +16,7 @@ function Game(canvas) {
 }
 
 // game is a cutout
-Game.prototype = new Cutout();
+Game.prototype = new Cutout(true);
 Game.prototype._super = Cutout;
 Game.prototype.constructor = Game;
 
@@ -50,7 +50,7 @@ Game.prototype.addboxes = function() {
     var row = C.row(j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
       // colors as frames
-      var box = C.anim("boxes", "box_").id(j + "-" + i).appendTo(row);
+      var box = C.anim("boxes:box_").id(j + "-" + i).appendTo(row);
 
       box.attr(Mouse.ON_MOVE, function(ev, point) {
         if (this !== last) {
