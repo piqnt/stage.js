@@ -83,33 +83,6 @@ function Cutout(prototype) {
   this._tickersBubble = [];
 };
 
-Cutout.prototype.attr = function(name, value) {
-  if (typeof value === "undefined") {
-    return this[name];
-  } else {
-    this[name] = value;
-    return this;
-  }
-};
-
-Cutout.prototype.id = function(id) {
-  if (typeof id === "undefined") {
-    return this._id;
-  } else {
-    this._id = id;
-    return this;
-  }
-};
-
-Cutout.prototype.traverse = function(callback, reverse) {
-  callback.call(this, function() {
-    var length = this._children.length;
-    for ( var i = 0; i < length; i++) {
-      this._children[reverse ? length - 1 - i : i].traverse(callback);
-    }
-  }.bind(this));
-};
-
 Cutout.prototype.render = function(context) {
   this.tick();
   this.traversePaint(context);
@@ -165,6 +138,7 @@ Cutout.prototype.traversePaint = function(context) {
 };
 
 Cutout.prototype.paint = function(context) {
+  // To be extended by subclasses.
 };
 
 Cutout.prototype.absoluteMatrix = function() {
@@ -260,11 +234,95 @@ Cutout.prototype.boxMatrix = function(force) {
   this._boxHeight = yMax - yMin;
 };
 
+Cutout.prototype.id = function(id) {
+  if (typeof id === "undefined") {
+    return this._id;
+  } else {
+    this._id = id;
+    return this;
+  }
+};
+Cutout.prototype.attr = function(name, value) {
+  if (typeof value === "undefined") {
+    return this[name];
+  } else {
+    this[name] = value;
+    return this;
+  }
+};
+
 Cutout.prototype.toString = function() {
   return "[" + this._id + ": " + this._width + "x" + this._height + " scale("
       + this._scaleX + ", " + this._scaleY + ") rotate(" + this._rotation
       + ") skew(" + this._skewX + ", " + this._skewX + ") " + this._boxWidth
       + "x" + this._boxHeight + "]";
+};
+
+Cutout.prototype.children = function(i) {
+  if (typeof i === "undefined") {
+    return this._children;
+  } else {
+    return this._children[i];
+  }
+};
+
+Cutout.prototype.append = function() {
+  for ( var i = 0; i < arguments.length; i++) {
+    var child = arguments[i];
+    child.remove();
+    this._children.push(child);
+    child._parent = this;
+    child.postNotif(Cutout.notif.parent);
+  }
+
+  this.postNotif(Cutout.notif.children);
+  return this;
+};
+
+Cutout.prototype.appendTo = function(parent) {
+  parent.append(this);
+  return this;
+};
+
+Cutout.prototype.prepend = function() {
+  for ( var i = arguments.length - 1; i >= 0; i--) {
+    var child = arguments[i];
+    child.remove();
+    this._children.unshift(child);
+    child._parent = this;
+    child.postNotif(Cutout.notif.parent);
+  }
+
+  this.postNotif(Cutout.notif.children);
+  return this;
+};
+
+Cutout.prototype.prependTo = function(parent) {
+  parent.prepend(this);
+  return this;
+};
+
+Cutout.prototype.removeChild = function(child) {
+  var index = this._children.indexOf(child);
+  if (index > -1) {
+    this._children.splice(index, 1);
+    child._parent = null;
+  }
+  this.postNotif(Cutout.notif.children);
+};
+
+Cutout.prototype.remove = function() {
+  this._parent && this._parent.removeChild(this);
+  return this;
+};
+
+Cutout.prototype.empty = function() {
+  var children = this._children.splice(0);
+  for ( var i = 0; i < children.length; i++) {
+    children[i]._parent = null;
+  }
+  this.postNotif(Cutout.notif.children);
+  return this;
 };
 
 Cutout.prototype.postNotif = function(name) {
@@ -289,92 +347,12 @@ Cutout.prototype.clearNotif = function() {
   return found;
 };
 
-Cutout.prototype.children = function(i) {
-  if (typeof i === "undefined") {
-    return this._children;
-  } else {
-    return this._children[i];
-  }
-};
-
-Cutout.prototype.append = function() {
-  for ( var i = 0; i < arguments.length; i++) {
-    var child = arguments[i];
-    child.remove();
-    this._children.push(child);
-    child._parent = this;
-    child.postNotif(Cutout.notif.parent);
-  }
-
-  this.postNotif(Cutout.notif.children);
-  return this;
-};
-
-Cutout.prototype.prepend = function() {
-  for ( var i = arguments.length - 1; i >= 0; i--) {
-    var child = arguments[i];
-    child.remove();
-    this._children.unshift(child);
-    child._parent = this;
-    child.postNotif(Cutout.notif.parent);
-  }
-
-  this.postNotif(Cutout.notif.children);
-  return this;
-};
-
-Cutout.prototype.removeChild = function(child) {
-  var index = this._children.indexOf(child);
-  if (index > -1) {
-    this._children.splice(index, 1);
-    child._parent = null;
-  }
-  this.postNotif(Cutout.notif.children);
-};
-
-Cutout.prototype.empty = function() {
-  var children = this._children.splice(0);
-  for ( var i = 0; i < children.length; i++) {
-    children[i]._parent = null;
-  }
-  this.postNotif(Cutout.notif.children);
-  return this;
-};
-
-Cutout.prototype.appendTo = function(parent) {
-  parent.append(this);
-  return this;
-};
-
-Cutout.prototype.prependTo = function(parent) {
-  parent.prepend(this);
-  return this;
-};
-
-Cutout.prototype.remove = function() {
-  this._parent && this._parent.removeChild(this);
-  return this;
-};
-
-Cutout.prototype.hide = function() {
-  this._visible = false;
-
-  this.postNotif(Cutout.notif.size);
-  return this;
-};
-
-Cutout.prototype.show = function() {
-  this._visible = true;
-
-  this.postNotif(Cutout.notif.size);
-  return this;
-};
-
 Cutout.prototype.publish = function(name, event, point) {
   if (point) {
     point = this.relativeMatrix().reverse().map(point);
 
-    if (!this._spy && !this.isInside(point)) {
+    if (!this._spy
+        && !(point.x >= 0 && point.x <= this._width && point.y >= 0 && point.y <= this._height)) {
       return;
     }
   }
@@ -403,8 +381,18 @@ Cutout.prototype.spy = function(spy) {
   return this;
 };
 
-Cutout.prototype.isInside = function(p) {
-  return p.x >= 0 && p.x <= this._width && p.y >= 0 && p.y <= this._height;
+Cutout.prototype.hide = function() {
+  this._visible = false;
+
+  this.postNotif(Cutout.notif.size);
+  return this;
+};
+
+Cutout.prototype.show = function() {
+  this._visible = true;
+
+  this.postNotif(Cutout.notif.size);
+  return this;
 };
 
 Cutout.prototype.size = function(x, y) {
@@ -581,28 +569,20 @@ Cutout.prototype.centerY = function(y) {
       : this._centerY;
 };
 
-Cutout.image = function(name) {
-  return new Cutout.Image(name);
+Cutout.image = function(selector) {
+  return new Cutout.Image().setImage(selector);
 };
 
-Cutout.Image = function(name) {
-  Cutout.Image.prototype._super.call(this);
-
-  if (!arguments.length || !name) {
-    return;
-  }
-
-  this.name = name;
-  this.setImage(Cutout.byName(name));
+Cutout.Image = function() {
+  Cutout.Image.prototype._super.apply(this, arguments);
 };
 
 Cutout.Image.prototype = new Cutout(true);
 Cutout.Image.prototype._super = Cutout;
 Cutout.Image.prototype.constructor = Cutout.Image;
 
-Cutout.Image.prototype.setImage = function(cut) {
-  cut = Cutout.byName(cut);
-
+Cutout.Image.prototype.setImage = function(selector) {
+  var cut = Cutout.byName(selector);
   this._cut = cut;
   if (this._cut) {
     this.size(this._cut.width(), this._cut.height());
@@ -612,16 +592,28 @@ Cutout.Image.prototype.setImage = function(cut) {
   return this;
 };
 
+Cutout.Image.prototype.cropX = function(w, x) {
+  return this.setImage(this._cut.cropX(w, x));
+};
+
+Cutout.Image.prototype.cropY = function(h, y) {
+  return this.setImage(this._cut.cropY(h, y));
+};
+
 Cutout.Image.prototype.paint = function(context) {
   this._cut && this._cut.paint(context);
 };
 
-Cutout.anim = function(prefix, fps) {
-  return new Cutout.Anim(prefix).gotoFrame(0).fps(fps);
+Cutout.anim = function(selector, fps) {
+  var anim = new Cutout.Anim().setFrames(selector).gotoFrame(0);
+  if (typeof fps !== "undefined") {
+    anim.fps(fps);
+  }
+  return anim;
 };
 
-Cutout.Anim = function(prefix) {
-  Cutout.Anim.prototype._super.call(this);
+Cutout.Anim = function() {
+  Cutout.Anim.prototype._super.apply(this, arguments);
 
   this._startTime = null;
   this._fps = null;
@@ -629,12 +621,6 @@ Cutout.Anim = function(prefix) {
   this._frame = 0;
   this._frames = [];
   this._labels = {};
-
-  if (!arguments.length)
-    return;
-
-  this.prefix = prefix;
-  this.setFrames(Cutout.byPrefix(prefix));
 };
 
 Cutout.Anim.prototype = new Cutout(true);
@@ -642,12 +628,16 @@ Cutout.Anim.prototype._super = Cutout;
 Cutout.Anim.prototype.constructor = Cutout.Anim;
 
 Cutout.Anim.prototype.fps = function(fps) {
-  this._fps = fps;
-  return this;
+  if (typeof fps === "undefined") {
+    return this._fps;
+  } else {
+    this._fps = fps;
+    return this;
+  }
 };
 
-Cutout.Anim.prototype.setFrames = function(cuts) {
-  cuts = Cutout.byPrefix(cuts);
+Cutout.Anim.prototype.setFrames = function(selector) {
+  var cuts = Cutout.byPrefix(selector);
   if (cuts && cuts.length) {
     for ( var i = 0; i < cuts.length; i++) {
       var cut = cuts[i];
@@ -672,19 +662,12 @@ Cutout.Anim.prototype.randomFrame = function() {
   this.gotoFrame(Math.floor(Math.random() * this._frames.length));
 };
 
-Cutout.Anim.prototype.forwardFrame = function(frame) {
+Cutout.Anim.prototype.moveFrame = function(frame) {
   this.gotoFrame(this._frame + frame);
 };
 
-Cutout.Anim.prototype.backwardFrame = function(frame) {
-  this.gotoFrame(this._frame - frame);
-};
-
-Cutout.Anim.prototype.gotoLabel = function(name, addprefix) {
-  if (addprefix) {
-    name = this.prefix + name;
-  }
-  return this.gotoFrame(this._labels[name] || 0);
+Cutout.Anim.prototype.gotoLabel = function(label) {
+  return this.gotoFrame(this._labels[label] || 0);
 };
 
 Cutout.Anim.prototype.play = function(reset) {
@@ -709,22 +692,24 @@ Cutout.Anim.prototype.paint = function(context) {
   this._cut && this._cut.paint(context);
 };
 
-Cutout.string = function(prefix) {
-  return new Cutout.String(prefix);
+Cutout.string = function(selector) {
+  return new Cutout.String().setPrefix(selector);
 };
 
-Cutout.String = function(prefix) {
-  Cutout.String.prototype._super.call(this);
-
-  if (!arguments.length)
-    return;
-
-  this.prefix = prefix;
+Cutout.String = function() {
+  Cutout.String.prototype._super.apply(this, arguments);
 };
 
 Cutout.String.prototype = new Cutout(true);
 Cutout.String.prototype._super = Cutout;
 Cutout.String.prototype.constructor = Cutout.String;
+
+Cutout.String.prototype.setPrefix = function(selector) {
+  this.selector = selector;
+  selector = selector.split(":", 2);
+  this.prefix = selector.length > 1 ? selector[1] : selector[0];
+  return this;
+};
 
 Cutout.String.prototype.setValue = function(value) {
   if (!value.length) {
@@ -736,13 +721,14 @@ Cutout.String.prototype.setValue = function(value) {
   this._width = 0;
   for ( var i = 0; i < Math.max(this._children.length, value.length); i++) {
     var digit = i < this._children.length ? this._children[i] : Cutout.anim(
-        this.prefix).appendTo(this);
+        this.selector).appendTo(this);
 
     // TODO: only call on changed
     digit.offset(this._width, null);
 
     if (i < value.length) {
-      digit.gotoLabel(value[i], true).postNotif(Cutout.notif.size).show();
+      digit.gotoLabel(this.prefix + value[i]).show().postNotif(
+          Cutout.notif.size);
       this._width += digit._width;
       this._height = digit._height;
     } else {
