@@ -37,6 +37,7 @@ function Cutout(prototype) {
   this._rotation = 0;
 
   // scale/skew/rotate center
+  this._pivoted = false;
   this._pivotX = null;
   this._pivotY = null;
 
@@ -45,9 +46,9 @@ function Cutout(prototype) {
   this._alignY = 0;
 
   // positioning center
-  this._centered = false;
-  this._centerX = 0;
-  this._centerY = 0;
+  this._handled = false;
+  this._handleX = 0;
+  this._handleY = 0;
 
   // as seen by parent
   this._offsetX = 0;
@@ -168,20 +169,20 @@ Cutout.prototype.relativeMatrix = function() {
   var m = this._relativeMatrix;
 
   m.identity();
-  if (this._pivotX !== null && this._pivotY !== null) {
+  if (this._pivoted) {
     m.translate(-this._pivotX * this._width, -this._pivotY * this._height);
   }
   m.scale(this._scaleX, this._scaleY);
   m.rotate(this._rotation);
   m.skew(this._skewX, this._skewX);
-  if (this._pivotX !== null && this._pivotY !== null) {
+  if (this._pivoted) {
     m.translate(this._pivotX * this._width, this._pivotY * this._height);
   }
 
   this.boxMatrix(true);
 
-  var x = this._offsetX - this._boxX - this._centerX * this._boxWidth;
-  var y = this._offsetY - this._boxY - this._centerY * this._boxHeight;
+  var x = this._offsetX - this._boxX - this._handleX * this._boxWidth;
+  var y = this._offsetY - this._boxY - this._handleY * this._boxHeight;
 
   if (this._parent) {
     this._alignX && (x += this._alignX * this._parent._width);
@@ -198,7 +199,7 @@ Cutout.prototype.boxMatrix = function(force) {
     return;
   }
 
-  if (this._pivotX !== null && this._pivotY != null) {
+  if (this._pivoted) {
     this._boxX = 0;
     this._boxY = 0;
     this._boxWidth = this._width;
@@ -498,6 +499,9 @@ Cutout.prototype.pivot = function(x, y) {
   this._pivotX = CutoutUtils.isNum(x) ? (x / 2 + 0.5) : x;
   this._pivotY = CutoutUtils.isNum(y) ? (y / 2 + 0.5) : y;
 
+  this._pivoted = CutoutUtils.isNum(this._pivotX)
+      && CutoutUtils.isNum(this._pivotY);
+
   this._transformed = true;
   return this;
 };
@@ -525,7 +529,7 @@ Cutout.prototype.align = function(x, y, cx, cy) {
 
   this._aligned = !!(this._alignX || this._alignY);
 
-  this.center(typeof cx !== "undefined" ? cx : x,
+  this.handle(typeof cx !== "undefined" ? cx : x,
       typeof cy !== "undefined" ? cy : y);
 
   this._transformed = true;
@@ -534,39 +538,39 @@ Cutout.prototype.align = function(x, y, cx, cy) {
 
 Cutout.prototype.alignX = function(x, cx) {
   return typeof x !== "undefined" ? this.align(x, this._alignY, cx,
-      this._centerY) : this._alignX;
+      this._handleY) : this._alignX;
 };
 
 Cutout.prototype.alignY = function(y, cy) {
-  return typeof y !== "undefined" ? this.align(this._alignX, y, this._centerX,
+  return typeof y !== "undefined" ? this.align(this._alignX, y, this._handleX,
       cy) : this._alignY;
 };
 
-Cutout.prototype.center = function(x, y) {
+Cutout.prototype.handle = function(x, y) {
   y = typeof y !== "undefined" ? y : x;
 
-  CutoutUtils.isNum(x) && (this._centerX = x / 2 + 0.5);
-  CutoutUtils.isNum(y) && (this._centerY = y / 2 + 0.5);
+  CutoutUtils.isNum(x) && (this._handleX = x / 2 + 0.5);
+  CutoutUtils.isNum(y) && (this._handleY = y / 2 + 0.5);
 
   this.addTicker(function() {
-    if (this._centered && this.clearNotif(Cutout.notif.size)) {
+    if (this._handled && this.clearNotif(Cutout.notif.size)) {
       this._transformed = true;
     }
   }, true);
 
-  this._centered = !!(this._centerX || this._centerY);
+  this._handled = !!(this._handleX || this._handleY);
   this._transformed = true;
   return this;
 };
 
-Cutout.prototype.centerX = function(x) {
-  return typeof x !== "undefined" ? this.center(x, this._centerY)
-      : this._centerX;
+Cutout.prototype.handleX = function(x) {
+  return typeof x !== "undefined" ? this.handle(x, this._handleY)
+      : this._handleX;
 };
 
-Cutout.prototype.centerY = function(y) {
-  return typeof y !== "undefined" ? this.center(this._centerX, y)
-      : this._centerY;
+Cutout.prototype.handleY = function(y) {
+  return typeof y !== "undefined" ? this.handle(this._handleX, y)
+      : this._handleY;
 };
 
 Cutout.image = function(selector) {
