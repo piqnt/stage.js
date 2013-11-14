@@ -49,7 +49,6 @@ if (!Function.prototype.bind) {
     window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame']
         || window[vendors[x] + 'CancelRequestAnimationFrame'];
   }
-
   if (!window.requestAnimationFrame)
     window.requestAnimationFrame = function(callback, element) {
       var currTime = new Date().getTime();
@@ -60,12 +59,29 @@ if (!Function.prototype.bind) {
       lastTime = currTime + timeToCall;
       return id;
     };
-
   if (!window.cancelAnimationFrame)
     window.cancelAnimationFrame = function(id) {
       clearTimeout(id);
     };
 }());
+
+// Object.create
+// source:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+if (!Object.create) {
+  Object.create = (function() {
+    function F() {
+    }
+    return function(o) {
+      if (arguments.length != 1) {
+        throw new Error(
+            'Object.create implementation only accepts one parameter.');
+      }
+      F.prototype = o;
+      return new F();
+    };
+  })();
+}
 
 // console.log
 if (!console) {

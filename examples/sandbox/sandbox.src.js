@@ -134,38 +134,34 @@ Cutout.addTexture({
 window.addEventListener("load", function() {
   console.log("On load.");
   console.log("Initing...");
-
-  var game = null, canvas = null, context = null;
-
-  canvas = document.createElement("canvas");
+  
+  var canvas = document.createElement("canvas");
   canvas.style.position = "absolute";
-
+  
   var body = document.body;
   body.insertBefore(canvas, body.firstChild);
-
-  context = canvas.getContext("2d");
-
+  
   Cutout.loadImages(function(src, handleComplete, handleError) {
-    var image = new Image();
-    console.log("Loading image: " + src);
-    image.onload = handleComplete;
-    image.onerror = handleError;
-    image.src = src;
-    return image;
+   var image = new Image();
+   console.log("Loading image: " + src);
+   image.onload = handleComplete;
+   image.onerror = handleError;
+   image.src = src;
+   return image;
   }, start);
-
+  
   function start() {
-    console.log("Images loaded.");
-    console.log("Starting...");
-    game = new Game(canvas);
-    requestAnimationFrame(render);
+   console.log("Images loaded.");
+   console.log("Starting...");
+  
+   var context = canvas.getContext("2d");
+   var game = new Game(canvas);
+  
+   // run playing
+   Cutout.play(function() {
+     context.setTransform(1, 0, 0, 1, 0, 0);
+     context.clearRect(0, 0, canvas.width, canvas.height);
+     game.render(context);
+   }, requestAnimationFrame);
   }
-
-  function render() {
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    game.render(context);
-    requestAnimationFrame(render);
-  }
-
 }, false);
