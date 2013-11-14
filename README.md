@@ -1,4 +1,4 @@
-Cutout.js
+Cutout.js (alpha)
 ======
 
 Cutout.js (as in cutout animation) is a minimal but functionally complete JavaScript library for making sprite sheet games and visual apps in HTML5 Canvas.
