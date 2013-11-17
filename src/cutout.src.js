@@ -469,8 +469,10 @@ Cutout.prototype.skewY = function(y) {
 };
 
 Cutout.prototype.rotate = function(angle) {
+  if (typeof angle === "undefined") {
+    return this._rotation;
+  }
   this._rotation = angle;
-
   this._transformed = true;
   this.postNotif(Cutout.notif.size);
   return this;
@@ -653,13 +655,14 @@ Cutout.Anim.prototype.setFrames = function(selector) {
   return this;
 };
 
-Cutout.Anim.prototype.gotoFrame = function(frame) {
+Cutout.Anim.prototype.gotoFrame = function(frame, resize) {
   this._frame = CutoutUtils.rotate(frame, this._frames.length);
   this._cut = this._frames[this._frame];
   if (this._cut) {
     this._width = this._cut.width();
     this._height = this._cut.height();
   }
+  resize && this.postNotif(Cutout.notif.size);
   return this;
 };
 
@@ -671,8 +674,8 @@ Cutout.Anim.prototype.moveFrame = function(frame) {
   this.gotoFrame(this._frame + frame);
 };
 
-Cutout.Anim.prototype.gotoLabel = function(label) {
-  return this.gotoFrame(this._labels[label] || 0);
+Cutout.Anim.prototype.gotoLabel = function(label, resize) {
+  return this.gotoFrame(this._labels[label] || 0, resize);
 };
 
 Cutout.Anim.prototype.play = function(reset) {
@@ -732,8 +735,7 @@ Cutout.String.prototype.setValue = function(value) {
     digit.offset(this._width, null);
 
     if (i < value.length) {
-      digit.gotoLabel(this.prefix + value[i]).show().postNotif(
-          Cutout.notif.size);
+      digit.gotoLabel(this.prefix + value[i], true).show();
       this._width += digit._width;
       this._height = digit._height;
     } else {
@@ -1251,9 +1253,9 @@ CutoutUtils.random = function(min, max) {
 CutoutUtils.rotate = function(num, min, max) {
   max = max || 0;
   if (max > min) {
-    return (num - min) % (max - min) + (num < 0 ? max : min);
+    return (num - min) % (max - min) + (num < min ? max : min);
   } else {
-    return (num - max) % (min - max) + (num < 0 ? min : max);
+    return (num - max) % (min - max) + (num < max ? min : max);
   }
 };
 
