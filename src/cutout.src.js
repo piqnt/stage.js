@@ -748,6 +748,99 @@ Cutout.String.prototype.setValue = function(value) {
   return this;
 };
 
+Cutout.ninePatch = function(selector) {
+  return new Cutout.NinePatch().setImage(selector);
+};
+
+Cutout.NinePatch = function() {
+  Cutout.NinePatch.prototype._super.apply(this, arguments);
+  this._cut = null;
+};
+
+Cutout.NinePatch.prototype = new Cutout(true);
+Cutout.NinePatch.prototype._super = Cutout;
+Cutout.NinePatch.prototype.constructor = Cutout.String;
+
+Cutout.NinePatch.prototype.setImage = function(selector) {
+  this._cut = Cutout.byName(selector);
+  return this;
+};
+
+Cutout.NinePatch.prototype.resize = function(width, height) {
+  if (width == this._width && height == this._height) {
+    return this;
+  }
+
+  var left = this._cut.left;
+  var right = this._cut.right;
+  var top = this._cut.top;
+  var bottom = this._cut.bottom;
+
+  this._width = Math.max(width, left + right);
+  this._height = Math.max(height, top + bottom);
+
+  var c = 0;
+
+  var maxw = this._cut.width();
+  var maxh = this._cut.height();
+
+  var x, rx, l, r, w;
+  var y, ry, t, b, h;
+
+  x = 0, l = 0, r = right;
+  while (x < this._width) {
+    rx = this._width - x;
+    w = maxw - l;
+    if (w < rx) {
+      w -= right;
+    } else if (rx < w) {
+      if (!right) {// no right: left
+        w = rx, l = 0;
+      } else if (!left) { // no left: right
+        w = rx, l = maxw - w;
+      } else if (l == 0) { // left & right & first: left & -right
+        w = rx - right;
+      } else { // left & right & !first: right
+        w = rx, l = maxw - w;
+      }
+      w = rx - r;
+    }
+
+    y = 0, t = 0, b = bottom;
+    while (y < this._height) {
+      ry = this._height - y;
+      h = maxh - t;
+      if (h < ry) {
+        h -= bottom;
+      } else if (ry < h) {
+        if (!bottom) {
+          h = ry, t = 0;
+        } else if (!top) {
+          h = ry, t = maxh - h;
+        } else if (t == 0) {
+          h = ry - bottom;
+        } else {
+          h = ry, t = maxh - h;
+        }
+        h = ry - b;
+      }
+
+      (this._children[c++] || Cutout.image(this._cut.clone()).appendTo(this))
+          .show().cropX(w, l).cropY(h, t).offset(x, y);
+
+      y += h, t = top, b = 0;
+    }
+    x += w, l = left, r = 0;
+  }
+
+  while (c < this._children.length) {
+    this._children[c++].hide();
+  }
+
+  this.postNotif(Cutout.notif.size);
+  return this;
+};
+
 Cutout.row = function(valign, spy) {
   return new Cutout().row(valign, spy);
 };
@@ -1036,6 +1129,16 @@ Cutout.Cut = function(image, cut, ratio) {
 
   this.dw = cut.w;
   this.dh = cut.h;
+
+  this.top = (cut.top || 0);
+  this.bottom = (cut.bottom || 0);
+
+  this.left = (cut.left || 0);
+  this.right = (cut.right || 0);
+};
+
+Cutout.Cut.prototype.clone = function() {
+  return new Cutout.Cut(this.image, this.cut, this.ratio);
 };
 
 Cutout.Cut.prototype.width = function() {
@@ -1269,4 +1372,12 @@ CutoutUtils.isNum = function(x) {
 
 CutoutUtils.isFunction = function(x) {
   return typeof x === "function";
+};
+
+CutoutUtils.extend = function(target, souce, attribs) {
+  for ( var i = 0; i < attribs.length; i++) {
+    var attr = attribs[i];
+    target[attr] = source[attr];
+  }
+  return target;
 };
