@@ -85,6 +85,46 @@ function Cutout(prototype) {
   this._tickersBubble = [];
 };
 
+Cutout.prototype.start = function(render, request) {
+
+  var paused = true;
+
+  var tick = function() {
+    if (paused === true) {
+      return;
+    }
+    this._touched = false;
+    render(this);
+    request(tick);
+    if (!this._touched) {
+      pause();
+    }
+  }.bind(this);
+
+  var pause = function() {
+    paused = true;
+  }.bind(this);
+
+  var resume = function(force) {
+    if (paused || force) {
+      paused = false;
+      request(tick);
+    }
+  }.bind(this);
+
+  this.touch = function() {
+    this._touched = true;
+    resume();
+  };
+
+  resume();
+
+  return {
+    pause : pause,
+    resume : resume
+  };
+};
+
 Cutout.prototype.render = function(context) {
   this.tick();
   this.traversePaint(context);
@@ -327,6 +367,10 @@ Cutout.prototype.empty = function() {
   return this;
 };
 
+Cutout.prototype.touch = function() {
+  this._parent && this._parent.touch();
+};
+
 Cutout.prototype.postNotif = function(name) {
   this._notifs[name] = true;
   if (this._parent) {
@@ -335,6 +379,7 @@ Cutout.prototype.postNotif = function(name) {
   for ( var i = 0; i < this._children.length; i++) {
     this._children[i]._notifs["parent." + name] = true;
   }
+  this.touch();
 };
 
 Cutout.prototype.clearNotif = function() {
@@ -523,12 +568,13 @@ Cutout.prototype.align = function(x, y, cx, cy) {
   CutoutUtils.isNum(x) && (this._alignX = x / 2 + 0.5);
   CutoutUtils.isNum(y) && (this._alignY = y / 2 + 0.5);
 
-  this.addTicker(function() {
-    if (this._aligned
-        && this.clearNotif(Cutout.notif.parent, Cutout.notif.parent_size)) {
-      this._transformed = true;
-    }
-  }, true);
+  this._alignTicker
+      || this.addTicker(this._alignTicker = function() {
+        if (this._aligned
+            && this.clearNotif(Cutout.notif.parent, Cutout.notif.parent_size)) {
+          this._transformed = true;
+        }
+      }, true);
 
   this._aligned = !!(this._alignX || this._alignY);
 
@@ -555,7 +601,7 @@ Cutout.prototype.handle = function(x, y) {
   CutoutUtils.isNum(x) && (this._handleX = x / 2 + 0.5);
   CutoutUtils.isNum(y) && (this._handleY = y / 2 + 0.5);
 
-  this.addTicker(function() {
+  this._handleTicker || this.addTicker(this._handleTicker = function() {
     if (this._handled && this.clearNotif(Cutout.notif.size)) {
       this._transformed = true;
     }
@@ -656,13 +702,15 @@ Cutout.Anim.prototype.setFrames = function(selector) {
 };
 
 Cutout.Anim.prototype.gotoFrame = function(frame, resize) {
-  this._frame = CutoutUtils.rotate(frame, this._frames.length);
+  frame = CutoutUtils.rotate(frame, this._frames.length);
+  this._frame = frame;
   this._cut = this._frames[this._frame];
   if (this._cut) {
     this._width = this._cut.width();
     this._height = this._cut.height();
   }
   resize && this.postNotif(Cutout.notif.size);
+  this.postNotif(Cutout.notif.frame);
   return this;
 };
 
@@ -731,8 +779,10 @@ Cutout.String.prototype.setValue = function(value) {
     var digit = i < this._children.length ? this._children[i] : Cutout.anim(
         this.selector).appendTo(this);
 
-    // TODO: only call on changed
-    digit.offset(this._width, null);
+    // call if changed
+    if (digit._offsetX != this._width) {
+      digit.offset(this._width, null);
+    }
 
     if (i < value.length) {
       digit.gotoLabel(this.prefix + value[i], true).show();
@@ -755,6 +805,9 @@ Cutout.ninePatch = function(selector) {
 Cutout.NinePatch = function() {
   Cutout.NinePatch.prototype._super.apply(this, arguments);
   this._cut = null;
+  this._patches = [];
+  this._columns = [];
+  this._rows = [];
 };
 
 Cutout.NinePatch.prototype = new Cutout(true);
@@ -766,46 +819,46 @@ Cutout.NinePatch.prototype.setImage = function(selector) {
   return this;
 };
 
-Cutout.NinePatch.prototype.resize = function(width, height) {
-  if (width == this._width && height == this._height) {
-    return this;
+Cutout.NinePatch.prototype.size = function(width, height) {
+
+  if (width != this._width) {
+    var left = this._cut.left;
+    var right = this._cut.right;
+    this._width = Math.max(width, left + right);
+    this._columns = [];
+    var maxw = this._cut.width();
+    var x, rx, l, r, w;
+    x = 0, l = 0, r = right;
+    while (x < this._width) {
+      rx = this._width - x;
+      w = maxw - l;
+      if (w < rx) {
+        w -= right;
+      } else if (rx < w) {
+        if (!right) {// no right: left
+          w = rx, l = 0;
+        } else if (!left) { // no left: right
+          w = rx, l = maxw - w;
+        } else if (l == 0) { // left & right & first: left & -right
+          w = rx - right;
+        } else { // left & right & !first: right
+          w = rx, l = maxw - w;
+        }
+        w = rx - r;
+      }
+      this._columns.push([ w, l, x ]);
+      x += w, l = left, r = 0;
+    }
+    this.postNotif(Cutout.notif.size);
   }
 
-  var left = this._cut.left;
-  var right = this._cut.right;
-  var top = this._cut.top;
-  var bottom = this._cut.bottom;
-
-  this._width = Math.max(width, left + right);
-  this._height = Math.max(height, top + bottom);
-
-  var c = 0;
-
-  var maxw = this._cut.width();
-  var maxh = this._cut.height();
-
-  var x, rx, l, r, w;
-  var y, ry, t, b, h;
-
-  x = 0, l = 0, r = right;
-  while (x < this._width) {
-    rx = this._width - x;
-    w = maxw - l;
-    if (w < rx) {
-      w -= right;
-    } else if (rx < w) {
-      if (!right) {// no right: left
-        w = rx, l = 0;
-      } else if (!left) { // no left: right
-        w = rx, l = maxw - w;
-      } else if (l == 0) { // left & right & first: left & -right
-        w = rx - right;
-      } else { // left & right & !first: right
-        w = rx, l = maxw - w;
-      }
-      w = rx - r;
-    }
-
+  if (height != this._height) {
+    var top = this._cut.top;
+    var bottom = this._cut.bottom;
+    this._height = Math.max(height, top + bottom);
+    this._rows = [];
+    var maxh = this._cut.height();
+    var y, ry, t, b, h;
     y = 0, t = 0, b = bottom;
     while (y < this._height) {
       ry = this._height - y;
@@ -824,21 +877,27 @@ Cutout.NinePatch.prototype.resize = function(width, height) {
         }
         h = ry - b;
       }
-
-      (this._children[c++] || Cutout.image(this._cut.clone()).appendTo(this))
-          .show().cropX(w, l).cropY(h, t).offset(x, y);
-
+      this._rows.push([ h, t, y ]);
       y += h, t = top, b = 0;
     }
-    x += w, l = left, r = 0;
+    this.postNotif(Cutout.notif.size);
   }
 
-  while (c < this._children.length) {
-    this._children[c++].hide();
-  }
-
-  this.postNotif(Cutout.notif.size);
   return this;
+};
+
+Cutout.NinePatch.prototype.paint = function(context) {
+  var c = 0;
+  for ( var i = 0; i < this._columns.length; i++) {
+    var col = this._columns[i];
+    for ( var j = 0; j < this._rows.length; j++) {
+      var row = this._rows[j];
+      this._patches[c] = this._patches[c] || this._cut.clone();
+      this._patches[c].cropX(col[0], col[1]).cropY(row[0], row[1]).offset(
+          col[2], row[2]).paint(context);
+      c++;
+    }
+  }
 };
 
 Cutout.row = function(valign, spy) {
@@ -852,7 +911,7 @@ Cutout.prototype.row = function(valign, spy) {
     this._spacing = CutoutUtils.isNum(spacing) ? spacing : 0;
     return this;
   };
-  this.addTicker(function() {
+  this._rowTicker || this.addTicker(this._rowTicker = function() {
     if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
       return;
     }
@@ -902,7 +961,8 @@ Cutout.prototype.column = function(halign, spy) {
     this._spacing = CutoutUtils.isNum(spacing) ? spacing : 0;
     return this;
   };
-  this.addTicker(function() {
+
+  this._columnTicker || this.addTicker(this._columnTicker = function() {
     if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
       return;
     }
@@ -966,39 +1026,14 @@ Cutout.notif = {
   size : "size",
   child_size : "child.size",
   parent_size : "parent.size",
+
+  frame : "frame",
+  child_frame : "child.frame",
+  parent_frame : "parent.frame",
 };
 
 Cutout.textures = {};
 Cutout.images = {};
-
-Cutout.play = function(render, request) {
-
-  var paused = false;
-
-  function pause() {
-    paused = true;
-  }
-
-  function resume() {
-    paused = false;
-    request(tick);
-  }
-
-  function tick() {
-    if (paused === true) {
-      return;
-    }
-    render();
-    request(tick);
-  }
-
-  resume();
-
-  return {
-    pause : pause,
-    resume : resume
-  };
-};
 
 Cutout.loadImages = function(imageLoader, completeCallback) {
   var imageCount = 0;
@@ -1127,6 +1162,9 @@ Cutout.Cut = function(image, cut, ratio) {
   this.sw = cut.w * this.ratio;
   this.sh = cut.h * this.ratio;
 
+  this.dx = 0;
+  this.dy = 0;
+
   this.dw = cut.w;
   this.dh = cut.h;
 
@@ -1165,10 +1203,16 @@ Cutout.Cut.prototype.cropY = function(h, y) {
   return this;
 };
 
+Cutout.Cut.prototype.offset = function(x, y) {
+  this.dx = x;
+  this.dy = y;
+  return this;
+};
+
 Cutout.Cut.prototype.paint = function(context) {
   context.drawImage(this.image, // source
   this.sx, this.sy, this.sw, this.sh, // cut
-  0, 0, this.dw, this.dh // position
+  this.dx, this.dy, this.dw, this.dh // position
   );
 };
 

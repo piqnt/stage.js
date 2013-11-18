@@ -61,6 +61,7 @@ Game.prototype.addboxes = function() {
     }
   }
 
+  var game = this;
   function play(reset) {
 
     // random color
@@ -109,6 +110,8 @@ Game.prototype.addboxes = function() {
     }.bind(this));
 
     tweening.tween.to(target, reset ? U.random(10000, 20000) : 2000).start();
+    
+    game.touch();
 
     return true;
   }
@@ -134,34 +137,33 @@ Cutout.addTexture({
 window.addEventListener("load", function() {
   console.log("On load.");
   console.log("Initing...");
-  
+
   var canvas = document.createElement("canvas");
   canvas.style.position = "absolute";
-  
+
   var body = document.body;
   body.insertBefore(canvas, body.firstChild);
-  
+
   Cutout.loadImages(function(src, handleComplete, handleError) {
-   var image = new Image();
-   console.log("Loading image: " + src);
-   image.onload = handleComplete;
-   image.onerror = handleError;
-   image.src = src;
-   return image;
+    var image = new Image();
+    console.log("Loading image: " + src);
+    image.onload = handleComplete;
+    image.onerror = handleError;
+    image.src = src;
+    return image;
   }, start);
-  
+
   function start() {
-   console.log("Images loaded.");
-   console.log("Starting...");
-  
-   var context = canvas.getContext("2d");
-   var game = new Game(canvas);
-  
-   // run playing
-   Cutout.play(function() {
-     context.setTransform(1, 0, 0, 1, 0, 0);
-     context.clearRect(0, 0, canvas.width, canvas.height);
-     game.render(context);
-   }, requestAnimationFrame);
+    console.log("Images loaded.");
+    console.log("Starting...");
+
+    var context = canvas.getContext("2d");
+
+    new Game(canvas).start(function(root) {
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      root.render(context);
+    }, requestAnimationFrame);
+
   }
 }, false);
