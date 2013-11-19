@@ -277,7 +277,7 @@ Cutout.prototype.boxMatrix = function(force) {
 };
 
 Cutout.prototype.id = function(id) {
-  if (typeof id === "undefined") {
+  if (!arguments.length) {
     return this._id;
   } else {
     this._id = id;
@@ -285,7 +285,7 @@ Cutout.prototype.id = function(id) {
   }
 };
 Cutout.prototype.attr = function(name, value) {
-  if (typeof value === "undefined") {
+  if (!arguments.length) {
     return this[name];
   } else {
     this[name] = value;
@@ -301,7 +301,7 @@ Cutout.prototype.toString = function() {
 };
 
 Cutout.prototype.children = function(i) {
-  if (typeof i === "undefined") {
+  if (!arguments.length) {
     return this._children;
   } else {
     return this._children[i];
@@ -456,11 +456,11 @@ Cutout.prototype.size = function(x, y) {
 };
 
 Cutout.prototype.width = function(x) {
-  return typeof x !== "undefined" ? this.size(x, this._height) : this._width;
+  return arguments.length ? this.size(x, this._height) : this._width;
 };
 
 Cutout.prototype.height = function(y) {
-  return typeof y !== "undefined" ? this.size(this._width, y) : this._height;
+  return arguments.length ? this.size(this._width, y) : this._height;
 };
 
 Cutout.prototype.scaleTo = function(width, height, mode, resize) {
@@ -487,11 +487,11 @@ Cutout.prototype.scale = function(x, y) {
 };
 
 Cutout.prototype.scaleX = function(x) {
-  return typeof x !== "undefined" ? this.scale(x, this._scaleY) : this._scaleX;
+  return arguments.length ? this.scale(x, this._scaleY) : this._scaleX;
 };
 
 Cutout.prototype.scaleY = function(y) {
-  return typeof y !== "undefined" ? this.scale(this._scaleX, y) : this._scaleY;
+  return arguments.length ? this.scale(this._scaleX, y) : this._scaleY;
 };
 
 Cutout.prototype.skew = function(x, y) {
@@ -506,15 +506,15 @@ Cutout.prototype.skew = function(x, y) {
 };
 
 Cutout.prototype.skewX = function(x) {
-  return typeof x !== "undefined" ? this.skew(x, this._skewY) : this._skewX;
+  return arguments.length ? this.skew(x, this._skewY) : this._skewX;
 };
 
 Cutout.prototype.skewY = function(y) {
-  return typeof y !== "undefined" ? this.skew(this._skewX, y) : this._skewY;
+  return arguments.length ? this.skew(this._skewX, y) : this._skewY;
 };
 
 Cutout.prototype.rotate = function(angle) {
-  if (typeof angle === "undefined") {
+  if (!arguments.length) {
     return this._rotation;
   }
   this._rotation = angle;
@@ -533,13 +533,11 @@ Cutout.prototype.offset = function(x, y) {
 };
 
 Cutout.prototype.offsetX = function(x) {
-  return typeof x !== "undefined" ? this.offset(x, this._offsetY)
-      : this._offsetX;
+  return arguments.length ? this.offset(x, this._offsetY) : this._offsetX;
 };
 
 Cutout.prototype.offsetY = function(y) {
-  return typeof y !== "undefined" ? this.offset(this._offsetX, y)
-      : this._offsetY;
+  return arguments.length ? this.offset(this._offsetX, y) : this._offsetY;
 };
 
 Cutout.prototype.pivot = function(x, y) {
@@ -555,11 +553,11 @@ Cutout.prototype.pivot = function(x, y) {
 };
 
 Cutout.prototype.pivotX = function(x) {
-  return typeof x !== "undefined" ? this.pivot(x, this._pivotY) : this._pivotX;
+  return arguments.length ? this.pivot(x, this._pivotY) : this._pivotX;
 };
 
 Cutout.prototype.pivotY = function(y) {
-  return typeof y !== "undefined" ? this.pivot(this._pivotX, y) : this._pivotY;
+  return arguments.length ? this.pivot(this._pivotX, y) : this._pivotY;
 };
 
 Cutout.prototype.align = function(x, y, cx, cy) {
@@ -586,13 +584,13 @@ Cutout.prototype.align = function(x, y, cx, cy) {
 };
 
 Cutout.prototype.alignX = function(x, cx) {
-  return typeof x !== "undefined" ? this.align(x, this._alignY, cx,
-      this._handleY) : this._alignX;
+  return arguments.length ? this.align(x, this._alignY, cx, this._handleY)
+      : this._alignX;
 };
 
 Cutout.prototype.alignY = function(y, cy) {
-  return typeof y !== "undefined" ? this.align(this._alignX, y, this._handleX,
-      cy) : this._alignY;
+  return arguments.length ? this.align(this._alignX, y, this._handleX, cy)
+      : this._alignY;
 };
 
 Cutout.prototype.handle = function(x, y) {
@@ -613,13 +611,11 @@ Cutout.prototype.handle = function(x, y) {
 };
 
 Cutout.prototype.handleX = function(x) {
-  return typeof x !== "undefined" ? this.handle(x, this._handleY)
-      : this._handleX;
+  return arguments.length ? this.handle(x, this._handleY) : this._handleX;
 };
 
 Cutout.prototype.handleY = function(y) {
-  return typeof y !== "undefined" ? this.handle(this._handleX, y)
-      : this._handleY;
+  return arguments.length ? this.handle(this._handleX, y) : this._handleY;
 };
 
 Cutout.image = function(selector) {
@@ -681,7 +677,7 @@ Cutout.Anim.prototype._super = Cutout;
 Cutout.Anim.prototype.constructor = Cutout.Anim;
 
 Cutout.Anim.prototype.fps = function(fps) {
-  if (typeof fps === "undefined") {
+  if (!arguments.length) {
     return this._fps;
   } else {
     this._fps = fps;
