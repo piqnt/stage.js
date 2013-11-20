@@ -279,18 +279,17 @@ Cutout.prototype.boxMatrix = function(force) {
 Cutout.prototype.id = function(id) {
   if (!arguments.length) {
     return this._id;
-  } else {
-    this._id = id;
-    return this;
   }
+  this._id = id;
+  return this;
 };
+
 Cutout.prototype.attr = function(name, value) {
-  if (!arguments.length) {
+  if (arguments.length < 2) {
     return this[name];
-  } else {
-    this[name] = value;
-    return this;
   }
+  this[name] = value;
+  return this;
 };
 
 Cutout.prototype.toString = function() {
@@ -301,11 +300,7 @@ Cutout.prototype.toString = function() {
 };
 
 Cutout.prototype.children = function(i) {
-  if (!arguments.length) {
-    return this._children;
-  } else {
-    return this._children[i];
-  }
+  return !arguments.length ? this._children : this._children[i];
 };
 
 Cutout.prototype.append = function() {
@@ -456,11 +451,11 @@ Cutout.prototype.size = function(x, y) {
 };
 
 Cutout.prototype.width = function(x) {
-  return arguments.length ? this.size(x, this._height) : this._width;
+  return !arguments.length ? this._width : this.size(x, this._height);
 };
 
 Cutout.prototype.height = function(y) {
-  return arguments.length ? this.size(this._width, y) : this._height;
+  return !arguments.length ? this._height : this.size(this._width, y);
 };
 
 Cutout.prototype.scaleTo = function(width, height, mode, resize) {
@@ -487,11 +482,11 @@ Cutout.prototype.scale = function(x, y) {
 };
 
 Cutout.prototype.scaleX = function(x) {
-  return arguments.length ? this.scale(x, this._scaleY) : this._scaleX;
+  return !arguments.length ? this._scaleX : this.scale(x, this._scaleY);
 };
 
 Cutout.prototype.scaleY = function(y) {
-  return arguments.length ? this.scale(this._scaleX, y) : this._scaleY;
+  return !arguments.length ? this._scaleY : this.scale(this._scaleX, y);
 };
 
 Cutout.prototype.skew = function(x, y) {
@@ -506,11 +501,11 @@ Cutout.prototype.skew = function(x, y) {
 };
 
 Cutout.prototype.skewX = function(x) {
-  return arguments.length ? this.skew(x, this._skewY) : this._skewX;
+  return !arguments.length ? this._skewX : this.skew(x, this._skewY);
 };
 
 Cutout.prototype.skewY = function(y) {
-  return arguments.length ? this.skew(this._skewX, y) : this._skewY;
+  return !arguments.length ? this._skewY : this.skew(this._skewX, y);
 };
 
 Cutout.prototype.rotate = function(angle) {
@@ -533,11 +528,11 @@ Cutout.prototype.offset = function(x, y) {
 };
 
 Cutout.prototype.offsetX = function(x) {
-  return arguments.length ? this.offset(x, this._offsetY) : this._offsetX;
+  return !arguments.length ? this._offsetX : this.offset(x, this._offsetY);
 };
 
 Cutout.prototype.offsetY = function(y) {
-  return arguments.length ? this.offset(this._offsetX, y) : this._offsetY;
+  return !arguments.length ? this._offsetY : this.offset(this._offsetX, y);
 };
 
 Cutout.prototype.pivot = function(x, y) {
@@ -553,11 +548,11 @@ Cutout.prototype.pivot = function(x, y) {
 };
 
 Cutout.prototype.pivotX = function(x) {
-  return arguments.length ? this.pivot(x, this._pivotY) : this._pivotX;
+  return !arguments.length ? this._pivotX : this.pivot(x, this._pivotY);
 };
 
 Cutout.prototype.pivotY = function(y) {
-  return arguments.length ? this.pivot(this._pivotX, y) : this._pivotY;
+  return !arguments.length ? this._pivotY : this.pivot(this._pivotX, y);
 };
 
 Cutout.prototype.align = function(x, y, cx, cy) {
@@ -584,13 +579,13 @@ Cutout.prototype.align = function(x, y, cx, cy) {
 };
 
 Cutout.prototype.alignX = function(x, cx) {
-  return arguments.length ? this.align(x, this._alignY, cx, this._handleY)
-      : this._alignX;
+  return !arguments.length ? this._alignX : this.align(x, this._alignY, cx,
+      this._handleY);
 };
 
 Cutout.prototype.alignY = function(y, cy) {
-  return arguments.length ? this.align(this._alignX, y, this._handleX, cy)
-      : this._alignY;
+  return !arguments.length ? this._alignY : this.align(this._alignX, y,
+      this._handleX, cy);
 };
 
 Cutout.prototype.handle = function(x, y) {
@@ -611,11 +606,11 @@ Cutout.prototype.handle = function(x, y) {
 };
 
 Cutout.prototype.handleX = function(x) {
-  return arguments.length ? this.handle(x, this._handleY) : this._handleX;
+  return !arguments.length ? this._handleX : this.handle(x, this._handleY);
 };
 
 Cutout.prototype.handleY = function(y) {
-  return arguments.length ? this.handle(this._handleX, y) : this._handleY;
+  return !arguments.length ? this._handleY : this.handle(this._handleX, y);
 };
 
 Cutout.image = function(selector) {
@@ -679,10 +674,9 @@ Cutout.Anim.prototype.constructor = Cutout.Anim;
 Cutout.Anim.prototype.fps = function(fps) {
   if (!arguments.length) {
     return this._fps;
-  } else {
-    this._fps = fps;
-    return this;
   }
+  this._fps = fps;
+  return this;
 };
 
 Cutout.Anim.prototype.setFrames = function(selector) {
