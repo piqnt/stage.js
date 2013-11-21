@@ -36,12 +36,12 @@ function Cutout(prototype) {
   this._skewX = 0;
   this._rotation = 0;
 
-  // scale/skew/rotate center
+  // scale/skew/rotate center %
   this._pivoted = false;
   this._pivotX = null;
   this._pivotY = null;
 
-  // positioning center
+  // positioning center %
   this._handled = false;
   this._handleX = 0;
   this._handleY = 0;
@@ -66,7 +66,7 @@ function Cutout(prototype) {
   // no-translation
   this._boxMatrix = new Cutout.Matrix();
 
-  // rect box as seen by parent (read only)
+  // calculated rect box as seen by parent
   this._boxX = 0;
   this._boxY = 0;
   this._boxWidth = this._width;

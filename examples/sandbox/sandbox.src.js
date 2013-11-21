@@ -35,11 +35,9 @@ Game.prototype.resize = function() {
   this.canvas.width = width;
   this.canvas.height = height;
 
-  // size relative to image graphics, scaled to fit in screen
-  this.size(500, 500).scaleTo(width, height, C.scale.fit);
+  // size relative to graphics, resize to fit in screen
+  this.size(500, 500).scaleTo(width, height, C.scale.fit, true);
 
-  // move it to center
-  this.align(C.align.center, C.align.center).offset(width / 2, height / 2);
 };
 
 Game.prototype.addboxes = function() {
