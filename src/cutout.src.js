@@ -164,8 +164,6 @@ Cutout.prototype.traversePaint = function(context) {
     return;
   }
 
-  context.save();
-
   var m = this.absoluteMatrix();
 
   context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
