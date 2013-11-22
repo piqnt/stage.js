@@ -57,17 +57,26 @@ Mouse.get = function(event, elem) {
 
 Mouse.listen = function(listener, move) {
 
-  var mouseStart = null, mouseMove = null, mouseEnd = null, mouseClick = null;
+  var isTouchSupported = "ontouchstart" in window;
+  var CLICK = "click";
+  var START = isTouchSupported ? "touchstart" : "mousedown";
+  var MOVE = isTouchSupported ? "touchmove" : "mousemove";
+  var END = isTouchSupported ? "touchend" : "mouseup";
+
+  document.addEventListener(CLICK, mouseClick);
+  document.addEventListener(START, mouseStart);
+  document.addEventListener(END, mouseEnd);
+  move && document.addEventListener(MOVE, mouseMove);
+
   var start = null, click = null;
 
-  mouseStart = function(event) {
+  function mouseStart(event) {
     try {
       Mouse.get(event);
-      DEBUG && console.log("Mouse Start: " + Mouse);
-      !move && document.addEventListener("touchmove", mouseMove);
-      !move && document.addEventListener("mousemove", mouseMove);
+      DEBUG && console.log("Mouse Start (" + event.type + "): " + Mouse);
+      !move && document.addEventListener(MOVE, mouseMove);
       event.preventDefault();
-      this.publish(Mouse.ON_START, event, Mouse);
+      listener.publish(Mouse.ON_START, event, Mouse);
 
       start = {
         x : Mouse.x,
@@ -77,61 +86,51 @@ Mouse.listen = function(listener, move) {
     } catch (e) {
       console.log(e);
     }
-  }.bind(listener);
+  }
 
-  mouseEnd = function(event) {
+  function mouseEnd(event) {
     try {
-      // Mouse.get(event); Invalid, last Mouse is used instead!
-      DEBUG && console.log("Mouse End: " + Mouse);
-      !move && document.removeEventListener("touchmove", mouseMove);
-      !move && document.removeEventListener("mousemove", mouseMove);
+      // Mouse.get(event) is not valid, last Mouse is used instead.
+      DEBUG && console.log("Mouse End (" + event.type + "): " + Mouse);
+      !move && document.removeEventListener(MOVE, mouseMove);
       event.preventDefault();
-      this.publish(Mouse.ON_END, event, Mouse);
+      listener.publish(Mouse.ON_END, event, Mouse);
 
       if (start && start.x == Mouse.x && start.y == Mouse.y) {
-        DEBUG && console.log("+Mouse Click");
-        this.publish(Mouse.ON_CLICK, event, Mouse);
+        DEBUG && console.log("Mouse Click [+]");
+        listener.publish(Mouse.ON_CLICK, event, Mouse);
         click = start;
       }
       start = null;
     } catch (e) {
       console.log(e);
     }
-  }.bind(listener);
+  }
 
-  mouseMove = function(event) {
+  function mouseMove(event) {
     try {
       Mouse.get(event);
-      // DEBUG && console.log("Mouse Move: " + Mouse.x + "x" + Mouse.y);
+      // DEBUG && console.log("Mouse Move (" + event.type + "): " + Mouse);
       event.preventDefault();
-      this.publish(Mouse.ON_MOVE, event, Mouse);
+      listener.publish(Mouse.ON_MOVE, event, Mouse);
     } catch (e) {
       console.log(e);
     }
-  }.bind(listener);
+  }
 
-  mouseClick = function(event) {
+  function mouseClick(event) {
     try {
-      DEBUG && console.log("Mouse Click: " + Mouse);
       Mouse.get(event);
+      DEBUG && console.log("Mouse Click (" + event.type + "): " + Mouse);
       event.preventDefault();
       if (!click) {
-        this.publish(Mouse.ON_CLICK, event, Mouse);
+        listener.publish(Mouse.ON_CLICK, event, Mouse);
       } else {
-        DEBUG && console.log("-Mouse Click");
+        DEBUG && console.log("Mouse Click [-]");
       }
     } catch (e) {
       console.log(e);
     }
-  }.bind(listener);
+  }
 
-  document.addEventListener("click", mouseClick);
-
-  document.addEventListener("touchstart", mouseStart);
-  document.addEventListener("touchend", mouseEnd);
-  move && document.addEventListener("touchmove", mouseMove);
-
-  document.addEventListener("mousedown", mouseStart);
-  document.addEventListener("mouseup", mouseEnd);
-  move && document.addEventListener("mousemove", mouseMove);
 };
