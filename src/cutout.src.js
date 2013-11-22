@@ -657,12 +657,6 @@ Cutout.anim = function(selector, fps) {
 Cutout.Anim = function() {
   Cutout.Anim.prototype._super.apply(this, arguments);
 
-  this._startTime = null;
-  this._fps = null;
-
-  this._frame = 0;
-  this._frames = [];
-  this._labels = {};
 };
 
 Cutout.Anim.prototype = new Cutout(true);
@@ -678,6 +672,13 @@ Cutout.Anim.prototype.fps = function(fps) {
 };
 
 Cutout.Anim.prototype.setFrames = function(selector) {
+  this._startTime = this._startTime || 0;
+  this._fps = this._fps || 0;
+
+  this._frame = 0;
+  this._frames = [];
+  this._labels = {};
+
   var cuts = Cutout.byPrefix(selector);
   if (cuts && cuts.length) {
     for ( var i = 0; i < cuts.length; i++) {
@@ -1372,12 +1373,10 @@ CutoutUtils.deg2rad = function(deg) {
 };
 
 CutoutUtils.random = function(min, max) {
-  if (min == undefined) {
-    min = 1;
-  }
-  if (max == undefined) {
-    max = min;
-    min = 0;
+  if (arguments.length == 0) {
+    max = 1, min = 0;
+  } else if (arguments.length == 1) {
+    max = min, min = 0;
   }
   if (min == max) {
     return min;
