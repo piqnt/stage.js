@@ -83,34 +83,38 @@ function Cutout(prototype) {
 
   this._tickersCapture = [];
   this._tickersBubble = [];
+
+  this._translated = true;
+  this._transformed = true;
 };
 
 Cutout.prototype.start = function(render, request) {
 
   var paused = true;
+  var root = this;
 
-  var tick = function() {
+  function tick() {
     if (paused === true) {
       return;
     }
-    this._touched = false;
-    render(this);
+    root._touched = false;
+    render(root);
     request(tick);
-    if (!this._touched) {
+    if (!root._touched) {
       pause();
     }
-  }.bind(this);
+  }
 
-  var pause = function() {
+  function pause() {
     paused = true;
-  }.bind(this);
+  }
 
-  var resume = function(force) {
+  function resume(force) {
     if (paused || force) {
       paused = false;
       request(tick);
     }
-  }.bind(this);
+  }
 
   this.touch = function() {
     this._touched = true;
@@ -185,13 +189,13 @@ Cutout.prototype.absoluteMatrix = function() {
   var m = this._absoluteMatrix;
   if (this._parent) {
     var pm = this._parent._absoluteMatrix;
-    if (this._transformed || pm._time !== m._parentTime) {
+    if (this._translated || this._transformed || pm._time !== m._parentTime) {
       m.copyFrom(this.relativeMatrix()).concat(pm);
       m._parentTime = pm._time;
       m._time += 1;
     }
   } else {
-    if (this._transformed) {
+    if (this._translated || this._transformed) {
       m.copyFrom(this.relativeMatrix());
       m._time += 1;
     }
@@ -200,10 +204,10 @@ Cutout.prototype.absoluteMatrix = function() {
 };
 
 Cutout.prototype.relativeMatrix = function() {
-  if (!this._transformed) {
+  if (!this._translated && !this._transformed) {
     return this._relativeMatrix;
   }
-  this._transformed = false;
+  this._translated = false;
 
   var m = this._relativeMatrix;
 
@@ -218,7 +222,7 @@ Cutout.prototype.relativeMatrix = function() {
     m.translate(this._pivotX * this._width, this._pivotY * this._height);
   }
 
-  this.boxMatrix(true);
+  this.boxMatrix();
 
   var x = this._offsetX - this._boxX - this._handleX * this._boxWidth;
   var y = this._offsetY - this._boxY - this._handleY * this._boxHeight;
@@ -233,10 +237,11 @@ Cutout.prototype.relativeMatrix = function() {
   return m;
 };
 
-Cutout.prototype.boxMatrix = function(force) {
-  if (!force && !this._transformed) {
+Cutout.prototype.boxMatrix = function() {
+  if (!this._transformed) {
     return;
   }
+  this._transformed = false;
 
   if (this._pivoted) {
     this._boxX = 0;
@@ -443,7 +448,7 @@ Cutout.prototype.size = function(x, y) {
     this._height = y;
   }
 
-  // this._transformed = true;
+  this._transformed = true;
   this.postNotif(Cutout.notif.size);
   return this;
 };
@@ -521,7 +526,7 @@ Cutout.prototype.offset = function(x, y) {
   this._offsetX = x;
   this._offsetY = y;
 
-  this._transformed = true;
+  this._translated = true;
   return this;
 };
 
@@ -563,7 +568,7 @@ Cutout.prototype.align = function(x, y, cx, cy) {
       || this.addTicker(this._alignTicker = function() {
         if (this._aligned
             && this.clearNotif(Cutout.notif.parent, Cutout.notif.parent_size)) {
-          this._transformed = true;
+          this._translated = true;
         }
       }, true);
 
@@ -572,7 +577,7 @@ Cutout.prototype.align = function(x, y, cx, cy) {
   this.handle(typeof cx !== "undefined" ? cx : x,
       typeof cy !== "undefined" ? cy : y);
 
-  this._transformed = true;
+  this._translated = true;
   return this;
 };
 
@@ -594,12 +599,12 @@ Cutout.prototype.handle = function(x, y) {
 
   this._handleTicker || this.addTicker(this._handleTicker = function() {
     if (this._handled && this.clearNotif(Cutout.notif.size)) {
-      this._transformed = true;
+      this._translated = true;
     }
   }, true);
 
   this._handled = !!(this._handleX || this._handleY);
-  this._transformed = true;
+  this._translated = true;
   return this;
 };
 
@@ -698,7 +703,11 @@ Cutout.Anim.prototype.gotoFrame = function(frame, resize) {
     this._width = this._cut.width();
     this._height = this._cut.height();
   }
-  resize && this.postNotif(Cutout.notif.size);
+  // TODO:
+  if (resize) {
+    this._transformed = true;
+    this.postNotif(Cutout.notif.size);
+  }
   this.postNotif(Cutout.notif.frame);
   return this;
 };
@@ -782,6 +791,7 @@ Cutout.String.prototype.setValue = function(value) {
     }
   }
   if (oldwidth !== this._width || oldheight !== this._height) {
+    this._transformed = true;
     this.postNotif(Cutout.notif.size);
   }
   return this;
@@ -838,6 +848,7 @@ Cutout.NinePatch.prototype.size = function(width, height) {
       this._columns.push([ w, l, x ]);
       x += w, l = left, r = 0;
     }
+    this._transformed = true;
     this.postNotif(Cutout.notif.size);
   }
 
@@ -869,6 +880,7 @@ Cutout.NinePatch.prototype.size = function(width, height) {
       this._rows.push([ h, t, y ]);
       y += h, t = top, b = 0;
     }
+    this._transformed = true;
     this.postNotif(Cutout.notif.size);
   }
 
@@ -932,8 +944,8 @@ Cutout.prototype.row = function(valign, spy) {
     }
 
     if (oldwidth !== this._width || oldheight !== this._height) {
-      this.postNotif(Cutout.notif.size);
       this._transformed = true;
+      this.postNotif(Cutout.notif.size);
     }
   }, false);
   return this;
