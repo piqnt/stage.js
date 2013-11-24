@@ -369,6 +369,24 @@ Cutout.prototype.touch = function() {
   this._parent && this._parent.touch();
 };
 
+Cutout.notif = {
+  children : "children",
+  child_children : "child.children",
+  parent_children : "parent.children",
+
+  parent : "parent",
+  child_parent : "child.parent",
+  parent_parent : "parent.parent",
+
+  size : "size",
+  child_size : "child.size",
+  parent_size : "parent.size",
+
+  frame : "frame",
+  child_frame : "child.frame",
+  parent_frame : "parent.frame",
+};
+
 Cutout.prototype.postNotif = function(name) {
   this._notifs[name] = true;
   if (this._parent) {
@@ -398,7 +416,7 @@ Cutout.prototype.publish = function(name, event, point) {
       __origin : point,
       toString : point.toString
     };
-    
+
     point = this.absoluteMatrix().reverse().map(point.__origin, point);
 
     if (!this._spy
@@ -464,6 +482,11 @@ Cutout.prototype.width = function(x) {
 
 Cutout.prototype.height = function(y) {
   return !arguments.length ? this._height : this.size(this._width, y);
+};
+
+Cutout.scale = {
+  fit : "fit",
+  slice : "slice"
 };
 
 Cutout.prototype.scaleTo = function(width, height, mode, resize) {
@@ -545,8 +568,8 @@ Cutout.prototype.offsetY = function(y) {
 
 Cutout.prototype.pivot = function(x, y) {
   y = typeof y === "undefined" ? x : y;
-  this._pivotX = CutoutUtils.isNum(x) ? (x / 2 + 0.5) : x;
-  this._pivotY = CutoutUtils.isNum(y) ? (y / 2 + 0.5) : y;
+  this._pivotX = CutoutUtils.isNum(x) ? (x) : x;
+  this._pivotY = CutoutUtils.isNum(y) ? (y) : y;
 
   this._pivoted = CutoutUtils.isNum(this._pivotX)
       && CutoutUtils.isNum(this._pivotY);
@@ -566,8 +589,8 @@ Cutout.prototype.pivotY = function(y) {
 Cutout.prototype.align = function(x, y, cx, cy) {
   y = typeof y !== "undefined" ? y : x;
 
-  CutoutUtils.isNum(x) && (this._alignX = x / 2 + 0.5);
-  CutoutUtils.isNum(y) && (this._alignY = y / 2 + 0.5);
+  CutoutUtils.isNum(x) && (this._alignX = x);
+  CutoutUtils.isNum(y) && (this._alignY = y);
 
   this._alignTicker
       || this.addTicker(this._alignTicker = function() {
@@ -599,8 +622,8 @@ Cutout.prototype.alignY = function(y, cy) {
 Cutout.prototype.handle = function(x, y) {
   y = typeof y !== "undefined" ? y : x;
 
-  CutoutUtils.isNum(x) && (this._handleX = x / 2 + 0.5);
-  CutoutUtils.isNum(y) && (this._handleY = y / 2 + 0.5);
+  CutoutUtils.isNum(x) && (this._handleX = x);
+  CutoutUtils.isNum(y) && (this._handleY = y);
 
   this._handleTicker || this.addTicker(this._handleTicker = function() {
     if (this._handled && this.clearNotif(Cutout.notif.size)) {
@@ -963,35 +986,6 @@ Cutout.NinePatch.prototype.paint = function(context) {
 };
 
 // Static
-
-Cutout.scale = {
-  fit : "fit",
-  slice : "slice"
-};
-
-Cutout.align = {
-  start : -1,
-  end : +1,
-  center : 0
-};
-
-Cutout.notif = {
-  children : "children",
-  child_children : "child.children",
-  parent_children : "parent.children",
-
-  parent : "parent",
-  child_parent : "child.parent",
-  parent_parent : "parent.parent",
-
-  size : "size",
-  child_size : "child.size",
-  parent_size : "parent.size",
-
-  frame : "frame",
-  child_frame : "child.frame",
-  parent_frame : "parent.frame",
-};
 
 Cutout.textures = {};
 Cutout.images = {};

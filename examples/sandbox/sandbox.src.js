@@ -13,9 +13,9 @@ function rootMaker() {
   var root = new Cutout();
 
   var last = null;
-  var column = C.column().appendTo(root).align(C.align.center);
+  var column = C.column().appendTo(root).align(0.5);
   for ( var j = 0; j < 9; j++) {
-    var row = C.row(j).appendTo(column);
+    var row = C.row().id("row" + j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
       // colors as frames
       var box = C.anim("boxes:box_").id(j + "-" + i).appendTo(row);
@@ -67,8 +67,8 @@ function animateBox(reset) {
       : random(-Math.PI, Math.PI);
   target.skewX = reset ? 0 : random(0, 0.4);
   target.skewY = reset ? 0 : random(0, 0.4);
-  target.cx = reset ? 0 : random(-0.4, 0.4);
-  target.cy = reset ? 0 : random(-0.4, 0.4);
+  target.pivotX = reset ? 0 : random(0.2, 0.8);
+  target.pivotY = reset ? 0 : random(0.2, 0.8);
 
   if (tweening.tween) {
     tweening.tween.stop();
@@ -78,7 +78,7 @@ function animateBox(reset) {
       this.scale(1 + value.scaleX, 1 + value.scaleY);
       this.rotate(value.rotation);
       this.skew(value.skewX, value.skewY);
-      this.pivot(value.cx, value.cy);
+      this.pivot(value.pivotX, value.pivotY);
     }.bind(this));
   }
 
@@ -153,7 +153,7 @@ function random(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-//register texture(s)
+// register texture(s)
 Cutout.addTexture({
   name : "boxes",
   imagePath : "boxes.png",
