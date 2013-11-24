@@ -747,18 +747,19 @@ Cutout.Anim.prototype.paint = function(context) {
 };
 
 Cutout.string = function(selector) {
-  return new Cutout.String().setPrefix(selector);
+  return new Cutout.String().setFont(selector);
 };
 
 Cutout.String = function() {
   Cutout.String.prototype._super.apply(this, arguments);
+  this.row();
 };
 
 Cutout.String.prototype = new Cutout(true);
 Cutout.String.prototype._super = Cutout;
 Cutout.String.prototype.constructor = Cutout.String;
 
-Cutout.String.prototype.setPrefix = function(selector) {
+Cutout.String.prototype.setFont = function(selector) {
   this.selector = selector;
   selector = selector.split(":", 2);
   this.prefix = selector.length > 1 ? selector[1] : selector[0];
@@ -769,31 +770,86 @@ Cutout.String.prototype.setValue = function(value) {
   if (!value.length) {
     value = value + "";
   }
-  var oldwidth = this._width;
-  var oldheight = this._height;
-
-  this._width = 0;
   for ( var i = 0; i < Math.max(this._children.length, value.length); i++) {
-    var digit = i < this._children.length ? this._children[i] : Cutout.anim(
+    var char = i < this._children.length ? this._children[i] : Cutout.anim(
         this.selector).appendTo(this);
 
-    // call if changed
-    if (digit._offsetX != this._width) {
-      digit.offset(this._width, null);
+    if (i < value.length) {
+      char.gotoLabel(this.prefix + value[i], true).show();
+    } else {
+      char.hide();
+    }
+  }
+  return this;
+};
+
+Cutout.row = function(valign, spy) {
+  return new Cutout().row(valign, spy);
+};
+
+Cutout.prototype.row = function(valign, spy) {
+  return this.flow(true, valign, spy);
+};
+
+Cutout.column = function(halign, spy) {
+  return new Cutout().column(halign, spy);
+};
+
+Cutout.prototype.column = function(halign, spy) {
+  return this.flow(false, halign, spy);
+};
+
+Cutout.prototype.flow = function(row, align, spy) {
+  this.spy(spy ? true : false);
+  this._spacing = 0;
+  this.spacing = function(spacing) {
+    this._spacing = CutoutUtils.isNum(spacing) ? spacing : 0;
+    return this;
+  };
+
+  this._columnTicker || this.addTicker(this._columnTicker = function() {
+    if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
+      return;
     }
 
-    if (i < value.length) {
-      digit.gotoLabel(this.prefix + value[i], true).show();
-      this._width += digit._width;
-      this._height = digit._height;
-    } else {
-      digit.hide();
+    var width = 0, height = 0;
+
+    var first = true;
+    for ( var i = 0; i < this._children.length; i++) {
+      var child = this._children[i];
+      if (!child._visible) {
+        continue;
+      }
+
+      if (row) {
+        !first && (width += this._spacing);
+
+        // TODO: only call on changed
+        child.align(null, align);
+        child.offset(width, null);
+
+        child.boxMatrix();
+        width += child._boxWidth;
+        height = Math.max(height, child._boxHeight);
+
+      } else {
+        !first && (height += this._spacing);
+
+        child.align(align, null);
+        child.offset(null, height);
+
+        child.boxMatrix();
+        height += child._boxHeight;
+        width = Math.max(width, child._boxWidth);
+      }
+
+      first = false;
     }
-  }
-  if (oldwidth !== this._width || oldheight !== this._height) {
-    this._transformed = true;
-    this.postNotif(Cutout.notif.size);
-  }
+
+    if (this._width !== width || this._height !== height) {
+      this.size(width, height);
+    }
+  }, false);
   return this;
 };
 
@@ -899,107 +955,6 @@ Cutout.NinePatch.prototype.paint = function(context) {
       c++;
     }
   }
-};
-
-Cutout.row = function(valign, spy) {
-  return new Cutout().row(valign, spy);
-};
-
-Cutout.prototype.row = function(valign, spy) {
-  this.spy(spy ? true : false);
-  this._spacing = 0;
-  this.spacing = function(spacing) {
-    this._spacing = CutoutUtils.isNum(spacing) ? spacing : 0;
-    return this;
-  };
-  this._rowTicker || this.addTicker(this._rowTicker = function() {
-    if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
-      return;
-    }
-
-    var oldwidth = this._width;
-    var oldheight = this._height;
-
-    this._width = 0;
-    this._height = 0;
-
-    for ( var i = 0; i < this._children.length; i++) {
-      var child = this._children[i];
-
-      // TODO: only call on changed
-      child.align(null, valign);
-      child.offset(this._width + this._spacing, null);
-
-      if (child._visible) {
-        child.boxMatrix();
-        this._width += child._boxWidth;
-        if (this._width > 0) {
-          this._width += this._spacing;
-        }
-      }
-      this._height = Math.max(this._height, child._boxHeight);
-    }
-    if (this._width > 0) {
-      this._width -= this._spacing;
-    }
-
-    if (oldwidth !== this._width || oldheight !== this._height) {
-      this._transformed = true;
-      this.postNotif(Cutout.notif.size);
-    }
-  }, false);
-  return this;
-};
-
-Cutout.column = function(halign, spy) {
-  return new Cutout().column(halign, spy);
-};
-
-Cutout.prototype.column = function(halign, spy) {
-  this.spy(spy ? true : false);
-  this._spacing = 0;
-  this.spacing = function(spacing) {
-    this._spacing = CutoutUtils.isNum(spacing) ? spacing : 0;
-    return this;
-  };
-
-  this._columnTicker || this.addTicker(this._columnTicker = function() {
-    if (!this.clearNotif(Cutout.notif.child_size, Cutout.notif.children)) {
-      return;
-    }
-
-    var oldwidth = this._width;
-    var oldheight = this._height;
-
-    this._width = 0;
-    this._height = 0;
-
-    for ( var i = 0; i < this._children.length; i++) {
-      var child = this._children[i];
-
-      // TODO: only call on changed
-      child.align(halign, null);
-      child.offset(null, this._height);
-
-      if (child._visible) {
-        child.boxMatrix();
-        this._height += child._boxHeight;
-        if (this._height > 0) {
-          this._height += this._spacing;
-        }
-      }
-      this._width = Math.max(this._width, child._boxWidth);
-    }
-    if (this._height > 0) {
-      this._height -= this._spacing;
-    }
-
-    if (oldwidth !== this._width || oldheight !== this._height) {
-      this._transformed = true;
-      this.postNotif(Cutout.notif.size);
-    }
-  }, false);
-  return this;
 };
 
 // Static
