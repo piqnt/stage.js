@@ -394,7 +394,12 @@ Cutout.prototype.clearNotif = function() {
 
 Cutout.prototype.publish = function(name, event, point) {
   if (point) {
-    point = this.relativeMatrix().reverse().map(point);
+    point = point.__origin ? point : {
+      __origin : point,
+      toString : point.toString
+    };
+    
+    point = this.absoluteMatrix().reverse().map(point.__origin, point);
 
     if (!this._spy
         && !(point.x >= 0 && point.x <= this._width && point.y >= 0 && point.y <= this._height)) {
