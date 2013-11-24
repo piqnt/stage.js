@@ -4,13 +4,22 @@ var C = Cutout;
 // regster loading process
 window.addEventListener("load", function() {
   console.log("Page loaded. Initing...");
-  load(rootMaker);
-}, false);
 
-// UI root maker
-function rootMaker() {
-
+  // root cutout
   var root = new Cutout();
+
+  // only register root
+  Mouse.listen(root, true);
+
+  // tick tween.js
+  root.addTicker(function() {
+    TWEEN.update();
+  }, true);
+
+  root.resize = function(width, height) {
+    // size relative to graphics, resize to fit in screen
+    this.size(500, 500).scaleTo(width, height, C.scale.fit, true);
+  };
 
   var column = C.column().appendTo(root).align(0.5);
   for ( var j = 0; j < 9; j++) {
@@ -26,29 +35,15 @@ function rootMaker() {
     }
   }
 
-  // only register root
-  Mouse.listen(root, true);
-
-  // tick tween.js
-  root.addTicker(function() {
-    TWEEN.update();
-  }, true);
-
-  root.resize = function(width, height) {
-    // size relative to graphics, resize to fit in screen
-    this.size(500, 500).scaleTo(width, height, C.scale.fit, true);
-  };
-
-  return root;
-}
+  load(root);
+}, false);
 
 var last = null;
 
 function animateBox(box) {
 
-  if (box == last) {
+  if (box == last)
     return;
-  }
   last = box;
 
   // random color
@@ -67,8 +62,8 @@ function animateBox(box) {
     rotation : random(-Math.PI, Math.PI),
     skewX : random(0, 0.4),
     skewY : random(0, 0.4),
-    pivotX : random(-0.3, 0.3),
-    pivotY : random(-0.3, 0.3)
+    pivotX : random(-0.2, 0.2),
+    pivotY : random(-0.2, 0.2)
   }, random(2000, 5000)).onUpdate(function(t) {
     box.scale(1 + this.scaleX, 1 + this.scaleY);
     box.rotate(this.rotation);
@@ -79,8 +74,8 @@ function animateBox(box) {
 }
 
 // reusable loader
-function load(rootMaker) {
-  var canvas, context, root, player;
+function load(root) {
+  var canvas, context, player;
 
   console.log("Loading images...");
   Cutout.loadImages(function(src, handleComplete, handleError) {
@@ -105,7 +100,6 @@ function load(rootMaker) {
     context = canvas.getContext("2d");
 
     console.log("Creating root...");
-    root = rootMaker();
 
     console.log("Resize...");
     resize();

@@ -1019,6 +1019,12 @@ Cutout.loadImages = function(imageLoader, completeCallback) {
   }
 };
 
+Cutout.getImageRef = function(src) {
+  return function() {
+    return Cutout.images[src];
+  };
+};
+
 Cutout.getImage = function(src) {
   return Cutout.images[src];
 };
@@ -1055,7 +1061,7 @@ Cutout.byName = function(selector) {
     return null;
   }
 
-  var img = Cutout.getImage(texture.imagePath);
+  var img = Cutout.getImageRef(texture.imagePath);
 
   var cuts = texture.cuts;
   for ( var i = 0; i < cuts.length; i++) {
@@ -1087,7 +1093,7 @@ Cutout.byPrefix = function(selector) {
     return result;
   }
 
-  var img = Cutout.getImage(texture.imagePath);
+  var img = Cutout.getImageRef(texture.imagePath);
 
   var prefLen = prefix.length;
   var cuts = texture.cuts;
@@ -1165,7 +1171,7 @@ Cutout.Cut.prototype.offset = function(x, y) {
 };
 
 Cutout.Cut.prototype.paint = function(context) {
-  context.drawImage(this.image, // source
+  context.drawImage(this.image(), // source
   this.sx, this.sy, this.sw, this.sh, // cut
   this.dx, this.dy, this.dw, this.dh // position
   );
