@@ -12,7 +12,6 @@ function rootMaker() {
 
   var root = new Cutout();
 
-  var last = null;
   var column = C.column().appendTo(root).align(0.5);
   for ( var j = 0; j < 9; j++) {
     var row = C.row().id("row" + j).appendTo(column);
@@ -21,10 +20,7 @@ function rootMaker() {
       var box = C.anim("boxes:box_").id(j + "-" + i).appendTo(row);
 
       box.attr(Mouse.ON_MOVE, function(ev, point) {
-        if (this !== last) {
-          last = this;
-          animateBox.bind(this)();
-        }
+        animateBox(this);
         return true;
       });
     }
@@ -33,10 +29,10 @@ function rootMaker() {
   // only register root
   Mouse.listen(root, true);
 
-  root.paint = function() {
-    // tick tween.js
+  // tick tween.js
+  root.addTicker(function() {
     TWEEN.update();
-  };
+  }, true);
 
   root.resize = function(width, height) {
     // size relative to graphics, resize to fit in screen
@@ -46,45 +42,40 @@ function rootMaker() {
   return root;
 }
 
-// animate box using tween.js
-function animateBox(reset) {
+var last = null;
+
+function animateBox(box) {
+
+  if (box == last) {
+    return;
+  }
+  last = box;
 
   // random color
-  !reset && this.randomFrame();
+  box.randomFrame();
 
-  // tweening objects
-  var tweening = this.tweening = this.tweening || {};
-
-  // tweening current values
-  var value = tweening.value = tweening.value || {};
-
-  // tweening target values
-  var target = tweening.target = tweening.target || {};
-
-  target.scaleX = reset ? 0 : random(-0.1, 0.4);
-  target.scaleY = reset ? 0 : random(-0.1, 0.4);
-  target.rotation = reset ? Math.round(value.rotation / Math.PI) * Math.PI
-      : random(-Math.PI, Math.PI);
-  target.skewX = reset ? 0 : random(0, 0.4);
-  target.skewY = reset ? 0 : random(0, 0.4);
-  target.pivotX = reset ? 0 : random(0.2, 0.8);
-  target.pivotY = reset ? 0 : random(0.2, 0.8);
-
-  if (tweening.tween) {
-    tweening.tween.stop();
+  // animate box using tween.js
+  if (!box.tween) {
+    box.tween = new TWEEN.Tween({});
   } else {
-    tweening.tween = new TWEEN.Tween(value).onUpdate(function(t) {
-      var value = this.tweening.value;
-      this.scale(1 + value.scaleX, 1 + value.scaleY);
-      this.rotate(value.rotation);
-      this.skew(value.skewX, value.skewY);
-      this.pivot(value.pivotX, value.pivotY);
-    }.bind(this));
+    box.tween.stop();
   }
 
-  tweening.tween.to(target, reset ? random(10000, 20000) : 3000).start();
+  box.tween.to({
+    scaleX : random(-0.1, 0.4),
+    scaleY : random(-0.1, 0.4),
+    rotation : random(-Math.PI, Math.PI),
+    skewX : random(0, 0.4),
+    skewY : random(0, 0.4),
+    pivotX : random(-0.3, 0.3),
+    pivotY : random(-0.3, 0.3)
+  }, random(2000, 5000)).onUpdate(function(t) {
+    box.scale(1 + this.scaleX, 1 + this.scaleY);
+    box.rotate(this.rotation);
+    box.skew(this.skewX, this.skewY);
+    box.pivot(0.5 + this.pivotX, 0.5 + this.pivotY);
+  }).start();
 
-  this.touch();
 }
 
 // reusable loader
