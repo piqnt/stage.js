@@ -6,7 +6,7 @@ window.addEventListener("load", function() {
   console.log("Page loaded. Initing...");
 
   // root cutout
-  var root = new Cutout();
+  var root = new Cutout().id("root");
 
   // only register root
   Mouse.listen(root, true);
@@ -18,10 +18,18 @@ window.addEventListener("load", function() {
 
   root.resize = function(width, height) {
     // size relative to graphics, resize to fit in screen
-    this.size(500, 500).scaleTo(width, height, C.scale.fit, true);
+    this.style({
+      width : 500,
+      height : 500,
+      resizeMode : "in",
+      resizeWidth : width,
+      resizeHeight : height,
+    });
   };
 
-  var column = C.column().appendTo(root).align(0.5);
+  var column = C.column().appendTo(root).style({
+    align : 0.5
+  });
   for ( var j = 0; j < 9; j++) {
     var row = C.row().id("row" + j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
@@ -51,24 +59,30 @@ function animateBox(box) {
 
   // animate box using tween.js
   if (!box.tween) {
-    box.tween = new TWEEN.Tween({});
+    // initial tweening values
+    box.tween = new TWEEN.Tween({
+      scaleX : 1,
+      scaleY : 1,
+      skewX : 0,
+      skewY : 0,
+      rotation : 0,
+      pivotX : 0.5,
+      pivotY : 0.5
+    });
   } else {
     box.tween.stop();
   }
 
   box.tween.to({
-    scaleX : random(-0.1, 0.4),
-    scaleY : random(-0.1, 0.4),
-    rotation : random(-Math.PI, Math.PI),
+    scaleX : random(0.9, 1.4),
+    scaleY : random(0.9, 1.4),
     skewX : random(0, 0.4),
     skewY : random(0, 0.4),
-    pivotX : random(-0.2, 0.2),
-    pivotY : random(-0.2, 0.2)
-  }, random(2000, 5000)).onUpdate(function(t) {
-    box.scale(1 + this.scaleX, 1 + this.scaleY);
-    box.rotate(this.rotation);
-    box.skew(this.skewX, this.skewY);
-    box.pivot(0.5 + this.pivotX, 0.5 + this.pivotY);
+    rotation : random(-Math.PI, Math.PI),
+    pivotX : random(0.3, 0.7),
+    pivotY : random(0.3, 0.7)
+  }, random(2000, 5000)).onUpdate(function() {
+    box.style().update(this);
   }).start();
 
 }
