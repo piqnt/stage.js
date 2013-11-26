@@ -17,7 +17,6 @@
  under the License.
  */
 
-
 if (typeof DEBUG === 'undefined')
   DEBUG = true;
 
@@ -359,11 +358,11 @@ Cutout.Image.prototype.constructor = Cutout.Image;
 Cutout.Image.prototype.setImage = function(selector) {
   var cut = Cutout.byName(selector);
   this._cut = cut;
-  if (this._cut) {
-    this.size(this._cut.width(), this._cut.height());
-  } else {
-    this.size(0, 0);
-  }
+  this.style({
+    width : this._cut ? this._cut.width() : 0,
+    height : this._cut ? this._cut.height() : 0
+  });
+
   return this;
 };
 
@@ -938,8 +937,6 @@ Cutout.Style = function() {
 };
 
 Cutout.Style.prototype.update = function(style) {
-  style = typeof style == "object" ? style : this;
-
   var transformed = false, translated = false;
 
   if ("width" in style && CutoutUtils.isNum(style.width)) {
@@ -966,7 +963,21 @@ Cutout.Style.prototype.update = function(style) {
     }
     this._width = w / style.scaleX;
     this._height = h / style.scaleY;
-    transformed = true;
+  }
+
+  if ("scaleWidth" in style && "scaleHeight" in style
+      && CutoutUtils.isNum(style.scaleWidth)
+      && CutoutUtils.isNum(style.scaleHeight)) {
+    var w = style.scaleWidth, h = style.scaleHeight;
+    var mode = style.scaleMode;
+    if (mode == "out") {
+      style.scaleX = style.scaleY = Math.max(w / this._width, h / this._height);
+    } else if (mode == "in") {
+      style.scaleX = style.scaleY = Math.min(w / this._width, h / this._height);
+    } else {
+      style.scaleX = w / this._width;
+      style.scaleY = h / this._height;
+    }
   }
 
   if ("scale" in style && CutoutUtils.isNum(style.scale)) {
@@ -1039,21 +1050,21 @@ Cutout.Style.prototype.update = function(style) {
     this._aligned = true;
     translated = true;
 
-    style.handle = style.handle || style.align;
+    CutoutUtils.isNum(style.handle) || (style.handle = style.align);
   }
   if ("alignX" in style && CutoutUtils.isNum(style.alignX)) {
     this._alignX = style.alignX;
     this._aligned = true;
     translated = true;
 
-    style.handleX = style.handleX || style.alignX;
+    CutoutUtils.isNum(style.handleX) || (style.handleX = style.alignX);
   }
   if ("alignY" in style && CutoutUtils.isNum(style.alignY)) {
     this._alignY = style.alignY;
     this._aligned = true;
     translated = true;
 
-    style.handleY = style.handleY || style.alignY;
+    CutoutUtils.isNum(style.handleY) || (style.handleY = style.alignY);
   }
 
   if ("handle" in style && CutoutUtils.isNum(style.handle)) {
