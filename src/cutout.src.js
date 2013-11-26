@@ -39,7 +39,7 @@ function Cutout(prototype) {
   this._tickersCapture = [];
   this._tickersBubble = [];
 
-  this._style = new Cutout.Style();
+  this._style = new Cutout.Style().tick(this);
 };
 
 Cutout.TS = 0;
@@ -327,14 +327,7 @@ Cutout.prototype.style = function() {
   if (!arguments.length) {
     return this._style;
   }
-  if (arguments.length == 1) {
-    this._style.update(arguments[0]);
-  }
-  if (arguments.length == 2) {
-    var style = {};
-    style[arguments[0]] = arguments[1];
-    this._style.update(style);
-  }
+  this._style.update.apply(this._style, arguments);
   return this;
 };
 
@@ -936,163 +929,241 @@ Cutout.Style = function() {
   this._matrixed = Cutout.TS++;
 };
 
-Cutout.Style.prototype.update = function(style) {
-  var transformed = false, translated = false;
+Cutout.Style.prototype.update = function() {
+  this._transformed_flag = false;
+  this._translated_flag = false;
 
-  if ("width" in style && CutoutUtils.isNum(style.width)) {
-    this._width = style.width;
-    transformed = true;
-  }
-  if ("height" in style && CutoutUtils.isNum(style.height)) {
-    this._height = style.height;
-    transformed = true;
-  }
-
-  if ("resizeWidth" in style && "resizeHeight" in style
-      && CutoutUtils.isNum(style.resizeWidth)
-      && CutoutUtils.isNum(style.resizeHeight)) {
-    var w = style.resizeWidth, h = style.resizeHeight;
-    var mode = style.resizeMode;
-    if (mode == "out") {
-      style.scaleX = style.scaleY = Math.max(w / this._width, h / this._height);
-    } else if (mode == "in") {
-      style.scaleX = style.scaleY = Math.min(w / this._width, h / this._height);
-    } else {
-      style.scaleX = w / this._width;
-      style.scaleY = h / this._height;
+  var value, setter, key;
+  if (arguments.length == 1) {
+    style = arguments[0];
+    for (key in style) {
+      value = style[key];
+      setter = Cutout.Style.setters[key];
+      if (setter) {
+        if (value || value === 0)
+          setter(this, value, style);
+      } else {
+        DEBUG && console.log("Invalid style: " + key + "/" + value);
+      }
     }
-    this._width = w / style.scaleX;
-    this._height = h / style.scaleY;
-  }
-
-  if ("scaleWidth" in style && "scaleHeight" in style
-      && CutoutUtils.isNum(style.scaleWidth)
-      && CutoutUtils.isNum(style.scaleHeight)) {
-    var w = style.scaleWidth, h = style.scaleHeight;
-    var mode = style.scaleMode;
-    if (mode == "out") {
-      style.scaleX = style.scaleY = Math.max(w / this._width, h / this._height);
-    } else if (mode == "in") {
-      style.scaleX = style.scaleY = Math.min(w / this._width, h / this._height);
+  } else if (arguments.length == 2) {
+    key = arguments[0];
+    value = arguments[1];
+    setter = Cutout.Style.setters[key];
+    if (setter) {
+      if (value || value === 0)
+        setter.call(this, value, style);
     } else {
-      style.scaleX = w / this._width;
-      style.scaleY = h / this._height;
+      DEBUG && console.log("Invalid style: " + key + "/" + value);
     }
+
   }
 
-  if ("scale" in style && CutoutUtils.isNum(style.scale)) {
-    this._scaleX = style.scale;
-    this._scaleY = style.scale;
-    transformed = true;
-  }
-  if ("scaleX" in style && CutoutUtils.isNum(style.scaleX)) {
-    this._scaleX = style.scaleX;
-    transformed = true;
-  }
-  if ("scaleY" in style && CutoutUtils.isNum(style.scaleY)) {
-    this._scaleY = style.scaleY;
-    transformed = true;
-  }
-
-  if ("skew" in style && CutoutUtils.isNum(style.skew)) {
-    this._skewX = style.skew;
-    this._skewY = style.skew;
-    transformed = true;
-  }
-  if ("skewX" in style && CutoutUtils.isNum(style.skewX)) {
-    this._skewX = style.skewX;
-    transformed = true;
-  }
-  if ("skewY" in style && CutoutUtils.isNum(style.skewY)) {
-    this._skewY = style.skewY;
-    transformed = true;
-  }
-
-  if ("rotation" in style && CutoutUtils.isNum(style.rotation)) {
-    this._rotation = style.rotation;
-    transformed = true;
-  }
-
-  if ("pivot" in style && CutoutUtils.isNum(style.pivot)) {
-    this._pivotX = style.pivot;
-    this._pivotY = style.pivot;
-    this._pivoted = true;
-    transformed = true;
-  }
-  if ("pivotX" in style && CutoutUtils.isNum(style.pivotX)) {
-    this._pivotX = style.pivotX;
-    this._pivoted = true;
-    transformed = true;
-  }
-  if ("pivotY" in style && CutoutUtils.isNum(style.pivotY)) {
-    this._pivotY = style.pivotY;
-    this._pivoted = true;
-    transformed = true;
-  }
-
-  if ("offset" in style && CutoutUtils.isNum(style.offset)) {
-    this._offsetX = style.offset;
-    this._offsetY = style.offset;
-    translated = true;
-  }
-  if ("offsetX" in style && CutoutUtils.isNum(style.offsetX)) {
-    this._offsetX = style.offsetX;
-    translated = true;
-  }
-  if ("offsetY" in style && CutoutUtils.isNum(style.offsetY)) {
-    this._offsetY = style.offsetY;
-    translated = true;
-  }
-
-  if ("align" in style && CutoutUtils.isNum(style.align)) {
-    this._alignX = style.align;
-    this._alignY = style.align;
-    this._aligned = true;
-    translated = true;
-
-    CutoutUtils.isNum(style.handle) || (style.handle = style.align);
-  }
-  if ("alignX" in style && CutoutUtils.isNum(style.alignX)) {
-    this._alignX = style.alignX;
-    this._aligned = true;
-    translated = true;
-
-    CutoutUtils.isNum(style.handleX) || (style.handleX = style.alignX);
-  }
-  if ("alignY" in style && CutoutUtils.isNum(style.alignY)) {
-    this._alignY = style.alignY;
-    this._aligned = true;
-    translated = true;
-
-    CutoutUtils.isNum(style.handleY) || (style.handleY = style.alignY);
-  }
-
-  if ("handle" in style && CutoutUtils.isNum(style.handle)) {
-    this._handleX = style.handle;
-    this._handleY = style.handle;
-    this._handled = true;
-    translated = true;
-  }
-  if ("handleX" in style && CutoutUtils.isNum(style.handleX)) {
-    this._handleX = style.handleX;
-    this._handled = true;
-    translated = true;
-  }
-  if ("handleY" in style && CutoutUtils.isNum(style.handleY)) {
-    this._handleY = style.handleY;
-    this._handled = true;
-    translated = true;
-  }
-
-  if (translated) {
+  if (this._translated_flag) {
+    this._translated_flag = false;
     this._translated = Cutout.TS++;
   }
-  if (transformed) {
+  if (this._transformed_flag) {
+    this._transformed_flag = false;
     this._transformed = Cutout.TS++;
     this._owner && this._owner.postNotif(Cutout.notif.style);
   }
 
   return this;
+};
+
+Cutout.Style.setters = {
+  width : function(target, value) {
+    target._width = value;
+    target._transformed_flag = true;
+  },
+
+  height : function(target, value) {
+    target._height = value;
+    target._transformed_flag = true;
+  },
+
+  scale : function(target, value) {
+    target._scaleX = value;
+    target._scaleY = value;
+    target._transformed_flag = true;
+  },
+
+  scaleX : function(target, value) {
+    target._scaleX = value;
+    target._transformed_flag = true;
+  },
+
+  scaleY : function(target, value) {
+    target._scaleY = value;
+    target._transformed_flag = true;
+  },
+
+  skew : function(target, value) {
+    target._skewX = value;
+    target._skewY = value;
+    target._transformed_flag = true;
+  },
+
+  skewX : function(target, value) {
+    target._skewX = value;
+    target._transformed_flag = true;
+  },
+
+  skewY : function(target, value) {
+    target._skewY = value;
+    target._transformed_flag = true;
+  },
+
+  rotation : function(target, value) {
+    target._rotation = value;
+    target._transformed_flag = true;
+  },
+
+  pivot : function(target, value) {
+    target._pivotX = value;
+    target._pivotY = value;
+    target._pivoted = true;
+    target._transformed_flag = true;
+  },
+
+  pivotX : function(target, value) {
+    target._pivotX = value;
+    target._pivoted = true;
+    target._transformed_flag = true;
+  },
+
+  pivotY : function(target, value) {
+    target._pivotY = value;
+    target._pivoted = true;
+    target._transformed_flag = true;
+  },
+
+  offset : function(target, value) {
+    target._offsetX = value;
+    target._offsetY = value;
+    target._translated_flag = true;
+  },
+
+  offsetX : function(target, value) {
+    target._offsetX = value;
+    target._translated_flag = true;
+  },
+
+  offsetY : function(target, value) {
+    target._offsetY = value;
+    target._translated_flag = true;
+  },
+
+  resizeMode : function(target, value, style) {
+
+  },
+
+  resizeHeight : function(target, value, style) {
+
+  },
+
+  resizeWidth : function(target, value, style) {
+    if (!CutoutUtils.isNum(style.resizeWidth)
+        || !CutoutUtils.isNum(style.resizeHeight)) {
+      return;
+    }
+    var w = style.resizeWidth, h = style.resizeHeight, mode = style.resizeMode;
+    if (mode == "out") {
+      target._scaleX = target._scaleY = Math.max(w / target._width, h
+          / target._height);
+    } else if (mode == "in") {
+      target._scaleX = target._scaleY = Math.min(w / target._width, h
+          / target._height);
+    } else {
+      target._scaleX = w / target._width;
+      target._scaleY = h / target._height;
+    }
+    target._width = w / target._scaleX;
+    target._height = h / target._scaleY;
+
+    target._transformed_flag = true;
+  },
+
+  scaleMode : function(target, value, style) {
+
+  },
+
+  scaleHeight : function(target, value, style) {
+
+  },
+
+  scaleWidth : function(target, value, style) {
+    if (!CutoutUtils.isNum(style.scaleWidth)
+        || !CutoutUtils.isNum(style.scaleHeight)) {
+      return;
+    }
+    var w = style.scaleWidth, h = style.scaleHeight, mode = style.scaleMode;
+    if (mode == "out") {
+      target._scaleX = target._scaleY = Math.max(w / target._width, h
+          / target._height);
+    } else if (mode == "in") {
+      target._scaleX = target._scaleY = Math.min(w / target._width, h
+          / target._height);
+    } else {
+      target._scaleX = w / target._width;
+      target._scaleY = h / target._height;
+    }
+
+    target._transformed_flag = true;
+  },
+
+  align : function(target, value) {
+    target._alignX = value;
+    target._alignY = value;
+    target._aligned = true;
+
+    target._handleX = value;
+    target._handleY = value;
+    target._handled = true;
+
+    target._translated_flag = true;
+  },
+
+  alignX : function(target, value) {
+    target._alignX = value;
+    target._aligned = true;
+
+    target._handleX = value;
+    target._handled = true;
+
+    target._translated_flag = true;
+  },
+
+  alignY : function(target, value) {
+    target._alignY = value;
+    target._aligned = true;
+
+    target._handleY = value;
+    target._handled = true;
+
+    target._translated_flag = true;
+  },
+
+  handle : function(target, value) {
+    target._handleX = value;
+    target._handleY = value;
+    target._handled = true;
+    target._translated_flag = true;
+  },
+
+  handleX : function(target, value) {
+    target._handleX = value;
+    target._handled = true;
+    target._translated_flag = true;
+  },
+
+  handleY : function(target, value) {
+    target._handleY = value;
+    target._handled = true;
+    target._translated_flag = true;
+  }
+
 };
 
 Cutout.Style.prototype.tick = function(owner, parent) {
