@@ -597,71 +597,68 @@ Cutout.NinePatch.prototype.setImage = function(selector) {
   return this;
 };
 
-Cutout.NinePatch.prototype.size = function(width, height) {
+Cutout.NinePatch.prototype.resize = function(width, height) {
 
-  if (width != this._width) {
-    var left = this._cut.left;
-    var right = this._cut.right;
-    this._width = Math.max(width, left + right);
-    this._columns = [];
-    var maxw = this._cut.width();
-    var x, rx, l, r, w;
-    x = 0, l = 0, r = right;
-    while (x < this._width) {
-      rx = this._width - x;
-      w = maxw - l;
-      if (w < rx) {
-        w -= right;
-      } else if (rx < w) {
-        if (!right) {// no right: left
-          w = rx, l = 0;
-        } else if (!left) { // no left: right
-          w = rx, l = maxw - w;
-        } else if (l == 0) { // left & right & first: left & -right
-          w = rx - right;
-        } else { // left & right & !first: right
-          w = rx, l = maxw - w;
-        }
-        w = rx - r;
+  var left = this._cut.left;
+  var right = this._cut.right;
+  width = Math.max(width, left + right);
+  this._columns = [];
+  var maxw = this._cut.width();
+  var x, rx, l, r, w;
+  x = 0, l = 0, r = right;
+  while (x < width) {
+    rx = width - x;
+    w = maxw - l;
+    if (w < rx) {
+      w -= right;
+    } else if (rx < w) {
+      if (!right) { // no right: left
+        w = rx, l = 0;
+      } else if (!left) { // no left: right
+        w = rx, l = maxw - w;
+      } else if (l == 0) { // left & right & first: left & -right
+        w = rx - right;
+      } else { // left & right & !first: right
+        w = rx, l = maxw - w;
       }
-      this._columns.push([ w, l, x ]);
-      x += w, l = left, r = 0;
+      w = rx - r;
     }
-    this._transformed = true;
-    this.postNotif(Cutout.notif.style);
+    this._columns.push([ w, l, x ]);
+    x += w, l = left, r = 0;
   }
 
-  if (height != this._height) {
-    var top = this._cut.top;
-    var bottom = this._cut.bottom;
-    this._height = Math.max(height, top + bottom);
-    this._rows = [];
-    var maxh = this._cut.height();
-    var y, ry, t, b, h;
-    y = 0, t = 0, b = bottom;
-    while (y < this._height) {
-      ry = this._height - y;
-      h = maxh - t;
-      if (h < ry) {
-        h -= bottom;
-      } else if (ry < h) {
-        if (!bottom) {
-          h = ry, t = 0;
-        } else if (!top) {
-          h = ry, t = maxh - h;
-        } else if (t == 0) {
-          h = ry - bottom;
-        } else {
-          h = ry, t = maxh - h;
-        }
-        h = ry - b;
+  var top = this._cut.top;
+  var bottom = this._cut.bottom;
+  height = Math.max(height, top + bottom);
+  this._rows = [];
+  var maxh = this._cut.height();
+  var y, ry, t, b, h;
+  y = 0, t = 0, b = bottom;
+  while (y < height) {
+    ry = height - y;
+    h = maxh - t;
+    if (h < ry) {
+      h -= bottom;
+    } else if (ry < h) {
+      if (!bottom) {
+        h = ry, t = 0;
+      } else if (!top) {
+        h = ry, t = maxh - h;
+      } else if (t == 0) {
+        h = ry - bottom;
+      } else {
+        h = ry, t = maxh - h;
       }
-      this._rows.push([ h, t, y ]);
-      y += h, t = top, b = 0;
+      h = ry - b;
     }
-    this._transformed = true;
-    this.postNotif(Cutout.notif.style);
+    this._rows.push([ h, t, y ]);
+    y += h, t = top, b = 0;
   }
+
+  this.style({
+    width : width,
+    height : height
+  });
 
   return this;
 };
@@ -952,7 +949,7 @@ Cutout.Style.prototype.update = function() {
     setter = Cutout.Style.setters[key];
     if (setter) {
       if (value || value === 0)
-        setter.call(this, value, style);
+        setter(this, value, style);
     } else {
       DEBUG && console.log("Invalid style: " + key + "/" + value);
     }
