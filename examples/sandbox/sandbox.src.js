@@ -1,9 +1,8 @@
 // create shortcut
-var C = Cutout;
+var C = Cutout, U = CutoutUtils;
 
-// regster loading process
-window.addEventListener("load", function() {
-  console.log("Page loaded. Initing...");
+// see loader
+CutoutLoader.load(function() {
 
   // root cutout
   var root = new Cutout().id("root");
@@ -12,12 +11,10 @@ window.addEventListener("load", function() {
   Mouse.listen(root, true);
 
   // tick tween.js
-  root.addTicker(function() {
-    TWEEN.update();
-  }, true);
+  root.addTicker(TWEEN.update, true);
 
   root.resize = function(width, height) {
-    // size relative to graphics, resize to fit in screen
+    // resize to fit in screen
     this.style({
       width : 500,
       height : 500,
@@ -27,14 +24,12 @@ window.addEventListener("load", function() {
     });
   };
 
-  var column = C.column().appendTo(root).style({
-    align : 0.5
-  });
+  var column = C.column().appendTo(root).style("align", 0.5);
   for ( var j = 0; j < 9; j++) {
-    var row = C.row().id("row" + j).appendTo(column);
+    var row = C.row().id("row-" + j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
       // colors as frames
-      var box = C.anim("boxes:box_").id(j + "-" + i).appendTo(row);
+      var box = C.anim("boxes:box_").id("box-" + j + "-" + i).appendTo(row);
 
       box.attr(Mouse.ON_MOVE, function(ev, point) {
         animateBox(this);
@@ -43,8 +38,8 @@ window.addEventListener("load", function() {
     }
   }
 
-  load(root);
-}, false);
+  return root ;
+});
 
 var last = null;
 
@@ -74,82 +69,17 @@ function animateBox(box) {
   }
 
   box.tween.to({
-    scaleX : random(0.9, 1.4),
-    scaleY : random(0.9, 1.4),
-    skewX : random(0, 0.4),
-    skewY : random(0, 0.4),
-    rotation : random(-Math.PI, Math.PI),
-    pivotX : random(0.3, 0.7),
-    pivotY : random(0.3, 0.7)
-  }, random(2000, 5000)).onUpdate(function() {
+    scaleX : U.random(0.9, 1.4),
+    scaleY : U.random(0.9, 1.4),
+    skewX : U.random(0, 0.4),
+    skewY : U.random(0, 0.4),
+    rotation : U.random(-Math.PI, Math.PI),
+    pivotX : U.random(0.3, 0.7),
+    pivotY : U.random(0.3, 0.7)
+  }, U.random(2000, 5000)).onUpdate(function() {
     box.style().update(this);
   }).start();
 
-}
-
-// reusable loader
-function load(root) {
-  var canvas, context, player;
-
-  console.log("Loading images...");
-  Cutout.loadImages(function(src, handleComplete, handleError) {
-    var image = new Image();
-    console.log("Loading image: " + src);
-    image.onload = handleComplete;
-    image.onerror = handleError;
-    image.src = src;
-    return image;
-  }, start);
-
-  function start() {
-    console.log("Images loaded.");
-
-    console.log("Creating canvas...");
-    canvas = document.createElement("canvas");
-    canvas.style.position = "absolute";
-
-    var body = document.body;
-    body.insertBefore(canvas, body.firstChild);
-
-    context = canvas.getContext("2d");
-
-    console.log("Creating root...");
-
-    console.log("Resize...");
-    resize();
-    window.addEventListener("resize", resize, false);
-
-    console.log("Starting...");
-    player = root.start(function(root) {
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      root.render(context);
-    }, requestAnimationFrame);
-  }
-
-  function resize() {
-    width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
-    height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
-
-    console.log("Resize: " + width + " x " + height);
-
-    canvas.width = width;
-    canvas.height = height;
-
-    root.resize && root.resize(width, height);
-  }
-}
-
-function random(min, max) {
-  if (arguments.length == 0) {
-    max = 1, min = 0;
-  } else if (arguments.length == 1) {
-    max = min, min = 0;
-  }
-  if (min == max) {
-    return min;
-  }
-  return Math.random() * (max - min) + min;
 }
 
 // register texture(s)

@@ -166,6 +166,10 @@ Cutout.prototype.children = function(i) {
   return !arguments.length ? this._children : this._children[i];
 };
 
+Cutout.prototype.parent = function() {
+  return this._parent;
+};
+
 Cutout.prototype.append = function() {
   for ( var i = 0; i < arguments.length; i++) {
     var child = arguments[i];
@@ -327,13 +331,17 @@ Cutout.prototype.style = function() {
   if (!arguments.length) {
     return this._style;
   }
-  this._style.update.apply(this._style, arguments);
-  return this;
+  var obj = this._style.update.apply(this._style, arguments);
+  return obj === this._style ? this : obj;
 };
 
 Cutout.prototype.matrix = function() {
   return this._style.absoluteMatrix(this, this._parent ? this._parent._style
       : null);
+};
+
+Cutout.create = function() {
+  return new Cutout();
 };
 
 Cutout.image = function(selector) {
@@ -393,12 +401,14 @@ Cutout.Anim.prototype.fps = function(fps) {
     return this._fps;
   }
   this._fps = fps;
+  this._ft = 1000 / this._fps;
   return this;
 };
 
 Cutout.Anim.prototype.setFrames = function(selector) {
-  this._startTime = this._startTime || 0;
+  this._time = this._time || 0;
   this._fps = this._fps || 0;
+  this._ft = 1000 / this._fps;
 
   this._frame = 0;
   this._frames = [];
@@ -442,13 +452,22 @@ Cutout.Anim.prototype.gotoLabel = function(label, resize) {
   return this.gotoFrame(this._labels[label] || 0, resize);
 };
 
+Cutout.Anim.prototype.repeat = function(repeat, callback) {
+  this._repeat = repeat * this._frames.length - 1;
+  this._callback = callback;
+  return this;
+};
+
 Cutout.Anim.prototype.play = function(reset) {
-  this._startTime = reset || !this._startTime ? +new Date() : this._startTime;
+  if (!this._time || reset) {
+    this._time = +new Date();
+    this.gotoFrame(0);
+  }
   return this;
 };
 
 Cutout.Anim.prototype.stop = function(frame) {
-  this._startTime = null;
+  this._time = null;
   if (CutoutUtils.isNum(frame)) {
     this.gotoFrame(frame);
   }
@@ -456,10 +475,18 @@ Cutout.Anim.prototype.stop = function(frame) {
 };
 
 Cutout.Anim.prototype.paint = function(context) {
-  if (this._fps && this._startTime && this._frames.length > 1) {
-    var totalTime = +new Date() - this._startTime;
-    var frame = Math.floor(this._fps * (totalTime ? totalTime / 1000 : 0));
-    this.gotoFrame(frame);
+  if (this._fps && this._time && this._frames.length > 1) {
+    var t = +new Date() - this._time;
+    if (t >= this._ft) {
+      var n = t < 2 * this._ft ? 1 : Math.floor(t / this._ft);
+      this._time += n * this._ft;
+      this.moveFrame(n);
+      if (this._repeat && (this._repeat -= n) <= 0) {
+        this.stop();
+        this._callback && this._callback();
+      }
+    }
+    this.touch();
   }
   this._cut && this._cut.paint(context);
 };
@@ -468,9 +495,9 @@ Cutout.string = function(selector) {
   return new Cutout.String().setFont(selector);
 };
 
-Cutout.String = function() {
+Cutout.String = function(prototype) {
   Cutout.String.prototype._super.apply(this, arguments);
-  this.row();
+  prototype || this.row();
 };
 
 Cutout.String.prototype = new Cutout(true);
@@ -926,34 +953,42 @@ Cutout.Style = function() {
   this._matrixed = Cutout.TS++;
 };
 
+Cutout.Style.EMPTY = {};
+
 Cutout.Style.prototype.update = function() {
   this._transformed_flag = false;
   this._translated_flag = false;
 
   var value, setter, key;
   if (arguments.length == 1) {
-    style = arguments[0];
-    for (key in style) {
-      value = style[key];
-      setter = Cutout.Style.setters[key];
-      if (setter) {
-        if (value || value === 0)
-          setter(this, value, style);
-      } else {
-        DEBUG && console.log("Invalid style: " + key + "/" + value);
+    var style = arguments[0];
+    if (typeof style === "string") {
+      return this["_" + style];
+    }
+
+    if (typeof style === "object") {
+      for (key in style) {
+        value = style[key];
+        setter = Cutout.Style.setters[key];
+        if (setter) {
+          if (value || value === 0)
+            setter(this, value, style);
+        } else {
+          DEBUG && console.log("Invalid style: " + key + "/" + value);
+        }
       }
     }
+
   } else if (arguments.length == 2) {
     key = arguments[0];
     value = arguments[1];
     setter = Cutout.Style.setters[key];
     if (setter) {
       if (value || value === 0)
-        setter(this, value, style);
+        setter(this, value, Cutout.Style.EMPTY);
     } else {
       DEBUG && console.log("Invalid style: " + key + "/" + value);
     }
-
   }
 
   if (this._translated_flag) {
@@ -1467,6 +1502,16 @@ CutoutUtils.random = function(min, max) {
     return min;
   }
   return Math.random() * (max - min) + min;
+};
+
+CutoutUtils.zigzag = function(t) {
+  t = CutoutUtils.rotate(t, -Math.PI, Math.PI) / Math.PI * 2;
+  if (t > 1) {
+    t = 2 - t;
+  } else if (t < -1) {
+    t = -2 - t;
+  }
+  return t;
 };
 
 CutoutUtils.rotate = function(num, min, max) {
