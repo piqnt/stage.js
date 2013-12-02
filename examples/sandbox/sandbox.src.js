@@ -2,7 +2,7 @@
 var C = Cut, U = Cut.Utils;
 
 // see loader
-CutLoader.load(function() {
+Cut.Loader.load(function() {
 
   // root cut
   var root = new Cut().id("root");
@@ -15,7 +15,7 @@ CutLoader.load(function() {
 
   root.resize = function(width, height) {
     // resize to fit in screen
-    this.inn({
+    this.pin({
       width : 500,
       height : 500,
       resizeMode : "in",
@@ -24,7 +24,7 @@ CutLoader.load(function() {
     });
   };
 
-  var column = C.column().appendTo(root).inn("align", 0.5);
+  var column = C.column().appendTo(root).pin("align", 0.5);
   for ( var j = 0; j < 9; j++) {
     var row = C.row().id("row-" + j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
@@ -77,7 +77,7 @@ function animateBox(box) {
     pivotX : U.random(0.3, 0.7),
     pivotY : U.random(0.3, 0.7)
   }, U.random(2000, 5000)).onUpdate(function() {
-    box.inn().update(this);
+    box.pin(this);
   }).start();
 
 }

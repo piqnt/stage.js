@@ -1,10 +1,10 @@
 // simple full-screen and resizable loader
 
 window.addEventListener("load", function() {
-  CutLoader.start();
+  Cut.Loader.start();
 }, false);
 
-CutLoader = {
+Cut.Loader = {
   start : function() {
     this.started = true;
     for ( var i = this.loaders.length - 1; i >= 0; i--) {
