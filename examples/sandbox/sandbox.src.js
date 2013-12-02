@@ -1,11 +1,7 @@
-// create shortcut
-var C = Cut, U = Cut.Utils;
 
-// see loader
 Cut.Loader.load(function() {
 
-  // root cut
-  var root = new Cut().id("root");
+  var root = Cut.create().id("root");
 
   // only register root
   Mouse.listen(root, true);
@@ -24,12 +20,12 @@ Cut.Loader.load(function() {
     });
   };
 
-  var column = C.column().appendTo(root).pin("align", 0.5);
+  var column = Cut.column().appendTo(root).pin("align", 0.5);
   for ( var j = 0; j < 9; j++) {
-    var row = C.row().id("row-" + j).appendTo(column);
+    var row = Cut.row().id("row-" + j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
       // colors as frames
-      var box = C.anim("boxes:box_").id("box-" + j + "-" + i).appendTo(row);
+      var box = Cut.anim("boxes:box_").id("box-" + j + "-" + i).appendTo(row);
 
       box.attr(Mouse.ON_MOVE, function(ev, point) {
         animateBox(this);
@@ -69,14 +65,14 @@ function animateBox(box) {
   }
 
   box.tween.to({
-    scaleX : U.random(0.9, 1.4),
-    scaleY : U.random(0.9, 1.4),
-    skewX : U.random(0, 0.4),
-    skewY : U.random(0, 0.4),
-    rotation : U.random(-Math.PI, Math.PI),
-    pivotX : U.random(0.3, 0.7),
-    pivotY : U.random(0.3, 0.7)
-  }, U.random(2000, 5000)).onUpdate(function() {
+    scaleX : Cut.Utils.random(0.9, 1.4),
+    scaleY : Cut.Utils.random(0.9, 1.4),
+    skewX : Cut.Utils.random(0, 0.4),
+    skewY : Cut.Utils.random(0, 0.4),
+    rotation : Cut.Utils.random(-Math.PI, Math.PI),
+    pivotX : Cut.Utils.random(0.3, 0.7),
+    pivotY : Cut.Utils.random(0.3, 0.7)
+  }, Cut.Utils.random(2000, 5000)).onUpdate(function() {
     box.pin(this);
   }).start();
 
