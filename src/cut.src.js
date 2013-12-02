@@ -20,10 +20,9 @@
 if (typeof DEBUG === 'undefined')
   DEBUG = true;
 
-function Cut(prototype) {
-  if (prototype) {
+function Cut(proto) {
+  if (proto)
     return;
-  }
   this._id = "";
   this._visible = true;
   this._parent = null;
@@ -339,8 +338,10 @@ Cut.image = function(selector) {
   return new Cut.Image().setImage(selector);
 };
 
-Cut.Image = function() {
+Cut.Image = function(proto) {
   Cut.Image.prototype._super.apply(this, arguments);
+  if (proto)
+    return;
 };
 
 Cut.Image.prototype = new Cut(true);
@@ -376,23 +377,23 @@ Cut.anim = function(selector, fps) {
 
 Cut.Anim = function(proto) {
   Cut.Anim.prototype._super.apply(this, arguments);
-  if (!proto) {
-    this.addTicker(function() {
-      if (this._fps && this._time && this._frames.length > 1) {
-        var t = +new Date() - this._time;
-        if (t >= this._ft) {
-          var n = t < 2 * this._ft ? 1 : Math.floor(t / this._ft);
-          this._time += n * this._ft;
-          this.moveFrame(n);
-          if (this._repeat && (this._repeat -= n) <= 0) {
-            this.stop();
-            this._callback && this._callback();
-          }
+  if (proto)
+    return;
+  this.addTicker(function() {
+    if (this._fps && this._time && this._frames.length > 1) {
+      var t = +new Date() - this._time;
+      if (t >= this._ft) {
+        var n = t < 2 * this._ft ? 1 : Math.floor(t / this._ft);
+        this._time += n * this._ft;
+        this.moveFrame(n);
+        if (this._repeat && (this._repeat -= n) <= 0) {
+          this.stop();
+          this._callback && this._callback();
         }
-        this.touch();
       }
-    }, false);
-  }
+      this.touch();
+    }
+  }, false);
 };
 
 Cut.Anim.prototype = new Cut(true);
@@ -481,9 +482,11 @@ Cut.string = function(selector) {
   return new Cut.String().setFont(selector);
 };
 
-Cut.String = function(prototype) {
+Cut.String = function(proto) {
   Cut.String.prototype._super.apply(this, arguments);
-  prototype || this.row();
+  if (proto)
+    return;
+  this.row();
 };
 
 Cut.String.prototype = new Cut(true);
@@ -519,7 +522,7 @@ Cut.String.prototype.setValue = function(value) {
 };
 
 Cut.row = function(valign, spy) {
-  return new Cut().row(valign, spy);
+  return Cut.create().row(valign, spy);
 };
 
 Cut.prototype.row = function(valign, spy) {
@@ -527,7 +530,7 @@ Cut.prototype.row = function(valign, spy) {
 };
 
 Cut.column = function(halign, spy) {
-  return new Cut().column(halign, spy);
+  return Cut.create().column(halign, spy);
 };
 
 Cut.prototype.column = function(halign, spy) {
@@ -597,19 +600,20 @@ Cut.ninePatch = function(selector) {
   return new Cut.NinePatch().setImage(selector);
 };
 
-Cut.NinePatch = function() {
+Cut.NinePatch = function(proto) {
   Cut.NinePatch.prototype._super.apply(this, arguments);
-  this._out = null;
-  this._columns = [];
-  this._rows = [];
+  if (proto)
+    return;
 };
 
 Cut.NinePatch.prototype = new Cut(true);
 Cut.NinePatch.prototype._super = Cut;
-Cut.NinePatch.prototype.constructor = Cut.String;
+Cut.NinePatch.prototype.constructor = Cut.NinePatch;
 
 Cut.NinePatch.prototype.setImage = function(selector) {
   this._out = Cut._select(selector);
+  this._columns = [];
+  this._rows = [];
   return this;
 };
 
