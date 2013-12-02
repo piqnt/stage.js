@@ -357,7 +357,7 @@ Cut.Image.prototype._super = Cut;
 Cut.Image.prototype.constructor = Cut.Image;
 
 Cut.Image.prototype.setImage = function(selector) {
-  var out = Cut.byName(selector);
+  var out = Cut._select(selector);
   this._out = out;
   this.pin({
     width : this._out ? this._out.width() : 0,
@@ -414,7 +414,7 @@ Cut.Anim.prototype.setFrames = function(selector) {
   this._frames = [];
   this._labels = {};
 
-  var outs = Cut.byPrefix(selector);
+  var outs = Cut._select(selector, true);
   if (outs && outs.length) {
     for ( var i = 0; i < outs.length; i++) {
       var out = outs[i];
@@ -624,7 +624,7 @@ Cut.NinePatch.prototype._super = Cut;
 Cut.NinePatch.prototype.constructor = Cut.String;
 
 Cut.NinePatch.prototype.setImage = function(selector) {
-  this._out = Cut.byName(selector);
+  this._out = Cut._select(selector);
   return this;
 };
 
@@ -709,10 +709,7 @@ Cut.NinePatch.prototype.paint = function(context) {
   }
 };
 
-// Static
-
-Cut.textures = {};
-Cut.images = {};
+Cut._images = {};
 
 Cut.loadImages = function(imageLoader, completeCallback) {
   var imageCount = 0;
@@ -732,7 +729,7 @@ Cut.loadImages = function(imageLoader, completeCallback) {
     }
   };
 
-  var textures = Cut.textures;
+  var textures = Cut._textures;
   for ( var texture in textures) {
     if (textures[texture].imagePath) {
       imageCount++;
@@ -743,36 +740,40 @@ Cut.loadImages = function(imageLoader, completeCallback) {
   }
 };
 
-Cut.getImageRef = function(src) {
-  return function() {
-    return Cut.images[src];
-  };
-};
-
 Cut.getImage = function(src) {
-  return Cut.images[src];
+  return Cut._images[src];
 };
 
 Cut.addImage = function(image, src) {
-  Cut.images[src] = image;
+  Cut._images[src] = image;
   return this;
 };
 
+Cut._textures = {};
+
 Cut.addTexture = function() {
   for ( var i = 0; i < arguments.length; i++) {
-    var data = arguments[i];
-    Cut.textures[data.name] = data;
-    if (data.filter) {
-      for ( var c = data.cuts.length - 1; c >= 0; c--) {
-        data.cuts[c] = data.filter(data.cuts[c]);
-        data.cuts[c] || data.cuts.splice(c, 1);
+    var texture = arguments[i];
+    Cut._textures[texture.name] = texture;
+
+    texture.getImage = function() {
+      if (!this._image) {
+        this._image = Cut.getImage(this.imagePath);
+      }
+      return this._image;
+    };
+
+    if (texture.filter) {
+      for ( var c = texture.cuts.length - 1; c >= 0; c--) {
+        texture.cuts[c] = texture.filter(texture.cuts[c]);
+        texture.cuts[c] || texture.cuts.splice(c, 1);
       }
     }
   }
   return this;
 };
 
-Cut.byName = function(selector) {
+Cut._select = function(selector, prefix) {
 
   if (typeof selector !== "string") {
     return selector;
@@ -786,63 +787,39 @@ Cut.byName = function(selector) {
   var texture = selector[0];
   var name = selector[1];
 
-  texture = Cut.textures[texture];
+  texture = Cut._textures[texture];
   if (texture == null) {
-    return null;
+    return !prefix ? null : [];
   }
-
-  var img = Cut.getImageRef(texture.imagePath);
 
   var cuts = texture.cuts;
-  for ( var i = 0; i < cuts.length; i++) {
-    if (cuts[i].name == name) {
-      return new Cut.Out(img, cuts[i], texture.imageRatio);
+
+  if (!prefix) {
+    for ( var i = 0; i < cuts.length; i++) {
+      if (cuts[i].name == name) {
+        return new Cut.Out(texture, cuts[i]);
+      }
     }
-  }
-
-  return null;
-};
-
-Cut.byPrefix = function(selector) {
-
-  if (typeof selector !== "string") {
-    return selector;
-  }
-
-  selector = selector.split(":", 2);
-  if (selector.length < 2) {
     return null;
-  }
 
-  var texture = selector[0];
-  var prefix = selector[1];
-
-  var result = [];
-  texture = Cut.textures[texture];
-  if (texture == null) {
+  } else {
+    var length = name.length;
+    var result = [];
+    for ( var i = 0; i < cuts.length; i++) {
+      var cut = cuts[i];
+      if (cut.name && cut.name.substring(0, length) == name) {
+        result.push(new Cut.Out(texture, cuts[i]));
+      }
+    }
     return result;
   }
-
-  var img = Cut.getImageRef(texture.imagePath);
-
-  var prefLen = prefix.length;
-  var cuts = texture.cuts;
-  for ( var i = 0; i < cuts.length; i++) {
-    var cut = cuts[i];
-    if (cut.name && cut.name.substring(0, prefLen) == prefix) {
-      result.push(new Cut.Out(img, cuts[i], texture.imageRatio));
-    }
-  }
-
-  return result;
 };
 
-Cut.Out = function(image, cut, ratio) {
+Cut.Out = function(texture, cut) {
 
-  this.image = image;
-  this.name = cut.name;
+  this.texture = texture;
   this.cut = cut;
-  this.ratio = ratio || 1;
+  this.ratio = texture.imageRatio || 1;
 
   cut.w = cut.w || cut.width;
   cut.h = cut.h || cut.height;
@@ -867,7 +844,7 @@ Cut.Out = function(image, cut, ratio) {
 };
 
 Cut.Out.prototype.clone = function() {
-  return new Cut.Out(this.image, this.cut, this.ratio);
+  return new Cut.Out(this.texture, this.cut);
 };
 
 Cut.Out.prototype.width = function() {
@@ -901,14 +878,14 @@ Cut.Out.prototype.offset = function(x, y) {
 };
 
 Cut.Out.prototype.paint = function(context) {
-  context.drawImage(this.image(), // source
+  context.drawImage(this.texture.getImage(), // source
   this.sx, this.sy, this.sw, this.sh, // cut
   this.dx, this.dy, this.dw, this.dh // position
   );
 };
 
 Cut.Out.prototype.toString = function() {
-  return "[" + this.name + ": " + this.dw + "x" + this.dh + "]";
+  return "[" + this.cut.name + ": " + this.dw + "x" + this.dh + "]";
 };
 
 Cut.Pin = function() {
@@ -989,7 +966,7 @@ Cut.Pin.prototype.update = function() {
           if (value || value === 0)
             setter(this, value, pin);
         } else {
-          DEBUG && console.log("Pinvalid pin: " + key + "/" + value);
+          DEBUG && console.log("Invalid pin: " + key + "/" + value);
         }
       }
     }
@@ -1002,7 +979,7 @@ Cut.Pin.prototype.update = function() {
       if (value || value === 0)
         setter(this, value, Cut.Pin.EMPTY);
     } else {
-      DEBUG && console.log("Pinvalid pin: " + key + "/" + value);
+      DEBUG && console.log("Invalid pin: " + key + "/" + value);
     }
   }
 
