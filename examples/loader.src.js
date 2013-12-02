@@ -1,10 +1,10 @@
 // simple full-screen and resizable loader
 
 window.addEventListener("load", function() {
-  CutoutLoader.start();
+  CutLoader.start();
 }, false);
 
-CutoutLoader = {
+CutLoader = {
   start : function() {
     this.started = true;
     for ( var i = this.loaders.length - 1; i >= 0; i--) {
@@ -18,7 +18,7 @@ CutoutLoader = {
       var canvas, context, root, player;
 
       console.log("Loading images...");
-      Cutout.loadImages(function(src, handleComplete, handleError) {
+      Cut.loadImages(function(src, handleComplete, handleError) {
         var image = new Image();
         console.log("Loading image: " + src);
         image.onload = handleComplete;

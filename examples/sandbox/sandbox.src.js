@@ -1,11 +1,11 @@
 // create shortcut
-var C = Cutout, U = CutoutUtils;
+var C = Cut, U = Cut.Utils;
 
 // see loader
-CutoutLoader.load(function() {
+CutLoader.load(function() {
 
-  // root cutout
-  var root = new Cutout().id("root");
+  // root cut
+  var root = new Cut().id("root");
 
   // only register root
   Mouse.listen(root, true);
@@ -15,7 +15,7 @@ CutoutLoader.load(function() {
 
   root.resize = function(width, height) {
     // resize to fit in screen
-    this.style({
+    this.inn({
       width : 500,
       height : 500,
       resizeMode : "in",
@@ -24,7 +24,7 @@ CutoutLoader.load(function() {
     });
   };
 
-  var column = C.column().appendTo(root).style("align", 0.5);
+  var column = C.column().appendTo(root).inn("align", 0.5);
   for ( var j = 0; j < 9; j++) {
     var row = C.row().id("row-" + j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
@@ -77,13 +77,13 @@ function animateBox(box) {
     pivotX : U.random(0.3, 0.7),
     pivotY : U.random(0.3, 0.7)
   }, U.random(2000, 5000)).onUpdate(function() {
-    box.style().update(this);
+    box.inn().update(this);
   }).start();
 
 }
 
 // register texture(s)
-Cutout.addTexture({
+Cut.addTexture({
   name : "boxes",
   imagePath : "boxes.png",
   imageRatio : 2,
