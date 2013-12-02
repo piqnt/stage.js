@@ -1,14 +1,14 @@
 #Cut.js (alpha)
 
-#### About
-
 Cut.js (as in cutout animation) is a minimal but functionally complete JavaScript library for making HTML5 sprite-sheet games and visual apps. Cut.js is not a physics or full-fledged game engine, it only provides UI functionalities.
 
 [Demo](http://piqnt.github.io/cut.js/examples/sandbox/index.html)
 
 #### How it works
 
-A cut.js app is a tree of cut objects (`Cut`). Each cut is pinned/transformed (`Cut.Pin`) against its parent and may include any number of image cutouts (`Cut.Out`) and/or other cuts as children. Each *rendering* cycle consists of *ticking* and *painting*. Cuts are only update during ticking. On painting each cut transfers itself according to its pinning and *pastes* all of its own cutouts and then delegates to its children. Cut.js rendering is retained and will pause in each cycle unless/until it is *touched* directly or indirectly by updating it.
+A cut.js app is a tree of cut objects (`Cut`).
+Each cut is pinned/transformed (`Cut.Pin`) against its parent and may include any number of image cutouts (`Cut.Out`) and/or other cuts as children.
+Each *rendering* cycle consists of *ticking* and *painting*. Cuts are only update during ticking. On painting each cut transforms according to its pinning and *pastes* all of its own cutouts then delegates to its children. Cut.js rendering is retained and will pause in each cycle unless/until it is *touched* directly or indirectly by updating it.
 
 #### Usage
 
