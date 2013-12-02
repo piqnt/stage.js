@@ -24,22 +24,16 @@ function Cut(prototype) {
   if (prototype) {
     return;
   }
-
   this._id = "";
-
   this._visible = true;
-
-  this._children = [];
   this._parent = null;
-
-  this._notifs = {};
-
-  this._spy = false;
-
-  this._tickersCapture = [];
-  this._tickersBubble = [];
-
   this._pin = new Cut.Pin().tick(this);
+  this._children = [];
+  this._outs = [];
+  this._tickBefore = [];
+  this._tickAfter = [];
+  this._notifs = {};
+  this._spy = false;
 };
 
 Cut.TS = 0;
@@ -87,7 +81,7 @@ Cut.prototype.start = function(render, request) {
 
 Cut.prototype.render = function(context) {
   this.tick();
-  this.traversePaint(context);
+  this.paint(context);
 };
 
 Cut.prototype.tick = function() {
@@ -96,9 +90,9 @@ Cut.prototype.tick = function() {
   }
   this._pin.tick(this, this._parent && this._parent._pin);
 
-  var length = this._tickersCapture.length;
+  var length = this._tickBefore.length;
   for ( var i = 0; i < length; i++) {
-    this._tickersCapture[i].call(this);
+    this._tickBefore[i].call(this);
   }
 
   var length = this._children.length;
@@ -106,40 +100,37 @@ Cut.prototype.tick = function() {
     this._children[i].tick();
   }
 
-  var length = this._tickersBubble.length;
+  var length = this._tickAfter.length;
   for ( var i = 0; i < length; i++) {
-    this._tickersBubble[i].call(this);
+    this._tickAfter[i].call(this);
   }
 };
 
-Cut.prototype.addTicker = function(ticker, capture) {
-  if (capture) {
-    this._tickersCapture.push(ticker);
+Cut.prototype.addTicker = function(ticker, before) {
+  if (before) {
+    this._tickBefore.push(ticker);
   } else {
-    this._tickersBubble.push(ticker);
+    this._tickAfter.push(ticker);
   }
 };
 
-Cut.prototype.traversePaint = function(context) {
+Cut.prototype.paint = function(context) {
   if (!this._visible) {
     return;
   }
 
   var m = this.matrix();
-
   context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
-  this.paint(context);
+  var length = this._outs.length;
+  for ( var i = 0; i < length; i++) {
+    this._outs[i].paste(context);
+  }
 
   var length = this._children.length;
   for ( var i = 0; i < length; i++) {
-    this._children[i].traversePaint(context);
+    this._children[i].paint(context);
   }
-
-};
-
-Cut.prototype.paint = function(context) {
-  // To be extended by subclasses.
 };
 
 Cut.prototype.id = function(id) {
@@ -358,25 +349,21 @@ Cut.Image.prototype.constructor = Cut.Image;
 
 Cut.Image.prototype.setImage = function(selector) {
   var out = Cut._select(selector);
-  this._out = out;
+  this._outs[0] = out;
   this.pin({
-    width : this._out ? this._out.width() : 0,
-    height : this._out ? this._out.height() : 0
+    width : this._outs[0] ? this._outs[0].width() : 0,
+    height : this._outs[0] ? this._outs[0].height() : 0
   });
 
   return this;
 };
 
 Cut.Image.prototype.cropX = function(w, x) {
-  return this.setImage(this._out.cropX(w, x));
+  return this.setImage(this._outs[0].cropX(w, x));
 };
 
 Cut.Image.prototype.cropY = function(h, y) {
-  return this.setImage(this._out.cropY(h, y));
-};
-
-Cut.Image.prototype.paint = function(context) {
-  this._out && this._out.paint(context);
+  return this.setImage(this._outs[0].cropY(h, y));
 };
 
 Cut.anim = function(selector, fps) {
@@ -387,9 +374,25 @@ Cut.anim = function(selector, fps) {
   return anim;
 };
 
-Cut.Anim = function() {
+Cut.Anim = function(proto) {
   Cut.Anim.prototype._super.apply(this, arguments);
-
+  if (!proto) {
+    this.addTicker(function() {
+      if (this._fps && this._time && this._frames.length > 1) {
+        var t = +new Date() - this._time;
+        if (t >= this._ft) {
+          var n = t < 2 * this._ft ? 1 : Math.floor(t / this._ft);
+          this._time += n * this._ft;
+          this.moveFrame(n);
+          if (this._repeat && (this._repeat -= n) <= 0) {
+            this.stop();
+            this._callback && this._callback();
+          }
+        }
+        this.touch();
+      }
+    }, false);
+  }
 };
 
 Cut.Anim.prototype = new Cut(true);
@@ -428,12 +431,12 @@ Cut.Anim.prototype.setFrames = function(selector) {
 Cut.Anim.prototype.gotoFrame = function(frame, resize) {
   frame = Cut.Utils.rotate(frame, this._frames.length);
   this._frame = frame;
-  resize = resize || !this._out;
-  this._out = this._frames[this._frame];
+  resize = resize || !this._outs[0];
+  this._outs[0] = this._frames[this._frame];
   if (resize) {
     this.pin({
-      width : this._out.width(),
-      height : this._out.height()
+      width : this._outs[0].width(),
+      height : this._outs[0].height()
     });
   }
   this.postNotif(Cut.notif.frame);
@@ -472,23 +475,6 @@ Cut.Anim.prototype.stop = function(frame) {
     this.gotoFrame(frame);
   }
   return this;
-};
-
-Cut.Anim.prototype.paint = function(context) {
-  if (this._fps && this._time && this._frames.length > 1) {
-    var t = +new Date() - this._time;
-    if (t >= this._ft) {
-      var n = t < 2 * this._ft ? 1 : Math.floor(t / this._ft);
-      this._time += n * this._ft;
-      this.moveFrame(n);
-      if (this._repeat && (this._repeat -= n) <= 0) {
-        this.stop();
-        this._callback && this._callback();
-      }
-    }
-    this.touch();
-  }
-  this._out && this._out.paint(context);
 };
 
 Cut.string = function(selector) {
@@ -614,7 +600,6 @@ Cut.ninePatch = function(selector) {
 Cut.NinePatch = function() {
   Cut.NinePatch.prototype._super.apply(this, arguments);
   this._out = null;
-  this._patches = [];
   this._columns = [];
   this._rows = [];
 };
@@ -692,21 +677,19 @@ Cut.NinePatch.prototype.resize = function(width, height) {
     this.pin("height", height);
   }
 
-  return this;
-};
-
-Cut.NinePatch.prototype.paint = function(context) {
   var c = 0;
   for ( var i = 0; i < this._columns.length; i++) {
     var col = this._columns[i];
     for ( var j = 0; j < this._rows.length; j++) {
       var row = this._rows[j];
-      this._patches[c] = this._patches[c] || this._out.clone();
-      this._patches[c].cropX(col[0], col[1]).cropY(row[0], row[1]).offset(
-          col[2], row[2]).paint(context);
+      this._outs[c] = this._outs[c] || this._out.clone();
+      this._outs[c].cropX(col[0], col[1]).cropY(row[0], row[1]).offset(col[2],
+          row[2]);
       c++;
     }
   }
+
+  return this;
 };
 
 Cut._images = {};
@@ -877,7 +860,7 @@ Cut.Out.prototype.offset = function(x, y) {
   return this;
 };
 
-Cut.Out.prototype.paint = function(context) {
+Cut.Out.prototype.paste = function(context) {
   context.drawImage(this.texture.getImage(), // source
   this.sx, this.sy, this.sw, this.sh, // cut
   this.dx, this.dy, this.dw, this.dh // position
