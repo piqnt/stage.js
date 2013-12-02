@@ -34,10 +34,9 @@ function Pool(create, checkout, checkin, discard) {
   };
 }
 
-function Randomize(none) {
-  this._none = none;
+function Randomize() {
+  this._none = null;
   this._cases = [];
-  this._sum = 0;
   this._filter = function(item) {
     return item;
   };
@@ -46,14 +45,16 @@ function Randomize(none) {
 Randomize.prototype.clone = function() {
   var clone = new Randomize(this._none);
   clone._cases.push.apply(clone._cases, this._cases);
-  clone._sum = this._sum;
   return clone;
 };
 
 Randomize.prototype.add = function(obj, prob) {
-  prob = prob || 1;
-  this._cases.push([ prob, obj ]);
-  this._sum += prob;
+  if (typeof prob == "undefined") {
+    prob = 1;
+  }
+  this._cases.push([ obj, (typeof prob == "function" ? prob : function() {
+    return prob;
+  }) ]);
   return this;
 };
 
@@ -64,6 +65,14 @@ Randomize.prototype.filter = function(func) {
   return this;
 };
 
+Randomize.prototype.none = function(none) {
+  if (!arguments.length) {
+    return this._none;
+  }
+  this._none = none;
+  return this;
+};
+
 Randomize.prototype.exact = function(cheat) {
   return this._filter(this._cases[cheat][1]);
 };
@@ -71,12 +80,38 @@ Randomize.prototype.exact = function(cheat) {
 Randomize.prototype.random = function(prob) {
   if (prob && Math.random() >= prob)
     return this._filter(this._none);
-  var rand = Math.random() * this._sum;
+  var sum = 0;
+  for ( var i = 0; i < this._cases.length; i++) {
+    sum += (this._cases[i][2] = this._cases[i][1]());
+  }
+  var rand = Math.random() * sum;
   for ( var i = 0; i < this._cases.length; i++) {
     var each = this._cases[i];
-    if ((rand -= each[0]) < 0) {
-      return this._filter(each[1]);
+    if ((rand -= each[2]) < 0) {
+      return this._filter(each[0]);
     }
   }
   return this._filter(this._none);
+};
+
+Randomize.prototype.next = function(func) {
+  this._nextFunc = func;
+  return this;
+};
+
+Randomize.prototype.reset = function() {
+  this._next = this._nextFunc();
+  return this;
+};
+
+Randomize.prototype.tick = function(n) {
+  if (!this._nextFunc) {
+    return true;
+  }
+  n = n || 1;
+  if ((this._next -= n) < 0) {
+    this._next = this._nextFunc();
+    return true;
+  }
+  return false;
 };
