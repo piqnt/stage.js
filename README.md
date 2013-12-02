@@ -14,8 +14,6 @@ A cut.js app is a tree of cut objects (`Cut`). Each cut is pinned/transformed (`
 
 Following code demonstrate a simple use case. `Cut.Loader` is made available by including a loader file specific to target platform. `Mouse` is not part of cut.js but provided for convenience.
 
-To create a cut.js app a sprite-sheet is required.
-
 
 ```js
 Cut.Loader.load(function() {
@@ -37,12 +35,12 @@ Cut.Loader.load(function() {
 
   var colors = [ "dark", "light", "red", "purple", "blue", "orange", "yellow", "green" ];
     
-  var row = Cut.row().appendTo(root);
+  var row = Cut.row().appendTo(root).pin("align", 0.5);
   for ( var i = 0; i < 9; i++) {
     var box = Cut.image("boxes:box_dark").appendTo(row);
 
     box.attr(Mouse.ON_CLICK, function(ev, point) {
-      var color = colors[Math.floor(Math.random() * colors.length])
+      var color = colors[Math.floor(Math.random() * colors.length)];
       this.setImage("boxes:box_" + color);
     });
   }
