@@ -83,7 +83,7 @@ Cut.addTexture({
   name : "boxes",
   imagePath : "boxes.png",
   imageRatio : 2,
-  cuts : [
+  sprites : [
     { name : "box_d", x : 0,  y : 0,  width : 30, height : 30 },
     { name : "box_l", x : 0,  y : 30, width : 30, height : 30 },
     { name : "box_r", x : 30, y : 0,  width : 30, height : 30 },

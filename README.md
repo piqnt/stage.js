@@ -51,7 +51,7 @@ Cut.Loader.load(function() {
 Cut.addTexture({
   name : "boxes",
   imagePath : "boxes.png",
-  cuts : [
+  sprites : [
     { name : "box_dark",   x : 0,  y : 0,  width : 30, height : 30 },
     { name : "box_light",  x : 0,  y : 30, width : 30, height : 30 },
     { name : "box_red",    x : 30, y : 0,  width : 30, height : 30 },
@@ -64,6 +64,7 @@ Cut.addTexture({
 });
 ```
 
+#### API
 
 #### Credits
 

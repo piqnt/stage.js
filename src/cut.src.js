@@ -751,9 +751,9 @@ Cut.addTexture = function() {
     };
 
     if (texture.filter) {
-      for ( var c = texture.cuts.length - 1; c >= 0; c--) {
-        texture.cuts[c] = texture.filter(texture.cuts[c]);
-        texture.cuts[c] || texture.cuts.splice(c, 1);
+      for ( var c = texture.sprites.length - 1; c >= 0; c--) {
+        texture.sprites[c] = texture.filter(texture.sprites[c]);
+        texture.sprites[c] || texture.sprites.splice(c, 1);
       }
     }
   }
@@ -779,12 +779,12 @@ Cut._select = function(selector, prefix) {
     return !prefix ? null : [];
   }
 
-  var cuts = texture.cuts;
+  var sprites = texture.sprites;
 
   if (!prefix) {
-    for ( var i = 0; i < cuts.length; i++) {
-      if (cuts[i].name == name) {
-        return new Cut.Out(texture, cuts[i]);
+    for ( var i = 0; i < sprites.length; i++) {
+      if (sprites[i].name == name) {
+        return new Cut.Out(texture, sprites[i]);
       }
     }
     return null;
@@ -792,10 +792,10 @@ Cut._select = function(selector, prefix) {
   } else {
     var length = name.length;
     var result = [];
-    for ( var i = 0; i < cuts.length; i++) {
-      var cut = cuts[i];
+    for ( var i = 0; i < sprites.length; i++) {
+      var cut = sprites[i];
       if (cut.name && cut.name.substring(0, length) == name) {
-        result.push(new Cut.Out(texture, cuts[i]));
+        result.push(new Cut.Out(texture, sprites[i]));
       }
     }
     return result;
