@@ -48,7 +48,7 @@ Cut.Loader = {
         DEBUG && console.log("Resize...");
         resize();
 
-        player = root.start(function(root) {
+        player = Cut.Player.play(root, function(root) {
           context.setTransform(1, 0, 0, 1, 0, 0);
           context.clearRect(0, 0, canvas.width, canvas.height);
           root.render(context);

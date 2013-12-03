@@ -36,47 +36,6 @@ function Cut(proto) {
 
 Cut.TS = 0;
 
-Cut.prototype.start = function(render, request) {
-
-  var paused = true;
-  var root = this;
-
-  function tick() {
-    if (paused === true) {
-      return;
-    }
-    root._touched = false;
-    render(root);
-    request(tick);
-    if (!root._touched) {
-      pause();
-    }
-  }
-
-  function pause() {
-    paused = true;
-  }
-
-  function resume(force) {
-    if (paused || force) {
-      paused = false;
-      request(tick);
-    }
-  }
-
-  this.touch = function() {
-    this._touched = true;
-    resume();
-  };
-
-  resume();
-
-  return {
-    pause : pause,
-    resume : resume
-  };
-};
-
 Cut.prototype.render = function(context) {
   this.tick();
   this.paint(context);
@@ -237,7 +196,7 @@ Cut.notif = {
 
   frame : "frame",
   frame_child : "child.frame",
-  frame_parent : "parent.frame",
+  frame_parent : "parent.frame"
 };
 
 Cut.prototype.postNotif = function(name) {
@@ -508,13 +467,13 @@ Cut.String.prototype.setValue = function(value) {
     value = value + "";
   }
   for ( var i = 0; i < Math.max(this._children.length, value.length); i++) {
-    var char = i < this._children.length ? this._children[i] : Cut.anim(
+    var digit = i < this._children.length ? this._children[i] : Cut.anim(
         this.selector).appendTo(this);
 
     if (i < value.length) {
-      char.gotoLabel(this.prefix + value[i], true).show();
+      digit.gotoLabel(this.prefix + value[i], true).show();
     } else {
-      char.hide();
+      digit.hide();
     }
   }
   return this;
@@ -1454,17 +1413,49 @@ Cut.Matrix.prototype.mapY = function(x, y) {
   return this.b * x + this.d * y + this.ty;
 };
 
-// Utilities
+Cut.Player = {
+  play : function(root, render, request) {
+
+    var paused = true, touched = false;
+
+    root.touch = function() {
+      touched = true;
+      resume();
+    };
+
+    function tick() {
+      if (paused === true) {
+        return;
+      }
+      touched = false;
+      render(root);
+      request(tick);
+      if (!touched) {
+        pause();
+      }
+    }
+
+    function pause() {
+      paused = true;
+    }
+
+    function resume(force) {
+      if (paused || force) {
+        paused = false;
+        request(tick);
+      }
+    }
+
+    resume();
+
+    return {
+      pause : pause,
+      resume : resume
+    };
+  }
+};
 
 Cut.Utils = {};
-
-Cut.Utils.rad2deg = function(rad) {
-  return rad / Math.PI * 180.0;
-};
-
-Cut.Utils.deg2rad = function(deg) {
-  return deg / 180.0 * Math.PI;
-};
 
 Cut.Utils.random = function(min, max) {
   if (arguments.length == 0) {
