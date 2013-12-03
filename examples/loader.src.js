@@ -14,9 +14,9 @@ Cut.Loader = {
     }
   },
   loaders : [],
-  load : function(app) {
-    var loader = function() {
-      var canvas, context, root, player;
+  load : function(app, canvas) {
+    function loader() {
+      var context, root, player, full = false;
 
       DEBUG && console.log("Loading images...");
       Cut.loadImages(function(src, handleComplete, handleError) {
@@ -31,49 +31,53 @@ Cut.Loader = {
       function start() {
         DEBUG && console.log("Images loaded.");
 
-        DEBUG && console.log("Creating canvas...");
-        canvas = document.createElement("canvas");
-        canvas.style.position = "absolute";
-
-        var body = document.body;
-        body.insertBefore(canvas, body.firstChild);
+        if (!canvas) {
+          full = true;
+          DEBUG && console.log("Creating canvas...");
+          canvas = document.createElement("canvas");
+          canvas.style.position = "absolute";
+          var body = document.body;
+          body.insertBefore(canvas, body.firstChild);
+        }
 
         context = canvas.getContext("2d");
 
         DEBUG && console.log("Creating root...");
-
-        DEBUG && console.log("Starting...");
         root = app();
 
-        DEBUG && console.log("Resize...");
         resize();
+        window.addEventListener("resize", resize, false);
 
+        DEBUG && console.log("Playing...");
         player = Cut.Player.play(root, function(root) {
           context.setTransform(1, 0, 0, 1, 0, 0);
           context.clearRect(0, 0, canvas.width, canvas.height);
           root.render(context);
         }, requestAnimationFrame);
-
-        window.addEventListener("resize", resize, false);
       }
 
       function resize() {
-        width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
-        height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
+        var width, height;
+        if (full) {
+          width = canvas.width = (window.innerWidth > 0 ? window.innerWidth
+              : screen.width);
+          height = canvas.height = (window.innerHeight > 0 ? window.innerHeight
+              : screen.height);
+        } else {
+          width = canvas.width;
+          height = canvas.height;
+        }
 
-        DEBUG && console.log("Resize: " + width + " x " + height);
-
-        canvas.width = width;
-        canvas.height = height;
+        DEBUG && console.log("Resize to: " + width + " x " + height);
 
         root.resize && root.resize(width, height);
       }
-    };
+    }
+
     if (this.started) {
       loader();
     } else {
       this.loaders.push(loader);
     }
-    return loader;
   }
 };

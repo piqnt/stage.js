@@ -25,7 +25,7 @@ Cut.Loader.load(function() {
     var row = Cut.row().id("row-" + j).appendTo(column);
     for ( var i = 0; i < 9; i++) {
       // colors as frames
-      var box = Cut.anim("boxes:box_").id("box-" + j + "-" + i).appendTo(row);
+      var box = Cut.anim("colors:color_").id("box-" + j + "-" + i).appendTo(row);
 
       box.attr(Mouse.ON_MOVE, function(ev, point) {
         animateBox(this);
@@ -80,17 +80,17 @@ function animateBox(box) {
 
 // register texture(s)
 Cut.addTexture({
-  name : "boxes",
-  imagePath : "boxes.png",
+  name : "colors",
+  imagePath : "colors.png",
   imageRatio : 2,
   sprites : [
-    { name : "box_d", x : 0,  y : 0,  width : 30, height : 30 },
-    { name : "box_l", x : 0,  y : 30, width : 30, height : 30 },
-    { name : "box_r", x : 30, y : 0,  width : 30, height : 30 },
-    { name : "box_p", x : 30, y : 30, width : 30, height : 30 },
-    { name : "box_b", x : 60, y : 0,  width : 30, height : 30 },
-    { name : "box_o", x : 60, y : 30, width : 30, height : 30 },
-    { name : "box_y", x : 90, y : 0,  width : 30, height : 30 },
-    { name : "box_g", x : 90, y : 30, width : 30, height : 30 }
+    { name : "color_d", x : 0,  y : 0,  width : 30, height : 30 },
+    { name : "color_l", x : 0,  y : 30, width : 30, height : 30 },
+    { name : "color_r", x : 30, y : 0,  width : 30, height : 30 },
+    { name : "color_p", x : 30, y : 30, width : 30, height : 30 },
+    { name : "color_b", x : 60, y : 0,  width : 30, height : 30 },
+    { name : "color_o", x : 60, y : 30, width : 30, height : 30 },
+    { name : "color_y", x : 90, y : 0,  width : 30, height : 30 },
+    { name : "color_g", x : 90, y : 30, width : 30, height : 30 }
   ]
 });

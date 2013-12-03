@@ -403,11 +403,11 @@ Cut.Anim.prototype.gotoFrame = function(frame, resize) {
 };
 
 Cut.Anim.prototype.randomFrame = function() {
-  this.gotoFrame(Math.floor(Math.random() * this._frames.length));
+  return this.gotoFrame(Math.floor(Math.random() * this._frames.length));
 };
 
 Cut.Anim.prototype.moveFrame = function(frame) {
-  this.gotoFrame(this._frame + frame);
+  return this.gotoFrame(this._frame + frame);
 };
 
 Cut.Anim.prototype.gotoLabel = function(label, resize) {
@@ -765,6 +765,7 @@ Cut.Out = function(texture, cut) {
   this.texture = texture;
   this.cut = cut;
   this.ratio = texture.imageRatio || 1;
+  this.name = cut.name;
 
   cut.w = cut.w || cut.width;
   cut.h = cut.h || cut.height;
@@ -830,7 +831,7 @@ Cut.Out.prototype.paste = function(context) {
 };
 
 Cut.Out.prototype.toString = function() {
-  return "[" + this.cut.name + ": " + this.dw + "x" + this.dh + "]";
+  return "[" + this.name + ": " + this.dw + "x" + this.dh + "]";
 };
 
 Cut.Pin = function() {
@@ -1467,16 +1468,6 @@ Cut.Utils.random = function(min, max) {
     return min;
   }
   return Math.random() * (max - min) + min;
-};
-
-Cut.Utils.zigzag = function(t) {
-  t = Cut.Utils.rotate(t, -Math.PI, Math.PI) / Math.PI * 2;
-  if (t > 1) {
-    t = 2 - t;
-  } else if (t < -1) {
-    t = -2 - t;
-  }
-  return t;
 };
 
 Cut.Utils.rotate = function(num, min, max) {
