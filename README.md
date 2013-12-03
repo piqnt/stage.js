@@ -2,7 +2,7 @@
 
 Cut.js (as in cutout animation) is a minimal but functionally complete JavaScript library for making HTML5 sprite-sheet games and visual apps. Cut.js is not a physics or full-fledged game engine, it only provides UI functionalities.
 
-[Demo](http://piqnt.github.io/cut.js/examples/00/index.html)
+[Demo](http://piqnt.github.io/cut.js/examples/00/)
 
 #### How it works
 
