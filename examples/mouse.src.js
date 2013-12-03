@@ -1,5 +1,4 @@
-if (typeof DEBUG === 'undefined')
-  DEBUG = true;
+DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 
 var Mouse = {
   x : 0,

@@ -17,8 +17,7 @@
  under the License.
  */
 
-if (typeof DEBUG === 'undefined')
-  DEBUG = true;
+DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 
 function Cut(proto) {
   if (proto)
