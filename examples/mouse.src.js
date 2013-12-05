@@ -54,7 +54,7 @@ Mouse.get = function(event, elem) {
   return Mouse;
 };
 
-Mouse.listen = function(listener, move) {
+Mouse.listen = function(listener, element, move) {
 
   var isTouchSupported = "ontouchstart" in window;
   var CLICK = "click";
@@ -71,7 +71,7 @@ Mouse.listen = function(listener, move) {
 
   function mouseStart(event) {
     try {
-      Mouse.get(event);
+      Mouse.get(event, element);
       DEBUG && console.log("Mouse Start (" + event.type + "): " + Mouse);
       !move && document.addEventListener(MOVE, mouseMove);
       event.preventDefault();
@@ -89,7 +89,7 @@ Mouse.listen = function(listener, move) {
 
   function mouseEnd(event) {
     try {
-      // Mouse.get(event) is not valid, last Mouse is used instead.
+      // Mouse.get(event, element) is not valid, last Mouse is used instead.
       DEBUG && console.log("Mouse End (" + event.type + "): " + Mouse);
       !move && document.removeEventListener(MOVE, mouseMove);
       event.preventDefault();
@@ -108,7 +108,7 @@ Mouse.listen = function(listener, move) {
 
   function mouseMove(event) {
     try {
-      Mouse.get(event);
+      Mouse.get(event, element);
       // DEBUG && console.log("Mouse Move (" + event.type + "): " + Mouse);
       event.preventDefault();
       listener.publish(Mouse.ON_MOVE, event, Mouse);
@@ -119,7 +119,7 @@ Mouse.listen = function(listener, move) {
 
   function mouseClick(event) {
     try {
-      Mouse.get(event);
+      Mouse.get(event, element);
       DEBUG && console.log("Mouse Click (" + event.type + "): " + Mouse);
       event.preventDefault();
       if (!click) {

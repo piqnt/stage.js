@@ -32,6 +32,10 @@ Cut.Loader = {
         DEBUG && console.log("Images loaded.");
 
         if (!canvas) {
+          canvas = document.getElementById("cutout");
+        }
+
+        if (!canvas) {
           full = true;
           DEBUG && console.log("Creating canvas...");
           canvas = document.createElement("canvas");
@@ -43,7 +47,7 @@ Cut.Loader = {
         context = canvas.getContext("2d");
 
         DEBUG && console.log("Creating root...");
-        root = app();
+        root = app(canvas);
 
         resize();
         window.addEventListener("resize", resize, false);
@@ -59,14 +63,15 @@ Cut.Loader = {
       function resize() {
         var width, height;
         if (full) {
-          width = canvas.width = (window.innerWidth > 0 ? window.innerWidth
-              : screen.width);
-          height = canvas.height = (window.innerHeight > 0 ? window.innerHeight
-              : screen.height);
-        } else {
-          width = canvas.width;
-          height = canvas.height;
+          width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
+          height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
+        } else { 
+          width = canvas.clientWidth;
+          height = canvas.clientHeight;
         }
+
+        canvas.width = width;
+        canvas.height = height;
 
         DEBUG && console.log("Resize to: " + width + " x " + height);
 

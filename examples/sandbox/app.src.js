@@ -1,10 +1,9 @@
-
-Cut.Loader.load(function() {
+Cut.Loader.load(function(canvas) {
 
   var root = Cut.create().id("root");
 
   // only register root
-  Mouse.listen(root, true);
+  Mouse.listen(root, canvas, true);
 
   // tick tween.js
   root.addTicker(TWEEN.update, true);
@@ -20,38 +19,39 @@ Cut.Loader.load(function() {
     });
   };
 
+  var j = 0, i = 0;
   var column = Cut.column().appendTo(root).pin("align", 0.5);
-  for ( var j = 0; j < 9; j++) {
+  for (j = 0; j < 9; j++) {
     var row = Cut.row().id("row-" + j).appendTo(column);
-    for ( var i = 0; i < 9; i++) {
+    for (i = 0; i < 9; i++) {
       // colors as frames
-      var box = Cut.anim("colors:color_").id("box-" + j + "-" + i).appendTo(row);
-
-      box.attr(Mouse.ON_MOVE, function(ev, point) {
-        animateBox(this);
+      var cell = Cut.anim("colors:color_").id("cell-" + j + "-" + i).appendTo(
+          row);
+      cell.attr(Mouse.ON_MOVE, function(ev, point) {
+        animateCell(this);
         return true;
       });
     }
   }
 
-  return root ;
+  return root;
 });
 
 var last = null;
 
-function animateBox(box) {
+function animateCell(cell) {
 
-  if (box == last)
+  if (cell == last)
     return;
-  last = box;
+  last = cell;
 
   // random color
-  box.randomFrame();
+  cell.randomFrame();
 
-  // animate box using tween.js
-  if (!box.tween) {
+  // animate cell using tween.js
+  if (!cell.tween) {
     // initial tweening values
-    box.tween = new TWEEN.Tween({
+    cell.tween = new TWEEN.Tween({
       scaleX : 1,
       scaleY : 1,
       skewX : 0,
@@ -61,19 +61,19 @@ function animateBox(box) {
       pivotY : 0.5
     });
   } else {
-    box.tween.stop();
+    cell.tween.stop();
   }
 
-  box.tween.to({
-    scaleX : Cut.Utils.random(0.9, 1.4),
-    scaleY : Cut.Utils.random(0.9, 1.4),
-    skewX : Cut.Utils.random(0, 0.4),
-    skewY : Cut.Utils.random(0, 0.4),
-    rotation : Cut.Utils.random(-Math.PI, Math.PI),
-    pivotX : Cut.Utils.random(0.3, 0.7),
-    pivotY : Cut.Utils.random(0.3, 0.7)
-  }, Cut.Utils.random(2000, 5000)).onUpdate(function() {
-    box.pin(this);
+  cell.tween.to({
+    scaleX : Cut.Math.random(0.9, 1.4),
+    scaleY : Cut.Math.random(0.9, 1.4),
+    skewX : Cut.Math.random(0, 0.4),
+    skewY : Cut.Math.random(0, 0.4),
+    rotation : Cut.Math.random(-Math.PI, Math.PI),
+    pivotX : Cut.Math.random(0.3, 0.7),
+    pivotY : Cut.Math.random(0.3, 0.7)
+  }, Cut.Math.random(2000, 5000)).onUpdate(function() {
+    cell.pin(this);
   }).start();
 
 }
@@ -84,13 +84,13 @@ Cut.addTexture({
   imagePath : "colors.png",
   imageRatio : 2,
   sprites : [
-    { name : "color_d", x : 0,  y : 0,  width : 30, height : 30 },
-    { name : "color_l", x : 0,  y : 30, width : 30, height : 30 },
-    { name : "color_r", x : 30, y : 0,  width : 30, height : 30 },
-    { name : "color_p", x : 30, y : 30, width : 30, height : 30 },
-    { name : "color_b", x : 60, y : 0,  width : 30, height : 30 },
-    { name : "color_o", x : 60, y : 30, width : 30, height : 30 },
-    { name : "color_y", x : 90, y : 0,  width : 30, height : 30 },
-    { name : "color_g", x : 90, y : 30, width : 30, height : 30 }
+    { name : "color_dark",   x : 0,  y : 0,  width : 30, height : 30 },
+    { name : "color_light",  x : 0,  y : 30, width : 30, height : 30 },
+    { name : "color_red",    x : 30, y : 0,  width : 30, height : 30 },
+    { name : "color_purple", x : 30, y : 30, width : 30, height : 30 },
+    { name : "color_blue",   x : 60, y : 0,  width : 30, height : 30 },
+    { name : "color_orange", x : 60, y : 30, width : 30, height : 30 },
+    { name : "color_yellow", x : 90, y : 0,  width : 30, height : 30 },
+    { name : "color_green",  x : 90, y : 30, width : 30, height : 30 }
   ]
 });

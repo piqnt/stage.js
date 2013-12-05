@@ -1,8 +1,8 @@
-Cut.Loader.load(function() {
+Cut.Loader.load(function(canvas) {
 
   var root = Cut.create().id("root");
 
-  Mouse.listen(root, true);
+  Mouse.listen(root, canvas, true);
 
   root.resize = function(width, height) {
     this.pin({
@@ -17,14 +17,17 @@ Cut.Loader.load(function() {
   var colors = [ "dark", "light", "red", "purple", "blue", "orange", "yellow",
       "green" ];
 
-  var row = Cut.row().appendTo(root).pin("align", 0.5).spy(true);
-  for ( var i = 0; i < 9; i++) {
-    var box = Cut.image("colors:color_dark").appendTo(row);
-
-    box.attr(Mouse.ON_MOVE, function(ev, point) {
+  var last = null;
+  var box = Cut.row(0.5).appendTo(root).pin("align", 0.5).spy(true).id("box");
+  for ( var i = 0; i < 6; i++) {
+    var cell = Cut.image("colors:color_" + colors[2 + i]).appendTo(box).id(i);
+    cell.attr(Mouse.ON_MOVE, function(ev, point) {
+      if (last == this) {
+        return;
+      }
+      last = this;
       var color = colors[Math.floor(Math.random() * colors.length)];
-      this.setImage("colors:color_" + color );
-      this.pin("offsetY", Math.random() * 50 - 5);
+      this.setImage("colors:color_" + color);
     });
   }
 
