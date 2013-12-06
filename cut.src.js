@@ -22,6 +22,9 @@ DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 function Cut() {
   if (arguments[0] === Cut.Proto)
     return;
+
+  Cut.CREATED++;
+
   this._id = "";
   this._visible = true;
 
@@ -39,9 +42,15 @@ function Cut() {
   this._spy = false;
 };
 
+Cut.CREATED = 0;
+Cut.TICKED;
+Cut.PAINTED;
+Cut.PASTED;
+
 Cut.Proto = {};
 
 Cut.prototype.render = function(context) {
+  Cut.TICKED = 0, Cut.PAINTED = 0, Cut.PASTED = 0;
   this._tick();
   this._paint(context);
 };
@@ -54,6 +63,7 @@ Cut.prototype._tick = function() {
 
   var length = this._tickBefore.length;
   for ( var i = 0; i < length; i++) {
+    Cut.TICKED++;
     this._tickBefore[i].call(this);
   }
 
@@ -65,6 +75,7 @@ Cut.prototype._tick = function() {
 
   var length = this._tickAfter.length;
   for ( var i = 0; i < length; i++) {
+    Cut.TICKED++;
     this._tickAfter[i].call(this);
   }
 };
@@ -81,6 +92,7 @@ Cut.prototype._paint = function(context) {
   if (!this._visible) {
     return;
   }
+  Cut.PAINTED++;
 
   var m = this.matrix();
   context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
@@ -230,42 +242,24 @@ Cut.prototype.touch = function() {
   this._parent && this._parent.touch();
 };
 
-Cut.prototype.publish = function(name, event, point) {
-  if (point) {
-    point = point.__origin ? point : {
-      __origin : point,
-      toString : point.toString
-    };
-
-    point = this.matrix().reverse().map(point.__origin, point);
-
-    if (!(this._spy || (point.x >= 0 && point.x <= this._pin._width
-        && point.y >= 0 && point.y <= this._pin._height))) {
-      return;
-    }
+Cut.prototype.visit = function(visitor, reverse) {
+  if (visitor.enter(this)) {
+    return;
   }
-
-  var handler = this[name];
-  if (Cut._isFunc(handler)) {
-    if (handler.call(this, event, point)) {
+  var child, next = this._first;
+  while (child = next) {
+    next = child._next;
+    if (child.visit(visitor, reverse)) {
       return true;
     }
   }
-
-  if (point) {
-    var child, next = this._first;
-    while (child = next) {
-      next = child._next;
-      if (child._visible && child.publish(name, event, point)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
+  return visitor.leave(this);
 };
 
 Cut.prototype.spy = function(spy) {
+  if (!arguments.length) {
+    return this._spy;
+  }
   this._spy = spy ? true : false;
   return this;
 };
@@ -603,6 +597,7 @@ Cut.NinePatch.prototype.setImage = function(selector) {
   this._out = Cut._select(selector);
   this._columns = [];
   this._rows = [];
+  this.resize(this._out.width(), this._out.height());
   return this;
 };
 
@@ -865,6 +860,7 @@ Cut.Out.prototype.offset = function(x, y) {
 };
 
 Cut.Out.prototype.paste = function(context) {
+  Cut.PASTED++;
   context.drawImage(this.texture.getImage(), // source
   this.sx, this.sy, this.sw, this.sh, // cut
   this.dx, this.dy, this.dw, this.dh // position

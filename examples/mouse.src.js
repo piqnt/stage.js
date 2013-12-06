@@ -3,10 +3,15 @@ DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 var Mouse = {
   x : 0,
   y : 0,
+  rel : {
+    x : 0,
+    y : 0
+  }
 };
 
 Mouse.toString = function() {
-  return this.x + "x" + this.y;
+  return (this.x | 0) + "x" + (this.y | 0) + "   " + (this.rel.x | 0) + "x"
+      + (this.rel.y | 0);
 };
 
 Mouse.ON_CLICK = "handleMouseClick";
@@ -51,7 +56,41 @@ Mouse.get = function(event, elem) {
     par = par.offsetParent;
   }
 
+  Mouse.rel.x = Mouse.x;
+  Mouse.rel.y = Mouse.y;
+
   return Mouse;
+};
+
+Mouse.publish = function(name, event, target) {
+  Mouse.name = name;
+  Mouse.event = event;
+  Mouse.stop = false;
+  target.visit(Mouse, true);
+};
+
+Mouse.enter = function(cut) {
+  if (!cut._visible) {
+    return;
+  }
+
+  cut.matrix().reverse().map(this, this.rel);
+  if (cut.spy()) {
+  } else if (this.rel.x < 0 || this.rel.x > cut._pin._width || this.rel.y < 0
+      || this.rel.y > cut._pin._height) {
+    return;
+  }
+
+  var handler = cut[this.name];
+  if (typeof handler === "function") {
+    if (handler.call(cut, this.event, this.rel)) {
+      return this.stop = true;
+    }
+  }
+};
+
+Mouse.leave = function(self) {
+  return this.stop;
 };
 
 Mouse.listen = function(listener, element, move) {
@@ -75,7 +114,7 @@ Mouse.listen = function(listener, element, move) {
       DEBUG && console.log("Mouse Start (" + event.type + "): " + Mouse);
       !move && document.addEventListener(MOVE, mouseMove);
       event.preventDefault();
-      listener.publish(Mouse.ON_START, event, Mouse);
+      Mouse.publish(Mouse.ON_START, event, listener);
 
       start = {
         x : Mouse.x,
@@ -93,11 +132,11 @@ Mouse.listen = function(listener, element, move) {
       DEBUG && console.log("Mouse End (" + event.type + "): " + Mouse);
       !move && document.removeEventListener(MOVE, mouseMove);
       event.preventDefault();
-      listener.publish(Mouse.ON_END, event, Mouse);
+      Mouse.publish(Mouse.ON_END, event, listener);
 
       if (start && start.x == Mouse.x && start.y == Mouse.y) {
         DEBUG && console.log("Mouse Click [+]");
-        listener.publish(Mouse.ON_CLICK, event, Mouse);
+        Mouse.publish(Mouse.ON_CLICK, event, listener);
         click = start;
       }
       start = null;
@@ -111,7 +150,7 @@ Mouse.listen = function(listener, element, move) {
       Mouse.get(event, element);
       // DEBUG && console.log("Mouse Move (" + event.type + "): " + Mouse);
       event.preventDefault();
-      listener.publish(Mouse.ON_MOVE, event, Mouse);
+      Mouse.publish(Mouse.ON_MOVE, event, listener);
     } catch (e) {
       console.log(e);
     }
@@ -123,7 +162,7 @@ Mouse.listen = function(listener, element, move) {
       DEBUG && console.log("Mouse Click (" + event.type + "): " + Mouse);
       event.preventDefault();
       if (!click) {
-        listener.publish(Mouse.ON_CLICK, event, Mouse);
+        Mouse.publish(Mouse.ON_CLICK, event, listener);
       } else {
         DEBUG && console.log("Mouse Click [-]");
       }
