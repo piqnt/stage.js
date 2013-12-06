@@ -1,6 +1,10 @@
 #Cut.js (alpha)
 
-Cut.js (as in cutout animation) is a minimal but functionally complete JavaScript library for making HTML5 sprite-sheet games and visual apps. Cut.js is not a physics or full-fledged game engine, it only provides UI functionalities.
+Cut.js (name inspired from "cutout animation") is a minimal but functionally complete JavaScript library for making optimized HTML5 sprite games and visual apps.
+
+Cut.js target environments are mobile devices and modern browsers.
+
+Cut.js is not a physics or full-fledged game engine, it only provides UI functionalities.
 
 [Demo](http://piqnt.github.io/cut.js/examples/sandbox/)
 
@@ -16,11 +20,11 @@ Following code demonstrate a simple use case. `Cut.Loader` is made available by 
 
 
 ```js
-Cut.Loader.load(function() {
+Cut.Loader.load(function(container) {
 
   var root = Cut.create();
 
-  Mouse.listen(root);
+  Mouse.listen(root, container);
 
   root.resize = function(width, height) {
     // resize to fit in screen
@@ -35,13 +39,13 @@ Cut.Loader.load(function() {
 
   var colors = [ "dark", "light", "red", "purple", "blue", "orange", "yellow", "green" ];
     
-  var row = Cut.row().appendTo(root).pin("align", 0.5);
+  var row = Cut.row().appendTo(root).pin("parent", 0.5);
   for ( var i = 0; i < 9; i++) {
-    var box = Cut.image("boxes:box_dark").appendTo(row);
+    var cell = Cut.image("colors:dark").appendTo(row);
 
-    box.attr(Mouse.ON_CLICK, function(ev, point) {
+    cell.attr(Mouse.ON_CLICK, function(ev, point) {
       var color = colors[Math.floor(Math.random() * colors.length)];
-      this.setImage("boxes:box_" + color);
+      this.setImage("colors:" + color);
     });
   }
 
@@ -49,17 +53,17 @@ Cut.Loader.load(function() {
 });
 
 Cut.addTexture({
-  name : "boxes",
-  imagePath : "boxes.png",
+  name : "colors",
+  imagePath : "colors.png",
   sprites : [
-    { name : "box_dark",   x : 0,  y : 0,  width : 30, height : 30 },
-    { name : "box_light",  x : 0,  y : 30, width : 30, height : 30 },
-    { name : "box_red",    x : 30, y : 0,  width : 30, height : 30 },
-    { name : "box_purple", x : 30, y : 30, width : 30, height : 30 },
-    { name : "box_blue",   x : 60, y : 0,  width : 30, height : 30 },
-    { name : "box_orange", x : 60, y : 30, width : 30, height : 30 },
-    { name : "box_yellow", x : 90, y : 0,  width : 30, height : 30 },
-    { name : "box_green",  x : 90, y : 30, width : 30, height : 30 }
+    { name : "dark",   x : 0,  y : 0,  width : 30, height : 30 },
+    { name : "light",  x : 0,  y : 30, width : 30, height : 30 },
+    { name : "red",    x : 30, y : 0,  width : 30, height : 30 },
+    { name : "purple", x : 30, y : 30, width : 30, height : 30 },
+    { name : "blue",   x : 60, y : 0,  width : 30, height : 30 },
+    { name : "orange", x : 60, y : 30, width : 30, height : 30 },
+    { name : "yellow", x : 90, y : 0,  width : 30, height : 30 },
+    { name : "green",  x : 90, y : 30, width : 30, height : 30 }
   ]
 });
 ```
