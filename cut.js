@@ -243,7 +243,7 @@ Cut.prototype.touch = function() {
 };
 
 Cut.prototype.visit = function(visitor, reverse) {
-  if (visitor.enter(this)) {
+  if (visitor.enter && visitor.enter(this)) {
     return;
   }
   var child, next = this._first;
@@ -253,7 +253,7 @@ Cut.prototype.visit = function(visitor, reverse) {
       return true;
     }
   }
-  return visitor.leave(this);
+  return visitor.leave && visitor.leave(this);
 };
 
 Cut.prototype.spy = function(spy) {

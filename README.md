@@ -11,7 +11,7 @@ Cut.js is not a physics or full-fledged game engine, it only provides UI functio
 A cut.js app is a tree of *cut* objects.
 Each cut is *pinned* (transformed) against its parent and may include any number of image *cutouts* and/or other cuts as children.
 
-Each *rendering* cycle consists of *ticking* and *painting*.
+Each *rendering* cycle consists of *ticking* and *painting* the tree.
 Cuts apply updates during ticking. On painting each cut transforms according to its pinning and *pastes* all of its cutouts and then delegates to its children.
 Cut.js rendering is retained and will pause in each cycle unless/until it is *touched* directly or indirectly by updating it.
 
