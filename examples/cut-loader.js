@@ -14,6 +14,7 @@ Cut.Loader = {
     }
   },
   loaders : [],
+  players : [],
   load : function(app, canvas) {
     function loader() {
       var context, root, player, full = false;
@@ -65,7 +66,7 @@ Cut.Loader = {
         if (full) {
           width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
           height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
-        } else { 
+        } else {
           width = canvas.clientWidth;
           height = canvas.clientHeight;
         }
@@ -77,12 +78,14 @@ Cut.Loader = {
 
         root.resize && root.resize(width, height);
       }
+      return player;
     }
 
     if (this.started) {
-      loader();
+      this.players.push(loader());
     } else {
       this.loaders.push(loader);
     }
+
   }
 };

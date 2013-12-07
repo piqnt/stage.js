@@ -169,7 +169,7 @@ Cut.prototype._insert = function(parent, prev, next) {
 
   this.remove();
 
-  prev = prev || (next ? next._prev : this._last);
+  prev = prev || (next ? next._prev : parent._last);
   next = next || (prev ? prev._next : null);
 
   if (prev) {
