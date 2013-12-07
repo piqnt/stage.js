@@ -133,6 +133,38 @@ Cut.prototype.parent = function() {
   return this._parent;
 };
 
+Cut.prototype.next = function() {
+  var next = this._next;
+  while (next && !next._visible) {
+    next = next._next;
+  }
+  return next;
+};
+
+Cut.prototype.prev = function() {
+  var prev = this._prev;
+  while (prev && !prev._visible) {
+    prev = prev._prev;
+  }
+  return prev;
+};
+
+Cut.prototype.first = function() {
+  var next = this._first;
+  while (next && !next._visible) {
+    next = next._next;
+  }
+  return next;
+};
+
+Cut.prototype.last = function() {
+  var prev = this._last;
+  while (prev && !prev._visible) {
+    prev = prev._prev;
+  }
+  return prev;
+};
+
 Cut.prototype.appendTo = function(parent) {
   parent.append(this);
   return this;
@@ -533,9 +565,8 @@ Cut.box = function() {
 };
 
 Cut.prototype.box = function() {
-  if (this._boxed)
+  if (this._boxTicker)
     return this;
-  this._boxed = true;
 
   var rebox = false;
 
@@ -545,36 +576,38 @@ Cut.prototype.box = function() {
     touch.apply(this, arguments);
   };
 
-  this.addTicker(function() {
+  this.addTicker(this._boxTicker = function() {
     if (!rebox)
       return;
+    rebox = false;
 
-    if (this._first) {
-      this._xMax = -(this._xMin = Infinity);
-      this._yMax = -(this._yMin = Infinity);
+    this._xMax = -(this._xMin = Infinity);
+    this._yMax = -(this._yMin = Infinity);
 
-      var v;
-      var child, next = this._first;
-      while (child = next) {
-        child.matrix();
-        next = child._next;
-        if (this._xMin > (v = child._pin._x)) {
-          this._xMin = v;
-        }
-        if (this._xMax < (v = child._pin._x + child._pin._boxWidth)) {
-          this._xMax = v;
-        }
-        if (this._yMin > (v = child._pin._y)) {
-          this._yMin = v;
-        }
-        if (this._yMax < (v = child._pin._y + child._pin._boxHeight)) {
-          this._yMax = v;
-        }
+    var v = false;
+    var child, next = this.first();
+    while (child = next) {
+      next = child.next();
+      child.matrix();
+      if (this._xMin > (v = child._pin._x)) {
+        this._xMin = v;
       }
+      if (this._xMax < (v = child._pin._x + child._pin._boxWidth)) {
+        this._xMax = v;
+      }
+      if (this._yMin > (v = child._pin._y)) {
+        this._yMin = v;
+      }
+      if (this._yMax < (v = child._pin._y + child._pin._boxHeight)) {
+        this._yMax = v;
+      }
+      v = true;
+    }
+
+    if (v) {
       this.pin("width", this._xMax - this._xMin);
       this.pin("height", this._yMax - this._yMin);
     }
-    rebox = false;
   });
   return this;
 };
@@ -945,17 +978,25 @@ Cut.Pin.prototype.tick = function(owner, name) {
     this._baseX = this._parent;
     if (!this._alignToX) {
     } else if (this._alignToX == "next") {
-      this._baseX = owner._next && owner._next[name];
+      if (this._baseX = owner.next()) {
+        this._baseX = this._baseX[name];
+      }
     } else if (this._alignToX == "prev") {
-      this._baseX = owner._prev && owner._prev[name];
+      if (this._baseX = owner.prev()) {
+        this._baseX = this._baseX[name];
+      }
     }
 
     this._baseY = this._parent;
     if (!this._alignToY) {
     } else if (this._alignToY == "next") {
-      this._baseY = owner._next && owner._next[name];
+      if (this._baseY = owner.next()) {
+        this._baseY = this._baseY[name];
+      }
     } else if (this._alignToY == "prev") {
-      this._baseY = owner._prev && owner._prev[name];
+      if (this._baseY = owner.prev()) {
+        this._baseY = this._baseY[name];
+      }
     }
 
     var ts;
