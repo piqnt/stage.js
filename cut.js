@@ -17,7 +17,7 @@
  under the License.
  */
 
-DEBUG = typeof DEBUG === 'undefined' || DEBUG;
+DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
 function Cut() {
   if (arguments[0] === Cut.Proto)

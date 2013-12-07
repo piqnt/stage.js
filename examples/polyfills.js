@@ -62,12 +62,3 @@ if (!Object.create) {
     };
   })();
 }
-
-// console.log
-if (!console) {
-  window.console = {
-    log : function() {
-      // alternate logging
-    }
-  };
-}

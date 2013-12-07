@@ -1,4 +1,4 @@
-DEBUG = typeof DEBUG === 'undefined' || DEBUG;
+DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
 // A simple full-screen and resizable loader.
 window.addEventListener("load", function() {
