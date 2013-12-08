@@ -1,23 +1,44 @@
 DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
-// A simple full-screen and resizable loader.
+/**
+ * Simple full-screen and resizable loader for web.
+ */
+
 window.addEventListener("load", function() {
+  DEBUG && console.log("On load.");
   Cut.Loader.start();
 }, false);
 
 Cut.Loader = {
   start : function() {
+    if (this.started) {
+      return;
+    }
     this.started = true;
+    Cut.Loader.play();
+  },
+  play : function() {
+    this.played = true;
     for ( var i = this.loaders.length - 1; i >= 0; i--) {
-      this.loaders[i]();
+      this.players.push(this.loaders[i]());
       this.loaders.splice(i, 1);
+    }
+  },
+  pause : function() {
+    for ( var i = this.loaders.length - 1; i >= 0; i--) {
+      this.players[i].player.pause();
+    }
+  },
+  resume : function() {
+    for ( var i = this.loaders.length - 1; i >= 0; i--) {
+      this.players[i].player.resume();
     }
   },
   loaders : [],
   players : [],
   load : function(app, canvas) {
     function loader() {
-      var context, root, player, full = false;
+      var result = {}, context, root, full = false;
 
       DEBUG && console.log("Loading images...");
       Cut.loadImages(function(src, handleComplete, handleError) {
@@ -27,9 +48,9 @@ Cut.Loader = {
         image.onerror = handleError;
         image.src = src;
         return image;
-      }, start);
+      }, init);
 
-      function start() {
+      function init() {
         DEBUG && console.log("Images loaded.");
 
         if (!canvas) {
@@ -54,7 +75,7 @@ Cut.Loader = {
         window.addEventListener("resize", resize, false);
 
         DEBUG && console.log("Playing...");
-        player = Cut.Player.play(root, function(root) {
+        result.player = Cut.Player.play(root, function(root) {
           context.setTransform(1, 0, 0, 1, 0, 0);
           context.clearRect(0, 0, canvas.width, canvas.height);
           root.render(context);
@@ -78,10 +99,11 @@ Cut.Loader = {
 
         root.resize && root.resize(width, height);
       }
-      return player;
+
+      return result;
     }
 
-    if (this.started) {
+    if (this.played) {
       this.players.push(loader());
     } else {
       this.loaders.push(loader);

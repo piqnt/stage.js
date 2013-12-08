@@ -1,36 +1,44 @@
 DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
-// PhoneGap FastCanvas plugin loader.
+/**
+ * PhoneGap FastCanvas plugin loader.
+ */
+
 window.addEventListener("load", function() {
-
   DEBUG && console.log("On load.");
-
-  // device ready not called; must be in a browser
-  var readyTimeout = setTimeout(function() {
-    DEBUG && console.log("On deviceready timeout.");
-    Cut.Loader.start();
-  }, 2000);
-
-  document.addEventListener("deviceready", function() {
-    DEBUG && console.log("On deviceready.");
-    clearTimeout(readyTimeout);
-
-    document.addEventListener("pause", function() {
-      Cut.Loader.pause();
-    }, false);
-    document.addEventListener("resume", function() {
-      Cut.Loader.resume();
-    }, false);
-
-    Cut.Loader.start();
-  }, false);
+  Cut.Loader.start();
 }, false);
 
 Cut.Loader = {
   start : function() {
+    if (this.started) {
+      return;
+    }
     this.started = true;
+    // device ready not called; must be in a browser
+    var readyTimeout = setTimeout(function() {
+      DEBUG && console.log("On deviceready timeout.");
+      Cut.Loader.play();
+    }, 2000);
+
+    document.addEventListener("deviceready", function() {
+      DEBUG && console.log("On deviceready.");
+      clearTimeout(readyTimeout);
+      Cut.Loader.play();
+    }, false);
+
+    document.addEventListener("pause", function() {
+      Cut.Loader.pause();
+    }, false);
+
+    document.addEventListener("resume", function() {
+      Cut.Loader.resume();
+    }, false);
+  },
+  play : function() {
+    this.played = true;
     for ( var i = this.loaders.length - 1; i >= 0; i--) {
-      this.loaders[i]();
+      this.players.push(this.loaders[i]());
       this.loaders.splice(i, 1);
     }
   },
@@ -48,7 +56,7 @@ Cut.Loader = {
   players : [],
   load : function(app, canvas) {
     function loader() {
-      var context, root, player;
+      var result = {}, context, root;
 
       DEBUG && console.log("Loading images...");
       Cut.loadImages(function(src, handleComplete, handleError) {
@@ -58,9 +66,9 @@ Cut.Loader = {
         image.onerror = handleError;
         image.src = src;
         return image;
-      }, start);
+      }, init);
 
-      function start() {
+      function init() {
         DEBUG && console.log("Images loaded.");
 
         canvas = FastCanvas.create();
@@ -73,7 +81,7 @@ Cut.Loader = {
         window.addEventListener("resize", resize, false);
 
         DEBUG && console.log("Playing...");
-        player = Cut.Player.play(root, function(root) {
+        result.player = Cut.Player.play(root, function(root) {
           context.setTransform(1, 0, 0, 1, 0, 0);
           context.clearRect(0, 0, canvas.width, canvas.height);
           root.render(context);
@@ -93,15 +101,15 @@ Cut.Loader = {
 
         root.resize && root.resize(width, height);
       }
-      return player;
+
+      return result;
     }
 
-    if (this.started) {
+    if (this.played) {
       this.players.push(loader());
     } else {
       this.loaders.push(loader);
     }
-    this.players.push(loader);
 
   }
 };
