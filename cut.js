@@ -524,11 +524,22 @@ Cut.row = function(align) {
 };
 
 Cut.prototype.row = function(align) {
-  return this.box().flow({
+  this.box().pinChildren({
     alignY : align,
     prevX : 1,
     handleX : 0
   });
+  this.spacing = function(space) {
+    return this.pinChildren({
+      alignY : align,
+      prevX : 1,
+      handleX : 0,
+      offsetX : space
+    }, {
+      offsetX : 0
+    });
+  };
+  return this;
 };
 
 Cut.column = function(align) {
@@ -536,15 +547,28 @@ Cut.column = function(align) {
 };
 
 Cut.prototype.column = function(align) {
-  return this.box().flow({
+  this.box().pinChildren({
     alignX : align,
     prevY : 1,
     handleY : 0
   });
+  this.spacing = function(space) {
+    return this.pinChildren({
+      alignX : align,
+      prevY : 1,
+      handleY : 0,
+      offsetY : space
+    }, {
+      offsetY : 0
+    });
+  };
+  return this;
 };
 
-Cut.prototype.flow = function(pin) {
-  this._flow = pin;
+Cut.prototype.pinChildren = function(all, first, last) {
+  this._pinAll = all;
+  this._pinFirst = first;
+  this._pinLast = last;
   this._flowTicker || this.addTicker(this._flowTicker = function() {
     if (this._row_mo == this._children_ts) {
       return;
@@ -554,8 +578,10 @@ Cut.prototype.flow = function(pin) {
     var child, next = this._first;
     while (child = next) {
       next = child._next;
-      child.pin(this._flow);
+      child.pin(this._pinAll);
     }
+    this._pinFirst && (child = this.first()) && child.pin(this._pinFirst);
+    this._pinLast && (child = this.last()) && child.pin(this._pinLast);
   }, true);
   return this;
 };
@@ -568,18 +594,18 @@ Cut.prototype.box = function() {
   if (this._boxTicker)
     return this;
 
-  var rebox = false;
+  var touched = false;
 
   var touch = this.touch;
   this.touch = function() {
-    rebox = true;
+    touched = true;
     touch.apply(this, arguments);
   };
 
   this.addTicker(this._boxTicker = function() {
-    if (!rebox)
+    if (!touched)
       return;
-    rebox = false;
+    touched = false;
 
     this._xMax = -(this._xMin = Infinity);
     this._yMax = -(this._yMin = Infinity);
@@ -605,10 +631,15 @@ Cut.prototype.box = function() {
     }
 
     if (v) {
-      this.pin("width", this._xMax - this._xMin);
-      this.pin("height", this._yMax - this._yMin);
+      // avoid cyclic update
+      if (this.pin("width") != this._xMax - this._xMin) {
+        this.pin("width", this._xMax - this._xMin);
+      }
+      if (this.pin("height") != this._yMax - this._yMin) {
+        this.pin("height", this._yMax - this._yMin);
+      }
     }
-  });
+  }, true);
   return this;
 };
 
