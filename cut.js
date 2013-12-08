@@ -129,6 +129,10 @@ Cut.prototype.toString = function() {
   return "[" + this._id + "]";
 };
 
+Cut.prototype.visible = function() {
+  return this._visible;
+};
+
 Cut.prototype.parent = function() {
   return this._parent;
 };
@@ -275,17 +279,17 @@ Cut.prototype.touch = function() {
 };
 
 Cut.prototype.visit = function(visitor, reverse) {
-  if (visitor.enter && visitor.enter(this)) {
+  if (visitor.start && visitor.start(this)) {
     return;
   }
-  var child, next = this._first;
+  var child, next = reverse ? this._last : this._first;
   while (child = next) {
-    next = child._next;
+    next = reverse ? child._prev : child._next;
     if (child.visit(visitor, reverse)) {
       return true;
     }
   }
-  return visitor.leave && visitor.leave(this);
+  return visitor.end && visitor.end(this);
 };
 
 Cut.prototype.spy = function(spy) {
@@ -498,7 +502,7 @@ Cut.String.prototype.setFont = function(selector) {
 
 Cut.String.prototype.setValue = function(value) {
   if (this.value === value)
-    return;
+    return this;
   this.value = value;
 
   if (!value.length) {

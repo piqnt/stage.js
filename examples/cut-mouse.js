@@ -68,9 +68,9 @@ Mouse.publish = function(name, event, target) {
   target.visit(Mouse, true);
 };
 
-Mouse.enter = function(cut) {
-  if (!cut._visible) {
-    return;
+Mouse.start = function(cut) {
+  if (!cut.visible()) {
+    return true;
   }
 
   cut.matrix().reverse().map(this, this.rel);
@@ -88,12 +88,12 @@ Mouse.enter = function(cut) {
   }
 };
 
-Mouse.leave = function(self) {
+Mouse.end = function(self) {
   return this.stop;
 };
 
-Mouse.listen = function(listener, element, move) {
-  element = element || document;
+Mouse.listen = function(listener, elem, move) {
+  elem = elem || document;
 
   var isTouchSupported = "ontouchstart" in window;
   var CLICK = "click";
@@ -101,18 +101,18 @@ Mouse.listen = function(listener, element, move) {
   var MOVE = isTouchSupported ? "touchmove" : "mousemove";
   var END = isTouchSupported ? "touchend" : "mouseup";
 
-  element.addEventListener(CLICK, mouseClick);
-  element.addEventListener(START, mouseStart);
-  element.addEventListener(END, mouseEnd);
-  move && element.addEventListener(MOVE, mouseMove);
+  elem.addEventListener(CLICK, mouseClick);
+  elem.addEventListener(START, mouseStart);
+  elem.addEventListener(END, mouseEnd);
+  move && elem.addEventListener(MOVE, mouseMove);
 
   var start = null, click = null;
 
   function mouseStart(event) {
     try {
-      Mouse.get(event, element);
+      Mouse.get(event, elem);
       DEBUG && console.log("Mouse Start (" + event.type + "): " + Mouse);
-      !move && element.addEventListener(MOVE, mouseMove);
+      !move && elem.addEventListener(MOVE, mouseMove);
       event.preventDefault();
       Mouse.publish(Mouse.ON_START, event, listener);
 
@@ -122,15 +122,15 @@ Mouse.listen = function(listener, element, move) {
       };
       click = null;
     } catch (e) {
-      console.log(e);
+      console && console.log(e);
     }
   }
 
   function mouseEnd(event) {
     try {
-      // Mouse.get(event, element) is not valid, last Mouse is used instead.
+      // Mouse.get(event, elem) is not valid, last Mouse is used instead.
       DEBUG && console.log("Mouse End (" + event.type + "): " + Mouse);
-      !move && element.removeEventListener(MOVE, mouseMove);
+      !move && elem.removeEventListener(MOVE, mouseMove);
       event.preventDefault();
       Mouse.publish(Mouse.ON_END, event, listener);
 
@@ -141,24 +141,24 @@ Mouse.listen = function(listener, element, move) {
       }
       start = null;
     } catch (e) {
-      console.log(e);
+      console && console.log(e);
     }
   }
 
   function mouseMove(event) {
     try {
-      Mouse.get(event, element);
+      Mouse.get(event, elem);
       // DEBUG && console.log("Mouse Move (" + event.type + "): " + Mouse);
       event.preventDefault();
       Mouse.publish(Mouse.ON_MOVE, event, listener);
     } catch (e) {
-      console.log(e);
+      console && console.log(e);
     }
   }
 
   function mouseClick(event) {
     try {
-      Mouse.get(event, element);
+      Mouse.get(event, elem);
       DEBUG && console.log("Mouse Click (" + event.type + "): " + Mouse);
       event.preventDefault();
       if (!click) {
@@ -167,7 +167,7 @@ Mouse.listen = function(listener, element, move) {
         DEBUG && console.log("Mouse Click [-]");
       }
     } catch (e) {
-      console.log(e);
+      console && console.log(e);
     }
   }
 
