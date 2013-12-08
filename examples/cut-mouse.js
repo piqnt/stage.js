@@ -20,7 +20,6 @@ Mouse.ON_START = "handleMouseStart";
 Mouse.ON_MOVE = "handleMouseMove";
 
 Mouse.get = function(event, elem) {
-  elem = elem || document.body;
 
   var isTouch = false;
 
@@ -33,27 +32,27 @@ Mouse.get = function(event, elem) {
     }
   } else {
     // mouse events
-    Mouse.x = event.clientX;
-    Mouse.y = event.clientY;
+    Mouse.x = event.clientX + document.body.scrollLeft
+        + document.documentElement.scrollLeft;
+    Mouse.y = event.clientY + document.body.scrollTop
+        + document.documentElement.scrollTop;
   }
 
   // accounts for border
   Mouse.x -= elem.clientLeft;
   Mouse.y -= elem.clientTop;
 
-  // parent offsets
-  var par = elem;
-  while (par) {
-    Mouse.x -= par.offsetLeft;
-    Mouse.y -= par.offsetTop;
+  while (elem) {
+    Mouse.x -= elem.offsetLeft;
+    Mouse.y -= elem.offsetTop;
     if (!isTouch) {
       // touch events offset scrolling with pageX/Y
       // so scroll offset not needed for them
-      Mouse.x += par.scrollLeft;
-      Mouse.y += par.scrollTop;
+      Mouse.x += elem.scrollLeft;
+      Mouse.y += elem.scrollTop;
     }
 
-    par = par.offsetParent;
+    elem = elem.offsetParent;
   }
 
   Mouse.rel.x = Mouse.x;
