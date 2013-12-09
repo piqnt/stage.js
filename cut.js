@@ -97,6 +97,10 @@ Cut.prototype._paint = function(context) {
   var m = this.matrix();
   context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
+  if (context.globalAlpha != this._pin._alpha) {
+    context.globalAlpha = this._pin._alpha;
+  }
+
   var length = this._outs.length;
   for ( var i = 0; i < length; i++) {
     this._outs[i].paste(context);
@@ -959,6 +963,9 @@ Cut.Pin = function() {
 Cut.Pin.EMPTY = {};
 
 Cut.Pin.prototype.reset = function() {
+
+  this._alpha = 1;
+
   this._width = 0;
   this._height = 0;
 
@@ -1223,6 +1230,10 @@ Cut.Pin.prototype.update = function() {
 };
 
 Cut.Pin.setters = {
+  alpha : function(pin, value) {
+    pin._alpha = value;
+  },
+
   width : function(pin, value) {
     pin._width = value;
     pin._transformed = true;
