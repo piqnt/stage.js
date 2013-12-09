@@ -160,17 +160,16 @@ Mouse.start = function(cut) {
   if (cut.spy()) {
   } else if (this.rel.x < 0 || this.rel.x > cut._pin._width || this.rel.y < 0
       || this.rel.y > cut._pin._height) {
-    return;
+    return true;
   }
 
+};
+
+Mouse.end = function(cut) {
   var handler = cut[this.type];
   if (typeof handler === "function") {
     if (handler.call(cut, this.event, this.rel)) {
-      return this.stop = true;
+      return true;
     }
   }
-};
-
-Mouse.end = function(self) {
-  return this.stop;
 };
