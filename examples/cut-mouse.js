@@ -42,54 +42,28 @@ Mouse.get = function(event, elem) {
   Mouse.x -= elem.clientLeft;
   Mouse.y -= elem.clientTop;
 
-  while (elem) {
-    Mouse.x -= elem.offsetLeft;
-    Mouse.y -= elem.offsetTop;
+  var par = elem;
+  while (par) {
+    Mouse.x -= par.offsetLeft;
+    Mouse.y -= par.offsetTop;
     if (!isTouch) {
       // touch events offset scrolling with pageX/Y
       // so scroll offset not needed for them
-      Mouse.x += elem.scrollLeft;
-      Mouse.y += elem.scrollTop;
+      Mouse.x += par.scrollLeft;
+      Mouse.y += par.scrollTop;
     }
 
-    elem = elem.offsetParent;
+    par = par.offsetParent;
   }
+
+  // see loader
+  Mouse.x *= elem.ratio || 1;
+  Mouse.y *= elem.ratio || 1;
 
   Mouse.rel.x = Mouse.x;
   Mouse.rel.y = Mouse.y;
 
   return Mouse;
-};
-
-Mouse.publish = function(name, event, target) {
-  Mouse.name = name;
-  Mouse.event = event;
-  Mouse.stop = false;
-  target.visit(Mouse, true);
-};
-
-Mouse.start = function(cut) {
-  if (!cut.visible()) {
-    return true;
-  }
-
-  cut.matrix().reverse().map(this, this.rel);
-  if (cut.spy()) {
-  } else if (this.rel.x < 0 || this.rel.x > cut._pin._width || this.rel.y < 0
-      || this.rel.y > cut._pin._height) {
-    return;
-  }
-
-  var handler = cut[this.name];
-  if (typeof handler === "function") {
-    if (handler.call(cut, this.event, this.rel)) {
-      return this.stop = true;
-    }
-  }
-};
-
-Mouse.end = function(self) {
-  return this.stop;
 };
 
 Mouse.listen = function(listener, elem, move) {
@@ -109,21 +83,17 @@ Mouse.listen = function(listener, elem, move) {
   var start = null, click = null;
 
   function mouseStart(event) {
-    try {
-      Mouse.get(event, elem);
-      DEBUG && console.log("Mouse Start (" + event.type + "): " + Mouse);
-      !move && elem.addEventListener(MOVE, mouseMove);
-      event.preventDefault();
-      Mouse.publish(Mouse.ON_START, event, listener);
+    Mouse.get(event, elem);
+    DEBUG && console.log("Mouse Start (" + event.type + "): " + Mouse);
+    !move && elem.addEventListener(MOVE, mouseMove);
+    event.preventDefault();
+    Mouse.publish(Mouse.ON_START, event, listener, elem);
 
-      start = {
-        x : Mouse.x,
-        y : Mouse.y
-      };
-      click = null;
-    } catch (e) {
-      console && console.log(e);
-    }
+    start = {
+      x : Mouse.x,
+      y : Mouse.y
+    };
+    click = null;
   }
 
   function mouseEnd(event) {
@@ -132,11 +102,11 @@ Mouse.listen = function(listener, elem, move) {
       DEBUG && console.log("Mouse End (" + event.type + "): " + Mouse);
       !move && elem.removeEventListener(MOVE, mouseMove);
       event.preventDefault();
-      Mouse.publish(Mouse.ON_END, event, listener);
+      Mouse.publish(Mouse.ON_END, event, listener, elem);
 
       if (start && start.x == Mouse.x && start.y == Mouse.y) {
         DEBUG && console.log("Mouse Click [+]");
-        Mouse.publish(Mouse.ON_CLICK, event, listener);
+        Mouse.publish(Mouse.ON_CLICK, event, listener, elem);
         click = start;
       }
       start = null;
@@ -150,7 +120,7 @@ Mouse.listen = function(listener, elem, move) {
       Mouse.get(event, elem);
       // DEBUG && console.log("Mouse Move (" + event.type + "): " + Mouse);
       event.preventDefault();
-      Mouse.publish(Mouse.ON_MOVE, event, listener);
+      Mouse.publish(Mouse.ON_MOVE, event, listener, elem);
     } catch (e) {
       console && console.log(e);
     }
@@ -162,7 +132,7 @@ Mouse.listen = function(listener, elem, move) {
       DEBUG && console.log("Mouse Click (" + event.type + "): " + Mouse);
       event.preventDefault();
       if (!click) {
-        Mouse.publish(Mouse.ON_CLICK, event, listener);
+        Mouse.publish(Mouse.ON_CLICK, event, listener, elem);
       } else {
         DEBUG && console.log("Mouse Click [-]");
       }
@@ -171,4 +141,36 @@ Mouse.listen = function(listener, elem, move) {
     }
   }
 
+};
+
+Mouse.publish = function(type, event, listener) {
+  Mouse.type = type;
+  Mouse.event = event;
+  Mouse.stop = false;
+  listener.visit(Mouse, true);
+};
+
+Mouse.start = function(cut) {
+  if (!cut.visible()) {
+    return true;
+  }
+
+  cut.matrix().reverse().map(this, this.rel);
+
+  if (cut.spy()) {
+  } else if (this.rel.x < 0 || this.rel.x > cut._pin._width || this.rel.y < 0
+      || this.rel.y > cut._pin._height) {
+    return;
+  }
+
+  var handler = cut[this.type];
+  if (typeof handler === "function") {
+    if (handler.call(cut, this.event, this.rel)) {
+      return this.stop = true;
+    }
+  }
+};
+
+Mouse.end = function(self) {
+  return this.stop;
 };
