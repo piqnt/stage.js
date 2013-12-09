@@ -21,7 +21,7 @@ Cut.Loader.load(function(canvas) {
   var box = Cut.row(0.5).appendTo(root).pin("align", 0.5).spy(true).id("box");
   for ( var i = 0; i < 6; i++) {
     var cell = Cut.image("colors:color_" + colors[2 + i]).appendTo(box).id(i);
-    cell.attr(Mouse.ON_MOVE, function(ev, point) {
+    cell.listen(Mouse.ON_MOVE, function(ev, point) {
       if (last == this) {
         return;
       }

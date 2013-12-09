@@ -27,7 +27,7 @@ Cut.Loader.load(function(canvas) {
       // colors as frames
       var cell = Cut.anim("colors:color_").id("cell-" + j + "-" + i).appendTo(
           row);
-      cell.attr(Mouse.ON_MOVE, function(ev, point) {
+      cell.listen(Mouse.ON_MOVE, function(ev, point) {
         animateCell(this);
         return true;
       });

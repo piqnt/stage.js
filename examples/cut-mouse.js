@@ -169,22 +169,20 @@ Mouse.start = function(cut) {
     return true;
   }
 
-  cut.matrix().reverse().map(this, this.rel);
-
-  if (cut.spy()) {
-  } else if (this.rel.x < 0 || this.rel.x > cut._pin._width || this.rel.y < 0
-      || this.rel.y > cut._pin._height) {
-    return true;
+  if (!cut.spy()) {
+    cut.matrix().reverse().map(this, this.rel);
+    if (this.rel.x < 0 || this.rel.x > cut._pin._width || this.rel.y < 0
+        || this.rel.y > cut._pin._height) {
+      return true;
+    }
   }
-
 };
 
 Mouse.end = function(cut) {
-  cut.matrix().reverse().map(this, this.rel);
-  var handler = cut[this.type];
-  if (typeof handler === "function") {
-    if (handler.call(cut, this.event, this.rel)) {
-      return true;
-    }
+  var listeners = cut.listeners(this.type);
+  if (listeners) {
+    cut.matrix().reverse().map(this, this.rel);
+    for ( var l = 0; l < listeners.length; l++)
+      listeners[l](this.event, this.rel);
   }
 };

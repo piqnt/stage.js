@@ -109,6 +109,18 @@ Cut.prototype.id = function(id) {
   return this;
 };
 
+Cut.prototype.listen = function(name, listener) {
+  if (typeof listener === "function") {
+    this._listeners = this._listeners || {};
+    this._listeners[name] = this._listeners[name] || [];
+    this._listeners[name].push(listener.bind(this));
+  } 
+};
+
+Cut.prototype.listeners = function(name) {
+  return this._listeners && this._listeners[name];
+};
+
 Cut.prototype.attr = function(name, value) {
   if (arguments.length < 2) {
     return this[name];
