@@ -1,3 +1,10 @@
+/*
+ * Cut.js
+ * Copyright (c) 2013 Ali Shakiba, Piqnt LLC and other contributors
+ * Available under the BSD and MIT licenses
+ * @license
+ */
+
 DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
 var Mouse = {
