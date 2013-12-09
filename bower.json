@@ -12,6 +12,6 @@
     "url": "git://github.com/piqnt/cut.js.git"
   },
   "dependencies": {
-    "requirejs": "~2.1.9"
+    "requirejs": "*"
   }
 }
