@@ -25,18 +25,27 @@ Mouse.get = function(event, elem) {
 
   // touch screen events
   if (event.touches) {
+    console.log(event.touches);
     if (event.touches.length) {
       isTouch = true;
       Mouse.x = event.touches[0].pageX;
       Mouse.y = event.touches[0].pageY;
+    } else {
+      return;
     }
   } else {
     // mouse events
-    Mouse.x = event.clientX + document.body.scrollLeft
-        + document.documentElement.scrollLeft;
-    Mouse.y = event.clientY + document.body.scrollTop
-        + document.documentElement.scrollTop;
+    Mouse.x = event.clientX;
+    Mouse.y = event.clientY;
+    // Mouse.x += document.body.scrollLeft;
+    // Mouse.y += document.body.scrollTop;
+    // Mouse.x += document.documentElement.scrollLeft;
+    // Mouse.y += document.documentElement.scrollTop;
   }
+
+  console.log(Mouse.x, Mouse.y, document.body.scrollLeft,
+      document.body.scrollTop, document.documentElement.scrollLeft,
+      document.documentElement.scrollTop);
 
   // accounts for border
   Mouse.x -= elem.clientLeft;
@@ -166,6 +175,7 @@ Mouse.start = function(cut) {
 };
 
 Mouse.end = function(cut) {
+  cut.matrix().reverse().map(this, this.rel);
   var handler = cut[this.type];
   if (typeof handler === "function") {
     if (handler.call(cut, this.event, this.rel)) {
