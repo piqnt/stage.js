@@ -674,6 +674,15 @@ Cut.NinePatch.prototype.setImage = function(selector) {
 };
 
 Cut.NinePatch.prototype.resize = function(width, height) {
+  return this.outer(width, height);
+};
+
+Cut.NinePatch.prototype.inner = function(width, height) {
+  return this.outer(width + this._out.left + this._out.right, height
+      + this._out.top + this._out.bottom);
+};
+
+Cut.NinePatch.prototype.outer = function(width, height) {
 
   if (Cut._isNum(width)) {
     var left = this._out.left;
