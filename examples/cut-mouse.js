@@ -37,15 +37,16 @@ Mouse.get = function(event, elem) {
     // mouse events
     Mouse.x = event.clientX;
     Mouse.y = event.clientY;
-    // Mouse.x += document.body.scrollLeft;
-    // Mouse.y += document.body.scrollTop;
-    // Mouse.x += document.documentElement.scrollLeft;
-    // Mouse.y += document.documentElement.scrollTop;
-  }
 
-  console.log(Mouse.x, Mouse.y, document.body.scrollLeft,
-      document.body.scrollTop, document.documentElement.scrollLeft,
-      document.documentElement.scrollTop);
+    if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
+      Mouse.x += document.body.scrollLeft;
+      Mouse.y += document.body.scrollTop;
+    } else if (document.documentElement
+        && (document.documentElement.scrollLeft || document.documentElement.scrollTop)) {
+      Mouse.x += document.documentElement.scrollLeft;
+      Mouse.y += document.documentElement.scrollTop;
+    }
+  }
 
   // accounts for border
   Mouse.x -= elem.clientLeft;
