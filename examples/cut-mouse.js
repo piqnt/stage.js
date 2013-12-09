@@ -25,7 +25,6 @@ Mouse.get = function(event, elem) {
 
   // touch screen events
   if (event.touches) {
-    console.log(event.touches);
     if (event.touches.length) {
       isTouch = true;
       Mouse.x = event.touches[0].pageX;
@@ -37,12 +36,10 @@ Mouse.get = function(event, elem) {
     // mouse events
     Mouse.x = event.clientX;
     Mouse.y = event.clientY;
-
-    if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
-      Mouse.x += document.body.scrollLeft;
-      Mouse.y += document.body.scrollTop;
-    } else if (document.documentElement
-        && (document.documentElement.scrollLeft || document.documentElement.scrollTop)) {
+    // http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html
+    if (document.body.scrollLeft || document.body.scrollTop) {
+      // body is added as offsetParent
+    } else if (document.documentElement) {
       Mouse.x += document.documentElement.scrollLeft;
       Mouse.y += document.documentElement.scrollTop;
     }
