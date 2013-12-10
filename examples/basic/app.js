@@ -4,7 +4,7 @@ Cut.Loader.load(function(canvas) {
 
   Mouse.listen(root, canvas, true);
 
-  root.resize = function(width, height) {
+  root.listen("resize", function(width, height) {
     this.pin({
       width : 500,
       height : 300,
@@ -12,7 +12,8 @@ Cut.Loader.load(function(canvas) {
       resizeWidth : width,
       resizeHeight : height,
     });
-  };
+    return true;
+  });
 
   var colors = [ "dark", "light", "red", "orange", "yellow", "green", "blue",
       "purple" ];

@@ -115,16 +115,22 @@ Cut.Loader = {
 
         canvas.width = width;
         canvas.height = height;
-
-        DEBUG
-            && console.log("Resize to: " + width + " x " + height + " / "
-                + ratio);
-
-        // alert(ratio);
-
         canvas.ratio = ratio;
 
-        root.resize && root.resize(width, height);
+        DEBUG
+            && console.log("Resize: " + width + " x " + height + " / " + ratio);
+
+        root.visit({
+          start : function(cut) {
+            var stop = true;
+            var listeners = cut.listeners("resize");
+            if (listeners) {
+              for ( var l = 0; l < listeners.length; l++)
+                stop &= listeners[l].call(cut, width, height);
+            }
+            return stop;
+          }
+        });
       }
 
       return result;
@@ -138,3 +144,28 @@ Cut.Loader = {
 
   }
 };
+
+!function() {
+  var vendors = [ 'ms', 'moz', 'webkit', 'o' ];
+  for ( var v = 0; v < vendors.length && !window.requestAnimationFrame; v++) {
+    var vendor = vendors[v];
+    window.requestAnimationFrame = window[vendor + 'RequestAnimationFrame'];
+    window.cancelAnimationFrame = window[vendor + 'CancelAnimationFrame']
+        || window[vendor + 'CancelRequestAnimationFrame'];
+  }
+  if (!window.requestAnimationFrame) {
+    var next = 0;
+    window.requestAnimationFrame = function(callback) {
+      var now = new Date().getTime();
+      next = Math.max(next + 16, now);
+      return window.setTimeout(function() {
+        callback(next);
+      }, next - now);
+    };
+  }
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = function(id) {
+      clearTimeout(id);
+    };
+  }
+}();

@@ -183,6 +183,8 @@ Mouse.end = function(cut) {
   if (listeners) {
     cut.matrix().reverse().map(this, this.rel);
     for ( var l = 0; l < listeners.length; l++)
-      listeners[l](this.event, this.rel);
+      if(listeners[l].call(cut, this.event, this.rel)) {
+        return true;
+      }
   }
 };

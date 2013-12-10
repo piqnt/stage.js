@@ -113,12 +113,22 @@ Cut.prototype.listen = function(name, listener) {
   if (typeof listener === "function") {
     this._listeners = this._listeners || {};
     this._listeners[name] = this._listeners[name] || [];
-    this._listeners[name].push(listener.bind(this));
-  } 
+    this._listeners[name].push(listener);
+  }
 };
 
 Cut.prototype.listeners = function(name) {
   return this._listeners && this._listeners[name];
+};
+
+Cut.prototype.publish = function(name, args) {
+  var listeners = this.listeners(name);
+  if (listeners) {
+    for ( var l = 0; l < listeners.length; l++) {
+      listeners[l].apply(this, args);
+    }
+  }
+  return this;
 };
 
 Cut.prototype.attr = function(name, value) {
@@ -307,6 +317,8 @@ Cut.prototype.spy = function(spy) {
 Cut.prototype.hide = function() {
   this._visible = false;
 
+  this._parent && (this._parent._children_ts = Cut._TS++);
+
   this._pin_ts = Cut._TS++;
   this.touch();
   return this;
@@ -314,6 +326,8 @@ Cut.prototype.hide = function() {
 
 Cut.prototype.show = function() {
   this._visible = true;
+
+  this._parent && (this._parent._children_ts = Cut._TS++);
 
   this._pin_ts = Cut._TS++;
   this.touch();
@@ -669,12 +683,8 @@ Cut.NinePatch.prototype.setImage = function(selector) {
   this._out = Cut._select(selector);
   this._columns = [];
   this._rows = [];
-  this.resize(this._out.width(), this._out.height());
+  this.outer(this._out.width(), this._out.height());
   return this;
-};
-
-Cut.NinePatch.prototype.resize = function(width, height) {
-  return this.outer(width, height);
 };
 
 Cut.NinePatch.prototype.inner = function(width, height) {
@@ -1688,7 +1698,7 @@ Cut.Math.rotate = function(num, min, max) {
   }
 };
 
-Cut.Math.size = function(x, y) {
+Cut.Math.length = function(x, y) {
   return Math.sqrt(x * x + y * y);
 };
 

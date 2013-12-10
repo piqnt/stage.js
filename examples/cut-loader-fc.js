@@ -64,6 +64,7 @@ Cut.Loader = {
   load : function(app, canvas) {
     function loader() {
       var result = {}, context, root;
+      var width = 0, height = 0;
 
       DEBUG && console.log("Loading images...");
       Cut.loadImages(function(src, handleComplete, handleError) {
@@ -90,23 +91,33 @@ Cut.Loader = {
         DEBUG && console.log("Playing...");
         result.player = Cut.Player.play(root, function(root) {
           context.setTransform(1, 0, 0, 1, 0, 0);
-          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.clearRect(0, 0, width, height);
           root.render(context);
           FastCanvas.render();
         }, requestAnimationFrame);
       }
 
       function resize() {
-        var width, height;
+
         width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
         height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
 
         canvas.width = width;
         canvas.height = height;
 
-        DEBUG && console.log("Resize to: " + width + " x " + height);
+        DEBUG && console.log("Resize: " + width + " x " + height);
 
-        root.resize && root.resize(width, height);
+        root.visit({
+          start : function(cut) {
+            var stop = true;
+            var listeners = cut.listeners("resize");
+            if (listeners) {
+              for ( var l = 0; l < listeners.length; l++)
+                stop &= listeners[l].call(cut, width, height);
+            }
+            return stop;
+          }
+        });
       }
 
       return result;
@@ -120,3 +131,28 @@ Cut.Loader = {
 
   }
 };
+
+!function() {
+  var vendors = [ 'ms', 'moz', 'webkit', 'o' ];
+  for ( var v = 0; v < vendors.length && !window.requestAnimationFrame; v++) {
+    var vendor = vendors[v];
+    window.requestAnimationFrame = window[vendor + 'RequestAnimationFrame'];
+    window.cancelAnimationFrame = window[vendor + 'CancelAnimationFrame']
+        || window[vendor + 'CancelRequestAnimationFrame'];
+  }
+  if (!window.requestAnimationFrame) {
+    var next = 0;
+    window.requestAnimationFrame = function(callback) {
+      var now = new Date().getTime();
+      next = Math.max(next + 16, now);
+      return window.setTimeout(function() {
+        callback(next);
+      }, next - now);
+    };
+  }
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = function(id) {
+      clearTimeout(id);
+    };
+  }
+}();

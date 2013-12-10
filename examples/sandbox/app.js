@@ -8,7 +8,7 @@ Cut.Loader.load(function(canvas) {
   // tick tween.js
   root.addTicker(TWEEN.update, true);
 
-  root.resize = function(width, height) {
+  root.listen("resize", function(width, height) {
     // resize to fit in screen
     this.pin({
       width : 500,
@@ -17,7 +17,8 @@ Cut.Loader.load(function(canvas) {
       resizeWidth : width,
       resizeHeight : height,
     });
-  };
+    return true;
+  });
 
   var j = 0, i = 0;
   var column = Cut.column().appendTo(root).pin("align", 0.5);
