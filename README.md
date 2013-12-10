@@ -44,7 +44,7 @@ Cut.Loader.load(function(container) {
   for ( var i = 0; i < 9; i++) {
     var cell = Cut.image("colors:dark").appendTo(row);
 
-    cell.attr(Mouse.ON_CLICK, function(ev, point) {
+    cell.attr(Mouse.CLICK, function(ev, point) {
       var color = colors[Math.floor(Math.random() * colors.length)];
       this.setImage("colors:" + color);
     });

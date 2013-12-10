@@ -110,10 +110,14 @@ Cut.prototype.id = function(id) {
 };
 
 Cut.prototype.listen = function(name, listener) {
-  if (typeof listener === "function") {
-    this._listeners = this._listeners || {};
-    this._listeners[name] = this._listeners[name] || [];
-    this._listeners[name].push(listener);
+  var names = name.split(/\s+/);
+  for ( var int = 0; int < names.length; int++) {
+    name = names[int];
+    if (name && typeof listener === "function") {
+      this._listeners = this._listeners || {};
+      this._listeners[name] = this._listeners[name] || [];
+      this._listeners[name].push(listener);
+    }
   }
 };
 
@@ -123,12 +127,13 @@ Cut.prototype.listeners = function(name) {
 
 Cut.prototype.publish = function(name, args) {
   var listeners = this.listeners(name);
-  if (listeners) {
-    for ( var l = 0; l < listeners.length; l++) {
-      listeners[l].apply(this, args);
-    }
+  if (!listeners || !listeners.length) {
+    return false;
   }
-  return this;
+  for ( var l = 0; l < listeners.length; l++) {
+    listeners[l].apply(this, args);
+  }
+  return true;
 };
 
 Cut.prototype.attr = function(name, value) {

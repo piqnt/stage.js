@@ -21,10 +21,10 @@ Mouse.toString = function() {
       + (this.rel.y | 0);
 };
 
-Mouse.ON_CLICK = "handleMouseClick";
-Mouse.ON_END = "handleMouseEnd";
-Mouse.ON_START = "handleMouseStart";
-Mouse.ON_MOVE = "handleMouseMove";
+Mouse.CLICK = "click";
+Mouse.START = "touchstart mousedown";
+Mouse.MOVE = "touchmove mousemove";
+Mouse.END = "touchend mouseup";
 
 Mouse.get = function(event, elem) {
 
@@ -101,7 +101,7 @@ Mouse.listen = function(listener, elem, move) {
     DEBUG && console.log("Mouse Start (" + event.type + "): " + Mouse);
     !move && elem.addEventListener(MOVE, mouseMove);
     event.preventDefault();
-    Mouse.publish(Mouse.ON_START, event, listener, elem);
+    Mouse.publish(event.type, event, listener, elem);
 
     start = {
       x : Mouse.x,
@@ -116,11 +116,11 @@ Mouse.listen = function(listener, elem, move) {
       DEBUG && console.log("Mouse End (" + event.type + "): " + Mouse);
       !move && elem.removeEventListener(MOVE, mouseMove);
       event.preventDefault();
-      Mouse.publish(Mouse.ON_END, event, listener, elem);
+      Mouse.publish(event.type, event, listener, elem);
 
       if (start && start.x == Mouse.x && start.y == Mouse.y) {
         DEBUG && console.log("Mouse Click [+]");
-        Mouse.publish(Mouse.ON_CLICK, event, listener, elem);
+        Mouse.publish(event.type, event, listener, elem);
         click = start;
       }
       start = null;
@@ -134,7 +134,7 @@ Mouse.listen = function(listener, elem, move) {
       Mouse.get(event, elem);
       // DEBUG && console.log("Mouse Move (" + event.type + "): " + Mouse);
       event.preventDefault();
-      Mouse.publish(Mouse.ON_MOVE, event, listener, elem);
+      Mouse.publish(event.type, event, listener, elem);
     } catch (e) {
       console && console.log(e);
     }
@@ -146,7 +146,7 @@ Mouse.listen = function(listener, elem, move) {
       DEBUG && console.log("Mouse Click (" + event.type + "): " + Mouse);
       event.preventDefault();
       if (!click) {
-        Mouse.publish(Mouse.ON_CLICK, event, listener, elem);
+        Mouse.publish(event.type, event, listener, elem);
       } else {
         DEBUG && console.log("Mouse Click [-]");
       }
@@ -183,7 +183,7 @@ Mouse.end = function(cut) {
   if (listeners) {
     cut.matrix().reverse().map(this, this.rel);
     for ( var l = 0; l < listeners.length; l++)
-      if(listeners[l].call(cut, this.event, this.rel)) {
+      if (listeners[l].call(cut, this.event, this.rel)) {
         return true;
       }
   }
