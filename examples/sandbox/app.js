@@ -3,7 +3,7 @@ Cut.Loader.load(function(canvas) {
   var root = Cut.create().id("root");
 
   // only register root
-  Mouse.listen(root, canvas, true);
+  Cut.Mouse.listen(root, canvas, true);
 
   // tick tween.js
   root.addTicker(TWEEN.update, true);
@@ -28,7 +28,7 @@ Cut.Loader.load(function(canvas) {
       // colors as frames
       var cell = Cut.anim("colors:color_").id("cell-" + j + "-" + i).appendTo(
           row);
-      cell.listen(Mouse.MOVE, function(ev, point) {
+      cell.listen(Cut.Mouse.MOVE, function(ev, point) {
         animateCell(this);
         return true;
       });

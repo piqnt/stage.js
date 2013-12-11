@@ -7,26 +7,28 @@
 
 DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
-var Mouse = {
+Cut.Mouse = {
   x : 0,
   y : 0,
   rel : {
     x : 0,
-    y : 0
+    y : 0,
+    toString : function() {
+      return (this.x | 0) + "x" + (this.y | 0);
+    }
+  },
+
+  CLICK : "click",
+  START : "touchstart mousedown",
+  MOVE : "touchmove mousemove",
+  END : "touchend mouseup",
+
+  toString : function() {
+    return (this.x | 0) + "x" + (this.y | 0) + "   " + this.rel;
   }
 };
 
-Mouse.toString = function() {
-  return (this.x | 0) + "x" + (this.y | 0) + "   " + (this.rel.x | 0) + "x"
-      + (this.rel.y | 0);
-};
-
-Mouse.CLICK = "click";
-Mouse.START = "touchstart mousedown";
-Mouse.MOVE = "touchmove mousemove";
-Mouse.END = "touchend mouseup";
-
-Mouse.get = function(event, elem) {
+Cut.Mouse.get = function(event, elem) {
 
   var isTouch = false;
 
@@ -34,54 +36,56 @@ Mouse.get = function(event, elem) {
   if (event.touches) {
     if (event.touches.length) {
       isTouch = true;
-      Mouse.x = event.touches[0].pageX;
-      Mouse.y = event.touches[0].pageY;
+      this.x = event.touches[0].pageX;
+      this.y = event.touches[0].pageY;
     } else {
       return;
     }
   } else {
     // mouse events
-    Mouse.x = event.clientX;
-    Mouse.y = event.clientY;
+    this.x = event.clientX;
+    this.y = event.clientY;
     // http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html
     if (document.body.scrollLeft || document.body.scrollTop) {
       // body is added as offsetParent
     } else if (document.documentElement) {
-      Mouse.x += document.documentElement.scrollLeft;
-      Mouse.y += document.documentElement.scrollTop;
+      this.x += document.documentElement.scrollLeft;
+      this.y += document.documentElement.scrollTop;
     }
   }
 
   // accounts for border
-  Mouse.x -= elem.clientLeft;
-  Mouse.y -= elem.clientTop;
+  this.x -= elem.clientLeft;
+  this.y -= elem.clientTop;
 
   var par = elem;
   while (par) {
-    Mouse.x -= par.offsetLeft;
-    Mouse.y -= par.offsetTop;
+    this.x -= par.offsetLeft;
+    this.y -= par.offsetTop;
     if (!isTouch) {
       // touch events offset scrolling with pageX/Y
       // so scroll offset not needed for them
-      Mouse.x += par.scrollLeft;
-      Mouse.y += par.scrollTop;
+      this.x += par.scrollLeft;
+      this.y += par.scrollTop;
     }
 
     par = par.offsetParent;
   }
 
   // see loader
-  Mouse.x *= elem.ratio || 1;
-  Mouse.y *= elem.ratio || 1;
+  this.x *= elem.ratio || 1;
+  this.y *= elem.ratio || 1;
 
-  Mouse.rel.x = Mouse.x;
-  Mouse.rel.y = Mouse.y;
+  this.rel.x = this.x;
+  this.rel.y = this.y;
 
-  return Mouse;
+  return this;
 };
 
-Mouse.listen = function(listener, elem, move) {
+Cut.Mouse.listen = function(listener, elem, move) {
   elem = elem || document;
+
+  var self = this;
 
   var isTouchSupported = "ontouchstart" in window;
   var CLICK = "click";
@@ -97,30 +101,30 @@ Mouse.listen = function(listener, elem, move) {
   var start = null, click = null;
 
   function mouseStart(event) {
-    Mouse.get(event, elem);
-    DEBUG && console.log("Mouse Start (" + event.type + "): " + Mouse);
+    self.get(event, elem);
+    DEBUG && console.log("Mouse Start (" + event.type + "): " + self);
     !move && elem.addEventListener(MOVE, mouseMove);
     event.preventDefault();
-    Mouse.publish(event.type, event, listener, elem);
+    publish(event.type, event);
 
     start = {
-      x : Mouse.x,
-      y : Mouse.y
+      x : self.x,
+      y : self.y
     };
     click = null;
   }
 
   function mouseEnd(event) {
     try {
-      // Mouse.get(event, elem) is not valid, last Mouse is used instead.
-      DEBUG && console.log("Mouse End (" + event.type + "): " + Mouse);
+      // New xy is not valid/available, last xy is used instead.
+      DEBUG && console.log("Mouse End (" + event.type + "): " + self);
       !move && elem.removeEventListener(MOVE, mouseMove);
       event.preventDefault();
-      Mouse.publish(event.type, event, listener, elem);
+      publish(event.type, event);
 
-      if (start && start.x == Mouse.x && start.y == Mouse.y) {
+      if (start && start.x == self.x && start.y == self.y) {
         DEBUG && console.log("Mouse Click [+]");
-        Mouse.publish(event.type, event, listener, elem);
+        publish("click", event);
         click = start;
       }
       start = null;
@@ -131,10 +135,11 @@ Mouse.listen = function(listener, elem, move) {
 
   function mouseMove(event) {
     try {
-      Mouse.get(event, elem);
-      // DEBUG && console.log("Mouse Move (" + event.type + "): " + Mouse);
+      self.get(event, elem);
+      // DEBUG && console.log("self Move (" + event.type + "): " +
+      // self);
       event.preventDefault();
-      Mouse.publish(event.type, event, listener, elem);
+      publish(event.type, event);
     } catch (e) {
       console && console.log(e);
     }
@@ -142,11 +147,11 @@ Mouse.listen = function(listener, elem, move) {
 
   function mouseClick(event) {
     try {
-      Mouse.get(event, elem);
-      DEBUG && console.log("Mouse Click (" + event.type + "): " + Mouse);
+      self.get(event, elem);
+      DEBUG && console.log("Mouse Click (" + event.type + "): " + self);
       event.preventDefault();
       if (!click) {
-        Mouse.publish(event.type, event, listener, elem);
+        publish(event.type, event);
       } else {
         DEBUG && console.log("Mouse Click [-]");
       }
@@ -155,36 +160,37 @@ Mouse.listen = function(listener, elem, move) {
     }
   }
 
-};
+  var visitor = null;
 
-Mouse.publish = function(type, event, listener) {
-  Mouse.type = type;
-  Mouse.event = event;
-  Mouse.stop = false;
-  listener.visit(Mouse, true);
-};
-
-Mouse.start = function(cut) {
-  if (!cut.visible()) {
-    return true;
+  function publish(type, event) {
+    self.type = type;
+    self.event = event;
+    self.stop = false;
+    listener.visit(visitor);
   }
 
-  if (!cut.spy()) {
-    cut.matrix().reverse().map(this, this.rel);
-    if (this.rel.x < 0 || this.rel.x > cut._pin._width || this.rel.y < 0
-        || this.rel.y > cut._pin._height) {
-      return true;
-    }
-  }
-};
-
-Mouse.end = function(cut) {
-  var listeners = cut.listeners(this.type);
-  if (listeners) {
-    cut.matrix().reverse().map(this, this.rel);
-    for ( var l = 0; l < listeners.length; l++)
-      if (listeners[l].call(cut, this.event, this.rel)) {
-        return true;
+  visitor = {
+    reverse : true,
+    visible : true,
+    start : function(cut) {
+      if (!cut.spy()) {
+        var rel = cut.matrix().reverse().map(self, self.rel);
+        if (rel.x < 0 || rel.x > cut._pin._width || rel.y < 0
+            || rel.y > cut._pin._height) {
+          return true;
+        }
       }
-  }
+    },
+    end : function(cut) {
+      var listeners = cut.listeners(self.type);
+      if (listeners) {
+        cut.matrix().reverse().map(self, self.rel);
+        for ( var l = 0; l < listeners.length; l++)
+          if (listeners[l].call(cut, self.event, self.rel)) {
+            return true;
+          }
+      }
+    }
+  };
+
 };

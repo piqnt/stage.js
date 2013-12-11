@@ -30,6 +30,10 @@ function Cut() {
   this._spy = false;
 };
 
+Cut.create = function() {
+  return new Cut();
+};
+
 Cut.CREATED = 0;
 Cut.TICKED;
 Cut.PAINTED;
@@ -101,11 +105,23 @@ Cut.prototype._paint = function(context) {
   }
 };
 
+Cut.prototype.toString = function() {
+  return "[" + this._id + "]";
+};
+
 Cut.prototype.id = function(id) {
   if (!arguments.length) {
     return this._id;
   }
   this._id = id;
+  return this;
+};
+
+Cut.prototype.attr = function(name, value) {
+  if (arguments.length < 2) {
+    return this._attrs ? this._attrs[name] : undefined;
+  }
+  (this._attrs ? this._attrs : this._attrs = {})[name] = value;
   return this;
 };
 
@@ -136,53 +152,73 @@ Cut.prototype.publish = function(name, args) {
   return true;
 };
 
-Cut.prototype.attr = function(name, value) {
-  if (arguments.length < 2) {
-    return this[name];
+Cut.prototype.visit = function(visitor) {
+  var reverse = visitor.reverse;
+  var all = !visitor.visible;
+  if (visitor.start && visitor.start(this)) {
+    return;
   }
-  this[name] = value;
+  var child, next = reverse ? this.last(all) : this.first(all);
+  while (child = next) {
+    next = reverse ? child.prev(all) : child.next(all);
+    if (child.visit(visitor, reverse)) {
+      return true;
+    }
+  }
+  return visitor.end && visitor.end(this);
+};
+
+Cut.prototype.visible = function(visible) {
+  if (!arguments.length) {
+    return this._visible;
+  }
+
+  this._visible = visible;
+  this._parent && (this._parent._children_ts = Cut._TS++);
+  this._pin_ts = Cut._TS++;
+  this.touch();
   return this;
 };
 
-Cut.prototype.toString = function() {
-  return "[" + this._id + "]";
+Cut.prototype.hide = function() {
+  return this.visible(false);
 };
 
-Cut.prototype.visible = function() {
-  return this._visible;
+Cut.prototype.show = function() {
+  return this.visible(true);
 };
 
 Cut.prototype.parent = function() {
   return this._parent;
 };
 
-Cut.prototype.next = function() {
+Cut.prototype.next = function(all) {
   var next = this._next;
-  while (next && !next._visible) {
+  while (next && !all && !next._visible) {
     next = next._next;
   }
   return next;
 };
 
-Cut.prototype.prev = function() {
+Cut.prototype.prev = function(all) {
   var prev = this._prev;
-  while (prev && !prev._visible) {
+  while (prev && !all && !prev._visible) {
     prev = prev._prev;
   }
   return prev;
 };
 
-Cut.prototype.first = function() {
+Cut.prototype.first = function(all) {
   var next = this._first;
-  while (next && !next._visible) {
+  while (next && !all && !next._visible) {
     next = next._next;
   }
   return next;
 };
 
-Cut.prototype.last = function() {
+Cut.prototype.last = function(all) {
   var prev = this._last;
-  while (prev && !prev._visible) {
+  while (prev && !all && !prev._visible) {
     prev = prev._prev;
   }
   return prev;
@@ -297,45 +333,11 @@ Cut.prototype.touch = function() {
   this._parent && this._parent.touch();
 };
 
-Cut.prototype.visit = function(visitor, reverse) {
-  if (visitor.start && visitor.start(this)) {
-    return;
-  }
-  var child, next = reverse ? this._last : this._first;
-  while (child = next) {
-    next = reverse ? child._prev : child._next;
-    if (child.visit(visitor, reverse)) {
-      return true;
-    }
-  }
-  return visitor.end && visitor.end(this);
-};
-
 Cut.prototype.spy = function(spy) {
   if (!arguments.length) {
     return this._spy;
   }
   this._spy = spy ? true : false;
-  return this;
-};
-
-Cut.prototype.hide = function() {
-  this._visible = false;
-
-  this._parent && (this._parent._children_ts = Cut._TS++);
-
-  this._pin_ts = Cut._TS++;
-  this.touch();
-  return this;
-};
-
-Cut.prototype.show = function() {
-  this._visible = true;
-
-  this._parent && (this._parent._children_ts = Cut._TS++);
-
-  this._pin_ts = Cut._TS++;
-  this.touch();
   return this;
 };
 
@@ -350,10 +352,6 @@ Cut.prototype.pin = function() {
 Cut.prototype.matrix = function() {
   return this._pin
       .absoluteMatrix(this, this._parent ? this._parent._pin : null);
-};
-
-Cut.create = function() {
-  return new Cut();
 };
 
 Cut.image = function(selector) {

@@ -17,7 +17,7 @@ Cut.js rendering is retained and will pause in each cycle unless/until it is *to
 
 #### Usage
 
-Following code demonstrate a simple use case. `Cut.Loader` is made available by including a loader file specific to target platform. `Mouse` is not part of cut.js but provided for convenience.
+Following code demonstrate a simple use case. `Cut.Loader` and `Cut.Mouse` are pluggable and specific to target platform.
 
 
 ```js
@@ -25,7 +25,7 @@ Cut.Loader.load(function(container) {
 
   var root = Cut.create();
 
-  Mouse.listen(root, container);
+  Cut.Mouse.listen(root, container);
 
   root.resize = function(width, height) {
     // resize to fit in screen
@@ -44,9 +44,10 @@ Cut.Loader.load(function(container) {
   for ( var i = 0; i < 9; i++) {
     var cell = Cut.image("colors:dark").appendTo(row);
 
-    cell.attr(Mouse.CLICK, function(ev, point) {
+    cell.listen(Cut.Mouse.CLICK, function(ev, point) {
       var color = colors[Math.floor(Math.random() * colors.length)];
       this.setImage("colors:" + color);
+      return true;
     });
   }
 
