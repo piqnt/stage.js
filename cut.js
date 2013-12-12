@@ -125,20 +125,20 @@ Cut.prototype.attr = function(name, value) {
   return this;
 };
 
-Cut.prototype.listen = function(name, listener) {
-  var names = name.split(/\s+/);
-  for ( var int = 0; int < names.length; int++) {
-    name = names[int];
-    if (name && typeof listener === "function") {
+Cut.prototype.listen = function(type, listener) {
+  var names = type.split(/\s+/);
+  for ( var i = 0; i < names.length; i++) {
+    type = names[i];
+    if (type && typeof listener === "function") {
       this._listeners = this._listeners || {};
-      this._listeners[name] = this._listeners[name] || [];
-      this._listeners[name].push(listener);
+      this._listeners[type] = this._listeners[type] || [];
+      this._listeners[type].push(listener);
     }
   }
 };
 
-Cut.prototype.listeners = function(name) {
-  return this._listeners && this._listeners[name];
+Cut.prototype.listeners = function(type) {
+  return this._listeners && this._listeners[type];
 };
 
 Cut.prototype.publish = function(name, args) {
@@ -369,7 +369,7 @@ Cut.Image.prototype._super = Cut;
 Cut.Image.prototype.constructor = Cut.Image;
 
 Cut.Image.prototype.setImage = function(selector) {
-  var out = Cut._select(selector);
+  var out = Cut.Out._select(selector);
   this._outs[0] = out;
   this.pin({
     width : this._outs[0] ? this._outs[0].width() : 0,
@@ -438,7 +438,7 @@ Cut.Anim.prototype.setFrames = function(selector) {
   this._frames = [];
   this._labels = {};
 
-  var outs = Cut._select(selector, true);
+  var outs = Cut.Out._select(selector, true);
   if (outs && outs.length) {
     for ( var i = 0; i < outs.length; i++) {
       var out = outs[i];
@@ -515,7 +515,7 @@ Cut.String.prototype._super = Cut;
 Cut.String.prototype.constructor = Cut.String;
 
 Cut.String.prototype.setFont = function(selector) {
-  this.selector = selector;
+  this._font = selector;
   selector = selector.split(":", 2);
   this.prefix = selector.length > 1 ? selector[1] : selector[0];
   return this;
@@ -532,7 +532,7 @@ Cut.String.prototype.setValue = function(value) {
 
   var child = this._first;
   for ( var i = 0; i < value.length; i++) {
-    child = child || Cut.anim(this.selector).appendTo(this);
+    child = child || Cut.anim(this._font).appendTo(this);
     child.gotoLabel(this.prefix + value[i], true).show();
     child = child._next;
   }
@@ -683,7 +683,7 @@ Cut.NinePatch.prototype._super = Cut;
 Cut.NinePatch.prototype.constructor = Cut.NinePatch;
 
 Cut.NinePatch.prototype.setImage = function(selector) {
-  this._out = Cut._select(selector);
+  this._out = Cut.Out._select(selector);
   this._columns = [];
   this._rows = [];
   this.outer(this._out.width(), this._out.height());
@@ -776,31 +776,32 @@ Cut.NinePatch.prototype.outer = function(width, height) {
 
 Cut._images = {};
 
-Cut.loadImages = function(imageLoader, completeCallback) {
-  var imageCount = 0;
-  var handleComplete = function() {
-    DEBUG && console.log("Loading image completed.");
-    checkComplete();
-  };
-
-  var handleError = function(msg) {
-    DEBUG && console.log("Error loading image: " + msg);
-    checkComplete();
-  };
-
-  var checkComplete = function() {
-    if (--imageCount <= 0) {
-      completeCallback && completeCallback();
-    }
-  };
+Cut.loadImages = function(loader, callback) {
+  var loading = 0;
 
   var textures = Cut._textures;
   for ( var texture in textures) {
     if (textures[texture].imagePath) {
-      imageCount++;
+      loading++;
       var src = textures[texture].imagePath;
-      var image = imageLoader(src, handleComplete, handleError);
+      var image = loader(src, complete, error);
       Cut.addImage(image, src);
+    }
+  }
+
+  function complete() {
+    DEBUG && console.log("Loading image completed.");
+    done();
+  }
+
+  function error(msg) {
+    DEBUG && console.log("Error loading image: " + msg);
+    done();
+  }
+
+  function done() {
+    if (--loading <= 0) {
+      callback && callback();
     }
   }
 };
@@ -820,6 +821,7 @@ Cut.addTexture = function() {
   for ( var i = 0; i < arguments.length; i++) {
     var texture = arguments[i];
     Cut._textures[texture.name] = texture;
+    Cut.Out._cache[texture.name] = {};
 
     texture.getImage = function() {
       if (!this._image) {
@@ -846,48 +848,6 @@ Cut.addTexture = function() {
     }
   }
   return this;
-};
-
-Cut._select = function(selector, prefix) {
-
-  if (typeof selector !== "string") {
-    return selector;
-  }
-
-  selector = selector.split(":", 2);
-  if (selector.length < 2) {
-    return null;
-  }
-
-  var texture = selector[0];
-  var name = selector[1];
-
-  texture = Cut._textures[texture];
-  if (texture == null) {
-    return !prefix ? null : [];
-  }
-
-  var sprites = texture.sprites;
-
-  if (!prefix) {
-    for ( var i = 0; i < sprites.length; i++) {
-      if (sprites[i].name == name) {
-        return new Cut.Out(texture, sprites[i]);
-      }
-    }
-    return null;
-
-  } else {
-    var length = name.length;
-    var result = [];
-    for ( var i = 0; i < sprites.length; i++) {
-      var cut = sprites[i];
-      if (cut.name && cut.name.substring(0, length) == name) {
-        result.push(new Cut.Out(texture, sprites[i]));
-      }
-    }
-    return result;
-  }
 };
 
 Cut.Out = function(texture, sprite) {
@@ -963,6 +923,63 @@ Cut.Out.prototype.paste = function(context) {
 
 Cut.Out.prototype.toString = function() {
   return "[" + this.name + ": " + this.dw + "x" + this.dh + "]";
+};
+
+Cut.Out._cache = {};
+
+Cut.Out._select = function(selector, prefix) {
+
+  if (typeof selector !== "string") {
+    return selector;
+  }
+
+  selector = selector.split(":", 2);
+  if (selector.length < 2) {
+    return null;
+  }
+
+  var texture = selector[0];
+  var name = selector[1];
+
+  texture = Cut._textures[texture];
+  if (texture == null) {
+    return !prefix ? null : [];
+  }
+
+  var sprites = texture.sprites;
+
+  if (!prefix) {
+    var selected = Cut.Out._cache[texture.name][name + "$"];
+    if (typeof selected === "undefined") {
+      for ( var i = 0; i < sprites.length; i++) {
+        if (sprites[i].name == name) {
+          selected = sprites[i];
+          break;
+        }
+      }
+      Cut.Out._cache[texture.name][name + "$"] = selected;
+    }
+    return selected ? new Cut.Out(texture, selected) : null;
+
+  } else {
+    var selected = Cut.Out._cache[texture.name][name + "*"];
+    if (typeof selected === "undefined") {
+      selected = [];
+      var length = name.length;
+      for ( var i = 0; i < sprites.length; i++) {
+        var cut = sprites[i];
+        if (cut.name && cut.name.substring(0, length) == name) {
+          selected.push(sprites[i]);
+        }
+      }
+      Cut.Out._cache[texture.name][name + "*"] = selected;
+    }
+    var result = [];
+    for ( var i = 0; i < selected.length; i++) {
+      result.push(new Cut.Out(texture, selected[i]));
+    }
+    return result;
+  }
 };
 
 Cut.Pin = function() {
