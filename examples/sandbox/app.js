@@ -17,7 +17,6 @@ Cut.Loader.load(function(canvas) {
       resizeWidth : width,
       resizeHeight : height,
     });
-    return true;
   });
 
   var j = 0, i = 0;

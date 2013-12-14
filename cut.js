@@ -135,6 +135,7 @@ Cut.prototype.listen = function(type, listener) {
       this._listeners[type].push(listener);
     }
   }
+  return this;
 };
 
 Cut.prototype.listeners = function(type) {
@@ -389,9 +390,7 @@ Cut.Image.prototype.cropY = function(h, y) {
 
 Cut.anim = function(selector, fps) {
   var anim = new Cut.Anim().setFrames(selector).gotoFrame(0);
-  if (typeof fps !== "undefined") {
-    anim.fps(fps);
-  }
+  fps && anim.fps(fps);
   return anim;
 };
 
@@ -399,8 +398,18 @@ Cut.Anim = function() {
   Cut.Anim.prototype._super.apply(this, arguments);
   if (arguments[0] === Cut.Proto)
     return;
+
+  this._fps = Cut.Anim.FPS;
+  this._ft = 1000 / this._fps;
+
+  this._time = 0;
+
+  this._frame = 0;
+  this._frames = [];
+  this._labels = {};
+
   this.addTicker(function() {
-    if (this._fps && this._time && this._frames.length > 1) {
+    if (this._time && this._frames.length > 1) {
       var t = +new Date() - this._time;
       if (t >= this._ft) {
         var n = t < 2 * this._ft ? 1 : Math.floor(t / this._ft);
@@ -420,19 +429,19 @@ Cut.Anim.prototype = new Cut(Cut.Proto);
 Cut.Anim.prototype._super = Cut;
 Cut.Anim.prototype.constructor = Cut.Anim;
 
+Cut.Anim.FPS = 22;
+
 Cut.Anim.prototype.fps = function(fps) {
   if (!arguments.length) {
     return this._fps;
   }
-  this._fps = fps;
+  this._fps = fps || Cut.Anim.FPS;
   this._ft = 1000 / this._fps;
   return this;
 };
 
 Cut.Anim.prototype.setFrames = function(selector) {
   this._time = this._time || 0;
-  this._fps = this._fps || 0;
-  this._ft = 1000 / this._fps;
 
   this._frame = 0;
   this._frames = [];

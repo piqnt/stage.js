@@ -12,7 +12,6 @@ Cut.Loader.load(function(canvas) {
       resizeWidth : width,
       resizeHeight : height,
     });
-    return true;
   });
 
   var colors = [ "dark", "light", "red", "orange", "yellow", "green", "blue",

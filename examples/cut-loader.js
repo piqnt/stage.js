@@ -126,7 +126,7 @@ Cut.Loader = {
             var listeners = cut.listeners("resize");
             if (listeners) {
               for ( var l = 0; l < listeners.length; l++)
-                stop &= listeners[l].call(cut, width, height);
+                stop &= !listeners[l].call(cut, width, height);
             }
             return stop;
           }
