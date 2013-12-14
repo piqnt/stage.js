@@ -600,22 +600,30 @@ Cut.prototype.column = function(align) {
 };
 
 Cut.prototype.pinChildren = function(all, first, last) {
-  this._pinAll = all;
-  this._pinFirst = first;
-  this._pinLast = last;
+  all && Cut._copy(this._pinAll = this._pinAll || {}, all);
+  first && Cut._copy(this._pinFirst = this._pinFirst || {}, first);
+  last && Cut._copy(this._pinLast = this._pinLast || {}, last);
+
   this._flowTicker || this.addTicker(this._flowTicker = function() {
     if (this._row_mo == this._children_ts) {
       return;
     }
     this._row_mo = this._children_ts;
 
-    var child, next = this._first;
-    while (child = next) {
-      next = child._next;
-      child.pin(this._pinAll);
+    var child;
+    if (this._pinAll) {
+      var next = this.first();
+      while (child = next) {
+        next = child.next();
+        child.pin(this._pinAll);
+      }
     }
-    this._pinFirst && (child = this.first()) && child.pin(this._pinFirst);
-    this._pinLast && (child = this.last()) && child.pin(this._pinLast);
+    if (this._pinFirst && (child = this.first())) {
+      child.pin(this._pinFirst);
+    }
+    if (this._pinLast && (child = this.last())) {
+      child.pin(this._pinLast);
+    }
   }, true);
   return this;
 };
@@ -1741,10 +1749,17 @@ Cut._isFunc = function(x) {
   return typeof x === "function";
 };
 
-Cut._extend = function(target, souce, attribs) {
-  for ( var i = 0; i < attribs.length; i++) {
-    var attr = attribs[i];
-    target[attr] = source[attr];
+Cut._copy = function(to, from, attribs) {
+
+  if (attribs) {
+    for ( var i = 0; i < attribs.length; i++) {
+      var attr = attribs[i];
+      to[attr] = from[attr];
+    }
+  } else {
+    for ( var attr in from) {
+      to[attr] = from[attr];
+    }
   }
-  return target;
+  return to;
 };
