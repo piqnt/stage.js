@@ -1,10 +1,13 @@
 # Cut.js (alpha)
 
-Cut.js (name inspired from "cutout animation") is a minimal but functionally complete JavaScript library for making optimized HTML5 sprite games and visual apps. It targets mobile devices and modern browsers.
+Cut.js is a minimal JavaScript library for making optimized HTML5 games and visual apps from image textures. It targets mobile devices and modern browsers.
 
-Cut.js is not a physics or full-fledged game engine, it only provides UI functionalities.
+Cut.js provides dynamic and intractable visual composition functionalities but it is not a physics or all-in-one game engine.
+
+The name is inspired from "cutout animation".
 
 [Demo](http://piqnt.github.io/cut.js/examples/sandbox/)
+
 
 #### How it works
 
@@ -75,3 +78,7 @@ Cut.addTexture({
 #### Credits
 
 Cut.js was originally started by extending [DisplayFramework](https://github.com/phonegap/phonegap-app-fast-canvas/blob/master/Android/assets/www/DisplayFramework.js) while developing mobile-optimized games at Piqnt and latter reorganized to support new features.
+
+-----
+
+Keywords: html5, javascript, canvas, android, ios, win8, phonegap, cordova, mobile, game, sprite sheet, cutout
