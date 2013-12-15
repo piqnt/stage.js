@@ -23,7 +23,7 @@ function Cut() {
   this._first = null;
   this._last = null;
 
-  this._pin = new Cut.Pin().tick(this, "_pin");
+  this._pin = new Cut.Pin().tick(this);
   this._outs = [];
   this._tickBefore = [];
   this._tickAfter = [];
@@ -51,7 +51,7 @@ Cut.prototype._tick = function() {
   if (!this._visible) {
     return;
   }
-  this._pin.tick(this, "_pin");
+  this._pin.tick(this);
 
   var length = this._tickBefore.length;
   for ( var i = 0; i < length; i++) {
@@ -1063,9 +1063,9 @@ Cut.Pin.prototype.reset = function() {
   this._matrix_ts = Cut._TS++;
 };
 
-Cut.Pin.prototype.tick = function(owner, name) {
+Cut.Pin.prototype.tick = function(owner) {
   this._owner = owner;
-  this._parent = owner._parent && owner._parent[name];
+  this._parent = owner._parent && owner._parent._pin;
 
   if (this._handled && this._handle_mo != this._transform_ts) {
     this._handle_mo = this._transform_ts;
@@ -1077,11 +1077,11 @@ Cut.Pin.prototype.tick = function(owner, name) {
     if (!this._alignToX) {
     } else if (this._alignToX == "next") {
       if (this._baseX = owner.next()) {
-        this._baseX = this._baseX[name];
+        this._baseX = this._baseX._pin;
       }
     } else if (this._alignToX == "prev") {
       if (this._baseX = owner.prev()) {
-        this._baseX = this._baseX[name];
+        this._baseX = this._baseX._pin;
       }
     }
 
@@ -1089,11 +1089,11 @@ Cut.Pin.prototype.tick = function(owner, name) {
     if (!this._alignToY) {
     } else if (this._alignToY == "next") {
       if (this._baseY = owner.next()) {
-        this._baseY = this._baseY[name];
+        this._baseY = this._baseY._pin;
       }
     } else if (this._alignToY == "prev") {
       if (this._baseY = owner.prev()) {
-        this._baseY = this._baseY[name];
+        this._baseY = this._baseY._pin;
       }
     }
 
@@ -1237,7 +1237,6 @@ Cut.Pin.prototype.update = function() {
   this._transformed = false;
   this._translated = false;
 
-  var value, setter, key;
   if (arguments.length == 1) {
     var pin = arguments[0];
     if (typeof pin === "string") {
@@ -1245,12 +1244,13 @@ Cut.Pin.prototype.update = function() {
     }
 
     if (typeof pin === "object") {
-      for (key in pin) {
+      var value;
+      for ( var key in pin) {
         value = pin[key];
-        setter = Cut.Pin.setters[key];
+        var setter = Cut.Pin._setters[key];
         if (setter) {
           if (value || value === 0)
-            setter.call(Cut.Pin.setters, this, value, pin);
+            setter.call(Cut.Pin._setters, this, value, pin);
         } else {
           DEBUG && console.log("Invalid pin: " + key + "/" + value);
         }
@@ -1258,12 +1258,12 @@ Cut.Pin.prototype.update = function() {
     }
 
   } else if (arguments.length == 2) {
-    key = arguments[0];
-    value = arguments[1];
-    setter = Cut.Pin.setters[key];
+    var key = arguments[0];
+    var value = arguments[1];
+    var setter = Cut.Pin._setters[key];
     if (setter) {
       if (value || value === 0)
-        setter.call(Cut.Pin.setters, this, value, Cut.Pin.EMPTY);
+        setter.call(Cut.Pin._setters, this, value, Cut.Pin.EMPTY);
     } else {
       DEBUG && console.log("Invalid pin: " + key + "/" + value);
     }
@@ -1285,91 +1285,155 @@ Cut.Pin.prototype.update = function() {
   return this;
 };
 
-Cut.Pin.setters = {
-  alpha : function(pin, value) {
+Cut.Pin._setters = {
+  alpha : function(pin, value, set) {
     pin._alpha = value;
   },
 
-  width : function(pin, value) {
+  width : function(pin, value, set) {
+    pin._width_ = value;
     pin._width = value;
     pin._transformed = true;
   },
 
-  height : function(pin, value) {
+  height : function(pin, value, set) {
+    pin._height_ = value;
     pin._height = value;
     pin._transformed = true;
   },
 
-  scale : function(pin, value) {
+  scale : function(pin, value, set) {
     pin._scaleX = value;
     pin._scaleY = value;
     pin._transformed = true;
   },
 
-  scaleX : function(pin, value) {
+  scaleX : function(pin, value, set) {
     pin._scaleX = value;
     pin._transformed = true;
   },
 
-  scaleY : function(pin, value) {
+  scaleY : function(pin, value, set) {
     pin._scaleY = value;
     pin._transformed = true;
   },
 
-  skew : function(pin, value) {
+  skew : function(pin, value, set) {
     pin._skewX = value;
     pin._skewY = value;
     pin._transformed = true;
   },
 
-  skewX : function(pin, value) {
+  skewX : function(pin, value, set) {
     pin._skewX = value;
     pin._transformed = true;
   },
 
-  skewY : function(pin, value) {
+  skewY : function(pin, value, set) {
     pin._skewY = value;
     pin._transformed = true;
   },
 
-  rotation : function(pin, value) {
+  rotation : function(pin, value, set) {
     pin._rotation = value;
     pin._transformed = true;
   },
 
-  pivot : function(pin, value) {
+  pivot : function(pin, value, set) {
     pin._pivotX = value;
     pin._pivotY = value;
     pin._pivoted = true;
     pin._transformed = true;
   },
 
-  pivotX : function(pin, value) {
+  pivotX : function(pin, value, set) {
     pin._pivotX = value;
     pin._pivoted = true;
     pin._transformed = true;
   },
 
-  pivotY : function(pin, value) {
+  pivotY : function(pin, value, set) {
     pin._pivotY = value;
     pin._pivoted = true;
     pin._transformed = true;
   },
 
-  offset : function(pin, value) {
+  offset : function(pin, value, set) {
     pin._offsetX = value;
     pin._offsetY = value;
     pin._translated = true;
   },
 
-  offsetX : function(pin, value) {
+  offsetX : function(pin, value, set) {
     pin._offsetX = value;
     pin._translated = true;
   },
 
-  offsetY : function(pin, value) {
+  offsetY : function(pin, value, set) {
     pin._offsetY = value;
     pin._translated = true;
+  },
+
+  resizeMode : function(pin, value, set) {
+    if (Cut._isNum(set.resizeWidth) && Cut._isNum(set.resizeHeight)) {
+      this.resizeWidth(pin, set.resizeWidth, set, true);
+      this.resizeHeight(pin, set.resizeHeight, set, true);
+      if (value == "out") {
+        pin._scaleX = pin._scaleY = Math.max(pin._scaleX, pin._scaleY);
+        pin._width = obj.resizeWidth / pin._scaleX;
+        pin._height = obj.resizeHeight / pin._scaleY;
+      } else if (value == "in") {
+        pin._scaleX = pin._scaleY = Math.min(pin._scaleX, pin._scaleY);
+        pin._width = obj.resizeWidth / pin._scaleX;
+        pin._height = obj.resizeHeight / pin._scaleY;
+      }
+    }
+  },
+
+  resizeWidth : function(pin, value, set, force) {
+    if (set.resizeMode && !force) {
+      return;
+    }
+    pin._scaleX = value / pin._width_;
+    pin._width = value / pin._scaleX;
+    pin._transformed = true;
+  },
+
+  resizeHeight : function(pin, value, set, force) {
+    if (set.resizeMode && !force) {
+      return;
+    }
+    pin._scaleY = value / pin._height_;
+    pin._height = value / pin._scaleY;
+    pin._transformed = true;
+  },
+
+  scaleMode : function(pin, value, set) {
+    if (Cut._isNum(set.scaleWidth) && Cut._isNum(set.scaleHeight)) {
+      this.scaleWidth(pin, set.scaleWidth, set, true);
+      this.scaleHeight(pin, set.scaleHeight, set, true);
+      if (value == "out") {
+        pin._scaleX = pin._scaleY = Math.max(pin._scaleX, pin._scaleY);
+      } else if (value == "in") {
+        pin._scaleX = pin._scaleY = Math.min(pin._scaleX, pin._scaleY);
+      }
+    }
+  },
+
+  scaleWidth : function(pin, value, set, force) {
+    if (set.scaleMode && !force) {
+      return;
+    }
+    pin._scaleX = value / pin._width_;
+    pin._transformed = true;
+  },
+
+  scaleHeight : function(pin, value, set, force) {
+    if (set.scaleMode && !force) {
+      return;
+    }
+    pin._scaleY = value / pin._height_;
+    pin._transformed = true;
   },
 
   resizeMode : function(pin, value, obj) {
@@ -1399,108 +1463,83 @@ Cut.Pin.setters = {
     pin._transformed = true;
   },
 
-  scaleMode : function() {
-
-  },
-
-  scaleHeight : function() {
-
-  },
-
-  scaleWidth : function(pin, value, obj) {
-    if (!Cut._isNum(obj.scaleWidth) || !Cut._isNum(obj.scaleHeight)) {
-      return;
-    }
-    var w = obj.scaleWidth, h = obj.scaleHeight, mode = obj.scaleMode;
-    if (mode == "out") {
-      pin._scaleX = pin._scaleY = Math.max(w / pin._width, h / pin._height);
-    } else if (mode == "in") {
-      pin._scaleX = pin._scaleY = Math.min(w / pin._width, h / pin._height);
-    } else {
-      pin._scaleX = w / pin._width;
-      pin._scaleY = h / pin._height;
-    }
-
-    pin._transformed = true;
-  },
-
-  next : function(pin, value, obj) {
-    return this.align.apply(this, Array.prototype.slice.call(arguments).concat(
+  next : function(pin, value, set) {
+    return this.align.apply(this, Array.prototype.slice.cset(arguments).concat(
         [ "next" ]));
   },
 
-  nextX : function(pin, value) {
+  nextX : function(pin, value, set) {
     return this.alignX.apply(this, Array.prototype.slice.call(arguments)
         .concat([ "next" ]));
   },
 
-  nextY : function(pin, value) {
+  nextY : function(pin, value, set) {
     return this.alignY.apply(this, Array.prototype.slice.call(arguments)
         .concat([ "next" ]));
   },
 
-  prev : function(pin, value) {
+  prev : function(pin, value, set) {
     return this.align.apply(this, Array.prototype.slice.call(arguments).concat(
         [ "prev" ]));
   },
 
-  prevX : function(pin, value) {
+  prevX : function(pin, value, set) {
     return this.alignX.apply(this, Array.prototype.slice.call(arguments)
         .concat([ "prev" ]));
   },
 
-  prevY : function(pin, value) {
+  prevY : function(pin, value, set) {
     return this.alignY.apply(this, Array.prototype.slice.call(arguments)
         .concat([ "prev" ]));
   },
 
-  parent : function(pin, value) {
+  parent : function(pin, value, set) {
     return this.align.apply(this, arguments);
   },
 
-  parentX : function(pin, value) {
+  parentX : function(pin, value, all) {
     return this.alignX.apply(this, arguments);
   },
 
-  parentY : function(pin, value) {
+  parentY : function(pin, value, set) {
     return this.alignY.apply(this, arguments);
   },
 
-  align : function(pin, value, obj, to) {
+  align : function(pin, value, set, to) {
     this.alignX.apply(this, arguments);
     this.alignY.apply(this, arguments);
   },
 
-  alignX : function(pin, value, obj, to) {
+  alignX : function(pin, value, set, to) {
     pin._alignToX = to;
     pin._alignX = value;
     pin._aligned = true;
     pin._translated = true;
 
-    this.handleX(pin, value);
+    this.handleX(pin, value, set);
   },
 
-  alignY : function(pin, value, obj, to) {
+  alignY : function(pin, value, set, to) {
     pin._alignToY = to;
     pin._alignY = value;
     pin._aligned = true;
     pin._translated = true;
 
-    this.handleY(pin, value);
+    this.handleY(pin, value, set);
   },
 
-  handle : function(pin, value) {
-    this.handleX(pin, value);
-    this.handleY(pin, value);
+  handle : function(pin, value, set) {
+    this.handleX(pin, value, set);
+    this.handleY(pin, value, set);
   },
 
-  handleX : function(pin, value) {
+  handleX : function(pin, value, set) {
     pin._handleX = value;
     pin._handled = true;
     pin._translated = true;
   },
 
-  handleY : function(pin, value) {
+  handleY : function(pin, value, set) {
     pin._handleY = value;
     pin._handled = true;
     pin._translated = true;

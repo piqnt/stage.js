@@ -30,12 +30,12 @@ Cut.Mouse = {
 
 Cut.Mouse.get = function(event, elem) {
 
-  var isTouch = false;
+  this.isTouch = false;
 
   // touch screen events
   if (event.touches) {
     if (event.touches.length) {
-      isTouch = true;
+      this.isTouch = true;
       this.x = event.touches[0].pageX;
       this.y = event.touches[0].pageY;
     } else {
@@ -62,7 +62,7 @@ Cut.Mouse.get = function(event, elem) {
   while (par) {
     this.x -= par.offsetLeft;
     this.y -= par.offsetTop;
-    if (!isTouch) {
+    if (!this.isTouch) {
       // touch events offset scrolling with pageX/Y
       // so scroll offset not needed for them
       this.x += par.scrollLeft;
