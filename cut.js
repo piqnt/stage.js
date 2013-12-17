@@ -690,7 +690,7 @@ Cut.prototype.box = function() {
         this.pin("height", this._yMax - this._yMin);
       }
     }
-  }, true);
+  });
   return this;
 };
 
