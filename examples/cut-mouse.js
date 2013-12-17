@@ -1,7 +1,7 @@
 /*
  * Cut.js
  * Copyright (c) 2013 Ali Shakiba, Piqnt LLC and other contributors
- * Available under the BSD and MIT licenses
+ * Available under the MIT license
  * @license
  */
 
