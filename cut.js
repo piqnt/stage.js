@@ -28,6 +28,8 @@ function Cut() {
   this._tickBefore = [];
   this._tickAfter = [];
   this._spy = false;
+
+  this._alpha = 1;
 };
 
 Cut.create = function() {
@@ -89,13 +91,20 @@ Cut.prototype._paint = function(context) {
   var m = this.matrix();
   context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
-  if (context.globalAlpha != this._pin._alpha) {
-    context.globalAlpha = this._pin._alpha;
+  this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
+  var alpha = this._pin._textureAlpha * this._alpha;
+
+  if (context.globalAlpha != alpha) {
+    context.globalAlpha = alpha;
   }
 
   var length = this._outs.length;
   for ( var i = 0; i < length; i++) {
     this._outs[i].paste(context);
+  }
+
+  if (context.globalAlpha != this._alpha) {
+    context.globalAlpha = this._alpha;
   }
 
   var child, next = this._first;
@@ -1020,6 +1029,7 @@ Cut.Pin.EMPTY = {};
 
 Cut.Pin.prototype.reset = function() {
 
+  this._textureAlpha = 1;
   this._alpha = 1;
 
   this._width = 0;
@@ -1288,6 +1298,10 @@ Cut.Pin.prototype.update = function() {
 Cut.Pin._setters = {
   alpha : function(pin, value, set) {
     pin._alpha = value;
+  },
+
+  textureAlpha : function(pin, value, set) {
+    pin._textureAlpha = value;
   },
 
   width : function(pin, value, set) {
