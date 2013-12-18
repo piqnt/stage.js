@@ -1,10 +1,243 @@
 # Cut.js (alpha)
 
-Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for making optimized HTML5 games and visual apps from image textures.
+Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for developing optimized HTML5 games and visual apps from image textures.
 
-Cut.js targets mobile devices and modern browsers and provides dynamic and intractable visual composition functionalities but it is not a physics or all-in-one game engine.
+Cut.js targets mobile devices and modern browsers and provides dynamic and intractable visual composition functionalities, but it is not a physics or all-in-one game engine.
 
-[Docs & Demos](http://piqnt.com/cutjs/) 
+[Demos](http://piqnt.com/cutjs/)
+
+#### How it works
+
+A cut.js app is a tree of cut objects. Each cut is pinned (transformed) against its parent and may include any number of image cutouts and/or other cuts as children.
+
+Each rendering cycle consists of ticking and painting the tree. Updates are applied during ticking and on painting each cut transforms according to its pinning and pastes all of its cutouts and then delegates to its children.
+
+Cut.js rendering is retained and pauses in each cycle unless/until it is touched directly or indirectly by updating it. 
+
+#### Example
+
+Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are pluggable components.
+
+```js
+  Cut.Loader.load(function(container) {
+  
+    var root = Cut.create();
+    
+    Cut.Mouse.subscribe(root, container);
+  
+    root.listen("resize", function(width, height) {
+      this.pin({
+        width : 500,
+        height : 300,
+        resizeMode : "in",
+        resizeWidth : width,
+        resizeHeight : height,
+      });
+    };
+  
+    var colors = [ "dark", "light", "red", "purple", "blue", "orange", "yellow", "green" ];
+  
+    var row = Cut.row().appendTo(root).pin("parent", 0.5);
+    for ( var i = 0; i < colors.length; i++) {
+      Cut.image("colors:dark").appendTo(row)
+        .listen(Cut.Mouse.CLICK, function(ev, point) {
+          this.setImage("colors:" + colors[i]);
+          return true;
+        });
+    }
+  
+    return root ;
+  });
+  
+  Cut.addTexture({
+    name : "colors",
+    imagePath : "colors.png",
+    sprites : [
+      { name : "dark",   x : 0,  y : 0,  width : 30, height : 30 },
+      { name : "light",  x : 0,  y : 30, width : 30, height : 30 },
+      { name : "red",    x : 30, y : 0,  width : 30, height : 30 },
+      { name : "purple", x : 30, y : 30, width : 30, height : 30 },
+      { name : "blue",   x : 60, y : 0,  width : 30, height : 30 },
+      { name : "orange", x : 60, y : 30, width : 30, height : 30 },
+      { name : "yellow", x : 90, y : 0,  width : 30, height : 30 },
+      { name : "green",  x : 90, y : 30, width : 30, height : 30 }
+    ]
+  });
+```
+
+#### API
+
+```js
+  var foo = Cut.create();
+  // Create and return a new plain cut instance.
+  // There is no painting associate with plain cut, it is just a parent for other cuts.
+  
+  foo.appendTo(bar);
+  foo.prependTo(bar);
+  // Append/prepend foo to bar.
+    
+  bar.append(foo, ...);
+  bar.prepend(foo, ...);
+  // Append/prepend foo, ... to bar.
+
+  foo.remove();
+  // Remove foo from parent.
+
+  bar.removeChild(foo);
+  // Remove foo from bar.
+
+  bar.empty()
+  // Remove all children from bar.
+
+  foo.parent()
+  // Get foo's parent.
+
+  bar.first(any*);
+  bar.last(any*);
+  // Get first/last visible (or any) child.
+
+  foo.next(any*);
+  foo.prev(any*);
+  // Get next/prev visible (or any) child.
+
+  foo.visible(visible*);
+  foo.hide();
+  foo.show();
+  // Get or set foo visiblity.
+
+  foo.listen(type, listener);
+  // Register a type listener to foo.
+  
+  foo.listeners(type)
+  // Get type listeners registered to foo.
+
+  foo.publish(type, args)
+  // Call type listeners with args.
+
+  bar.visit({
+    start : function() {
+      return skipChildren ? true : false;
+    },
+    end : function() {
+      return stopVisit ? true : false;
+    },
+    reverse : reverseChildrenOrder ? true : false,
+    visible : onlyVisibleCuts ? true : false
+  });
+  // Visit the tree belowe bar using visitor.
+
+  bar.tick(ticker, beforeChildren*);
+  // Ticker is called before every paint, it can be used to update the cut.
+
+  foo.touch()
+  // Rendering pauses unless/until at least one node is touched.
+  
+  foo.pin(name, value*);
+  // Get or set single pinning value.
+
+  foo.pin({
+    alpha:"",
+    textureAlpha:"",
+    width:"",
+    height:""
+    scaleX:"",
+    scaleY:"",
+    skewX:"",
+    skewY:"",
+    rotation:""
+    pivotX:"",
+    pivotY:""
+    offsetX:"",
+    offsetY:"",
+    resizeMode:""
+    resizeWidth:"",
+    resizeHeight:"",
+    scaleMode:"",
+    scaleWidth:"",
+    scaleHeight:"",
+    alignX:"",
+    alignY:"",
+    handleX:"",
+    handleY:"",
+  })
+  // Set one or more pinning values.
+  // Following names can be used as shorthand when nameX == nameY: 
+  // scale, skew, pivot, offset, handle, align
+
+
+  var row = Cut.row(valign)
+  // Create and return a new row.
+  // A row is a cut which organizes its children as a horizontal sequence.
+  
+  var column = Cut.column(halign)
+  // Create and return a new column.
+  // A column is a cut which organizes its children as a vertical sequence.
+  
+  
+  var image = Cut.image("textureName:spriteName");
+  // Create and return a new image instance.
+  // An image is a cut which paints a cutout.
+  
+  image.setImage(selector)
+  // Change image.
+  
+  image.cropX(w, x*)
+  image.cropY(h, y*)
+  // Crop image.
+  
+  var anim = Cut.anim("textureName:spritePrefix", fps*)
+  // Create and return a new anim instance.
+  // An anim is a cut which have a set of cutouts and paints a cutout.
+  anim.fps(fps*)
+  // Get or set anim fps.
+  anim.setFrames(selector)
+  anim.gotoFrame(frame, resize*)
+  anim.randomFrame()
+  anim.moveFrame(frame)
+  anim.gotoLabel(label, resize*)
+  anim.repeat(repeat, callback*)
+  anim.play(reset*)
+  anim.stop(frame*)
+ 
+  Cut.string(selector)
+  // Create and return a new string (sequence) instance.
+  // String is a row of anim cuts.  
+  string.setFont(selector)
+  
+  string.setValue(value)
+  // set string value
+  
+  
+  var np = Cut.ninePatch(cutout)
+  // Create and return a new nine-patch from a cutout.
+  // Use top/bottom/left/right to define the nine-patch when adding tecture.
+  
+  np.setImage("textureName:spriteName")
+  // Set nine-patch cutout.
+  
+  np.inner(width, height)
+  // Set inner size of nine-patch.
+  
+  np.outer(width, height)
+  // Set outer size of nine-patch.
+  
+  Cut.addTexture(texture, ...)
+  // name
+  // imagePath
+  // imageRatio
+  // filter : function
+  // ratio
+  // sprites : [{...}, ...]
+  //   name, x, y, w|width, h|height, top*, bottom*, left*, right*
+    
+  Cut.Mouse.subscribe(rootCut, element)
+
+  Cut.Loader.load(function(element) {
+    ...
+    return rootCut;
+  });
+
+```
 
 #### Credits
 
