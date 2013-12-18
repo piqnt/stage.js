@@ -3,7 +3,7 @@ Cut.Loader.load(function(canvas) {
   var root = Cut.create().id("root");
 
   // only register root
-  Cut.Mouse.listen(root, canvas, true);
+  Cut.Mouse.subscribe(root, canvas, true);
 
   // tick tween.js
   root.tick(TWEEN.update, true);

@@ -2,7 +2,7 @@ Cut.Loader.load(function(canvas) {
 
   var root = Cut.create().id("root");
 
-  Cut.Mouse.listen(root, canvas, true);
+  Cut.Mouse.subscribe(root, canvas, true);
 
   root.listen("resize", function(width, height) {
     this.pin({

@@ -86,8 +86,6 @@ Cut.prototype.tick = function(ticker, before) {
   }
 };
 
-Cut.prototype.addTicker = Cut.prototype.tick;
-
 Cut.prototype._paint = function(context) {
   if (!this._visible) {
     return;

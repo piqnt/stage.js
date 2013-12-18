@@ -82,7 +82,7 @@ Cut.Mouse.get = function(event, elem) {
   return this;
 };
 
-Cut.Mouse.listen = function(listener, elem, move) {
+Cut.Mouse.subscribe = function(listener, elem, move) {
   elem = elem || document;
 
   var self = this;
