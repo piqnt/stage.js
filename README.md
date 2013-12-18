@@ -1,4 +1,4 @@
-# Cut.js (alpha)
+# Cut.js
 
 Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for developing optimized HTML5 games and visual apps from image textures.
 
@@ -67,6 +67,8 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
 ### API
 
+Note: foo* means foo[, ...] and bar? means [bar].
+
 ```js
   // Create a new plain cut instance.
   // No painting is associated with a plain cut, it is just a parent for other cuts.
@@ -81,8 +83,8 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
   bar.prepend(foo*);
 
   // Insert baz after/before bar.
-  baz.insertAfter(bar*);
-  baz.insertBefore(bar*);
+  baz.insertAfter(bar);
+  baz.insertBefore(bar);
 
   // Remove foo from parent.
   foo.remove();
