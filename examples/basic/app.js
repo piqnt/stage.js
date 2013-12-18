@@ -38,7 +38,7 @@ Cut.addTexture({
   name : "colors",
   imagePath : "colors.png",
   imageRatio : 2,
-  sprites : [
+  cutouts : [
     { name : "color_dark",   x : 0,  y : 0,  width : 30, height : 30 },
     { name : "color_light",  x : 0,  y : 30, width : 30, height : 30 },
     { name : "color_red",    x : 30, y : 0,  width : 30, height : 30 },

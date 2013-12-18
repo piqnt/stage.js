@@ -896,18 +896,19 @@ Cut.addTexture = function() {
     };
 
     var ratio = texture.ratio || 1;
-    var sprite;
     if (texture.filter) {
-      for ( var c = texture.sprites.length - 1; c >= 0; c--) {
-        if (sprite = texture.filter(texture.sprites[c])) {
-          texture.sprites[c] = sprite;
-          sprite.x *= ratio, sprite.y *= ratio;
-          sprite.w *= ratio, sprite.h *= ratio;
-          sprite.width *= ratio, sprite.height *= ratio;
-          sprite.top *= ratio, sprite.bottom *= ratio;
-          sprite.left *= ratio, sprite.right *= ratio;
+      var cutout;
+      var cutouts = texture.cutouts || texture.sprites;
+      for ( var c = cutouts.length - 1; c >= 0; c--) {
+        if (cutout = texture.filter(cutouts[c])) {
+          cutouts[c] = cutout;
+          cutout.x *= ratio, cutout.y *= ratio;
+          cutout.w *= ratio, cutout.h *= ratio;
+          cutout.width *= ratio, cutout.height *= ratio;
+          cutout.top *= ratio, cutout.bottom *= ratio;
+          cutout.left *= ratio, cutout.right *= ratio;
         } else {
-          texture.sprites.splice(c, 1);
+          cutouts.splice(c, 1);
         }
       }
     }
@@ -915,37 +916,37 @@ Cut.addTexture = function() {
   return this;
 };
 
-Cut.Out = function(texture, sprite) {
+Cut.Out = function(texture, cutout) {
 
   this.texture = texture;
-  this.sprite = sprite;
+  this.cutout = cutout;
   this.ratio = texture.imageRatio || 1;
-  this.name = sprite.name;
+  this.name = cutout.name;
 
-  sprite.w = sprite.w || sprite.width;
-  sprite.h = sprite.h || sprite.height;
+  cutout.w = cutout.w || cutout.width;
+  cutout.h = cutout.h || cutout.height;
 
-  this.sx = sprite.x * this.ratio;
-  this.sy = sprite.y * this.ratio;
+  this.sx = cutout.x * this.ratio;
+  this.sy = cutout.y * this.ratio;
 
-  this.sw = sprite.w * this.ratio;
-  this.sh = sprite.h * this.ratio;
+  this.sw = cutout.w * this.ratio;
+  this.sh = cutout.h * this.ratio;
 
   this.dx = 0;
   this.dy = 0;
 
-  this.dw = sprite.w;
-  this.dh = sprite.h;
+  this.dw = cutout.w;
+  this.dh = cutout.h;
 
-  this.top = (sprite.top || 0);
-  this.bottom = (sprite.bottom || 0);
+  this.top = (cutout.top || 0);
+  this.bottom = (cutout.bottom || 0);
 
-  this.left = (sprite.left || 0);
-  this.right = (sprite.right || 0);
+  this.left = (cutout.left || 0);
+  this.right = (cutout.right || 0);
 };
 
 Cut.Out.prototype.clone = function() {
-  return new Cut.Out(this.texture, this.sprite);
+  return new Cut.Out(this.texture, this.cutout);
 };
 
 Cut.Out.prototype.width = function() {
@@ -958,16 +959,16 @@ Cut.Out.prototype.height = function() {
 
 Cut.Out.prototype.cropX = function(w, x) {
   x = x || 0;
-  this.sx = (this.sprite.x + x) * this.ratio;
-  this.dw = Math.min(this.sprite.w - x, w);
+  this.sx = (this.cutout.x + x) * this.ratio;
+  this.dw = Math.min(this.cutout.w - x, w);
   this.sw = this.dw * this.ratio;
   return this;
 };
 
 Cut.Out.prototype.cropY = function(h, y) {
   y = y || 0;
-  this.sy = (this.sprite.y + y) * this.ratio;
-  this.dh = Math.min(this.sprite.h - y, h);
+  this.sy = (this.cutout.y + y) * this.ratio;
+  this.dh = Math.min(this.cutout.h - y, h);
   this.sh = this.dh * this.ratio;
   return this;
 };
@@ -1011,14 +1012,14 @@ Cut.Out._select = function(selector, prefix) {
     return !prefix ? null : [];
   }
 
-  var sprites = texture.sprites;
+  var cutouts = texture.cutouts || texture.sprites;
 
   if (!prefix) {
     var selected = Cut.Out._cache[texture.name][name + "$"];
     if (typeof selected === "undefined") {
-      for ( var i = 0; i < sprites.length; i++) {
-        if (sprites[i].name == name) {
-          selected = sprites[i];
+      for ( var i = 0; i < cutouts.length; i++) {
+        if (cutouts[i].name == name) {
+          selected = cutouts[i];
           break;
         }
       }
@@ -1031,10 +1032,10 @@ Cut.Out._select = function(selector, prefix) {
     if (typeof selected === "undefined") {
       selected = [];
       var length = name.length;
-      for ( var i = 0; i < sprites.length; i++) {
-        var cut = sprites[i];
+      for ( var i = 0; i < cutouts.length; i++) {
+        var cut = cutouts[i];
         if (cut.name && cut.name.substring(0, length) == name) {
-          selected.push(sprites[i]);
+          selected.push(cutouts[i]);
         }
       }
       Cut.Out._cache[texture.name][name + "*"] = selected;

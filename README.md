@@ -52,7 +52,7 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
   Cut.addTexture({
     name : "colors",
     imagePath : "colors.png",
-    sprites : [
+    cutouts : [
       { name : "dark",   x : 0,  y : 0,  width : 30, height : 30 },
       { name : "light",  x : 0,  y : 30, width : 30, height : 30 },
       { name : "red",    x : 30, y : 0,  width : 30, height : 30 },
@@ -65,59 +65,60 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
   });
 ```
 
-#### API
+### API
 
 ```js
+  // Create a new plain cut instance.
+  // No painting is associated with a plain cut, it is just a parent for other cuts.
   var foo = Cut.create();
-  // Create and return a new plain cut instance.
-  // There is no painting associate with plain cut, it is just a parent for other cuts.
   
+  // Append/prepend foo to bar.
   foo.appendTo(bar);
   foo.prependTo(bar);
-  // Append/prepend foo to bar.
     
-  bar.append(foo, ...);
-  bar.prepend(foo, ...);
-  // Append/prepend foo, ... to bar.
+  // Append/prepend foo* to bar.
+  bar.append(foo*);
+  bar.prepend(foo*);
 
-  baz.insertAfter(bar, ...);
-  baz.insertBefore(bar, ...);
   // Insert baz after/before bar.
+  baz.insertAfter(bar*);
+  baz.insertBefore(bar*);
 
-  foo.remove();
   // Remove foo from parent.
+  foo.remove();
 
-  bar.remove(foo);
   // Remove foo from bar.
+  bar.remove(foo);
 
-  bar.empty()
   // Remove all children from bar.
+  bar.empty()
 
-  foo.parent()
   // Get foo's parent.
+  foo.parent()
 
-  bar.first(any*);
-  bar.last(any*);
-  // Get first/last visible (or any) child.
+  // Get the first/last visible (or any) child.
+  bar.first(any?);
+  bar.last(any?);
 
-  foo.next(any*);
-  foo.prev(any*);
-  // Get next/prev visible (or any) child.
+  // Get the next/prev visible (or any) sibling.
+  foo.next(any?);
+  foo.prev(any?);
 
-  foo.visible(visible*);
+  // Get or set foo visiblity.
+  foo.visible(visible?);
   foo.hide();
   foo.show();
-  // Get or set foo visiblity.
 
+  // Register a type-listener to foo.
   foo.listen(type, listener);
-  // Register a type listener to foo.
   
+  // Get type-listeners registered to foo.
   foo.listeners(type)
-  // Get type listeners registered to foo.
 
+  // Call type-listeners with args.
   foo.publish(type, args)
-  // Call type listeners with args.
 
+  // Visit the tree belowe bar using visitor.
   bar.visit({
     start : function() {
       return skipChildren ? true : false;
@@ -128,113 +129,128 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
     reverse : reverseChildrenOrder ? true : false,
     visible : onlyVisibleCuts ? true : false
   });
-  // Visit the tree belowe bar using visitor.
 
-  bar.tick(ticker, beforeChildren*);
-  // Ticker is called before every paint, it can be used to update the cut.
+  // Ticker is called on ticking before every paint, it can be used to update the cut.
+  bar.tick(ticker, beforeChildren?);
 
-  foo.touch()
   // Rendering pauses unless/until at least one node is touched.
+  foo.touch()
   
-  foo.pin(name, value*);
   // Get or set single pinning value.
+  foo.pin(name, value?);
 
-  foo.pin({
-    alpha:"",
-    textureAlpha:"",
-    width:"",
-    height:""
-    scaleX:"",
-    scaleY:"",
-    skewX:"",
-    skewY:"",
-    rotation:""
-    pivotX:"",
-    pivotY:""
-    offsetX:"",
-    offsetY:"",
-    resizeMode:""
-    resizeWidth:"",
-    resizeHeight:"",
-    scaleMode:"",
-    scaleWidth:"",
-    scaleHeight:"",
-    alignX:"",
-    alignY:"",
-    handleX:"",
-    handleY:"",
-  })
   // Set one or more pinning values.
-  // Following names can be used as shorthand when nameX == nameY: 
-  // scale, skew, pivot, offset, handle, align
+  // When nameX == nameY, name shorthand can be used instead of them.
+  foo.pin({
+    alpha : "",
+    textureAlpha : "", // set alpha for textures directly pasted by this cut.
+    width : "", // used for pinning
+    height : "", // used for pinning
+    scaleX : "", 
+    scaleY : "",
+    skewX : "",
+    skewY : "",
+    rotation : ""
+    pivotX : "", // scale/skew/rotation center, value is relative to self size
+    pivotY : "", // 
+    handleX : "", // 
+    handleY : "",
+    alignX : "", // 
+    alignY : "",
+    offsetX : "", // offsetting in pixel
+    offsetY : "",
+    resizeMode : "", // "in"/"out"
+    resizeWidth : "",
+    resizeHeight : "",
+    scaleMode : "", // "in"/"out"
+    scaleWidth : "",
+    scaleHeight : "",
+  })
 
 
-  var row = Cut.row(valign)
-  // Create and return a new row.
+  // Create a new row.
   // A row is a cut which organizes its children as a horizontal sequence.
+  var row = Cut.row(valign?)
   
-  var column = Cut.column(halign)
-  // Create and return a new column.
+  // Create a new column.
   // A column is a cut which organizes its children as a vertical sequence.
+  var column = Cut.column(halign?)
   
   
-  var image = Cut.image("textureName:spriteName");
-  // Create and return a new image instance.
-  // An image is a cut which paints a cutout.
+  // Create a new image instance.
+  // An image is a cut which pastes a cutout.
+  var image = Cut.image("textureName:cutoutName");
   
-  image.setImage(selector)
   // Change image.
+  image.setImage("textureName:cutoutName")
   
-  image.cropX(w, x*)
-  image.cropY(h, y*)
   // Crop image.
+  image.cropX(w, x?)
+  image.cropY(h, y?)
   
-  var anim = Cut.anim("textureName:spritePrefix", fps*)
-  // Create and return a new anim instance.
-  // An anim is a cut which have a set of cutouts and paints a cutout.
-  anim.fps(fps*)
+  // Create a new anim instance.
+  // An anim is a cut which have a set of cutouts and pastes a cutout at a time.
+  var anim = Cut.anim("textureName:cutoutPrefix", fps?)
+
   // Get or set anim fps.
-  anim.setFrames(selector)
-  anim.gotoFrame(frame, resize*)
+  anim.fps(fps?)
+
+  // Set anim cutouts.
+  anim.setFrames("textureName:cutoutPrefix")
+
+  anim.gotoFrame(n, resize?)
+
+  anim.gotoLabel("cutoutName", resize?)
+
   anim.randomFrame()
-  anim.moveFrame(frame)
-  anim.gotoLabel(label, resize*)
-  anim.repeat(repeat, callback*)
-  anim.play(reset*)
-  anim.stop(frame*)
+
+  anim.moveFrame(n)
+
+  anim.play(reset?)
+
+  anim.stop(frame?)
+
+  anim.repeat(repeat, callback?)
+
  
-  Cut.string(selector)
-  // Create and return a new string (sequence) instance.
-  // String is a row of anim cuts.  
-  string.setFont(selector)
+  // Create a new string (sequence) instance.
+  // String is a row of anim cuts.
+  Cut.string("textureName:cutoutPrefix")
+
+  string.setFont("textureName:cutoutPrefix")
   
-  string.setValue(value)
   // set string value
+  string.setValue(value)
   
   
-  var np = Cut.ninePatch(cutout)
-  // Create and return a new nine-patch from a cutout.
-  // Use top/bottom/left/right to define the nine-patch when adding tecture.
+  // Create a new nine-patch from a cutout.
+  // Use top, bottom, left and right to define the nine-patch when adding a texture.
+  var np = Cut.ninePatch("textureName:cutoutName")
   
-  np.setImage("textureName:spriteName")
   // Set nine-patch cutout.
+  np.setImage("textureName:cutoutName")
   
-  np.inner(width, height)
   // Set inner size of nine-patch.
+  np.inner(width, height)
   
-  np.outer(width, height)
   // Set outer size of nine-patch.
+  np.outer(width, height)
+
   
-  Cut.addTexture(texture, ...)
-  // name
-  // imagePath
-  // imageRatio
-  // filter : function
-  // ratio
-  // sprites : [{...}, ...]
-  //   name, x, y, w|width, h|height, top*, bottom*, left*, right*
+  Cut.addTexture({
+    name : "",
+    imagePath : "",
+    imageRatio: "",
+    filter : "",
+    ratio : "",
+    cutouts : [
+      { name : "", x : "", y : "", width : "", height : "", top? : "", bottom? : "", left? : "", right? : ""}*
+    ]
+  }*)
+
     
   Cut.Mouse.subscribe(rootCut, element)
+
 
   Cut.Loader.load(function(element) {
     ...
