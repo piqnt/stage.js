@@ -11,8 +11,8 @@ Cut.Loader.load(function(canvas) {
   root.listen("resize", function(width, height) {
     // resize to fit in screen
     this.pin({
-      width : 500,
-      height : 500,
+      width : 400,
+      height : 400,
       resizeMode : "in",
       resizeWidth : width,
       resizeHeight : height,

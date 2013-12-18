@@ -63,7 +63,7 @@ Cut.Loader = {
         DEBUG && console.log("Images loaded.");
 
         if (!canvas) {
-          canvas = document.getElementById("cutout");
+          canvas = document.getElementById("cutjs");
         }
 
         if (!canvas) {
