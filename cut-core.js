@@ -238,55 +238,70 @@ Cut.prototype.last = function(all) {
   return prev;
 };
 
-Cut.prototype.appendTo = function(parent) {
-  parent.append(this);
-  return this;
-};
-
-Cut.prototype.prependTo = function(parent) {
-  parent.prepend(this);
-  return this;
-};
-
 Cut.prototype.append = function() {
   for ( var i = 0; i < arguments.length; i++) {
-    arguments[i]._insert(this, this._last, null);
+    arguments[i].appendTo(this);
   }
-  this._children_ts = Cut._TS++;
-  this.touch();
   return this;
 };
 
 Cut.prototype.prepend = function() {
   for ( var i = 0; i < arguments.length; i++) {
-    arguments[i]._insert(this, null, this._first);
+    arguments[i].prependTo(this);
   }
-  this._children_ts = Cut._TS++;
-  this.touch();
   return this;
 };
 
-Cut.prototype._insert = function(parent, prev, next) {
-
-  if (prev && prev._parent != parent || next && next._parent != parent) {
-    return;
-  }
-
+Cut.prototype.appendTo = function(parent) {
   this.remove();
 
-  prev = prev || (next ? next._prev : parent._last);
-  next = next || (prev ? prev._next : null);
+  if (parent._last) {
+    parent._last._next = this;
+    this._prev = parent._last;
+  }
 
-  if (prev) {
-    prev._next = this;
-  } else {
+  this._parent = parent;
+  parent._last = this;
+
+  if (!parent._first) {
     parent._first = this;
   }
-  if (next) {
-    next._prev = this;
-  } else {
+
+  this._parent_ts = Cut._TS++;
+  parent._children_ts = Cut._TS++;
+  parent.touch();
+  return this;
+};
+
+Cut.prototype.prependTo = function(parent) {
+  this.remove();
+
+  if (parent._first) {
+    parent._first._prev = this;
+    this._next = parent._first;
+  }
+
+  this._parent = parent;
+  parent._first = this;
+
+  if (!parent._last) {
     parent._last = this;
   }
+
+  this._parent_ts = Cut._TS++;
+  parent._children_ts = Cut._TS++;
+  parent.touch();
+  return this;
+};
+
+Cut.prototype.insertBefore = function(next) {
+  this.remove();
+
+  var parent = next._parent;
+  var prev = next._prev;
+
+  next._prev = this;
+  prev && (prev._next = this) || parent && (parent._first = this);
 
   this._parent = parent;
   this._prev = prev;
@@ -296,11 +311,31 @@ Cut.prototype._insert = function(parent, prev, next) {
   this.touch();
 };
 
-Cut.prototype.removeChild = function(child) {
-  child && child.remove();
+Cut.prototype.insertAfter = function(prev) {
+  this.remove();
+
+  var parent = prev._parent;
+  var next = prev._next;
+
+  prev._next = this;
+  next && (next._prev = this) || parent && (parent._last = this);
+
+  this._parent = parent;
+  this._prev = prev;
+  this._next = next;
+
+  this._parent_ts = Cut._TS++;
+  this.touch();
 };
 
 Cut.prototype.remove = function() {
+  if (arguments.length) {
+    for ( var i = 0; i < arguments.length; i++) {
+      arguments[i] && arguments[i].remove();
+    }
+    return this;
+  }
+
   if (this._prev) {
     this._prev._next = this._next;
   }

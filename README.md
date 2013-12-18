@@ -80,10 +80,14 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
   bar.prepend(foo, ...);
   // Append/prepend foo, ... to bar.
 
+  baz.insertAfter(bar, ...);
+  baz.insertBefore(bar, ...);
+  // Insert baz after/before bar.
+
   foo.remove();
   // Remove foo from parent.
 
-  bar.removeChild(foo);
+  bar.remove(foo);
   // Remove foo from bar.
 
   bar.empty()
