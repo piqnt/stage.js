@@ -67,61 +67,61 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
 ### API
 
-Note: foo* means foo[, ...] and bar? means [bar].
+Note: param? means [param].
 
 ```js
   // Create a new plain cut instance.
   // No painting is associated with a plain cut, it is just a parent for other cuts.
   var foo = Cut.create();
   
-  // Append/prepend foo to bar.
-  foo.appendTo(bar);
-  foo.prependTo(bar);
+  // Append/prepend bar to foo children.
+  bar.appendTo(foo);
+  bar.prependTo(foo);
     
-  // Append/prepend foo* to bar.
-  bar.append(foo*);
-  bar.prepend(foo*);
-
-  // Insert baz after/before bar.
+  // Insert baz after/before foo.
   baz.insertAfter(bar);
   baz.insertBefore(bar);
 
-  // Remove foo from parent.
-  foo.remove();
+  // Append/prepend bar, baz, ... to foo.
+  foo.append(bar, baz, ...);
+  foo.prepend(bar, baz, ...);
 
-  // Remove foo from bar.
-  bar.remove(foo);
+  // Remove bar from parent.
+  bar.remove();
 
-  // Remove all children from bar.
-  bar.empty()
+  // Remove bar from foo.
+  foo.remove(bar);
 
-  // Get foo's parent.
-  foo.parent()
+  // Remove all children from foo.
+  foo.empty();
+
+  // Get bar's parent.
+  bar.parent();
 
   // Get the first/last visible (or any) child.
-  bar.first(any?);
-  bar.last(any?);
+  foo.first(any?);
+  foo.last(any?);
 
   // Get the next/prev visible (or any) sibling.
-  foo.next(any?);
-  foo.prev(any?);
+  bar.next(any?);
+  bar.prev(any?);
 
-  // Get or set foo visiblity.
-  foo.visible(visible?);
-  foo.hide();
-  foo.show();
+  // Get or set bar visiblity.
+  bar.visible(visible?);
+  bar.hide();
+  bar.show();
 
-  // Register a type-listener to foo.
-  foo.listen(type, listener);
+  // Register a type-listener to bar.
+  bar.listen(type, listener);
   
-  // Get type-listeners registered to foo.
-  foo.listeners(type)
+  // Get type-listeners registered to bar.
+  bar.listeners(type)
 
   // Call type-listeners with args.
-  foo.publish(type, args)
+  bar.publish(type, args)
 
-  // Visit the tree belowe bar using visitor.
-  bar.visit({
+  // Visit the tree belowe foo using visitor.
+  foo.visit({
     start : function() {
       return skipChildren ? true : false;
     },
@@ -133,17 +133,17 @@ Note: foo* means foo[, ...] and bar? means [bar].
   });
 
   // Ticker is called on ticking before every paint, it can be used to update the cut.
-  bar.tick(ticker, beforeChildren?);
+  foo.tick(ticker, beforeChildren?);
 
   // Rendering pauses unless/until at least one node is touched.
-  foo.touch()
+  bar.touch()
   
   // Get or set single pinning value.
-  foo.pin(name, value?);
+  bar.pin(name, value?);
 
   // Set one or more pinning values.
   // When nameX == nameY, name shorthand can be used instead of them.
-  foo.pin({
+  bar.pin({
     alpha : "",
     textureAlpha : "", // set alpha for textures directly pasted by this cut.
     width : "", // used for pinning
@@ -246,9 +246,10 @@ Note: foo* means foo[, ...] and bar? means [bar].
     filter : "",
     ratio : "",
     cutouts : [
-      { name : "", x : "", y : "", width : "", height : "", top? : "", bottom? : "", left? : "", right? : ""}*
+      { name : "", x : "", y : "", width : "", height : "", top? : "", bottom? : "", left? : "", right? : ""},
+      ...
     ]
-  }*)
+  }, ...)
 
     
   Cut.Mouse.subscribe(rootCut, element)
