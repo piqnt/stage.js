@@ -1,17 +1,11 @@
 {
   "name": "cutjs",
-  "version": "0.1.4",
-  "main": "cut.js",
   "ignore": [
     "**/.*",
-    "node_modules",
     "components"
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/piqnt/cut.js.git"
-  },
-  "dependencies": {
-    "requirejs": "*"
   }
 }
