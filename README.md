@@ -67,18 +67,18 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
 ### API
 
-Note: param? means [param].
+Note: name? means name is optional.
 
 ```js
   // Create a new plain cut instance.
   // No painting is associated with a plain cut, it is just a parent for other cuts.
   var foo = Cut.create();
   
-  // Append/prepend bar to foo children.
+  // Append/prepend bar to foo's children.
   bar.appendTo(foo);
   bar.prependTo(foo);
     
-  // Insert baz after/before foo.
+  // Insert baz after/before bar.
   baz.insertAfter(bar);
   baz.insertBefore(bar);
 
