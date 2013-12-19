@@ -25,12 +25,11 @@ Cut.Loader.load(function(canvas) {
     var row = Cut.row().id("row-" + j).appendTo(column);
     for (i = 0; i < 9; i++) {
       // colors as frames
-      var cell = Cut.anim("colors:color_").id("cell-" + j + "-" + i).appendTo(
-          row);
-      cell.listen(Cut.Mouse.MOVE, function(ev, point) {
-        animateCell(this);
-        return true;
-      });
+      Cut.anim("colors:color_").id("cell-" + j + "-" + i).appendTo(row).listen(
+          Cut.Mouse.MOVE, function(ev, point) {
+            animate(this);
+            return true;
+          });
     }
   }
 
@@ -39,7 +38,7 @@ Cut.Loader.load(function(canvas) {
 
 var last = null;
 
-function animateCell(cell) {
+function animate(cell) {
 
   if (cell == last)
     return;
@@ -77,20 +76,3 @@ function animateCell(cell) {
   }).start();
 
 }
-
-// register texture(s)
-Cut.addTexture({
-  name : "colors",
-  imagePath : "colors.png",
-  imageRatio : 2,
-  cutouts : [
-    { name : "color_dark",   x : 0,  y : 0,  width : 30, height : 30 },
-    { name : "color_light",  x : 0,  y : 30, width : 30, height : 30 },
-    { name : "color_red",    x : 30, y : 0,  width : 30, height : 30 },
-    { name : "color_purple", x : 30, y : 30, width : 30, height : 30 },
-    { name : "color_orange", x : 60, y : 0,  width : 30, height : 30 },
-    { name : "color_blue",   x : 60, y : 30, width : 30, height : 30 },
-    { name : "color_yellow", x : 90, y : 0,  width : 30, height : 30 },
-    { name : "color_green",  x : 90, y : 30, width : 30, height : 30 }
-  ]
-});

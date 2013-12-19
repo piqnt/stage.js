@@ -294,6 +294,24 @@ Cut.prototype.prependTo = function(parent) {
   return this;
 };
 
+Cut.prototype.insertNext = function() {
+  if (arguments.length) {
+    for ( var i = 0; i < arguments.length; i++) {
+      arguments[i] && arguments[i].insertAfter(this);
+    }
+  }
+  return this;
+};
+
+Cut.prototype.insertPrev = function() {
+  if (arguments.length) {
+    for ( var i = 0; i < arguments.length; i++) {
+      arguments[i] && arguments[i].insertBefore(this);
+    }
+  }
+  return this;
+};
+
 Cut.prototype.insertBefore = function(next) {
   this.remove();
 

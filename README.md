@@ -73,36 +73,40 @@ Note: name? means name is optional.
   // Create a new plain cut instance.
   // No painting is associated with a plain cut, it is just a parent for other cuts.
   var foo = Cut.create();
-  
-  // Append/prepend bar to foo's children.
+
+  // Append/prepend bar, baz, ... to foo children.
+  foo.append(bar, baz, ...);
+  foo.prepend(bar, baz, ...);
+
+  // Append/prepend bar to foo children.
   bar.appendTo(foo);
   bar.prependTo(foo);
-    
+
+  // Insert baz, qux, ... after/before bar.
+  bar.insertNext(baz, qux, ...);
+  bar.insertPrev(baz, qux, ...);
+
   // Insert baz after/before bar.
   baz.insertAfter(bar);
   baz.insertBefore(bar);
 
-  // Append/prepend bar, baz, ... to foo.
-  foo.append(bar, baz, ...);
-  foo.prepend(bar, baz, ...);
-
   // Remove bar from parent.
   bar.remove();
 
-  // Remove bar from foo.
-  foo.remove(bar);
+  // Remove bar, baz, ... from foo.
+  foo.remove(bar, baz, ...);
 
-  // Remove all children from foo.
+  // Remove all foo children.
   foo.empty();
 
-  // Get bar's parent.
-  bar.parent();
-
-  // Get the first/last visible (or any) child.
+  // Get foo first/last visible (or any) child.
   foo.first(any?);
   foo.last(any?);
+  
+  // Get bar parent.
+  bar.parent();
 
-  // Get the next/prev visible (or any) sibling.
+  // Get bar next/prev visible (or any) sibling.
   bar.next(any?);
   bar.prev(any?);
 
@@ -111,38 +115,11 @@ Note: name? means name is optional.
   bar.hide();
   bar.show();
 
-  // Register a type-listener to bar.
-  bar.listen(type, listener);
-  
-  // Get type-listeners registered to bar.
-  bar.listeners(type)
-
-  // Call type-listeners with args.
-  bar.publish(type, args)
-
-  // Visit the tree belowe foo using visitor.
-  foo.visit({
-    start : function() {
-      return skipChildren ? true : false;
-    },
-    end : function() {
-      return stopVisit ? true : false;
-    },
-    reverse : reverseChildrenOrder ? true : false,
-    visible : onlyVisibleCuts ? true : false
-  });
-
-  // Ticker is called on ticking before every paint, it can be used to update the cut.
-  foo.tick(ticker, beforeChildren?);
-
-  // Rendering pauses unless/until at least one node is touched.
-  bar.touch()
-  
   // Get or set single pinning value.
   bar.pin(name, value?);
 
   // Set one or more pinning values.
-  // When nameX == nameY, name shorthand can be used instead of them.
+  // If `nameX` equals `nameY`, `name` shorthand can be used instead.
   bar.pin({
     alpha : "",
     textureAlpha : "", // set alpha for textures directly pasted by this cut.
@@ -168,6 +145,34 @@ Note: name? means name is optional.
     scaleWidth : "",
     scaleHeight : "",
   })
+
+  // Ticker is called on ticking before every paint, it can be used to modify the cut.
+  foo.tick(ticker, beforeChildren?);
+
+  // Register a type-listener to bar.
+  foo.listen(type, listener);
+  
+  // Get type-listeners registered to bar.
+  foo.listeners(type)
+
+  // Call type-listeners with args.
+  foo.publish(type, args)
+
+
+  // Visit the tree belowe foo.
+  foo.visit({
+    start : function() {
+      return skipChildren ? true : false;
+    },
+    end : function() {
+      return stopVisit ? true : false;
+    },
+    reverse : reverseChildrenOrder ? true : false,
+    visible : onlyVisibleCuts ? true : false
+  });
+
+  // Rendering pauses unless/until at least one cut is touched directly or indirectly.
+  foo.touch()
 
 
   // Create a new row.
