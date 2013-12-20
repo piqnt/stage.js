@@ -1818,11 +1818,16 @@ Cut.Math.random = function(min, max) {
 };
 
 Cut.Math.rotate = function(num, min, max) {
-  max = max || 0;
+  if (arguments.length < 3) {
+    max = min || 0;
+    min = 0;
+  }
   if (max > min) {
-    return (num - min) % (max - min) + (num < min ? max : min);
+    num = (num - min) % (max - min);
+    return num + (num < 0 ? max : min);
   } else {
-    return (num - max) % (min - max) + (num < max ? min : max);
+    num = (num - max) % (min - max);
+    return num + (num <= 0 ? min : max);
   }
 };
 
