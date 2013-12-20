@@ -168,13 +168,13 @@ Cut.prototype.publish = function(name, args) {
 
 Cut.prototype.visit = function(visitor) {
   var reverse = visitor.reverse;
-  var all = !visitor.visible;
+  var visible = visitor.visible;
   if (visitor.start && visitor.start(this)) {
     return;
   }
-  var child, next = reverse ? this.last(all) : this.first(all);
+  var child, next = reverse ? this.last(visible) : this.first(visible);
   while (child = next) {
-    next = reverse ? child.prev(all) : child.next(all);
+    next = reverse ? child.prev(visible) : child.next(visible);
     if (child.visit(visitor, reverse)) {
       return true;
     }
@@ -206,33 +206,33 @@ Cut.prototype.parent = function() {
   return this._parent;
 };
 
-Cut.prototype.next = function(all) {
+Cut.prototype.next = function(visible) {
   var next = this._next;
-  while (next && !all && !next._visible) {
+  while (next && visible && !next._visible) {
     next = next._next;
   }
   return next;
 };
 
-Cut.prototype.prev = function(all) {
+Cut.prototype.prev = function(visible) {
   var prev = this._prev;
-  while (prev && !all && !prev._visible) {
+  while (prev && visible && !prev._visible) {
     prev = prev._prev;
   }
   return prev;
 };
 
-Cut.prototype.first = function(all) {
+Cut.prototype.first = function(visible) {
   var next = this._first;
-  while (next && !all && !next._visible) {
+  while (next && visible && !next._visible) {
     next = next._next;
   }
   return next;
 };
 
-Cut.prototype.last = function(all) {
+Cut.prototype.last = function(visible) {
   var prev = this._last;
-  while (prev && !all && !prev._visible) {
+  while (prev && visible && !prev._visible) {
     prev = prev._prev;
   }
   return prev;
@@ -678,16 +678,16 @@ Cut.prototype.pinChildren = function(all, first, last) {
 
     var child;
     if (this._pinAll) {
-      var next = this.first();
+      var next = this.first(true);
       while (child = next) {
-        next = child.next();
+        next = child.next(true);
         child.pin(this._pinAll);
       }
     }
-    if (this._pinFirst && (child = this.first())) {
+    if (this._pinFirst && (child = this.first(true))) {
       child.pin(this._pinFirst);
     }
-    if (this._pinLast && (child = this.last())) {
+    if (this._pinLast && (child = this.last(true))) {
       child.pin(this._pinLast);
     }
   }, true);
@@ -719,9 +719,9 @@ Cut.prototype.box = function() {
     this._yMax = -(this._yMin = Infinity);
 
     var v = false;
-    var child, next = this.first();
+    var child, next = this.first(true);
     while (child = next) {
-      next = child.next();
+      next = child.next(true);
       child.matrix();
       if (this._xMin > (v = child._pin._x)) {
         this._xMin = v;
@@ -1019,6 +1019,7 @@ Cut.Out._select = function(selector, prefix) {
 
   selector = selector.split(":", 2);
   if (selector.length < 2) {
+    throw "Invalid selector: '" + selector + "'!";
     return null;
   }
 
@@ -1043,6 +1044,9 @@ Cut.Out._select = function(selector, prefix) {
       }
       Cut.Out._cache[texture.name][name + "$"] = selected;
     }
+    if (!selected) {
+      throw "'" + selector + "' cutout not found!";
+    }
     return selected ? new Cut.Out(texture, selected) : null;
 
   } else {
@@ -1057,6 +1061,9 @@ Cut.Out._select = function(selector, prefix) {
         }
       }
       Cut.Out._cache[texture.name][name + "*"] = selected;
+    }
+    if (!selected.length) {
+      throw "'" + selector + "' cutout not found!";
     }
     var result = [];
     for ( var i = 0; i < selected.length; i++) {
@@ -1144,11 +1151,11 @@ Cut.Pin.prototype.tick = function(owner) {
     this._baseX = this._parent;
     if (!this._alignToX) {
     } else if (this._alignToX == "next") {
-      if (this._baseX = owner.next()) {
+      if (this._baseX = owner.next(true)) {
         this._baseX = this._baseX._pin;
       }
     } else if (this._alignToX == "prev") {
-      if (this._baseX = owner.prev()) {
+      if (this._baseX = owner.prev(true)) {
         this._baseX = this._baseX._pin;
       }
     }
@@ -1156,11 +1163,11 @@ Cut.Pin.prototype.tick = function(owner) {
     this._baseY = this._parent;
     if (!this._alignToY) {
     } else if (this._alignToY == "next") {
-      if (this._baseY = owner.next()) {
+      if (this._baseY = owner.next(true)) {
         this._baseY = this._baseY._pin;
       }
     } else if (this._alignToY == "prev") {
-      if (this._baseY = owner.prev()) {
+      if (this._baseY = owner.prev(true)) {
         this._baseY = this._baseY._pin;
       }
     }

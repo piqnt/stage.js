@@ -99,16 +99,16 @@ Note: name? means name is optional.
   // Remove all foo children.
   foo.empty();
 
-  // Get foo first/last visible (or any) child.
-  foo.first(any?);
-  foo.last(any?);
+  // Get foo first/last (visible) child.
+  foo.first(visible?);
+  foo.last(visible?);
   
   // Get bar parent.
   bar.parent();
 
-  // Get bar next/prev visible (or any) sibling.
-  bar.next(any?);
-  bar.prev(any?);
+  // Get bar next/prev (visible) sibling.
+  bar.next(visible?);
+  bar.prev(visible?);
 
   // Get or set bar visiblity.
   bar.visible(visible?);
