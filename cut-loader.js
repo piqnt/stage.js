@@ -8,7 +8,7 @@
 DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
 /**
- * Simple full-screen and resizable loader for web.
+ * Default loader for web.
  */
 
 window.addEventListener("load", function() {
@@ -45,7 +45,7 @@ Cut.Loader = {
   players : [],
   load : function(app, canvas) {
     function loader() {
-      var result = {}, context, root, full = false;
+      var result = {}, context, root, max, full = false;
       var width = 0, height = 0;
       var devicePixelRatio = 1, backingStoreRatio = 1, ratio = 1;
 
@@ -61,6 +61,8 @@ Cut.Loader = {
 
       function init() {
         DEBUG && console.log("Images loaded.");
+
+        max = document.getElementById("cutjs-maximize");
 
         if (!canvas) {
           canvas = document.getElementById("cutjs");
@@ -78,6 +80,10 @@ Cut.Loader = {
         context = canvas.getContext("2d");
 
         DEBUG && console.log("Creating root...");
+
+        canvas.resize = resize;
+        max && (canvas.maximize = maximize);
+
         root = app(canvas);
 
         devicePixelRatio = window.devicePixelRatio || 1;
@@ -105,6 +111,7 @@ Cut.Loader = {
         if (full) {
           width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
           height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
+
         } else {
           width = canvas.clientWidth;
           height = canvas.clientHeight;
@@ -131,6 +138,34 @@ Cut.Loader = {
             return stop;
           }
         });
+      }
+
+      var placeholder = null;
+      function maximize(value) {
+        if (!max || full) {
+          return;
+        }
+        if (!placeholder) {
+          if (arguments.length && !value) {
+            return;
+          }
+          document.body.classList.add("cutjs-maximize");
+          placeholder = document.createElement('div');
+          canvas.parentNode.insertBefore(placeholder, canvas);
+          canvas.parentNode.removeChild(canvas);
+          max.insertBefore(canvas, max.firstChild);
+        } else {
+          if (arguments.length && value) {
+            return;
+          }
+          document.body.classList.remove("cutjs-maximize");
+          canvas.parentNode.removeChild(canvas);
+          placeholder.parentNode.insertBefore(canvas, placeholder);
+          placeholder.parentNode.removeChild(placeholder);
+          placeholder = null;
+        }
+
+        resize();
       }
 
       return result;
