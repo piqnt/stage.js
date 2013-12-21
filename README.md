@@ -12,7 +12,7 @@ A cut.js app is a tree of cut objects. Each cut is pinned (transformed) against 
 
 Each rendering cycle consists of ticking and painting the tree. Updates are applied during ticking and on painting each cut transforms according to its pinning and pastes all of its cutouts and then delegates to its children.
 
-Cut.js rendering is retained and pauses in each cycle unless/until it is touched directly or indirectly by updating it. 
+Cut.js rendering is retained and pauses in each cycle unless/until it is touched directly or indirectly by updating it.
 
 #### Example
 
@@ -20,11 +20,11 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
 ```js
   Cut.Loader.load(function(container) {
-  
+
     var root = Cut.create();
-    
+
     Cut.Mouse.subscribe(root, container);
-  
+
     root.listen("resize", function(width, height) {
       this.pin({
         width : 500,
@@ -34,9 +34,9 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
         resizeHeight : height,
       });
     };
-  
+
     var colors = [ "dark", "light", "red", "purple", "blue", "orange", "yellow", "green" ];
-  
+
     var row = Cut.row().appendTo(root).pin("parent", 0.5);
     for ( var i = 0; i < colors.length; i++) {
       Cut.image("colors:dark").appendTo(row)
@@ -45,10 +45,10 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
           return true;
         });
     }
-  
+
     return root ;
   });
-  
+
   Cut.addTexture({
     name : "colors",
     imagePath : "colors.png",
@@ -102,7 +102,7 @@ Note: name? means name is optional.
   // Get foo first/last (visible) child.
   foo.first(visible?);
   foo.last(visible?);
-  
+
   // Get bar parent.
   bar.parent();
 
@@ -125,16 +125,16 @@ Note: name? means name is optional.
     textureAlpha : "", // set alpha for textures directly pasted by this cut.
     width : "", // used for pinning
     height : "", // used for pinning
-    scaleX : "", 
+    scaleX : "",
     scaleY : "",
     skewX : "",
     skewY : "",
     rotation : ""
     pivotX : "", // scale/skew/rotation center, value is relative to self size
-    pivotY : "", // 
-    handleX : "", // 
+    pivotY : "", //
+    handleX : "", //
     handleY : "",
-    alignX : "", // 
+    alignX : "", //
     alignY : "",
     offsetX : "", // offsetting in pixel
     offsetY : "",
@@ -151,7 +151,7 @@ Note: name? means name is optional.
 
   // Register a type-listener to bar.
   foo.listen(type, listener);
-  
+
   // Get type-listeners registered to bar.
   foo.listeners(type)
 
@@ -178,23 +178,23 @@ Note: name? means name is optional.
   // Create a new row.
   // A row is a cut which organizes its children as a horizontal sequence.
   var row = Cut.row(valign?)
-  
+
   // Create a new column.
   // A column is a cut which organizes its children as a vertical sequence.
   var column = Cut.column(halign?)
-  
-  
+
+
   // Create a new image instance.
   // An image is a cut which pastes a cutout.
   var image = Cut.image("textureName:cutoutName");
-  
+
   // Change image.
   image.setImage("textureName:cutoutName")
-  
+
   // Crop image.
   image.cropX(w, x?)
   image.cropY(h, y?)
-  
+
   // Create a new anim instance.
   // An anim is a cut which have a set of cutouts and pastes a cutout at a time.
   var anim = Cut.anim("textureName:cutoutPrefix", fps?)
@@ -219,31 +219,31 @@ Note: name? means name is optional.
 
   anim.repeat(repeat, callback?)
 
- 
+
   // Create a new string (sequence) instance.
   // String is a row of anim cuts.
   Cut.string("textureName:cutoutPrefix")
 
   string.setFont("textureName:cutoutPrefix")
-  
+
   // set string value
   string.setValue(value)
-  
-  
+
+
   // Create a new nine-patch from a cutout.
   // Use top, bottom, left and right to define the nine-patch when adding a texture.
   var np = Cut.ninePatch("textureName:cutoutName")
-  
+
   // Set nine-patch cutout.
   np.setImage("textureName:cutoutName")
-  
+
   // Set inner size of nine-patch.
   np.inner(width, height)
-  
+
   // Set outer size of nine-patch.
   np.outer(width, height)
 
-  
+
   Cut.addTexture({
     name : "",
     imagePath : "",
@@ -256,14 +256,31 @@ Note: name? means name is optional.
     ]
   }, ...)
 
-    
-  Cut.Mouse.subscribe(rootCut, element)
+
+  // Subscribe a cut app to mouse/touch events.
+  Cut.Mouse.subscribe(rootCut, container)
 
 
-  Cut.Loader.load(function(element) {
+  // Load a cut app in container element.
+  Cut.Loader.load(function(container) {
     ...
     return rootCut;
   });
+
+
+  // Home extends Cut.
+  function Home(app) {
+    Home.prototype._super.apply(this, arguments);
+    ...
+  }
+  
+  Home.prototype = new Cut(Cut.Proto);
+  Home.prototype._super = Cut;
+  Home.prototype.constructor = Home;
+  
+  Home.prototype.open = function() {
+    ...
+  }
 
 ```
 
@@ -273,5 +290,5 @@ Cut.js was originally started by extending [DisplayFramework](https://github.com
 
 #### License
 
-Copyright (c) 2013 Ali Shakiba, Piqnt LLC and other contributors  
+Copyright (c) 2013 Ali Shakiba, Piqnt LLC and other contributors
 Available under the MIT license
