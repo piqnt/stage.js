@@ -121,29 +121,26 @@ Note: name? means name is optional.
   // Set one or more pinning values.
   // If `nameX` equals `nameY`, `name` shorthand can be used instead.
   bar.pin({
-    alpha : "",
-    textureAlpha : "", // set alpha for textures directly pasted by this cut.
-    width : "", // used for pinning
-    height : "", // used for pinning
+    alpha : "", // Transparency applied to self and children.
+    textureAlpha : "", // Transparency applied to only to self textures.
     scaleX : "",
     scaleY : "",
     skewX : "",
     skewY : "",
     rotation : ""
-    pivotX : "", // scale/skew/rotation center, value is relative to self size
-    pivotY : "", //
-    handleX : "", //
+    width : "", // Set automatically based on cut type, used for relative pinning values. 
+    height : "",
+    pivotX : "", // Relative location on self used as scale/skew/rotation center (0: top/left, 1: bottom/right). 
+    pivotY : "",
+    handleX : "", // Relative location on self used for positioning (0: top/left, 1: bottom/right).
     handleY : "",
-    alignX : "", //
+    alignX : "", // Relative location on parent used for positioning (0: top/left, 1: bottom/right).
     alignY : "",
-    offsetX : "", // offsetting in pixel
+    offsetX : "", // Positioning offset in pixel.
     offsetY : "",
     resizeMode : "", // "in"/"out"
-    resizeWidth : "",
-    resizeHeight : "",
-    scaleMode : "", // "in"/"out"
-    scaleWidth : "",
-    scaleHeight : "",
+    resizeWidth : "", // Scale and resize to width/height.
+    resizeHeight : ""
   })
 
   // Ticker is called on ticking before every paint, it can be used to modify the cut.
@@ -175,15 +172,18 @@ Note: name? means name is optional.
   foo.touch()
 
 
+  // Row
   // Create a new row.
   // A row is a cut which organizes its children as a horizontal sequence.
   var row = Cut.row(valign?)
 
+  // Column
   // Create a new column.
   // A column is a cut which organizes its children as a vertical sequence.
   var column = Cut.column(halign?)
 
 
+  // Image
   // Create a new image instance.
   // An image is a cut which pastes a cutout.
   var image = Cut.image("textureName:cutoutName");
@@ -195,6 +195,8 @@ Note: name? means name is optional.
   image.cropX(w, x?)
   image.cropY(h, y?)
 
+
+  // Anim/Clip
   // Create a new anim instance.
   // An anim is a cut which have a set of cutouts and pastes a cutout at a time.
   var anim = Cut.anim("textureName:cutoutPrefix", fps?)
@@ -220,6 +222,7 @@ Note: name? means name is optional.
   anim.repeat(repeat, callback?)
 
 
+  // String
   // Create a new string (sequence) instance.
   // String is a row of anim cuts.
   Cut.string("textureName:cutoutPrefix")
@@ -230,6 +233,7 @@ Note: name? means name is optional.
   string.setValue(value)
 
 
+  // Nine Patch
   // Create a new nine-patch from a cutout.
   // Use top, bottom, left and right to define the nine-patch when adding a texture.
   var np = Cut.ninePatch("textureName:cutoutName")
@@ -244,6 +248,7 @@ Note: name? means name is optional.
   np.outer(width, height)
 
 
+  // Register a texture, images are automatically loaded by Cut.Loader.
   Cut.addTexture({
     name : "",
     imagePath : "",
@@ -273,14 +278,10 @@ Note: name? means name is optional.
     Home.prototype._super.apply(this, arguments);
     ...
   }
-  
   Home.prototype = new Cut(Cut.Proto);
   Home.prototype._super = Cut;
   Home.prototype.constructor = Home;
-  
-  Home.prototype.open = function() {
-    ...
-  }
+  Home.prototype.fun = function() {...}
 
 ```
 
