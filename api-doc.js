@@ -33,8 +33,11 @@ foo.empty();
 foo.first(visible = false);
 foo.last(visible = false);
 
-// Get bar parent.
+// Get immediate parent.
 bar.parent();
+
+// Get top parent or self.
+bar.top();
 
 // Get bar next/prev (visible) sibling.
 bar.next(visible = false);
