@@ -1,5 +1,6 @@
 //
-// [Cut]
+// ### Cut
+//
 // Create a new plain cut instance.
 // No painting is associated with a plain cut, it is just a parent for other cuts.
 var foo = Cut.create();
@@ -117,19 +118,22 @@ foo.visit({
 foo.touch();
 
 //
-// [Row Cut]
+// ### Row
+//
 // Create a new row.
 // A row is a cut which organizes its children as a horizontal sequence.
 var row = Cut.row(valign = 0);
 
 //
-// Column Cut]
+// ### Column
+//
 // Create a new column.
 // A column is a cut which organizes its children as a vertical sequence.
 var column = Cut.column(halign = 0);
 
 //
-// [Image Cut]
+// ### Cut
+//
 // Create a new image instance.
 // An image is a cut which pastes a cutout.
 var image = Cut.image("textureName:cutoutName");
@@ -142,7 +146,8 @@ image.cropX(w, x = 0);
 image.cropY(h, y = 0);
 
 //
-// [Anim/Clip Cut]
+// ### Anim(Clip)
+//
 // Create a new anim instance.
 // An anim is a cut which have a set of cutouts and pastes a cutout at a time.
 var anim = Cut.anim("textureName:cutoutPrefix", fps = Cut.Anim.FPS);
@@ -169,7 +174,8 @@ anim.stop(frame = null);
 anim.repeat(repeat, callback = null);
 
 //
-// [String Cut]
+// ### String
+//
 // Create a new string (sequence) instance.
 // String is a row of anim cuts.
 Cut.string("textureName:cutoutPrefix");
@@ -180,7 +186,8 @@ string.setFont("textureName:cutoutPrefix");
 string.setValue(value);
 
 //
-// [Nine Patch Cut]
+// ### Nine Patch
+//
 // Create a new nine-patch from a cutout.
 // Use top, bottom, left and right to define the nine-patch when adding a
 // texture.
@@ -195,6 +202,9 @@ np.inner(width, height);
 // Set outer size of nine-patch.
 np.outer(width, height);
 
+//
+// ### Textures
+//
 // Register a texture, images are automatically loaded by Cut.Loader.
 Cut.addTexture({
   name : "",
@@ -208,7 +218,7 @@ Cut.addTexture({
     y : "",
     width : "",
     height : "",
-    // For nine-patch:
+    // Optional, used by nine-patch:
     top : "",
     bottom : "",
     left : "",
@@ -216,18 +226,29 @@ Cut.addTexture({
   }, etc ]
 }, etc);
 
-// [Mouse/Touch]
+//
+// ### Mouse(Touch)
+//
 // Subscribe a cut app to mouse/touch events.
 Cut.Mouse.subscribe(rootCut, container);
 
-// [Loader]
+// Add listener to cut objects.
+foo.listen(Cut.Mouse.CLICK, function(event, point) {
+  // point is relative to this cut
+});
+
+//
+// ### Loader
+//
 // Load a cut app in container element.
 Cut.Loader.load(function(container) {
   // ...
   return rootCut;
 });
 
-// [Extend]
+//
+// ### Extending Cut
+//
 // Home extends Cut.
 function Home(app) {
   Home.prototype._super.apply(this, arguments);
