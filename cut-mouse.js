@@ -10,13 +10,6 @@ DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 Cut.Mouse = {
   x : 0,
   y : 0,
-  rel : {
-    x : 0,
-    y : 0,
-    toString : function() {
-      return (this.x | 0) + "x" + (this.y | 0);
-    }
-  },
 
   CLICK : "click",
   START : "touchstart mousedown",
@@ -24,62 +17,8 @@ Cut.Mouse = {
   END : "touchend mouseup",
 
   toString : function() {
-    return (this.x | 0) + "x" + (this.y | 0) + "   " + this.rel;
+    return (this.x | 0) + "x" + (this.y | 0);
   }
-};
-
-Cut.Mouse.get = function(event, elem) {
-
-  this.isTouch = false;
-
-  // touch screen events
-  if (event.touches) {
-    if (event.touches.length) {
-      this.isTouch = true;
-      this.x = event.touches[0].pageX;
-      this.y = event.touches[0].pageY;
-    } else {
-      return;
-    }
-  } else {
-    // mouse events
-    this.x = event.clientX;
-    this.y = event.clientY;
-    // http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html
-    if (document.body.scrollLeft || document.body.scrollTop) {
-      // body is added as offsetParent
-    } else if (document.documentElement) {
-      this.x += document.documentElement.scrollLeft;
-      this.y += document.documentElement.scrollTop;
-    }
-  }
-
-  // accounts for border
-  this.x -= elem.clientLeft;
-  this.y -= elem.clientTop;
-
-  var par = elem;
-  while (par) {
-    this.x -= par.offsetLeft;
-    this.y -= par.offsetTop;
-    if (!this.isTouch) {
-      // touch events offset scrolling with pageX/Y
-      // so scroll offset not needed for them
-      this.x += par.scrollLeft;
-      this.y += par.scrollTop;
-    }
-
-    par = par.offsetParent;
-  }
-
-  // see loader
-  this.x *= elem.ratio || 1;
-  this.y *= elem.ratio || 1;
-
-  this.rel.x = this.x;
-  this.rel.y = this.y;
-
-  return this;
 };
 
 Cut.Mouse.subscribe = function(listener, elem, move) {
@@ -101,7 +40,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
   var start = null, click = null;
 
   function mouseStart(event) {
-    self.get(event, elem);
+    update(event, elem);
     DEBUG && console.log("Mouse Start (" + event.type + "): " + self);
     !move && elem.addEventListener(MOVE, mouseMove);
     event.preventDefault();
@@ -135,7 +74,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
 
   function mouseMove(event) {
     try {
-      self.get(event, elem);
+      update(event, elem);
       // DEBUG && console.log("self Move (" + event.type + "): " +
       // self);
       event.preventDefault();
@@ -147,7 +86,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
 
   function mouseClick(event) {
     try {
-      self.get(event, elem);
+      update(event, elem);
       DEBUG && console.log("Mouse Click (" + event.type + "): " + self);
       event.preventDefault();
       if (!click) {
@@ -160,21 +99,31 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     }
   }
 
-  var visitor = null;
+  var visitor = null, rel = null;
 
   function publish(type, event) {
     self.type = type;
     self.event = event;
     self.stop = false;
+    rel.x = self.x;
+    rel.y = self.y;
     listener.visit(visitor);
   }
+
+  rel = {
+    x : 0,
+    y : 0,
+    toString : function() {
+      return self + " " + (this.x | 0) + "x" + (this.y | 0);
+    }
+  };
 
   visitor = {
     reverse : true,
     visible : true,
     start : function(cut) {
       if (!cut.spy()) {
-        var rel = cut.matrix().reverse().map(self, self.rel);
+        cut.matrix().reverse().map(self, rel);
         if (rel.x < 0 || rel.x > cut._pin._width || rel.y < 0
             || rel.y > cut._pin._height) {
           return true;
@@ -184,13 +133,62 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     end : function(cut) {
       var listeners = cut.listeners(self.type);
       if (listeners) {
-        cut.matrix().reverse().map(self, self.rel);
+        cut.matrix().reverse().map(self, rel);
         for ( var l = 0; l < listeners.length; l++)
-          if (listeners[l].call(cut, self.event, self.rel)) {
+          if (listeners[l].call(cut, self.event, rel)) {
             return true;
           }
       }
     }
   };
+
+  function update(event, elem) {
+
+    this.isTouch = false;
+
+    // touch screen events
+    if (event.touches) {
+      if (event.touches.length) {
+        self.isTouch = true;
+        self.x = event.touches[0].pageX;
+        self.y = event.touches[0].pageY;
+      } else {
+        return;
+      }
+    } else {
+      // mouse events
+      self.x = event.clientX;
+      self.y = event.clientY;
+      // http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html
+      if (document.body.scrollLeft || document.body.scrollTop) {
+        // body is added as offsetParent
+      } else if (document.documentElement) {
+        self.x += document.documentElement.scrollLeft;
+        self.y += document.documentElement.scrollTop;
+      }
+    }
+
+    // accounts for border
+    self.x -= elem.clientLeft;
+    self.y -= elem.clientTop;
+
+    var par = elem;
+    while (par) {
+      self.x -= par.offsetLeft;
+      self.y -= par.offsetTop;
+      if (!self.isTouch) {
+        // touch events offset scrolling with pageX/Y
+        // so scroll offset not needed for them
+        self.x += par.scrollLeft;
+        self.y += par.scrollTop;
+      }
+
+      par = par.offsetParent;
+    }
+
+    // see loader
+    self.x *= elem.ratio || 1;
+    self.y *= elem.ratio || 1;
+  }
 
 };
