@@ -1897,7 +1897,7 @@ Cut.Player = {
       }
       render(root);
       request(tick);
-      play && touched || pause();
+      touched || pause();
     }
 
     function pause() {
@@ -1975,5 +1975,3 @@ Cut._extend = function(base, extension, attribs) {
   }
   return base;
 };
-
-var play = false;
