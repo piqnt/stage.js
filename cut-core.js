@@ -405,7 +405,9 @@ Cut.prototype.empty = function() {
 };
 
 Cut.prototype.touch = function() {
+  this._touch_ts = Cut._TS++;
   this._parent && this._parent.touch();
+  this.touched && this.touched();
 };
 
 Cut.prototype.spy = function(spy) {
@@ -424,13 +426,44 @@ Cut.prototype.pin = function() {
   return obj === this._pin ? this : obj;
 };
 
+Cut.prototype.pinChildren = function(all, first, last) {
+  all && Cut._extend(this._pinAll = this._pinAll || {}, all);
+  first && Cut._extend(this._pinFirst = this._pinFirst || {}, first);
+  last && Cut._extend(this._pinLast = this._pinLast || {}, last);
+
+  this._flowTicker || this.tick(this._flowTicker = function() {
+    if (this._row_mo == this._children_ts) {
+      return;
+    }
+    this._row_mo = this._children_ts;
+
+    var child;
+    if (this._pinAll) {
+      var next = this.first(true);
+      while (child = next) {
+        next = child.next(true);
+        child.pin(this._pinAll);
+      }
+    }
+    if (this._pinFirst && (child = this.first(true))) {
+      child.pin(this._pinFirst);
+    }
+    if (this._pinLast && (child = this.last(true))) {
+      child.pin(this._pinLast);
+    }
+  }, true);
+  return this;
+};
+
 Cut.prototype.matrix = function() {
   return this._pin
       .absoluteMatrix(this, this._parent ? this._parent._pin : null);
 };
 
 Cut.image = function(selector) {
-  return new Cut.Image().setImage(selector);
+  var image = new Cut.Image();
+  selector && image.setImage(selector);
+  return image;
 };
 
 Cut.Image = function() {
@@ -444,8 +477,7 @@ Cut.Image.prototype._super = Cut;
 Cut.Image.prototype.constructor = Cut.Image;
 
 Cut.Image.prototype.setImage = function(selector) {
-  var out = Cut.Out._select(selector);
-  this._outs[0] = out;
+  this._outs[0] = Cut.Out._select(selector);
   this.pin({
     width : this._outs[0] ? this._outs[0].width() : 0,
     height : this._outs[0] ? this._outs[0].height() : 0
@@ -552,8 +584,8 @@ Cut.Anim.prototype.randomFrame = function() {
   return this.gotoFrame(Math.floor(Math.random() * this._frames.length));
 };
 
-Cut.Anim.prototype.moveFrame = function(frame) {
-  return this.gotoFrame(this._frame + frame);
+Cut.Anim.prototype.moveFrame = function(move) {
+  return this.gotoFrame(this._frame + move);
 };
 
 Cut.Anim.prototype.gotoLabel = function(label, resize) {
@@ -638,10 +670,8 @@ Cut.prototype.row = function(align) {
     handleX : 0
   });
   this.spacing = function(space) {
+    this._spacing = space;
     return this.pinChildren({
-      alignY : align,
-      prevX : 1,
-      handleX : 0,
       offsetX : space
     }, {
       offsetX : 0
@@ -661,10 +691,8 @@ Cut.prototype.column = function(align) {
     handleY : 0
   });
   this.spacing = function(space) {
+    this._spacing = space;
     return this.pinChildren({
-      alignX : align,
-      prevY : 1,
-      handleY : 0,
       offsetY : space
     }, {
       offsetY : 0
@@ -673,36 +701,7 @@ Cut.prototype.column = function(align) {
   return this;
 };
 
-Cut.prototype.pinChildren = function(all, first, last) {
-  all && Cut._copy(this._pinAll = this._pinAll || {}, all);
-  first && Cut._copy(this._pinFirst = this._pinFirst || {}, first);
-  last && Cut._copy(this._pinLast = this._pinLast || {}, last);
-
-  this._flowTicker || this.tick(this._flowTicker = function() {
-    if (this._row_mo == this._children_ts) {
-      return;
-    }
-    this._row_mo = this._children_ts;
-
-    var child;
-    if (this._pinAll) {
-      var next = this.first(true);
-      while (child = next) {
-        next = child.next(true);
-        child.pin(this._pinAll);
-      }
-    }
-    if (this._pinFirst && (child = this.first(true))) {
-      child.pin(this._pinFirst);
-    }
-    if (this._pinLast && (child = this.last(true))) {
-      child.pin(this._pinLast);
-    }
-  }, true);
-  return this;
-};
-
-Cut.box = function() {
+Cut.box = function(type) {
   return new Cut.create().box();
 };
 
@@ -710,18 +709,24 @@ Cut.prototype.box = function() {
   if (this._boxTicker)
     return this;
 
-  var touched = false;
-
-  var touch = this.touch;
-  this.touch = function() {
-    touched = true;
-    touch.apply(this, arguments);
+  this._padding = 0;
+  this.padding = function(pad) {
+    this._padding = pad;
+    return this;
   };
 
+  // this._spacing = 0;
+  // this.spacing = function(space) {
+  // this._spacing = space;
+  // return this;
+  // };
+
   this.tick(this._boxTicker = function() {
-    if (!touched)
+
+    if (this._box_mo == this._touch_ts) {
       return;
-    touched = false;
+    }
+    this._box_mo = this._touch_ts;
 
     this._xMax = -(this._xMin = Infinity);
     this._yMax = -(this._yMin = Infinity);
@@ -734,68 +739,83 @@ Cut.prototype.box = function() {
       if (this._xMin > (v = child._pin._x)) {
         this._xMin = v;
       }
-      if (this._xMax < (v = child._pin._x + child._pin._boxWidth)) {
+      if (this._xMax < (v = child._pin._x + child._pin._boundWidth)) {
         this._xMax = v;
       }
       if (this._yMin > (v = child._pin._y)) {
         this._yMin = v;
       }
-      if (this._yMax < (v = child._pin._y + child._pin._boxHeight)) {
+      if (this._yMax < (v = child._pin._y + child._pin._boundHeight)) {
         this._yMax = v;
       }
-      v = true;
     }
 
-    if (v) {
-      // avoid cyclic update
-      if (this.pin("width") != this._xMax - this._xMin) {
-        this.pin("width", this._xMax - this._xMin);
-      }
-      if (this.pin("height") != this._yMax - this._yMin) {
-        this.pin("height", this._yMax - this._yMin);
-      }
+    var width = this._xMax - this._xMin + this._padding * 2;
+    var height = this._yMax - this._yMin + this._padding * 2;
+    if (isFinite(width) && (this.pin("width") != width)) {
+      this.pin("width", width);
     }
+    if (isFinite(height) && (this.pin("height") != height)) {
+      this.pin("height", height);
+    }
+
+    // var width = 0, height = 0;
+    //
+    // var child, next = this.first(true);
+    // var first = true;
+    // while (child = next) {
+    // next = child.next(true);
+    // child.matrix();
+    // if (type == "column") {
+    // width = Math.max(width, child._pin._boundWidth);
+    // height = height + child._pin._boundHeight;
+    // !first && (height += this._spacing || 0);
+    // } else if (type == "row") {
+    // width = width + child._pin._boundWidth;
+    // height = Math.max(height, child._pin._boundHeight);
+    // !first && (width += this._spacing || 0);
+    // } else {
+    // width = Math.max(width, child._pin._boundWidth);
+    // height = Math.max(height, child._pin._boundHeight);
+    // }
+    // first = false;
+    // }
+    // width += this._padding * 2;
+    // height += this._padding * 2;
+    // this.pin("width") != width && this.pin("width", width);
+    // this.pin("height") != height && this.pin("height", height);
+
   });
   return this;
 };
 
-Cut.ninePatch = function(selector) {
-  return new Cut.NinePatch().setImage(selector);
-};
+Cut.Image.prototype.tile = function(inner) {
 
-Cut.NinePatch = function() {
-  Cut.NinePatch.prototype._super.apply(this, arguments);
-  if (arguments[0] === Cut.Proto)
-    return;
-};
+  if (this._tileTicker) {
+    return this;
+  }
 
-Cut.NinePatch.prototype = new Cut(Cut.Proto);
-Cut.NinePatch.prototype._super = Cut;
-Cut.NinePatch.prototype.constructor = Cut.NinePatch;
+  var cropW = [], cropX = [], offX = [];
+  var cropH = [], cropY = [], offY = [];
 
-Cut.NinePatch.prototype.setImage = function(selector) {
-  this._out = Cut.Out._select(selector);
-  this._columns = [];
-  this._rows = [];
-  this.outer(this._out.width(), this._out.height());
-  return this;
-};
+  this.tick(this._tileTicker = function() {
 
-Cut.NinePatch.prototype.inner = function(width, height) {
-  return this.outer(width + this._out.left + this._out.right, height
-      + this._out.top + this._out.bottom);
-};
+    if (this._tile_mo == this._touch_ts) {
+      return;
+    }
+    this._tile_mo = this._touch_ts;
 
-Cut.NinePatch.prototype.outer = function(width, height) {
+    var out = this.out || (this.out = this._outs[0].clone());
 
-  if (Cut._isNum(width)) {
-    var left = this._out.left;
-    var right = this._out.right;
-    width = Math.max(width, left + right);
-    this._columns.length = 0;
-    var maxw = this._out.width();
+    var width = this.pin("width"), height = this.pin("height");
+
+    var left = out.left;
+    var right = out.right;
+    width = inner ? width + left + right : Math.max(width, left + right);
+    var maxw = out.width();
     var x, rx, l, r, w;
     x = 0, l = 0, r = right;
+    var col = 0;
     while (x < width) {
       rx = width - x;
       w = maxw - l;
@@ -813,20 +833,17 @@ Cut.NinePatch.prototype.outer = function(width, height) {
         }
         w = rx - r;
       }
-      this._columns.push([ w, l, x ]);
+      cropW[col] = w, cropX[col] = l, offX[col] = x, col++;
       x += w, l = left, r = 0;
     }
-    this.pin("width", width);
-  }
 
-  if (Cut._isNum(height)) {
-    var top = this._out.top;
-    var bottom = this._out.bottom;
-    height = Math.max(height, top + bottom);
-    this._rows.length = 0;
-    var maxh = this._out.height();
+    var top = out.top;
+    var bottom = out.bottom;
+    height = inner ? height + top + bottom : Math.max(height, top + bottom);
+    var maxh = out.height();
     var y, ry, t, b, h;
     y = 0, t = 0, b = bottom;
+    var row = 0;
     while (y < height) {
       ry = height - y;
       h = maxh - t;
@@ -844,47 +861,98 @@ Cut.NinePatch.prototype.outer = function(width, height) {
         }
         h = ry - b;
       }
-      this._rows.push([ h, t, y ]);
+      cropH[row] = h, cropY[row] = t, offY[row] = y, row++;
       y += h, t = top, b = 0;
     }
-    this.pin("height", height);
-  }
 
-  var c = 0;
-  for ( var i = 0; i < this._columns.length; i++) {
-    var col = this._columns[i];
-    for ( var j = 0; j < this._rows.length; j++) {
-      var row = this._rows[j];
-      this._outs[c] = this._outs[c] || this._out.clone();
-      this._outs[c].cropX(col[0], col[1]).cropY(row[0], row[1]).offset(col[2],
-          row[2]);
-      c++;
+    var c = 0;
+    for ( var i = 0; i < col; i++) {
+      for ( var j = 0; j < row; j++) {
+        this._outs[c] = this._outs[c] || out.clone();
+        this._outs[c].cropX(cropW[i], cropX[i]);
+        this._outs[c].cropY(cropH[j], cropY[j]);
+        this._outs[c].offset(offX[i] - (inner ? left : 0), offY[j]
+            - (inner ? top : 0));
+        c++;
+      }
     }
-  }
+
+    this._outs.length = c;
+
+  });
 
   return this;
 };
 
-Cut.NinePatch.prototype._resizeWith = function(target, out, px, py) {
-  px = px || 0;
-  py = py || 0;
+Cut.Image.prototype.stretch = function(inner) {
 
-  this._fill = target;
-  this._fillTicker || this.tick(this._fillTicker = function() {
-    if (this._fill_mo == this._fill._pin._transform_ts) {
+  if (this._stretchTicker) {
+    return this;
+  }
+
+  this.tick(this._stretchTicker = function() {
+
+    if (this._stretch_mo == this._touch_ts) {
       return;
     }
-    this._fill_mo = this._fill._pin._transform_ts;
+    this._stretch_mo = this._touch_ts;
 
-    var width = this._fill.pin("width") + px;
-    var height = this._fill.pin("height") + py;
+    var out = this.out || (this.out = this._outs[0].clone());
 
-    console.log(width, height);
+    var width = this.pin("width"), height = this.pin("height");
 
-    if (width && height) {
-      out ? this.outer(width, height) : this.inner(width, height);
+    var left = out.left;
+    var right = out.right;
+    width = inner ? width + left + right : Math.max(width, left + right);
+
+    var top = out.top;
+    var bottom = out.bottom;
+    height = inner ? height + top + bottom : Math.max(height, top + bottom);
+
+    for ( var c = 0; c < 9; c++) {
+      this._outs[c] = this._outs[c] || out.clone();
     }
-  }, false);
+
+    var c = 0;
+
+    var w = out.width(), h = out.height();
+
+    // top, left
+    this._outs[c++].cropX(left, 0).cropY(top, 0).offset(0, 0);
+
+    this._outs[c++].cropX(left, 0).cropY(bottom, h - bottom).offset(0,
+        height - bottom);
+
+    this._outs[c++].cropX(right, w - right).cropY(top, 0).offset(width - right,
+        0);
+    this._outs[c++].cropX(right, w - right).cropY(bottom, h - bottom).offset(
+        width - right, height - bottom);
+
+    // top
+    this._outs[c++].cropX(w - left - right, left).cropY(top, 0).offset(left, 0)
+        .width(width - left - right);
+
+    // bottom
+    this._outs[c++].cropX(w - left - right, left).cropY(bottom, h - bottom)
+        .offset(left, height - bottom).width(width - left - right);
+
+    // left
+    this._outs[c++].cropX(left, 0).cropY(h - top - bottom, top).offset(0, top)
+        .height(height - top - bottom);
+
+    // right
+    this._outs[c++].cropX(right, w - right).cropY(h - top - bottom, top)
+        .offset(width - right, top).height(height - top - bottom);
+
+    // center
+    this._outs[c++].cropX(w - left - right, left).cropY(h - top - bottom, top)
+        .offset(left, top).width(width - left - right).height(
+            height - top - bottom);
+
+    this._outs.length = c;
+
+  });
+
   return this;
 };
 
@@ -998,11 +1066,19 @@ Cut.Out.prototype.clone = function() {
   return new Cut.Out(this.texture, this.cutout);
 };
 
-Cut.Out.prototype.width = function() {
+Cut.Out.prototype.width = function(width) {
+  if (arguments.length) {
+    this.dw = width;
+    return this;
+  }
   return this.dw;
 };
 
-Cut.Out.prototype.height = function() {
+Cut.Out.prototype.height = function(height) {
+  if (arguments.length) {
+    this.dh = height;
+    return this;
+  }
   return this.dh;
 };
 
@@ -1116,7 +1192,7 @@ Cut.Pin = function() {
   this._absoluteMatrix = new Cut.Matrix();
 
   // no-translation
-  this._boxMatrix = new Cut.Matrix();
+  this._boundMatrix = new Cut.Matrix();
 
   this.reset();
 };
@@ -1158,11 +1234,11 @@ Cut.Pin.prototype.reset = function() {
   this._offsetX = 0;
   this._offsetY = 0;
 
-  // calculated bounding box as seen by parent
-  this._boxX = 0;
-  this._boxY = 0;
-  this._boxWidth = this._width;
-  this._boxHeight = this._height;
+  // calculated bounding rect as seen by parent
+  this._boundX = 0;
+  this._boundY = 0;
+  this._boundWidth = this._width;
+  this._boundHeight = this._height;
 
   this._translate_ts = Cut._TS++;
   this._transform_ts = Cut._TS++;
@@ -1251,7 +1327,8 @@ Cut.Pin.prototype.absoluteMatrix = function() {
 };
 
 Cut.Pin.prototype.relativeMatrix = function() {
-  var ts = Math.max(this._transform_ts, this._translate_ts);
+  var ts = Math.max(this._transform_ts, this._translate_ts,
+      this._parent ? this._parent._matrix_ts : 0);
   if (this._rel_mo == ts) {
     return this._relativeMatrix;
   }
@@ -1270,14 +1347,14 @@ Cut.Pin.prototype.relativeMatrix = function() {
     rel.translate(this._pivotX * this._width, this._pivotY * this._height);
   }
 
-  this.boxMatrix();
+  this.boundMatrix();
 
-  this._x = this._offsetX - this._boxX;
-  this._y = this._offsetY - this._boxY;
+  this._x = this._offsetX - this._boundX;
+  this._y = this._offsetY - this._boundY;
 
   if (this._handled) {
-    this._x -= this._handleX * this._boxWidth;
-    this._y -= this._handleY * this._boxHeight;
+    this._x -= this._handleX * this._boundWidth;
+    this._y -= this._handleY * this._boundHeight;
   }
 
   if (this._aligned && this._baseX) {
@@ -1301,21 +1378,21 @@ Cut.Pin.prototype.relativeMatrix = function() {
   return this._relativeMatrix;
 };
 
-Cut.Pin.prototype.boxMatrix = function() {
-  if (this._box_mo == this._transform_ts) {
+Cut.Pin.prototype.boundMatrix = function() {
+  if (this._bound_mo == this._transform_ts) {
     return;
   }
-  this._box_mo = this._transform_ts;
+  this._bound_mo = this._transform_ts;
 
   if (this._pivoted) {
-    this._boxX = 0;
-    this._boxY = 0;
-    this._boxWidth = this._width;
-    this._boxHeight = this._height;
+    this._boundX = 0;
+    this._boundY = 0;
+    this._boundWidth = this._width;
+    this._boundHeight = this._height;
     return;
   }
 
-  var m = this._boxMatrix;
+  var m = this._boundMatrix;
   m.identity();
   m.scale(this._scaleX, this._scaleY);
   m.rotate(this._rotation);
@@ -1327,16 +1404,16 @@ Cut.Pin.prototype.boxMatrix = function() {
   } else {
     p = m.a * this._width, q = m.c * this._height;
   }
-  this._boxX = Math.min(p, q);
-  this._boxWidth = Math.abs(p - q);
+  this._boundX = Math.min(p, q);
+  this._boundWidth = Math.abs(p - q);
 
   if (m.b > 0 && m.d > 0 || m.b < 0 && m.d < 0) {
     p = 0, q = m.b * this._width + m.d * this._height;
   } else {
     p = m.b * this._width, q = m.d * this._height;
   }
-  this._boxY = Math.min(p, q);
-  this._boxHeight = Math.abs(p - q);
+  this._boundY = Math.min(p, q);
+  this._boundHeight = Math.abs(p - q);
 };
 
 Cut.Pin.prototype.update = function() {
@@ -1809,7 +1886,7 @@ Cut.Player = {
 
     var paused = true, touched = false;
 
-    root.touch = function() {
+    root.touched = function() {
       touched = true;
       resume();
     };
@@ -1818,12 +1895,9 @@ Cut.Player = {
       if (paused === true) {
         return;
       }
-      touched = false;
       render(root);
       request(tick);
-      if (!touched) {
-        pause();
-      }
+      play && touched || pause();
     }
 
     function pause() {
@@ -1888,17 +1962,18 @@ Cut._isFunc = function(x) {
   return typeof x === "function";
 };
 
-Cut._copy = function(to, from, attribs) {
-
+Cut._extend = function(base, extension, attribs) {
   if (attribs) {
     for ( var i = 0; i < attribs.length; i++) {
       var attr = attribs[i];
-      to[attr] = from[attr];
+      base[attr] = extension[attr];
     }
   } else {
-    for ( var attr in from) {
-      to[attr] = from[attr];
+    for ( var attr in extension) {
+      base[attr] = extension[attr];
     }
   }
-  return to;
+  return base;
 };
+
+var play = false;

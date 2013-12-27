@@ -145,6 +145,14 @@ image.setImage("textureName:cutoutName");
 image.cropX(w, x = 0);
 image.cropY(h, y = 0);
 
+// Tile image to cover pin width and height. To define tile border use top,
+// bottom, left and right with texture cutouts.
+image.tile();
+
+// Stretch image to cover pin width and height. To define stretch border use
+// top, bottom, left and right with texture cutouts.
+image.stretch();
+
 //
 // ### Anim(Clip)
 //
@@ -186,23 +194,6 @@ string.setFont("textureName:cutoutPrefix");
 string.setValue(value);
 
 //
-// ### Nine Patch
-//
-// Create a new nine-patch from a cutout.
-// Use top, bottom, left and right to define the nine-patch when adding a
-// texture.
-var np = Cut.ninePatch("textureName:cutoutName");
-
-// Set nine-patch cutout.
-np.setImage("textureName:cutoutName");
-
-// Set inner size of nine-patch.
-np.inner(width, height);
-
-// Set outer size of nine-patch.
-np.outer(width, height);
-
-//
 // ### Textures
 //
 // Register a texture, images are automatically loaded by Cut.Loader.
@@ -218,7 +209,7 @@ Cut.addTexture({
     y : "",
     width : "",
     height : "",
-    // Optional, used by nine-patch:
+    // Optional, used by tile:
     top : "",
     bottom : "",
     left : "",

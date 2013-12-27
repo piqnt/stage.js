@@ -11,8 +11,8 @@ Cut.Loader.load(function(canvas) {
   root.listen("resize", function(width, height) {
     // resize to fit in screen
     this.pin({
-      width : 400,
-      height : 400,
+      width : 200,
+      height : 200,
       resizeMode : "in",
       resizeWidth : width,
       resizeHeight : height,
@@ -25,7 +25,7 @@ Cut.Loader.load(function(canvas) {
     var row = Cut.row().id("row-" + j).appendTo(column);
     for (i = 0; i < 9; i++) {
       // colors as frames
-      Cut.anim("colors:color_").id("cell-" + j + "-" + i).appendTo(row).listen(
+      Cut.anim("base:color_").id("cell-" + j + "-" + i).appendTo(row).listen(
           Cut.Mouse.MOVE, function(ev, point) {
             animate(this);
             return true;
