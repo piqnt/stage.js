@@ -798,6 +798,8 @@ Cut.Image.prototype.tile = function(inner) {
   var cropW = [], cropX = [], offX = [];
   var cropH = [], cropY = [], offY = [];
 
+  var out = null;
+
   this.tick(this._tileTicker = function() {
 
     if (this._tile_mo == this._touch_ts) {
@@ -805,7 +807,7 @@ Cut.Image.prototype.tile = function(inner) {
     }
     this._tile_mo = this._touch_ts;
 
-    var out = this.out || (this.out = this._outs[0].clone());
+    out = out || this._outs[0].clone();
 
     var width = this.pin("width"), height = this.pin("height");
 
@@ -890,14 +892,16 @@ Cut.Image.prototype.stretch = function(inner) {
     return this;
   }
 
-  this.tick(this._stretchTicker = function() {
+  var out = null;
 
-    if (this._stretch_mo == this._touch_ts) {
+  this._stretchTicker = function() {
+
+    if (this._stretch_mo == this._pin._transform_ts) {
       return;
     }
-    this._stretch_mo = this._touch_ts;
+    this._stretch_mo = this._pin._transform_ts;
 
-    var out = this.out || (this.out = this._outs[0].clone());
+    out = out || this._outs[0].clone();
 
     var width = this.pin("width"), height = this.pin("height");
 
@@ -909,49 +913,82 @@ Cut.Image.prototype.stretch = function(inner) {
     var bottom = out.bottom;
     height = inner ? height + top + bottom : Math.max(height, top + bottom);
 
-    for ( var c = 0; c < 9; c++) {
-      this._outs[c] = this._outs[c] || out.clone();
-    }
-
-    var c = 0;
-
     var w = out.width(), h = out.height();
 
+    var c = -1;
+    var slice;
+
     // top, left
-    this._outs[c++].cropX(left, 0).cropY(top, 0).offset(0, 0);
+    if (top && left) {
+      c++;
+      slice = this._outs[c] || (this._outs[c] = out.clone());
+      slice.cropX(left, 0).cropY(top, 0).offset(0, 0);
+    }
 
-    this._outs[c++].cropX(left, 0).cropY(bottom, h - bottom).offset(0,
-        height - bottom);
+    // bottom, left
+    if (bottom && left) {
+      c++;
+      slice = this._outs[c] || (this._outs[c] = out.clone());
+      slice.cropX(left, 0).cropY(bottom, h - bottom).offset(0, height - bottom);
+    }
 
-    this._outs[c++].cropX(right, w - right).cropY(top, 0).offset(width - right,
-        0);
-    this._outs[c++].cropX(right, w - right).cropY(bottom, h - bottom).offset(
-        width - right, height - bottom);
+    // top, right
+    if (top && right) {
+      c++;
+      slice = this._outs[c] || (this._outs[c] = out.clone());
+      slice.cropX(right, w - right).cropY(top, 0).offset(width - right, 0);
+    }
+
+    // bottom, right
+    if (bottom && right) {
+      c++;
+      slice = this._outs[c] || (this._outs[c] = out.clone());
+      slice.cropX(right, w - right).cropY(bottom, h - bottom).offset(
+          width - right, height - bottom);
+    }
 
     // top
-    this._outs[c++].cropX(w - left - right, left).cropY(top, 0).offset(left, 0)
-        .width(width - left - right);
+    if (top) {
+      c++;
+      slice = this._outs[c] || (this._outs[c] = out.clone());
+      slice.cropX(w - left - right, left).cropY(top, 0).offset(left, 0).width(
+          width - left - right);
+    }
 
     // bottom
-    this._outs[c++].cropX(w - left - right, left).cropY(bottom, h - bottom)
-        .offset(left, height - bottom).width(width - left - right);
+    if (bottom) {
+      c++;
+      slice = this._outs[c] || (this._outs[c] = out.clone());
+      slice.cropX(w - left - right, left).cropY(bottom, h - bottom).offset(
+          left, height - bottom).width(width - left - right);
+    }
 
     // left
-    this._outs[c++].cropX(left, 0).cropY(h - top - bottom, top).offset(0, top)
-        .height(height - top - bottom);
+    if (left) {
+      c++;
+      slice = this._outs[c] || (this._outs[c] = out.clone());
+      slice.cropX(left, 0).cropY(h - top - bottom, top).offset(0, top).height(
+          height - top - bottom);
+    }
 
     // right
-    this._outs[c++].cropX(right, w - right).cropY(h - top - bottom, top)
-        .offset(width - right, top).height(height - top - bottom);
+    if (right) {
+      c++;
+      slice = this._outs[c] || (this._outs[c] = out.clone());
+      slice.cropX(right, w - right).cropY(h - top - bottom, top).offset(
+          width - right, top).height(height - top - bottom);
+    }
 
     // center
-    this._outs[c++].cropX(w - left - right, left).cropY(h - top - bottom, top)
-        .offset(left, top).width(width - left - right).height(
-            height - top - bottom);
+    c++;
+    slice = this._outs[c] || (this._outs[c] = out.clone());
+    slice.cropX(w - left - right, left).cropY(h - top - bottom, top).offset(
+        left, top).width(width - left - right).height(height - top - bottom);
 
-    this._outs.length = c;
+    this._outs.length = c + 1;
+  };
 
-  });
+  this.tick(this._stretchTicker);
 
   return this;
 };
