@@ -79,7 +79,7 @@ Cut.Loader = {
       function init() {
         DEBUG && console.log("Images loaded.");
 
-        canvas = FastCanvas.create();
+        canvas = FastCanvas.create(typeof FASTCANVAS_FALLBACK !== "undefined" && FASTCANVAS_FALLBACK);
         console.log("FastCanvas: " + FastCanvas.isFast);
         context = canvas.getContext("2d");
 
