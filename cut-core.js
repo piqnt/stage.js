@@ -1921,7 +1921,7 @@ Cut.Matrix.prototype.mapY = function(x, y) {
 Cut.Player = {
   play : function(root, render, request) {
 
-    var paused = true, touched = false;
+    var paused = true, touched;
 
     root.touched = function() {
       touched = true;
@@ -1932,6 +1932,7 @@ Cut.Player = {
       if (paused === true) {
         return;
       }
+      touched = false;
       render(root);
       request(tick);
       touched || pause();

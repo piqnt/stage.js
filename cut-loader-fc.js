@@ -80,6 +80,7 @@ Cut.Loader = {
         DEBUG && console.log("Images loaded.");
 
         canvas = FastCanvas.create();
+        console.log("FastCanvas: " + FastCanvas.isFast);
         context = canvas.getContext("2d");
 
         DEBUG && console.log("Creating root...");
@@ -113,7 +114,7 @@ Cut.Loader = {
             var listeners = cut.listeners("resize");
             if (listeners) {
               for ( var l = 0; l < listeners.length; l++)
-                stop &= listeners[l].call(cut, width, height);
+                stop &= !listeners[l].call(cut, width, height);
             }
             return stop;
           }
