@@ -28,13 +28,13 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
   elem.addEventListener(END, mouseEnd);
   move && elem.addEventListener(MOVE, mouseMove);
 
-  var start = null, click = null, visitor = null;
+  var visitor = null;
 
   var abs = {
     x : 0,
     y : 0,
     toString : function() {
-      return this.type + ": " + (this.x | 0) + "x" + (this.y | 0);
+      return (this.x | 0) + "x" + (this.y | 0);
     }
   };
 
@@ -46,34 +46,39 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     }
   };
 
+  var clicked = {
+    x : 0,
+    y : 0,
+    state : 0
+  };
+
   function mouseStart(event) {
     update(event, elem);
-    DEBUG && console.log("Mouse Start: " + abs);
+    DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
     !move && elem.addEventListener(MOVE, mouseMove);
     event.preventDefault();
     publish(event.type, event);
 
-    start = {
-      x : abs.x,
-      y : abs.y
-    };
-    click = null;
+    clicked.x = abs.x;
+    clicked.y = abs.y;
+    clicked.state = 1;
   }
 
   function mouseEnd(event) {
     try {
       // New xy is not valid/available, last xy is used instead.
-      DEBUG && console.log("Mouse End: " + abs);
+      DEBUG && console.log("Mouse End: " + event.type + " " + abs);
       !move && elem.removeEventListener(MOVE, mouseMove);
       event.preventDefault();
       publish(event.type, event);
 
-      if (start && start.x == abs.x && start.y == abs.y) {
+      if (clicked.state == 1 && clicked.x == abs.x && clicked.y == abs.y) {
         DEBUG && console.log("Mouse Click [+]");
         publish("click", event);
-        click = start;
+        clicked.state = 2;
+      } else {
+        clicked.state = 0;
       }
-      start = null;
     } catch (e) {
       console && console.log(e);
     }
@@ -82,7 +87,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
   function mouseMove(event) {
     try {
       update(event, elem);
-      // DEBUG && console.log("Mouse Move: " +
+      // DEBUG && console.log("Mouse Move: " + event.type + " " +
       // abs);
       event.preventDefault();
       publish(event.type, event);
@@ -94,9 +99,9 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
   function mouseClick(event) {
     try {
       update(event, elem);
-      DEBUG && console.log("Mouse Click: " + abs);
+      DEBUG && console.log("Mouse Click: " + event.type + " " + abs);
       event.preventDefault();
-      if (!click) {
+      if (clicked.state != 2) {
         publish(event.type, event);
       } else {
         DEBUG && console.log("Mouse Click [-]");
@@ -140,12 +145,12 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
 
   function update(event, elem) {
 
-    this.isTouch = false;
+    var isTouch = false;
 
     // touch screen events
     if (event.touches) {
       if (event.touches.length) {
-        abs.isTouch = true;
+        isTouch = true;
         abs.x = event.touches[0].pageX;
         abs.y = event.touches[0].pageY;
       } else {
@@ -165,18 +170,18 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     }
 
     // accounts for border
-    abs.x -= elem.clientLeft;
-    abs.y -= elem.clientTop;
+    abs.x -= elem.clientLeft || 0;
+    abs.y -= elem.clientTop || 0;
 
     var par = elem;
     while (par) {
-      abs.x -= par.offsetLeft;
-      abs.y -= par.offsetTop;
-      if (!abs.isTouch) {
+      abs.x -= par.offsetLeft || 0;
+      abs.y -= par.offsetTop || 0;
+      if (!isTouch) {
         // touch events offset scrolling with pageX/Y
         // so scroll offset not needed for them
-        abs.x += par.scrollLeft;
-        abs.y += par.scrollTop;
+        abs.x += par.scrollLeft || 0;
+        abs.y += par.scrollTop || 0;
       }
 
       par = par.offsetParent;

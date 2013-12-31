@@ -66,10 +66,16 @@ Cut.Loader = {
       var result = {}, context, root;
       var width = 0, height = 0;
 
+      canvas = FastCanvas.create(typeof FASTCANVAS_FALLBACK !== "undefined"
+          && FASTCANVAS_FALLBACK);
+      console.log("FastCanvas: " + FastCanvas.isFast);
+
       DEBUG && console.log("Loading images...");
       Cut.loadImages(function(src, handleComplete, handleError) {
-        var image = new Image();
-        DEBUG && console.log("Loading image: " + src);
+        var image = FastCanvas.createImage();
+        DEBUG
+            && console.log("Loading image: " + src
+                + (image.id ? (", ID: " + image.id) : ""));
         image.onload = handleComplete;
         image.onerror = handleError;
         image.src = src;
@@ -79,12 +85,10 @@ Cut.Loader = {
       function init() {
         DEBUG && console.log("Images loaded.");
 
-        canvas = FastCanvas.create(typeof FASTCANVAS_FALLBACK !== "undefined" && FASTCANVAS_FALLBACK);
-        console.log("FastCanvas: " + FastCanvas.isFast);
         context = canvas.getContext("2d");
 
         DEBUG && console.log("Creating root...");
-        root = app(canvas);
+        root = app(document);
 
         resize();
         window.addEventListener("resize", resize, false);
