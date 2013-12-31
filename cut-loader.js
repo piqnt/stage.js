@@ -49,6 +49,21 @@ Cut.Loader = {
       var width = 0, height = 0;
       var devicePixelRatio = 1, backingStoreRatio = 1, ratio = 1;
 
+      max = document.getElementById("cutjs-maximize");
+
+      if (!canvas) {
+        canvas = document.getElementById("cutjs");
+      }
+
+      if (!canvas) {
+        full = true;
+        DEBUG && console.log("Creating canvas...");
+        canvas = document.createElement("canvas");
+        canvas.style.position = "absolute";
+        var body = document.body;
+        body.insertBefore(canvas, body.firstChild);
+      }
+
       DEBUG && console.log("Loading images...");
       Cut.loadImages(function(src, handleComplete, handleError) {
         var image = new Image();
@@ -61,21 +76,6 @@ Cut.Loader = {
 
       function init() {
         DEBUG && console.log("Images loaded.");
-
-        max = document.getElementById("cutjs-maximize");
-
-        if (!canvas) {
-          canvas = document.getElementById("cutjs");
-        }
-
-        if (!canvas) {
-          full = true;
-          DEBUG && console.log("Creating canvas...");
-          canvas = document.createElement("canvas");
-          canvas.style.position = "absolute";
-          var body = document.body;
-          body.insertBefore(canvas, body.firstChild);
-        }
 
         context = canvas.getContext("2d");
 

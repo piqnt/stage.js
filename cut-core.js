@@ -800,7 +800,7 @@ Cut.Image.prototype.tile = function(inner) {
 
   var out = null;
 
-  this.tick(this._tileTicker = function() {
+  this._tileTicker = function() {
 
     if (this._tile_mo == this._touch_ts) {
       return;
@@ -881,7 +881,9 @@ Cut.Image.prototype.tile = function(inner) {
 
     this._outs.length = c;
 
-  });
+  };
+
+  this.tick(this._tileTicker);
 
   return this;
 };
