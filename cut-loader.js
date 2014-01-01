@@ -45,9 +45,8 @@ Cut.Loader = {
   players : [],
   load : function(app, canvas) {
     function loader() {
-      var result = {}, context, root, max, full = false;
-      var width = 0, height = 0;
-      var devicePixelRatio = 1, backingStoreRatio = 1, ratio = 1;
+      var result = {}, context = null, root, max, full = false;
+      var width = 0, height = 0, ratio = 1;
 
       max = document.getElementById("cutjs-maximize");
 
@@ -79,21 +78,20 @@ Cut.Loader = {
 
         context = canvas.getContext("2d");
 
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio = context.webkitBackingStorePixelRatio
+            || context.mozBackingStorePixelRatio
+            || context.msBackingStorePixelRatio
+            || context.oBackingStorePixelRatio
+            || context.backingStorePixelRatio || 1;
+        ratio = devicePixelRatio / backingStoreRatio;
+
         DEBUG && console.log("Creating root...");
 
         canvas.resize = resize;
         max && (canvas.maximize = maximize);
 
         root = app(canvas);
-
-        devicePixelRatio = window.devicePixelRatio || 1;
-        backingStoreRatio = context.webkitBackingStorePixelRatio
-            || context.mozBackingStorePixelRatio
-            || context.msBackingStorePixelRatio
-            || context.oBackingStorePixelRatio
-            || context.backingStorePixelRatio || 1;
-
-        ratio = devicePixelRatio / backingStoreRatio;
 
         resize();
         window.addEventListener("resize", resize, false);
@@ -116,6 +114,9 @@ Cut.Loader = {
           width = canvas.clientWidth;
           height = canvas.clientHeight;
         }
+
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
 
         width *= ratio;
         height *= ratio;
