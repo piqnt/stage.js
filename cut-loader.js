@@ -110,13 +110,14 @@ Cut.Loader = {
           width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
           height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
 
+          canvas.style.width = width + "px";
+          canvas.style.height = height + "px";
+
         } else {
           width = canvas.clientWidth;
           height = canvas.clientHeight;
         }
 
-        canvas.style.width = width + "px";
-        canvas.style.height = height + "px";
 
         width *= ratio;
         height *= ratio;
