@@ -1,14 +1,14 @@
 # Cut.js
 
-Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for developing optimized HTML5 games and visual apps from image textures.
+Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for composing high-performance and intractable HTML5 visual interfaces from images textures.
 
-Cut.js targets mobile devices and modern browsers and provides dynamic and intractable visual composition functionalities, but it is not a physics or all-in-one game engine.
+Cut.js targets mobile devices and modern browsers and intended to be used for game and visual app development but it is not a physics or all-in-one game engine.
 
 [API Doc](api-doc.js) - [Demos](http://piqnt.com/cutjs/) 
 
 #### How it works
 
-A cut.js app is a tree of cut objects. Each cut is pinned (transformed) against its parent and may include any number of image cutouts and/or other cuts as children.
+A cut.js app is a tree of cut objects, each pinned (transformed) against its parent and may include any number of image cutouts and/or other cuts as children.
 
 Each rendering cycle consists of ticking and painting the tree. Updates are applied during ticking and on painting each cut transforms according to its pinning and pastes all of its cutouts and then delegates to its children.
 
