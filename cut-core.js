@@ -431,7 +431,11 @@ Cut.prototype.pinChildren = function(all, first, last) {
   first && Cut._extend(this._pinFirst = this._pinFirst || {}, first);
   last && Cut._extend(this._pinLast = this._pinLast || {}, last);
 
-  this._flowTicker || this.tick(this._flowTicker = function() {
+  if (this._flowTicker) {
+    return this;
+  }
+
+  this._flowTicker = function() {
     if (this._row_mo == this._children_ts) {
       return;
     }
@@ -451,7 +455,10 @@ Cut.prototype.pinChildren = function(all, first, last) {
     if (this._pinLast && (child = this.last(true))) {
       child.pin(this._pinLast);
     }
-  }, true);
+  };
+
+  this.tick(this._flowTicker, true);
+
   return this;
 };
 
@@ -477,7 +484,7 @@ Cut.Image.prototype._super = Cut;
 Cut.Image.prototype.constructor = Cut.Image;
 
 Cut.Image.prototype.setImage = function(selector) {
-  this._outs[0] = Cut.Out._select(selector);
+  this._outs[0] = Cut.Out.select(selector);
   this.pin({
     width : this._outs[0] ? this._outs[0].width() : 0,
     height : this._outs[0] ? this._outs[0].height() : 0
@@ -553,7 +560,7 @@ Cut.Anim.prototype.setFrames = function(selector) {
   this._frames = [];
   this._labels = {};
 
-  var outs = Cut.Out._select(selector, true);
+  var outs = Cut.Out.select(selector, true);
   if (outs && outs.length) {
     for ( var i = 0; i < outs.length; i++) {
       var out = outs[i];
@@ -721,7 +728,7 @@ Cut.prototype.box = function() {
   // return this;
   // };
 
-  this.tick(this._boxTicker = function() {
+  this._boxTicker = function() {
 
     if (this._box_mo == this._touch_ts) {
       return;
@@ -785,7 +792,10 @@ Cut.prototype.box = function() {
     // this.pin("width") != width && this.pin("width", width);
     // this.pin("height") != height && this.pin("height", height);
 
-  });
+  };
+
+  this.tick(this._boxTicker);
+
   return this;
 };
 
@@ -1157,7 +1167,7 @@ Cut.Out.prototype.toString = function() {
 
 Cut.Out._cache = {};
 
-Cut.Out._select = function(selector, prefix) {
+Cut.Out.select = function(selector, prefix) {
 
   if (typeof selector !== "string") {
     return selector;
@@ -1288,9 +1298,11 @@ Cut.Pin.prototype.tick = function(owner) {
   this._owner = owner;
   this._parent = owner._parent && owner._parent._pin;
 
-  if (this._handled && this._handle_mo != this._transform_ts) {
-    this._handle_mo = this._transform_ts;
-    this._translate_ts = Cut._TS++;
+  if (this._handled) {
+    if (this._handle_mo != this._transform_ts) {
+      this._handle_mo = this._transform_ts;
+      this._translate_ts = Cut._TS++;
+    }
   }
 
   if (this._aligned) {
@@ -1306,6 +1318,11 @@ Cut.Pin.prototype.tick = function(owner) {
       }
     }
 
+    if (this._baseX && this._alignX_mo != this._baseX._transform_ts) {
+      this._alignX_mo = this._baseX._transform_ts;
+      this._translate_ts = Cut._TS++;
+    }
+
     this._baseY = this._parent;
     if (!this._alignToY) {
     } else if (this._alignToY == "next") {
@@ -1318,22 +1335,9 @@ Cut.Pin.prototype.tick = function(owner) {
       }
     }
 
-    var ts;
-
-    if (this._baseX) {
-      ts = Math.max(this._baseX._translate_ts, this._baseX._transform_ts);
-      if (this._alignX_mo != ts) {
-        this._alignX_mo = ts;
-        this._translate_ts = Cut._TS++;
-      }
-    }
-
-    if (this._baseY) {
-      ts = Math.max(this._baseY._translate_ts, this._baseY._transform_ts);
-      if (this._alignY_mo != ts) {
-        this._alignY_mo = ts;
-        this._translate_ts = Cut._TS++;
-      }
+    if (this._baseY && this._alignY_mo != this._baseY._transform_ts) {
+      this._alignY_mo = this._baseY._transform_ts;
+      this._translate_ts = Cut._TS++;
     }
   }
 
@@ -1367,7 +1371,8 @@ Cut.Pin.prototype.absoluteMatrix = function() {
 
 Cut.Pin.prototype.relativeMatrix = function() {
   var ts = Math.max(this._transform_ts, this._translate_ts,
-      this._parent ? this._parent._matrix_ts : 0);
+      this._baseX ? this._baseX._transform_ts : 0,
+      this._baseY ? this._baseY._transform_ts : 0);
   if (this._rel_mo == ts) {
     return this._relativeMatrix;
   }
@@ -1461,8 +1466,8 @@ Cut.Pin.prototype.update = function() {
     return this["_" + arguments[0]];
   }
 
-  this._transformed = false;
-  this._translated = false;
+  this._transform_flag = false;
+  this._translate_flag = false;
 
   if (arguments.length == 1 && typeof arguments[0] === "object") {
     var set = arguments[0], key, value;
@@ -1502,12 +1507,12 @@ Cut.Pin.prototype.update = function() {
     }
   }
 
-  if (this._translated) {
-    this._translated = false;
+  if (this._translate_flag) {
+    this._translate_flag = false;
     this._translate_ts = Cut._TS++;
   }
-  if (this._transformed) {
-    this._transformed = false;
+  if (this._transform_flag) {
+    this._transform_flag = false;
     this._transform_ts = Cut._TS++;
     if (this._owner) {
       this._owner._pin_ts = Cut._TS++;
@@ -1530,85 +1535,85 @@ Cut.Pin._setters = {
   width : function(pin, value, set) {
     pin._width_ = value;
     pin._width = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   height : function(pin, value, set) {
     pin._height_ = value;
     pin._height = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   scale : function(pin, value, set) {
     pin._scaleX = value;
     pin._scaleY = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   scaleX : function(pin, value, set) {
     pin._scaleX = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   scaleY : function(pin, value, set) {
     pin._scaleY = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   skew : function(pin, value, set) {
     pin._skewX = value;
     pin._skewY = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   skewX : function(pin, value, set) {
     pin._skewX = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   skewY : function(pin, value, set) {
     pin._skewY = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   rotation : function(pin, value, set) {
     pin._rotation = value;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   pivot : function(pin, value, set) {
     pin._pivotX = value;
     pin._pivotY = value;
     pin._pivoted = true;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   pivotX : function(pin, value, set) {
     pin._pivotX = value;
     pin._pivoted = true;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   pivotY : function(pin, value, set) {
     pin._pivotY = value;
     pin._pivoted = true;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   offset : function(pin, value, set) {
     pin._offsetX = value;
     pin._offsetY = value;
-    pin._translated = true;
+    pin._translate_flag = true;
   },
 
   offsetX : function(pin, value, set) {
     pin._offsetX = value;
-    pin._translated = true;
+    pin._translate_flag = true;
   },
 
   offsetY : function(pin, value, set) {
     pin._offsetY = value;
-    pin._translated = true;
+    pin._translate_flag = true;
   },
 
   next : function(pin, value, set) {
@@ -1662,7 +1667,7 @@ Cut.Pin._setters = {
     pin._alignToX = to;
     pin._alignX = value;
     pin._aligned = true;
-    pin._translated = true;
+    pin._translate_flag = true;
 
     this.handleX(pin, value, set);
   },
@@ -1671,7 +1676,7 @@ Cut.Pin._setters = {
     pin._alignToY = to;
     pin._alignY = value;
     pin._aligned = true;
-    pin._translated = true;
+    pin._translate_flag = true;
 
     this.handleY(pin, value, set);
   },
@@ -1684,13 +1689,13 @@ Cut.Pin._setters = {
   handleX : function(pin, value, set) {
     pin._handleX = value;
     pin._handled = true;
-    pin._translated = true;
+    pin._translate_flag = true;
   },
 
   handleY : function(pin, value, set) {
     pin._handleY = value;
     pin._handled = true;
-    pin._translated = true;
+    pin._translate_flag = true;
   }
 
 };
@@ -1717,7 +1722,7 @@ Cut.Pin._setters2 = {
     }
     pin._scaleX = value / pin._width_;
     pin._width = pin._width_;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   resizeHeight : function(pin, value, set, force) {
@@ -1726,7 +1731,7 @@ Cut.Pin._setters2 = {
     }
     pin._scaleY = value / pin._height_;
     pin._height = pin._height_;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   scaleMode : function(pin, value, set) {
@@ -1746,7 +1751,7 @@ Cut.Pin._setters2 = {
       return;
     }
     pin._scaleX = value / pin._width_;
-    pin._transformed = true;
+    pin._transform_flag = true;
   },
 
   scaleHeight : function(pin, value, set, force) {
@@ -1754,7 +1759,7 @@ Cut.Pin._setters2 = {
       return;
     }
     pin._scaleY = value / pin._height_;
-    pin._transformed = true;
+    pin._transform_flag = true;
   }
 };
 
