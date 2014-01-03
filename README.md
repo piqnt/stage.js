@@ -71,5 +71,5 @@ Cut.js was originally started by extending [DisplayFramework](https://github.com
 
 #### License
 
-Copyright (c) 2013 Ali Shakiba, Piqnt LLC and other contributors
+Copyright (c) 2013 Ali Shakiba, Piqnt LLC and other contributors  
 Available under the MIT license
