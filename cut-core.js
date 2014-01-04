@@ -408,6 +408,7 @@ Cut.prototype.touch = function() {
   this._touch_ts = Cut._TS++;
   this._parent && this._parent.touch();
   this.touched && this.touched();
+  return this;
 };
 
 Cut.prototype.spy = function(spy) {
@@ -434,10 +435,10 @@ Cut.prototype.pinChildren = function(pin) {
   }
 
   this._pinAllTicker = function() {
-    if (this._row_mo == this._children_ts) {
+    if (this._pinAll_mo == this._children_ts) {
       return;
     }
-    this._row_mo = this._children_ts;
+    this._pinAll_mo = this._children_ts;
 
     var child;
     var next = this.first(true);
@@ -1409,10 +1410,11 @@ Cut.Pin.prototype.update = function() {
   if (this._transform_flag) {
     this._transform_flag = false;
     this._transform_ts = Cut._TS++;
-    if (this._owner) {
-      this._owner._pin_ts = Cut._TS++;
-      this._owner.touch();
-    }
+  }
+
+  if (this._owner) {
+    this._owner._pin_ts = Cut._TS++;
+    this._owner.touch();
   }
 
   return this;
