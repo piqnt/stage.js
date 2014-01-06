@@ -12,11 +12,11 @@
 // No painting is associated with a plain cut, it is just a parent for other cuts.
 var foo = Cut.create();
 
-// Append/prepend bar, baz, ... to foo children.
+// Append/prepend bar, baz, ... to foo's children.
 foo.append(bar, baz, etc);
 foo.prepend(bar, baz, etc);
 
-// Append/prepend bar to foo children.
+// Append/prepend bar to foo's children.
 bar.appendTo(foo);
 bar.prependTo(foo);
 
@@ -34,7 +34,7 @@ bar.remove();
 // Remove bar, baz, ... from foo.
 foo.remove(bar, baz, etc);
 
-// Remove all foo children.
+// Remove all foo's children.
 foo.empty();
 
 // Get foo first/last (visible) child.
