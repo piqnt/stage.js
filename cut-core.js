@@ -715,12 +715,12 @@ Cut.prototype.box = function(type) {
       child.pin().relativeMatrix();
       if (type == "column") {
         !first && (height += this._spacing || 0);
-        child.pin("offsetY", height);
+        child.pin("offsetY") != height && child.pin("offsetY", height);
         width = Math.max(width, child._pin._boundWidth);
         height = height + child._pin._boundHeight;
       } else if (type == "row") {
         !first && (width += this._spacing || 0);
-        child.pin("offsetX", width);
+        child.pin("offsetX") != width && child.pin("offsetX", width);
         width = width + child._pin._boundWidth;
         height = Math.max(height, child._pin._boundHeight);
       } else {
