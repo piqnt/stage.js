@@ -206,14 +206,6 @@ Cut.prototype.parent = function() {
   return this._parent;
 };
 
-Cut.prototype.top = function() {
-  var top = this;
-  while (top._parent) {
-    top = top._parent;
-  }
-  return top;
-};
-
 Cut.prototype.next = function(visible) {
   var next = this._next;
   while (next && visible && !next._visible) {

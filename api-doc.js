@@ -44,9 +44,6 @@ foo.last(visible = false);
 // Get immediate parent.
 bar.parent();
 
-// Get top parent or self.
-bar.top();
-
 // Get bar next/prev (visible) sibling.
 bar.next(visible = false);
 bar.prev(visible = false);
