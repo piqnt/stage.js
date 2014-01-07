@@ -1,10 +1,10 @@
-Cut.Loader.load(function(canvas) {
+Cut.Loader.load(function(root, container) {
 
-  var root = Cut.create().id("root");
+  Cut.Mouse.subscribe(root, container, true);
 
-  Cut.Mouse.subscribe(root, canvas, true);
+  var frame = Cut.create().id("frame").appendTo(root);
 
-  root.listen("resize", function(width, height) {
+  frame.listen("resize", function(width, height) {
     this.pin({
       width : 200,
       height : 200,
@@ -14,11 +14,10 @@ Cut.Loader.load(function(canvas) {
     });
   });
 
-  Cut.image("base:box").tile().appendTo(root).pin({
+  Cut.image("base:box").tile().appendTo(frame).pin({
     width : 64,
     height : 64,
     align : 0.5
   });
-
-  return root;
+  
 });

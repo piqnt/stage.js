@@ -45,26 +45,33 @@ Cut.Loader = {
   play : function() {
     this.played = true;
     for ( var i = this.loaders.length - 1; i >= 0; i--) {
-      this.players.push(this.loaders[i]());
+      this.roots.push(this.loaders[i]());
       this.loaders.splice(i, 1);
     }
   },
   pause : function() {
     for ( var i = this.loaders.length - 1; i >= 0; i--) {
-      this.players[i].player.pause();
+      this.roots[i].pause();
     }
   },
   resume : function() {
     for ( var i = this.loaders.length - 1; i >= 0; i--) {
-      this.players[i].player.resume();
+      this.roots[i].resume();
     }
   },
   loaders : [],
-  players : [],
+  roots : [],
   load : function(app, canvas) {
     function loader() {
-      var result = {}, context = null, root, max, full = false;
+      var context = null, max, full = false;
       var width = 0, height = 0, ratio = 1;
+
+      DEBUG && console.log("Creating root...");
+      var root = Cut.root(function(root) {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, width, height);
+        root.render(context);
+      }, requestAnimationFrame);
 
       max = document.getElementById("cutjs-maximize");
 
@@ -74,7 +81,7 @@ Cut.Loader = {
 
       if (!canvas) {
         full = true;
-        DEBUG && console.log("Creating canvas...");
+        DEBUG && console.log("Creating element...");
         canvas = document.createElement("canvas");
         canvas.style.position = "absolute";
         var body = document.body;
@@ -104,22 +111,25 @@ Cut.Loader = {
             || context.backingStorePixelRatio || 1;
         ratio = devicePixelRatio / backingStoreRatio;
 
-        DEBUG && console.log("Creating root...");
-
         canvas.resize = resize;
         max && (canvas.maximize = maximize);
 
-        root = app(canvas);
+        DEBUG && console.log("Loading...");
+        app(root, canvas);
+
+        root.listen("resize", function(width, height) {
+          this.pin({
+            width : width,
+            height : height
+          });
+          return true;
+        });
 
         resize();
         window.addEventListener("resize", resize, false);
 
-        DEBUG && console.log("Playing...");
-        result.player = Cut.Player.play(root, function(root) {
-          context.setTransform(1, 0, 0, 1, 0, 0);
-          context.clearRect(0, 0, width, height);
-          root.render(context);
-        }, requestAnimationFrame);
+        DEBUG && console.log("Start playing...");
+        root.start();
       }
 
       function resize() {
@@ -135,7 +145,6 @@ Cut.Loader = {
           width = canvas.clientWidth;
           height = canvas.clientHeight;
         }
-
 
         width *= ratio;
         height *= ratio;
@@ -188,11 +197,11 @@ Cut.Loader = {
         resize();
       }
 
-      return result;
+      return root;
     }
 
     if (this.played) {
-      this.players.push(loader());
+      this.roots.push(loader());
     } else {
       this.loaders.push(loader);
     }

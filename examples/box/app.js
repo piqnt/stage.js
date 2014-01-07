@@ -1,10 +1,10 @@
-Cut.Loader.load(function(canvas) {
+Cut.Loader.load(function(root, container) {
 
-  var root = Cut.create().id("root");
+  Cut.Mouse.subscribe(root, container, true);
 
-  Cut.Mouse.subscribe(root, canvas, true);
+  var frame = Cut.create().id("frame").appendTo(root);
 
-  root.listen("resize", function(width, height) {
+  frame.listen("resize", function(width, height) {
     this.pin({
       width : 300,
       height : 200,
@@ -15,13 +15,13 @@ Cut.Loader.load(function(canvas) {
   });
 
   var popup = Cut.image("base:box").box().stretch().pin("align", 0.5).id("bg")
-      .padding(10).appendTo(root);
+      .padding(10).appendTo(frame);
 
   Cut.string("base:d_").setValue("0123456789").pin("align", 0.5).id("str")
       .appendTo(popup);
 
   function confirm(string) {
-    popup.empty().appendTo(root);
+    popup.empty().appendTo(frame);
 
     var column = Cut.column(0).pin("align", 0.5).spacing(20).appendTo(popup);
 
@@ -47,6 +47,5 @@ Cut.Loader.load(function(canvas) {
           return true;
         });
   }
-
-  return root;
+  
 });

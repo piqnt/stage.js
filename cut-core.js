@@ -407,7 +407,6 @@ Cut.prototype.empty = function() {
 Cut.prototype.touch = function() {
   this._touch_ts = Cut._TS++;
   this._parent && this._parent.touch();
-  this.touched && this.touched();
   return this;
 };
 
@@ -457,6 +456,55 @@ Cut.prototype.matrix = function() {
   return this._pin
       .absoluteMatrix(this, this._parent ? this._parent._pin : null);
 };
+
+Cut.root = function(render, request) {
+  return new Cut.Root(render, request);
+};
+
+Cut.Root = function(render, request) {
+  Cut.String.prototype._super.apply(this, arguments);
+  if (arguments[0] === Cut.Proto)
+    return;
+
+  var paused = true;
+  var self = this;
+
+  function tick() {
+    if (paused === true) {
+      return;
+    }
+    var mo = self._touch_ts;
+    render(self);
+    request(tick);
+    mo == self._touch_ts && self.pause();
+  }
+
+  this.start = function() {
+    return this.resume();
+  };
+
+  this.pause = function() {
+    paused = true;
+    return this;
+  };
+
+  this.resume = function(force) {
+    if (paused || force) {
+      paused = false;
+      request(tick);
+    }
+    return this;
+  };
+
+  this.touch = function() {
+    this.resume();
+    return Cut.prototype.touch.apply(this, arguments);
+  };
+};
+
+Cut.Root.prototype = new Cut(Cut.Proto);
+Cut.Root.prototype._super = Cut;
+Cut.Root.prototype.constructor = Cut.Root;
 
 Cut.image = function(selector) {
   var image = new Cut.Image();
@@ -1776,46 +1824,6 @@ Cut.Matrix.prototype.mapX = function(x, y) {
 
 Cut.Matrix.prototype.mapY = function(x, y) {
   return this.b * x + this.d * y + this.ty;
-};
-
-Cut.Player = {
-  play : function(root, render, request) {
-
-    var paused = true, touched;
-
-    root.touched = function() {
-      touched = true;
-      resume();
-    };
-
-    function tick() {
-      if (paused === true) {
-        return;
-      }
-      touched = false;
-      render(root);
-      request(tick);
-      touched || pause();
-    }
-
-    function pause() {
-      paused = true;
-    }
-
-    function resume(force) {
-      if (paused || force) {
-        paused = false;
-        request(tick);
-      }
-    }
-
-    resume();
-
-    return {
-      pause : pause,
-      resume : resume
-    };
-  }
 };
 
 Cut.Math = {};

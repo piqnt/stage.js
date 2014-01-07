@@ -225,30 +225,31 @@ Cut.addTexture({
 }, etc);
 
 //
-// ### Mouse(Touch)
+// ### Loader
 //
-// Subscribe a cut app to mouse/touch events.
-Cut.Mouse.subscribe(rootCut, container);
-
-// Add click listener to foo.
-foo.listen(Cut.Mouse.CLICK, function(event, point) {
-  // point is relative to this cut
+// Load an app with root node and container element.
+Cut.Loader.load(function(root, container) {
+  // add cuts to root
+  foo.appendTo(root);
 });
 
 //
-// ### Loader
+// ### Mouse(Touch)
 //
-// Load a cut app in container element.
-Cut.Loader.load(function(container) {
-  // ...
-  return rootCut;
+// Subscribe the root to mouse/touch events.
+Cut.Mouse.subscribe(root, container, includingMoveEvents = false);
+
+// Add click listener to bar, other mouse/touch event types are start, end and
+// move.
+bar.listen(Cut.Mouse.CLICK, function(event, point) {
+  // point is relative to this cut
 });
 
 //
 // ### Extending Cut
 //
 // Home extends Cut.
-function Home(app) {
+function Home() {
   Home.prototype._super.apply(this, arguments);
   // ...
 }
