@@ -108,7 +108,7 @@ foo.listeners(type);
 // Call type-listeners with args.
 foo.publish(type, args);
 
-// Visit the tree belowe foo.
+// Visit foo's sub-tree.
 foo.visit({
   start : function() {
     return skipChildren ? true : false;
@@ -230,7 +230,7 @@ Cut.addTexture({
 // Subscribe a cut app to mouse/touch events.
 Cut.Mouse.subscribe(rootCut, container);
 
-// Add listener to cut objects.
+// Add click listener to foo.
 foo.listen(Cut.Mouse.CLICK, function(event, point) {
   // point is relative to this cut
 });
