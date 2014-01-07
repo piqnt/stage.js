@@ -19,25 +19,24 @@ Cut.js rendering is retained and pauses in each cycle unless/until it is touched
 Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are pluggable components.
 
 ```js
-  Cut.Loader.load(function(container) {
-
-    var root = Cut.create();
+  Cut.Loader.load(function(root, container) {
 
     Cut.Mouse.subscribe(root, container);
 
-    root.listen("resize", function(width, height) {
-      this.pin({
-        width : 500,
-        height : 300,
-        resizeMode : "in",
-        resizeWidth : width,
-        resizeHeight : height,
-      });
-    };
+    var frame = Cut.create().appendTo(root)
+      .listen("resize", function(width, height) {
+        this.pin({
+          width : 500,
+          height : 300,
+          resizeMode : "in",
+          resizeWidth : width,
+          resizeHeight : height,
+        });
+      };
 
     var colors = [ "dark", "light", "red", "purple", "blue", "orange", "yellow", "green" ];
 
-    var row = Cut.row().appendTo(root).pin("parent", 0.5);
+    var row = Cut.row().appendTo(frame).pin("parent", 0.5);
     for ( var i = 0; i < colors.length; i++) {
       Cut.image("colors:dark").appendTo(row)
         .listen(Cut.Mouse.CLICK, function(ev, point) {
@@ -46,7 +45,6 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
         });
     }
 
-    return root ;
   });
 
   Cut.addTexture({
