@@ -135,7 +135,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
       var listeners = cut.listeners(abs.type);
       if (listeners) {
         cut.matrix().reverse().map(abs, rel);
-        for ( var l = 0; l < listeners.length; l++)
+        for (var l = 0; l < listeners.length; l++)
           if (listeners[l].call(cut, abs.event, rel)) {
             return true;
           }

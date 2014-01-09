@@ -60,7 +60,7 @@ Cut.prototype._tick = function() {
   this._pin.tick(this);
 
   var length = this._tickBefore.length;
-  for ( var i = 0; i < length; i++) {
+  for (var i = 0; i < length; i++) {
     Cut._stats.tick++;
     this._tickBefore[i].call(this);
   }
@@ -72,7 +72,7 @@ Cut.prototype._tick = function() {
   }
 
   var length = this._tickAfter.length;
-  for ( var i = 0; i < length; i++) {
+  for (var i = 0; i < length; i++) {
     Cut._stats.tick++;
     this._tickAfter[i].call(this);
   }
@@ -103,7 +103,7 @@ Cut.prototype._paint = function(context) {
   }
 
   var length = this._outs.length;
-  for ( var i = 0; i < length; i++) {
+  for (var i = 0; i < length; i++) {
     this._outs[i].paste(context);
   }
 
@@ -140,7 +140,7 @@ Cut.prototype.attr = function(name, value) {
 
 Cut.prototype.listen = function(type, listener) {
   var names = type.split(/\s+/);
-  for ( var i = 0; i < names.length; i++) {
+  for (var i = 0; i < names.length; i++) {
     type = names[i];
     if (type && typeof listener === "function") {
       this._listeners = this._listeners || {};
@@ -160,7 +160,7 @@ Cut.prototype.publish = function(name, args) {
   if (!listeners || !listeners.length) {
     return false;
   }
-  for ( var l = 0; l < listeners.length; l++) {
+  for (var l = 0; l < listeners.length; l++) {
     listeners[l].apply(this, args);
   }
   return true;
@@ -239,14 +239,14 @@ Cut.prototype.last = function(visible) {
 };
 
 Cut.prototype.append = function() {
-  for ( var i = 0; i < arguments.length; i++) {
+  for (var i = 0; i < arguments.length; i++) {
     arguments[i].appendTo(this);
   }
   return this;
 };
 
 Cut.prototype.prepend = function() {
-  for ( var i = 0; i < arguments.length; i++) {
+  for (var i = 0; i < arguments.length; i++) {
     arguments[i].prependTo(this);
   }
   return this;
@@ -296,7 +296,7 @@ Cut.prototype.prependTo = function(parent) {
 
 Cut.prototype.insertNext = function() {
   if (arguments.length) {
-    for ( var i = 0; i < arguments.length; i++) {
+    for (var i = 0; i < arguments.length; i++) {
       arguments[i] && arguments[i].insertAfter(this);
     }
   }
@@ -305,7 +305,7 @@ Cut.prototype.insertNext = function() {
 
 Cut.prototype.insertPrev = function() {
   if (arguments.length) {
-    for ( var i = 0; i < arguments.length; i++) {
+    for (var i = 0; i < arguments.length; i++) {
       arguments[i] && arguments[i].insertBefore(this);
     }
   }
@@ -348,7 +348,7 @@ Cut.prototype.insertAfter = function(prev) {
 
 Cut.prototype.remove = function() {
   if (arguments.length) {
-    for ( var i = 0; i < arguments.length; i++) {
+    for (var i = 0; i < arguments.length; i++) {
       arguments[i] && arguments[i].remove();
     }
     return this;
@@ -593,7 +593,7 @@ Cut.Anim.prototype.setFrames = function(selector) {
 
   var outs = Cut.Out.select(selector, true);
   if (outs && outs.length) {
-    for ( var i = 0; i < outs.length; i++) {
+    for (var i = 0; i < outs.length; i++) {
       var out = outs[i];
       this._frames.push(out);
       this._labels[outs[i].name] = i;
@@ -684,7 +684,7 @@ Cut.String.prototype.setValue = function(value) {
   }
 
   var child = this._first;
-  for ( var i = 0; i < value.length; i++) {
+  for (var i = 0; i < value.length; i++) {
     child = child || Cut.anim(this._font).appendTo(this);
     child.gotoLabel(this.prefix + value[i], true).show();
     child = child._next;
@@ -860,8 +860,8 @@ Cut.Image.prototype.tile = function(inner) {
     }
 
     var c = 0;
-    for ( var i = 0; i < col; i++) {
-      for ( var j = 0; j < row; j++) {
+    for (var i = 0; i < col; i++) {
+      for (var j = 0; j < row; j++) {
         this._outs[c] = this._outs[c] || out.clone();
         this._outs[c].cropX(cropW[i], cropX[i]);
         this._outs[c].cropY(cropH[j], cropY[j]);
@@ -1031,7 +1031,7 @@ Cut.addImage = function(image, src) {
 Cut._textures = {};
 
 Cut.addTexture = function() {
-  for ( var i = 0; i < arguments.length; i++) {
+  for (var i = 0; i < arguments.length; i++) {
     var texture = arguments[i];
     Cut._textures[texture.name] = texture;
     Cut.Out._cache[texture.name] = {};
@@ -1047,7 +1047,7 @@ Cut.addTexture = function() {
     if (texture.filter) {
       var cutout;
       var cutouts = texture.cutouts || texture.sprites;
-      for ( var c = cutouts.length - 1; c >= 0; c--) {
+      for (var c = cutouts.length - 1; c >= 0; c--) {
         if (cutout = texture.filter(cutouts[c])) {
           cutouts[c] = cutout;
           cutout.x *= ratio, cutout.y *= ratio;
@@ -1174,7 +1174,7 @@ Cut.Out.select = function(selector, prefix) {
   if (!prefix) {
     var selected = Cut.Out._cache[texture.name][name + "$"];
     if (typeof selected === "undefined") {
-      for ( var i = 0; i < cutouts.length; i++) {
+      for (var i = 0; i < cutouts.length; i++) {
         if (cutouts[i].name == name) {
           selected = cutouts[i];
           break;
@@ -1192,7 +1192,7 @@ Cut.Out.select = function(selector, prefix) {
     if (typeof selected === "undefined") {
       selected = [];
       var length = name.length;
-      for ( var i = 0; i < cutouts.length; i++) {
+      for (var i = 0; i < cutouts.length; i++) {
         var cut = cutouts[i];
         if (cut.name && cut.name.substring(0, length) == name) {
           selected.push(cutouts[i]);
@@ -1204,7 +1204,7 @@ Cut.Out.select = function(selector, prefix) {
       throw "'" + selector + "' cutout not found!";
     }
     var result = [];
-    for ( var i = 0; i < selected.length; i++) {
+    for (var i = 0; i < selected.length; i++) {
       result.push(new Cut.Out(texture, selected[i]));
     }
     return result;
@@ -1862,7 +1862,7 @@ Cut._isFunc = function(x) {
 
 Cut._extend = function(base, extension, attribs) {
   if (attribs) {
-    for ( var i = 0; i < attribs.length; i++) {
+    for (var i = 0; i < attribs.length; i++) {
       var attr = attribs[i];
       base[attr] = extension[attr];
     }

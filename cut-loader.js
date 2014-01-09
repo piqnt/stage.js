@@ -26,18 +26,18 @@ Cut.Loader = {
   },
   play : function() {
     this.played = true;
-    for ( var i = this.loaders.length - 1; i >= 0; i--) {
+    for (var i = this.loaders.length - 1; i >= 0; i--) {
       this.roots.push(this.loaders[i]());
       this.loaders.splice(i, 1);
     }
   },
   pause : function() {
-    for ( var i = this.loaders.length - 1; i >= 0; i--) {
+    for (var i = this.loaders.length - 1; i >= 0; i--) {
       this.roots[i].pause();
     }
   },
   resume : function() {
-    for ( var i = this.loaders.length - 1; i >= 0; i--) {
+    for (var i = this.loaders.length - 1; i >= 0; i--) {
       this.roots[i].resume();
     }
   },
@@ -143,7 +143,7 @@ Cut.Loader = {
             var stop = true;
             var listeners = cut.listeners("resize");
             if (listeners) {
-              for ( var l = 0; l < listeners.length; l++)
+              for (var l = 0; l < listeners.length; l++)
                 stop &= !listeners[l].call(cut, width, height);
             }
             return stop;
@@ -193,7 +193,7 @@ Cut.Loader = {
 
 !function() {
   var vendors = [ 'ms', 'moz', 'webkit', 'o' ];
-  for ( var v = 0; v < vendors.length && !window.requestAnimationFrame; v++) {
+  for (var v = 0; v < vendors.length && !window.requestAnimationFrame; v++) {
     var vendor = vendors[v];
     window.requestAnimationFrame = window[vendor + 'RequestAnimationFrame'];
     window.cancelAnimationFrame = window[vendor + 'CancelAnimationFrame']
