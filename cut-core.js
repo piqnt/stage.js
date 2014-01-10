@@ -449,6 +449,93 @@ Cut.prototype.matrix = function() {
       .absoluteMatrix(this, this._parent ? this._parent._pin : null);
 };
 
+Cut.prototype.tween = function(pin, duration, delay) {
+  return Cut.Tween(this).tween(pin, duration, delay);
+};
+
+Cut.Tween = function(cut) {
+  if (cut._tween) {
+    return cut._tween;
+  }
+
+  var tween = {};
+  var queue = [];
+
+  tween.tween = function(pin, duration, delay) {
+    queue.push({
+      end : pin,
+      duration : duration || 400,
+      delay : delay || 0
+    });
+    cut.touch();
+    return this;
+  };
+
+  tween.then = function(then) {
+    queue[queue.length - 1].then = then;
+    return this;
+  };
+
+  tween.easing = function(easing) {
+    queue[queue.length - 1].easing = easing;
+    return this;
+  };
+
+  var startTime = 0;
+  cut.tick(function() {
+    if (!queue.length) {
+      startTime = 0;
+      return;
+    }
+
+    this.touch();
+
+    var time = Cut._now();
+    startTime = startTime || time;
+    var elapsed = time - startTime;
+
+    if (!elapsed) {
+      return;
+    }
+
+    var head = queue[0];
+
+    if (head.delay > 0) {
+      head.delay -= elapsed;
+      startTime = time;
+      return;
+    }
+
+    var prog = elapsed / head.duration;
+    var over = prog >= 1;
+    prog = prog > 1 ? 1 : prog;
+    prog = head.easing ? head.easing(prog) : prog;
+
+    if (!head.start) {
+      head.start = {};
+      for ( var key in head.end) {
+        var value = cut.pin(key);
+        head.start[key] = value || 0;
+      }
+    }
+
+    for ( var key in head.start) {
+      var start = head.start[key];
+      var end = head.end[key];
+      cut.pin(key, start + (end - start) * prog);
+    }
+
+    if (over) {
+      queue.shift();
+      startTime = time;
+      head.then && head.then.call(cut);
+    }
+
+  }, true);
+
+  return cut._tween = tween;
+};
+
 Cut.root = function(render, request) {
   return new Cut.Root(render, request);
 };
@@ -1873,3 +1960,19 @@ Cut._extend = function(base, extension, attribs) {
   }
   return base;
 };
+
+Cut._now = (function() {
+  if (typeof performance !== 'undefined' && performance.now) {
+    return function() {
+      return performance.now();
+    };
+  } else if (Date.now) {
+    return function() {
+      return Date.now();
+    };
+  } else {
+    return function() {
+      return +new Date();
+    };
+  }
+})();
