@@ -453,15 +453,21 @@ Cut.prototype.tween = function(pin, duration, delay) {
   return Cut.Tween(this).tween(pin, duration, delay);
 };
 
+Cut.prototype.tweenClear = function(forward) {
+  return Cut.Tween(this).clear(forward);
+};
+
 Cut.Tween = function(cut) {
   if (cut._tween) {
     return cut._tween;
   }
 
+  var startTime = 0;
   var tween = {};
   var queue = [];
 
   tween.tween = function(pin, duration, delay) {
+    startTime = Cut._now();
     queue.push({
       end : pin,
       duration : duration || 400,
@@ -481,17 +487,24 @@ Cut.Tween = function(cut) {
     return this;
   };
 
-  var startTime = 0;
+  tween.clear = function(forward) {
+    if (forward) {
+      for (var i = 0; i < queue.length; i++) {
+        cut.pin(queue[i].end);
+      }
+    }
+    queue.length = 0;
+    return this;
+  };
+
   cut.tick(function() {
     if (!queue.length) {
-      startTime = 0;
       return;
     }
 
     this.touch();
 
     var time = Cut._now();
-    startTime = startTime || time;
     var elapsed = time - startTime;
 
     if (!elapsed) {
