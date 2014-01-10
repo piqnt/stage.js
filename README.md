@@ -1,6 +1,6 @@
 # Cut.js
 
-Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for composing high-performance and intractable HTML5 visual interfaces from images textures.
+Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for composing high-performance, dynamic and intractable HTML5 visual interfaces from images textures.
 
 Cut.js targets mobile devices and modern browsers and intended to be used for game and visual app development but it is not a physics or all-in-one game engine.
 
