@@ -86,10 +86,14 @@ bar.pin({
   // Positioning offset in pixel.
   offsetX : "",
   offsetY : "",
-  // Scale and resize to width/height.
+  // Scale to width-height.
+  scaleMode : "", // "in"/"out"
+  scaleWidth : "",
+  scaleHeight : "",
+  // Scale and resize to width-height.
   resizeMode : "", // "in"/"out"
   resizeWidth : "",
-  resizeHeight : ""
+  resizeHeight : "",
 });
 
 // Ticker is called on ticking before every paint, it can be used to modify the
