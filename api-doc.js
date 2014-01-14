@@ -86,12 +86,12 @@ bar.pin({
   // Positioning offset in pixel.
   offsetX : "",
   offsetY : "",
-  // Scale to width-height.
-  scaleMode : "", // "in"/"out"
+  // Scale to width/height.
+  scaleMode : "", // "in" or "out", optional, if specified scale proportionaly.
   scaleWidth : "",
   scaleHeight : "",
-  // Scale and resize to width-height.
-  resizeMode : "", // "in"/"out"
+  // Scale to width/height and then resize to fill width/height.
+  resizeMode : "", // "in" or "out", optional, if specified scale proportionaly.
   resizeWidth : "",
   resizeHeight : "",
 });
