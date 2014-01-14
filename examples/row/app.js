@@ -6,25 +6,29 @@ Cut.Loader.load(function(root, container) {
 
   frame.listen("resize", function(width, height) {
     this.pin({
-      width : 500,
-      height : 300,
+      width : 300,
+      height : 200,
       resizeMode : "in",
       resizeWidth : width,
       resizeHeight : height,
     });
-  }).listen(Cut.Mouse.CLICK, function(ev, point) {
-    cell1.pin("width", Cut.Math.random(20, 100) | 0);
-    cell2.pin("width", Cut.Math.random(20, 100) | 0);
   });
 
-  var cell1 = Cut.image("base:box").stretch().id("r1");
-  var cell2 = Cut.image("base:box").stretch().id("r2");
+  var colors = [ "dark", "light", "red", "orange", "yellow", "green", "blue",
+      "purple" ];
 
-  Cut.column(1).append(cell1, cell2).appendTo(frame).pin({
-    alignX : 1,
-    alignY : 0,
-    offsetX : -10,
-    offsetY : 10
-  }).id("column");
+  var last = null;
+  var row = Cut.row(0.5).appendTo(frame).pin("align", 0.5).spy(true).id("box");
+  for ( var i = 0; i < 6; i++) {
+    var cell = Cut.image("base:color_" + colors[2 + i]).appendTo(row).id(i);
+    cell.listen(Cut.Mouse.MOVE, function(ev, point) {
+      if (last == this) {
+        return;
+      }
+      last = this;
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      this.setImage("base:color_" + color);
+    });
+  }
   
 });
