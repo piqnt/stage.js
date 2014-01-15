@@ -87,11 +87,11 @@ bar.pin({
   offsetX : "",
   offsetY : "",
   // Scale to width/height.
-  scaleMode : "", // "in" or "out", optional, if specified scale proportionaly.
+  scaleMode : "", // "in" or "out", optional, if specified scale proportionally.
   scaleWidth : "",
   scaleHeight : "",
   // Scale to width/height and then resize to fill width/height.
-  resizeMode : "", // "in" or "out", optional, if specified scale proportionaly.
+  resizeMode : "", // "in" or "out", optional, if specified scale proportionally.
   resizeWidth : "",
   resizeHeight : "",
 });
@@ -257,6 +257,3 @@ function Home() {
 Home.prototype = new Cut(Cut.Proto);
 Home.prototype._super = Cut;
 Home.prototype.constructor = Home;
-Home.prototype.fun = function() {
-  // ...
-};
