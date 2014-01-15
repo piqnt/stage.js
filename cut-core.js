@@ -253,6 +253,10 @@ Cut.prototype.prepend = function() {
 };
 
 Cut.prototype.appendTo = function(parent) {
+  if (!parent) {
+    throw "Parent is null!";
+  }
+
   this.remove();
 
   if (parent._last) {
@@ -274,6 +278,10 @@ Cut.prototype.appendTo = function(parent) {
 };
 
 Cut.prototype.prependTo = function(parent) {
+  if (!parent) {
+    throw "Parent is null!";
+  }
+
   this.remove();
 
   if (parent._first) {
@@ -313,6 +321,10 @@ Cut.prototype.insertPrev = function() {
 };
 
 Cut.prototype.insertBefore = function(next) {
+  if (!next) {
+    throw "Next is null!";
+  }
+
   this.remove();
 
   var parent = next._parent;
@@ -330,6 +342,10 @@ Cut.prototype.insertBefore = function(next) {
 };
 
 Cut.prototype.insertAfter = function(prev) {
+  if (!prev) {
+    throw "Prev is null!";
+  }
+
   this.remove();
 
   var parent = prev._parent;
@@ -449,12 +465,8 @@ Cut.prototype.matrix = function() {
       .absoluteMatrix(this, this._parent ? this._parent._pin : null);
 };
 
-Cut.prototype.tween = function(pin, duration, delay) {
-  return Cut.Tween(this).tween(pin, duration, delay);
-};
-
-Cut.prototype.tweenClear = function(forward) {
-  return Cut.Tween(this).clear(forward);
+Cut.prototype.tween = function(duration, delay) {
+  return Cut.Tween(this).tween(duration, delay);
 };
 
 Cut.Tween = function(cut) {
@@ -465,35 +477,56 @@ Cut.Tween = function(cut) {
   var startTime = 0;
   var tween = {};
   var queue = [];
+  var next = null;
 
-  tween.tween = function(pin, duration, delay) {
-    startTime = Cut._now();
-    queue.push({
-      end : pin,
+  function current() {
+    if (next !== queue[queue.length - 1]) {
+      startTime = Cut._now();
+      cut.touch();
+      queue.push(next);
+    }
+    return next;
+  }
+
+  tween.queue = function(name) {
+    // select queue
+    return this;
+  };
+
+  tween.tween = function(duration, delay) {
+    next = {
+      end : {},
       duration : duration || 400,
       delay : delay || 0
-    });
-    cut.touch();
+    };
+    return this;
+  };
+
+  tween.pin = function(pin) {
+    var end = current().end;
+    if (arguments.length === 1) {
+      Cut._extend(end, arguments[0]);
+    } else if (arguments.length === 2) {
+      end[arguments[0]] = arguments[1];
+    }
     return this;
   };
 
   tween.then = function(then) {
-    queue[queue.length - 1].then = then;
+    current().then = then;
     return this;
   };
 
   tween.easing = function(easing) {
-    queue[queue.length - 1].easing = easing;
+    current().easing = easing;
     return this;
   };
 
   tween.clear = function(forward) {
-    if (forward) {
-      for (var i = 0; i < queue.length; i++) {
-        cut.pin(queue[i].end);
-      }
+    var tween;
+    while (tween = queue.shift()) {
+      forward && cut.pin(tween.end);
     }
-    queue.length = 0;
     return this;
   };
 

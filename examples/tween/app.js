@@ -24,7 +24,7 @@ Cut.Loader.load(function(root, container) {
         .listen(Cut.Mouse.MOVE, function(ev, point) {
           if (this != last) {
             last = this;
-            this.tweenClear().tween({
+            this.tween().clear().pin({
               scaleX : Cut.Math.random(0.9, 1.4),
               scaleY : Cut.Math.random(0.9, 1.4),
               skewX : Cut.Math.random(0, 0.4),
