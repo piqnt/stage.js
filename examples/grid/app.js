@@ -29,7 +29,7 @@ Cut.Loader.load(function(root, container) {
           last = this;
           // random frame = random color
           this.randomFrame();
-          this.tween({
+          this.tween(Cut.Math.random(2000, 5000)).clear().pin({
             scaleX : Cut.Math.random(0.9, 1.4),
             scaleY : Cut.Math.random(0.9, 1.4),
             skewX : Cut.Math.random(0, 0.4),
@@ -37,7 +37,7 @@ Cut.Loader.load(function(root, container) {
             rotation : Cut.Math.random(-Math.PI, Math.PI),
             pivotX : Cut.Math.random(0.3, 0.7),
             pivotY : Cut.Math.random(0.3, 0.7)
-          }, Cut.Math.random(2000, 5000));
+          });
         }
         return true;
       });
