@@ -45,7 +45,7 @@ Cut.Loader = {
   roots : [],
   load : function(app, canvas) {
     function loader() {
-      var context = null, max, full = false;
+      var context = null, full = false;
       var width = 0, height = 0, ratio = 1;
 
       DEBUG && console.log("Creating root...");
@@ -55,7 +55,7 @@ Cut.Loader = {
         root.render(context);
       }, requestAnimationFrame);
 
-      max = document.getElementById("cutjs-maximize");
+
 
       if (!canvas) {
         canvas = document.getElementById("cutjs");
@@ -94,7 +94,7 @@ Cut.Loader = {
         ratio = devicePixelRatio / backingStoreRatio;
 
         canvas.resize = resize;
-        max && (canvas.maximize = maximize);
+
 
         DEBUG && console.log("Loading...");
         app(root, canvas);
@@ -149,34 +149,6 @@ Cut.Loader = {
             return stop;
           }
         });
-      }
-
-      var placeholder = null;
-      function maximize(value) {
-        if (!max || full) {
-          return;
-        }
-        if (!placeholder) {
-          if (arguments.length && !value) {
-            return;
-          }
-          document.body.classList.add("cutjs-maximize");
-          placeholder = document.createElement('div');
-          canvas.parentNode.insertBefore(placeholder, canvas);
-          canvas.parentNode.removeChild(canvas);
-          max.insertBefore(canvas, max.firstChild);
-        } else {
-          if (arguments.length && value) {
-            return;
-          }
-          document.body.classList.remove("cutjs-maximize");
-          canvas.parentNode.removeChild(canvas);
-          placeholder.parentNode.insertBefore(canvas, placeholder);
-          placeholder.parentNode.removeChild(placeholder);
-          placeholder = null;
-        }
-
-        resize();
       }
 
       return root;
