@@ -18,14 +18,20 @@ Cut.Loader.load(function(root, container) {
       .padding(10).appendTo(frame);
 
   Cut.string("base:d_").setValue("0123456789").pin("align", 0.5).id("str")
-      .appendTo(popup);
+      .appendTo(popup).listen(
+          Cut.Mouse.CLICK,
+          function(ev, point) {
+            this.setValue(Cut.Math.random(0, Math.pow(10, Cut.Math
+                .random(0, 10) | 0)) | 0);
+            return true;
+          });
 
   function confirm(string) {
     popup.empty().appendTo(frame);
 
     var column = Cut.column(0).pin("align", 0.5).spacing(20).appendTo(popup);
 
-    for ( var i = 0; i < string.length; i++) {
+    for (var i = 0; i < string.length; i++) {
       var str = string[i];
       Cut.string("base:d_").setValue(str).appendTo(column);
     }
@@ -47,5 +53,5 @@ Cut.Loader.load(function(root, container) {
           return true;
         });
   }
-  
+
 });
