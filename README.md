@@ -8,11 +8,11 @@ Cut.js targets mobile devices and modern browsers and intended to be used for ga
 
 #### How it works
 
-A cut.js app is a tree of cut objects, each pinned (transformed) against its parent and may include any number of image cutouts and/or other cuts as children.
+A cut.js app consists of image textures, cutout (sprite) definitions and a tree structure. Each node in tree includes image cutouts and/or child nodes. Each node is pinned (transformed) against its parent and pastes its cutouts on rendering.
 
-Each rendering cycle consists of ticking and painting the tree. Updates are applied during ticking and on painting each cut transforms according to its pinning and pastes all of its cutouts and then delegates to its children.
+Each rendering cycle consists of ticking and painting the tree. Ticking is used to update the tree nodes and then on painting each node transforms according to its pinning and pastes its cutouts and then delegates to its children.
 
-Cut.js rendering is retained and pauses in each cycle unless/until it is touched directly or indirectly by updating it.
+Rendering is retained and pauses in each cycle unless/until it is touched directly or indirectly by updating it.
 
 #### Example
 
@@ -23,6 +23,7 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
     Cut.Mouse.subscribe(root, container);
 
+    // scale and resize to cover container
     var frame = Cut.create().appendTo(root)
       .listen("resize", function(width, height) {
         this.pin({
@@ -36,7 +37,8 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
     var colors = [ "dark", "light", "red", "purple", "blue", "orange", "yellow", "green" ];
 
-    var row = Cut.row().appendTo(frame).pin("parent", 0.5);
+    // create a row and align it to center
+    var row = Cut.row().appendTo(frame).pin("align", 0.5);
     for ( var i = 0; i < colors.length; i++) {
       Cut.image("colors:dark").appendTo(row)
         .listen(Cut.Mouse.CLICK, function(ev, point) {
