@@ -15,7 +15,7 @@ var examples = [ {
   tags : "row column tween"
 }, {
   name : "Number",
-  url : "box",
+  url : "number",
   source : "https://github.com/piqnt/cut.js/tree/master/examples/box",
   tags : "string image box"
 }, {

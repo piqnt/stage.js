@@ -17,14 +17,14 @@ Cut.Loader.load(function(root, container) {
   var popup = Cut.image("base:box").box().stretch().pin("align", 0.5).id("bg")
       .padding(10).appendTo(frame);
 
-  Cut.string("base:d_").setValue("0123456789").pin("align", 0.5).id("str")
-      .appendTo(popup).listen(
-          Cut.Mouse.CLICK,
-          function(ev, point) {
-            this.setValue(Cut.Math.random(0, Math.pow(10, Cut.Math
-                .random(0, 10) | 0)) | 0);
-            return true;
-          });
+  var number = Cut.string("base:d_").setValue("0123456789").pin("align", 0.5)
+      .id("str").appendTo(popup);
+  
+  root.listen(Cut.Mouse.CLICK, function(ev, point) {
+    number.setValue(Cut.Math
+        .random(0, Math.pow(10, Cut.Math.random(0, 10) | 0)) | 0);
+    return true;
+  });
 
   function confirm(string) {
     popup.empty().appendTo(frame);

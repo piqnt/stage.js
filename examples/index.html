@@ -9,7 +9,9 @@
     table { height: 100%; width: 100%; border-collapse: collapse; }
     td, tr { height:100%; padding: 0; }
     a {text-decoration: none; color: #06b; }
-    .frame { height:100%; width:100%; border: 0 none; }
+    .panel { height:100%; width: 25%; padding: 0px 0px; background: #eee; overflow: auto; }
+    .panel-in { padding: 0 10px; }
+    .frame { height:100%; width: 75%; border: 0 none; position: absolute; top: 0; right: 0; }
     .example { border-bottom: 1px solid #ddd; padding: 5px 0; }
     .source { font-size: small; float: right; }
     .source a { color: #666;  }
@@ -48,10 +50,8 @@
     });
   </script>
 </head><body>
-  <table><tr><td style="width: 20%; padding: 0 15px; background: #eee;">
-  
+  <div class="panel"><div class="panel-in">
     <h4><a href="https://github.com/piqnt/cut.js/">Cut.js</a> Examples</h4>
-    
     Category: 
     <select id="tags">
       <option value="">All</option>
@@ -62,14 +62,10 @@
       <option value="ex-string">String</option>
       <option value="ex-tween">Tween</option>
     </select>
-  
     <br /><br />
-  
     <div id="examples"></div>
+  </div></div>
   
-  </td><td>
-  
-    <iframe class="frame" name="frame"></iframe>
+  <iframe class="frame" name="frame"></iframe>
     
-  </td></tr></table>
 </body></html>
