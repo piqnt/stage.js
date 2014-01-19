@@ -4,19 +4,23 @@
   <title>Examples - Cut.js</title>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <style>
-    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; color: #333; }
     td { vertical-align: top; }
     table { height: 100%; width: 100%; border-collapse: collapse; }
     td, tr { height:100%; padding: 0; }
+    a {text-decoration: none; color: #06b; }
     .frame { height:100%; width:100%; border: 0 none; }
-    a {text-decoration: none; color: #03f; }
+    .example { border-bottom: 1px solid #ddd; padding: 5px 0; }
+    .source { font-size: small; float: right; }
+    .source a { color: #666;  }
   </style>
-  <script type="text/javascript">
-    $(function name() {
+  <script src="data.js"></script>
+  <script>
+    $(function() {
       $("#tags").on("change", function(ev) {
         var tag = (this.options[this.selectedIndex]).value;
-        $("#examples div").each(function() {
-          if (!tag || $(this).hasClass("tag-" + tag)) {
+        $("#examples .example").each(function() {
+          if (!tag || $(this).hasClass(tag)) {
             $(this).slideDown();
           } else {
             $(this).slideUp();
@@ -24,37 +28,48 @@
         });
         return false;
       });
+      for (var i = 0; i < examples.length; i++) {
+        var data = examples[i];
+        var div = $("<div>");
+        var tags = data.tags.split(" ");
+          div.addClass("example");
+        for (var j = 0; j < tags.length; j++) {
+          div.addClass("ex-" + tags[j]);
+        }
+        if (data.source) {
+          div.append($("<div>").addClass("source")
+             .append("")
+             .append($("<a>").text("Source").attr("href", data.source).attr("target", "_blank"))
+             .append(""));
+        }
+        div.append($("<a>").text(data.name).attr("href", data.url).attr("target", "frame"));
+        $("#examples").append(div);
+      }
     });
   </script>
 </head><body>
-<table><tr><td style="width: 20%; padding-left: 15px; background: #eee;">
-
-  <h4><a href="https://github.com/piqnt/cut.js/">Cut.js</a> <a href="https://github.com/piqnt/cut.js/tree/master/examples">Examples</a></h4>
+  <table><tr><td style="width: 20%; padding: 0 15px; background: #eee;">
   
-  Category: 
-  <select id="tags">
-    <option value="">All</option>
-    <option value="row">Row</option>
-    <option value="column">Column</option>
-    <option value="image">Image</option>
-    <option value="image">Anim</option>
-    <option value="string">String</option>
-    <option value="tween">Tween</option>
-  </select>
-
-  <br /><br />
-
-  <div id="examples">
-    <div class="tag-row tag-tween"><a href="row" target="frame">Row 1</a></div>
-    <div class="tag-row tag-tween"><a href="tween" target="frame">Row 2</a></div>
-    <div class="tag-row tag-column tag-tween"><a href="grid" target="frame">Column x Row</a></div>
-    <div class="tag-string"><a href="box" target="frame">Wrap</a></div>
-    <div class="tag-image tag-tween"><a href="tile" target="frame">Tile</a></div>
-    <div class="tag-image tag-tween"><a href="stretch" target="frame">Stretch</a></div>
-    <div class="tag-image tag-tween"><a href="bars" target="frame">Bars</a></div>
-  </div>
-
-</td><td>
-  <iframe class="frame" name="frame"></iframe>
-</td></tr></table>
+    <h4><a href="https://github.com/piqnt/cut.js/">Cut.js</a> Examples</h4>
+    
+    Category: 
+    <select id="tags">
+      <option value="">All</option>
+      <option value="ex-row">Row</option>
+      <option value="ex-column">Column</option>
+      <option value="ex-image">Image</option>
+      <option value="ex-image">Anim</option>
+      <option value="ex-string">String</option>
+      <option value="ex-tween">Tween</option>
+    </select>
+  
+    <br /><br />
+  
+    <div id="examples"></div>
+  
+  </td><td>
+  
+    <iframe class="frame" name="frame"></iframe>
+    
+  </td></tr></table>
 </body></html>
