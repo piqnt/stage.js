@@ -40,9 +40,7 @@
         }
         if (data.source) {
           div.append($("<div>").addClass("source")
-             .append("")
-             .append($("<a>").text("Source").attr("href", data.source).attr("target", "_blank"))
-             .append(""));
+             .append($("<a>").text("{ }").attr("href", data.source).attr("target", "_blank")));
         }
         div.append($("<a>").text(data.name).attr("href", data.url).attr("target", "frame"));
         $("#examples").append(div);

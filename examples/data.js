@@ -1,11 +1,11 @@
 var examples = [ {
-  name : "Row Dynamic",
-  url : "row",
+  name : "Row, Dynamic",
+  url : "row-dynamic",
   source : "https://github.com/piqnt/cut.js/tree/master/examples/row",
   tags : "row tween"
 }, {
-  name : "Row Static",
-  url : "tween",
+  name : "Row, Static",
+  url : "row-static",
   source : "https://github.com/piqnt/cut.js/tree/master/examples/tween",
   tags : "row tween"
 }, {
