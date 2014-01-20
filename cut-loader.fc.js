@@ -170,4 +170,12 @@ Cut.Loader = {
       clearTimeout(id);
     };
   }
+
+  var nop = function() {
+  };
+  document.addEventListener("touchstart", nop);
+  document.addEventListener("mousedown", nop);
+  document.addEventListener("touchend", nop);
+  document.addEventListener("mouseup", nop);
+  document.addEventListener("click", nop);
 }();
