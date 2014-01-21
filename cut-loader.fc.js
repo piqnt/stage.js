@@ -63,7 +63,8 @@ Cut.Loader = {
   roots : [],
   load : function(app, canvas) {
     function loader() {
-      var context = null, width = 0, height = 0;
+      var context = null;
+      var width = 0, height = 0, ratio = 1;
 
       DEBUG && console.log("Creating root...");
       var root = Cut.root(function(root) {
@@ -94,6 +95,14 @@ Cut.Loader = {
 
         context = canvas.getContext("2d");
 
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio = context.webkitBackingStorePixelRatio
+            || context.mozBackingStorePixelRatio
+            || context.msBackingStorePixelRatio
+            || context.oBackingStorePixelRatio
+            || context.backingStorePixelRatio || 1;
+        ratio = devicePixelRatio / backingStoreRatio;
+
         DEBUG && console.log("Loading...");
         app(root, document);
 
@@ -114,13 +123,18 @@ Cut.Loader = {
 
       function resize() {
 
-        width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
-        height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
+        width = window.innerWidth;
+        height = window.innerHeight;
 
-        canvas.width = width;
-        canvas.height = height;
+        DEBUG && console.log("Size: " + width + " x " + height + " / " + ratio);
 
-        DEBUG && console.log("Resize: " + width + " x " + height);
+        width *= ratio;
+        height *= ratio;
+
+        root.ratio = ratio;
+
+        DEBUG
+            && console.log("Resize: " + width + " x " + height + " / " + ratio);
 
         root.visit({
           start : function(cut) {

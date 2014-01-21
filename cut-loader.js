@@ -55,8 +55,6 @@ Cut.Loader = {
         root.render(context);
       }, requestAnimationFrame);
 
-
-
       if (!canvas) {
         canvas = document.getElementById("cutjs");
       }
@@ -95,7 +93,6 @@ Cut.Loader = {
 
         canvas.resize = resize;
 
-
         DEBUG && console.log("Loading...");
         app(root, canvas);
 
@@ -133,7 +130,8 @@ Cut.Loader = {
 
         canvas.width = width;
         canvas.height = height;
-        canvas.ratio = ratio;
+
+        root.ratio = ratio;
 
         DEBUG
             && console.log("Resize: " + width + " x " + height + " / " + ratio);
