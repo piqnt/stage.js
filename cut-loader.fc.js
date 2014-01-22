@@ -126,11 +126,21 @@ Cut.Loader = {
         width = window.innerWidth;
         height = window.innerHeight;
 
+        if (!FastCanvas.isFast) {
+          canvas.style.width = width + "px";
+          canvas.style.height = height + "px";
+        }
+
         DEBUG && console.log("Size: " + width + " x " + height + " / " + ratio);
 
         width *= ratio;
         height *= ratio;
 
+        if (!FastCanvas.isFast) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        
         root.ratio = ratio;
 
         DEBUG
