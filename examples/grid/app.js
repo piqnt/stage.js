@@ -2,13 +2,12 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var frame = Cut.create().appendTo(root);
-
-  frame.listen("resize", function(width, height) {
+  var viewport = Cut.create().appendTo(root).pin({
+    width : 300,
+    height : 300
+  }).listen("resize", function(width, height) {
     // resize to fit in screen
     this.pin({
-      width : 300,
-      height : 300,
       resizeMode : "in",
       resizeWidth : width,
       resizeHeight : height,
@@ -18,7 +17,7 @@ Cut.Loader.load(function(root, container) {
   var last = null;
 
   var j = 0, i = 0;
-  var column = Cut.column().appendTo(frame).pin("align", 0.5);
+  var column = Cut.column().appendTo(viewport).pin("align", 0.5);
   for (j = 0; j < 9; j++) {
     var row = Cut.row().appendTo(column);
     for (i = 0; i < 9; i++) {

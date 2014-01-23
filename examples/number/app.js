@@ -2,12 +2,11 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var frame = Cut.create().id("frame").appendTo(root);
-
-  frame.listen("resize", function(width, height) {
+  var viewport = Cut.create().id("frame").appendTo(root).pin({
+    width : 300,
+    height : 200
+  }).listen("resize", function(width, height) {
     this.pin({
-      width : 300,
-      height : 200,
       resizeMode : "in",
       resizeWidth : width,
       resizeHeight : height,
@@ -15,11 +14,11 @@ Cut.Loader.load(function(root, container) {
   });
 
   var popup = Cut.image("base:box").box().stretch().pin("align", 0.5).id("bg")
-      .padding(10).appendTo(frame);
+      .padding(10).appendTo(viewport);
 
   var number = Cut.string("base:d_").setValue("0123456789").pin("align", 0.5)
       .id("str").appendTo(popup);
-  
+
   root.listen(Cut.Mouse.CLICK, function(ev, point) {
     number.setValue(Cut.Math
         .random(0, Math.pow(10, Cut.Math.random(0, 10) | 0)) | 0);
@@ -27,7 +26,7 @@ Cut.Loader.load(function(root, container) {
   });
 
   function confirm(string) {
-    popup.empty().appendTo(frame);
+    popup.empty().appendTo(viewport);
 
     var column = Cut.column(0).pin("align", 0.5).spacing(20).appendTo(popup);
 

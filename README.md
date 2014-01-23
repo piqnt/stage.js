@@ -24,21 +24,21 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
     Cut.Mouse.subscribe(root, container);
 
     // scale and resize to cover container
-    var frame = Cut.create().appendTo(root)
-      .listen("resize", function(width, height) {
-        this.pin({
+    var viewport = Cut.create().appendTo(root).pin({
           width : 500,
-          height : 300,
+          height : 300
+      }).listen("resize", function(width, height) {
+        this.pin({
           resizeMode : "in",
           resizeWidth : width,
-          resizeHeight : height,
+          resizeHeight : height
         });
       };
 
     var colors = [ "dark", "light", "red", "purple", "blue", "orange", "yellow", "green" ];
 
     // create a row and align it to center
-    var row = Cut.row().appendTo(frame).pin("align", 0.5);
+    var row = Cut.row().appendTo(viewport).pin("align", 0.5);
     for ( var i = 0; i < colors.length; i++) {
       Cut.image("colors:dark").appendTo(row)
         .listen(Cut.Mouse.CLICK, function(ev, point) {

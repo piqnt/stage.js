@@ -2,17 +2,18 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var frame = Cut.create().id("frame").appendTo(root);
-
-  frame.listen("resize", function(width, height) {
+  var viewport = Cut.create().appendTo(root).pin({
+    width : 500,
+    height : 300
+  }).listen("resize", function(width, height) {
     this.pin({
-      width : 500,
-      height : 300,
       resizeMode : "in",
       resizeWidth : width,
       resizeHeight : height,
     });
-  }).listen(Cut.Mouse.CLICK, function(ev, point) {
+  });
+
+  root.listen(Cut.Mouse.CLICK, function(ev, point) {
     bar1.tween().clear().pin("width", Cut.Math.random(20, 100) | 0);
     bar2.tween().clear().pin("width", Cut.Math.random(20, 100) | 0);
     bar3.tween().clear().pin("width", Cut.Math.random(20, 100) | 0);
@@ -32,28 +33,28 @@ Cut.Loader.load(function(root, container) {
   var bar7 = Cut.image("base:box").stretch().id("bar3");
   var bar8 = Cut.image("base:box").stretch().id("bar4");
 
-  Cut.column(1).append(bar1, bar2).appendTo(frame).pin({
+  Cut.column(1).append(bar1, bar2).appendTo(viewport).pin({
     alignX : 1,
     alignY : 0,
     offsetX : -10,
     offsetY : 10
   }).id("topleft");
 
-  Cut.column(0).append(bar3, bar4).appendTo(frame).pin({
+  Cut.column(0).append(bar3, bar4).appendTo(viewport).pin({
     alignX : 0,
     alignY : 1,
     offsetX : 10,
     offsetY : -10
   }).id("bottomright");
 
-  Cut.row(0).append(bar5, bar6).appendTo(frame).pin({
+  Cut.row(0).append(bar5, bar6).appendTo(viewport).pin({
     alignX : 0,
     alignY : 0,
     offsetX : 10,
     offsetY : 10
   }).id("topleft");
 
-  Cut.row(1).append(bar7, bar8).appendTo(frame).pin({
+  Cut.row(1).append(bar7, bar8).appendTo(viewport).pin({
     alignX : 1,
     alignY : 1,
     offsetX : -10,
