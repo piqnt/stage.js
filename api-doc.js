@@ -37,25 +37,27 @@ foo.remove(bar, baz, etc);
 // Remove all foo's children.
 foo.empty();
 
-// Get foo first/last (visible) child.
+// Get foo's first/last (visible) child.
 foo.first(visible = false);
 foo.last(visible = false);
 
 // Get immediate parent.
 bar.parent();
 
-// Get bar next/prev (visible) sibling.
+// Get bar's next/prev (visible) sibling.
 bar.next(visible = false);
 bar.prev(visible = false);
 
-// Get or set bar visiblity.
+// Get bar's visiblity.
 bar.visible();
+// Set bar's visiblity.
 bar.visible(visible);
 bar.hide();
 bar.show();
 
-// Get or set single pinning value.
+// Get a pinning value.
 bar.pin(name);
+// Set a pinning value.
 bar.pin(name, value);
 
 // Set one or more pinning values.
@@ -91,16 +93,18 @@ bar.pin({
   scaleWidth : "",
   scaleHeight : "",
   // Scale to width/height and then resize to fill width/height.
-  resizeMode : "", // "in" or "out", optional, if specified scale proportionally.
+  resizeMode : "", // "in" or "out", optional, if specified scale
+  // proportionally.
   resizeWidth : "",
   resizeHeight : "",
 });
 
-// Ticker is called on ticking before every paint, it can be used to modify the
-// cut.
+// Register a ticker to be called on ticking (before painting).
+// It can be used to modify the cut.
 foo.tick(ticker, beforeChildren = false);
 
 // Register a type-listener to bar.
+// `type` can be array or spaced string of multiple values.
 foo.listen(type, listener);
 
 // Get type-listeners registered to bar.
