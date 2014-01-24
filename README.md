@@ -1,8 +1,6 @@
 # Cut.js
 
-Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for composing high-performance, dynamic and intractable HTML5 visual interfaces from images textures.
-
-Cut.js targets mobile devices and modern browsers and intended to be used for game and visual app development but it is not a physics or all-in-one game engine.
+Cut.js (name inspired from "cutout animation") is a minimal JavaScript library for composing high-performance, dynamic and interactable HTML5 visual interfaces from images textures. It works with modern browsers and mobile devices and intended to be used for game and visual app development.
 
 [API Doc](api-doc.js) - [Examples](http://piqnt.github.io/cut.js/examples/) - [Live!](http://piqnt.com/cutjs/) 
 
