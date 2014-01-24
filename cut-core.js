@@ -138,11 +138,14 @@ Cut.prototype.attr = function(name, value) {
   return this;
 };
 
-Cut.prototype.listen = function(type, listener) {
-  var names = type.split(/\s+/);
-  for (var i = 0; i < names.length; i++) {
-    type = names[i];
-    if (type && typeof listener === "function") {
+Cut.prototype.listen = function(types, listener) {
+  if (typeof listener !== "function") {
+    return this;
+  }
+  types = (Cut._isArray(types) ? types.join(" ") : types).split(/\s+/);
+  for (var i = 0; i < types.length; i++) {
+    var type = types[i];
+    if (type) {
       this._listeners = this._listeners || {};
       this._listeners[type] = this._listeners[type] || [];
       this._listeners[type].push(listener);
@@ -1991,6 +1994,10 @@ Cut._isNum = function(x) {
 
 Cut._isFunc = function(x) {
   return typeof x === "function";
+};
+
+Cut._isArray = ('isArray' in Array) ? Array.isArray : function(value) {
+  return Object.prototype.toString.call(value) === '[object Array]';
 };
 
 Cut._extend = function(base, extension, attribs) {
