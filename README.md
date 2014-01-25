@@ -43,12 +43,12 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
     name : "color",
     imagePath : "colors.png",
     cutouts : [
-      { name : "red",    x : 30, y : 0,  width : 30, height : 30 },
-      { name : "purple", x : 30, y : 30, width : 30, height : 30 },
-      { name : "blue",   x : 60, y : 0,  width : 30, height : 30 },
-      { name : "orange", x : 60, y : 30, width : 30, height : 30 },
-      { name : "yellow", x : 90, y : 0,  width : 30, height : 30 },
-      { name : "green",  x : 90, y : 30, width : 30, height : 30 }
+      { name : "red",    x : 0,   y : 0, width : 30, height : 30 },
+      { name : "purple", x : 30,  y : 0, width : 30, height : 30 },
+      { name : "blue",   x : 60,  y : 0, width : 30, height : 30 },
+      { name : "orange", x : 90,  y : 0, width : 30, height : 30 },
+      { name : "yellow", x : 120, y : 0, width : 30, height : 30 },
+      { name : "green",  x : 150, y : 0, width : 30, height : 30 }
     ]
   });
 ```
