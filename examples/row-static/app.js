@@ -2,16 +2,7 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var viewport = Cut.create().id("frame").appendTo(root).pin({
-    width : 400,
-    height : 100
-  }).listen("resize", function(width, height) {
-    this.pin({
-      resizeMode : "in",
-      resizeWidth : width,
-      resizeHeight : height,
-    });
-  });
+  var viewport = Cut.viewport(400, 100).appendTo(root);
 
   var last = null;
   var colors = [ "green", "blue", "purple", "red", "orange", "yellow" ];

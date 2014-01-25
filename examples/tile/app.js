@@ -2,16 +2,7 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var viewport = Cut.create().appendTo(root).pin({
-    width : 200,
-    height : 200
-  }).listen("resize", function(width, height) {
-    this.pin({
-      resizeMode : "in",
-      resizeWidth : width,
-      resizeHeight : height,
-    });
-  });
+  var viewport = Cut.viewport(200, 200).appendTo(root);
 
   Cut.image("base:box").tile().appendTo(viewport).pin({
     width : 64,

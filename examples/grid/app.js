@@ -2,17 +2,7 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var viewport = Cut.create().appendTo(root).pin({
-    width : 300,
-    height : 300
-  }).listen("resize", function(width, height) {
-    // resize to fit in screen
-    this.pin({
-      resizeMode : "in",
-      resizeWidth : width,
-      resizeHeight : height,
-    });
-  });
+  var viewport = Cut.viewport(300, 300).appendTo(root);
 
   var last = null;
 

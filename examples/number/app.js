@@ -2,16 +2,7 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var viewport = Cut.create().id("frame").appendTo(root).pin({
-    width : 300,
-    height : 200
-  }).listen("resize", function(width, height) {
-    this.pin({
-      resizeMode : "in",
-      resizeWidth : width,
-      resizeHeight : height,
-    });
-  });
+  var viewport = Cut.viewport(300, 200).appendTo(root);
 
   var popup = Cut.image("base:box").box().stretch().pin("align", 0.5).id("bg")
       .padding(10).appendTo(viewport);

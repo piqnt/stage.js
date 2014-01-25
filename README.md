@@ -21,17 +21,7 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
     Cut.Mouse.subscribe(root, container);
 
-    // scale and resize to cover container
-    var viewport = Cut.create().appendTo(root).pin({
-          width : 500,
-          height : 300
-      }).listen("resize", function(width, height) {
-        this.pin({
-          resizeMode : "in",
-          resizeWidth : width,
-          resizeHeight : height
-        });
-      };
+    var viewport = Cut.viewport(500, 300).appendTo(root);
 
     var colors = [ "green", "blue", "purple", "red", "orange", "yellow" ];
   

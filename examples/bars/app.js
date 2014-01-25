@@ -2,16 +2,7 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var viewport = Cut.create().appendTo(root).pin({
-    width : 500,
-    height : 300
-  }).listen("resize", function(width, height) {
-    this.pin({
-      resizeMode : "in",
-      resizeWidth : width,
-      resizeHeight : height,
-    });
-  });
+  var viewport = Cut.viewport(500, 300).appendTo(root);
 
   root.listen(Cut.Mouse.CLICK, function(ev, point) {
     bar1.tween().clear().pin("width", Cut.Math.random(20, 100) | 0);

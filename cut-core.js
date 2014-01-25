@@ -833,6 +833,20 @@ Cut.String.prototype.setValue = function(value) {
   return this;
 };
 
+Cut.viewport = function(width, height, mode) {
+  mode = mode || "in";
+  return Cut.create().pin({
+    width : width,
+    height : height
+  }).listen("resize", function() {
+    this.pin({
+      resizeMode : mode,
+      resizeWidth : this.parent().pin("width"),
+      resizeHeight : this.parent().pin("height")
+    });
+  });
+};
+
 Cut.row = function(align) {
   return Cut.create().row(align);
 };
@@ -1179,11 +1193,10 @@ Cut.addTexture = function() {
       return this._image;
     };
 
-    var ratio = texture.ratio || 1;
-    var trim = texture.trim;
     var cutout;
     var cutouts = texture.cutouts || texture.sprites;
-    if (texture.filter) {
+
+    if (typeof texture.filter === "function") {
       for (var c = cutouts.length - 1; c >= 0; c--) {
         if (cutout = texture.filter(cutouts[c])) {
           cutouts[c] = cutout;
@@ -1193,8 +1206,11 @@ Cut.addTexture = function() {
       }
     }
 
+    var ratio = texture.ratio || 1;
+    var trim = texture.trim || 0;
     for (var c = cutouts.length - 1; c >= 0; c--) {
       cutout = cutouts[c];
+
       cutout.x *= ratio, cutout.y *= ratio;
       cutout.w *= ratio, cutout.h *= ratio;
       cutout.width *= ratio, cutout.height *= ratio;
