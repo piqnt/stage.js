@@ -636,6 +636,7 @@ Cut.Root = function(render, request) {
       height : height,
       mode : typeof mode === "undefined" ? "in" : mode
     };
+    return this;
   };
 
   this.listen("resize", function(width, height) {
