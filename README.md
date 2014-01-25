@@ -76,8 +76,11 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
 ### Projects
 
-[O!](http://piqnt.com/o/) (Open-source), [006](http://piqnt.com/006/), [Four](http://piqnt.com/4/four/)
+[O!](http://piqnt.com/o/) ([+source](https://github.com/piqnt/game-o))  
+[006](http://piqnt.com/006/)  
+[Four](http://piqnt.com/4/four/)
 
+Feel free to add your projects here!
 
 ### License
 
