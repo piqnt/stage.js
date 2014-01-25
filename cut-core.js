@@ -1180,20 +1180,33 @@ Cut.addTexture = function() {
     };
 
     var ratio = texture.ratio || 1;
+    var trim = texture.trim;
+    var cutout;
+    var cutouts = texture.cutouts || texture.sprites;
     if (texture.filter) {
-      var cutout;
-      var cutouts = texture.cutouts || texture.sprites;
       for (var c = cutouts.length - 1; c >= 0; c--) {
         if (cutout = texture.filter(cutouts[c])) {
           cutouts[c] = cutout;
-          cutout.x *= ratio, cutout.y *= ratio;
-          cutout.w *= ratio, cutout.h *= ratio;
-          cutout.width *= ratio, cutout.height *= ratio;
-          cutout.top *= ratio, cutout.bottom *= ratio;
-          cutout.left *= ratio, cutout.right *= ratio;
         } else {
           cutouts.splice(c, 1);
         }
+      }
+    }
+
+    for (var c = cutouts.length - 1; c >= 0; c--) {
+      cutout = cutouts[c];
+      cutout.x *= ratio, cutout.y *= ratio;
+      cutout.w *= ratio, cutout.h *= ratio;
+      cutout.width *= ratio, cutout.height *= ratio;
+      cutout.top *= ratio, cutout.bottom *= ratio;
+      cutout.left *= ratio, cutout.right *= ratio;
+
+      if (trim) {
+        cutout.x += trim, cutout.y += trim;
+        cutout.w -= 2 * trim, cutout.h -= 2 * trim;
+        cutout.width -= 2 * trim, cutout.height -= 2 * trim;
+        cutout.top -= trim, cutout.bottom -= trim;
+        cutout.left -= trim, cutout.right -= trim;
       }
     }
   }
@@ -1273,7 +1286,8 @@ Cut.Out.prototype.offset = function(x, y) {
 
 Cut.Out.prototype.paste = function(context) {
   Cut._stats.paste++;
-  context.drawImage(this.texture.getImage(), // source
+  var img = this.texture.getImage();
+  img && context.drawImage(img, // source
   this.sx, this.sy, this.sw, this.sh, // cut
   this.dx, this.dy, this.dw, this.dh // position
   );
