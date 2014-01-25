@@ -21,11 +21,11 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
     Cut.Mouse.subscribe(root, container);
 
-    var viewport = Cut.viewport(500, 300).appendTo(root);
+    root.viewbox(500, 300);
 
     var colors = [ "green", "blue", "purple", "red", "orange", "yellow" ];
   
-    var row = Cut.row(0.5).appendTo(viewport).pin("align", 0.5).spacing(1);
+    var row = Cut.row(0.5).appendTo(root).pin("align", 0.5).spacing(1);
     for (var i = 0; i < colors.length; i++) {
       Cut.image("color:" + colors[i]).appendTo(row)
         .listen(Cut.Mouse.MOVE, function(ev, point) {

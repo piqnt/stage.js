@@ -2,10 +2,10 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var viewport = Cut.viewport(300, 200).appendTo(root);
+  root.viewbox(300, 200);
 
   var popup = Cut.image("base:box").box().stretch().pin("align", 0.5).id("bg")
-      .padding(10).appendTo(viewport);
+      .padding(10).appendTo(root);
 
   var number = Cut.string("base:d_").setValue("0123456789").pin("align", 0.5)
       .id("str").appendTo(popup);
@@ -17,7 +17,7 @@ Cut.Loader.load(function(root, container) {
   });
 
   function confirm(string) {
-    popup.empty().appendTo(viewport);
+    popup.empty().appendTo(root);
 
     var column = Cut.column(0).pin("align", 0.5).spacing(20).appendTo(popup);
 

@@ -2,12 +2,12 @@ Cut.Loader.load(function(root, container) {
 
   Cut.Mouse.subscribe(root, container, true);
 
-  var viewport = Cut.viewport(300, 300).appendTo(root);
+  root.viewbox(300, 300);
 
   var last = null;
 
   var j = 0, i = 0;
-  var column = Cut.column().appendTo(viewport).pin("align", 0.5).spacing(1);
+  var column = Cut.column().appendTo(root).pin("align", 0.5).spacing(1);
   for (j = 0; j < 9; j++) {
     var row = Cut.row().appendTo(column).spacing(1);
     for (i = 0; i < 9; i++) {

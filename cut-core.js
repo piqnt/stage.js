@@ -628,6 +628,33 @@ Cut.Root = function(render, request) {
     this.resume();
     return Cut.prototype.touch.apply(this, arguments);
   };
+
+  var viewbox = null;
+  this.viewbox = function(width, height, mode) {
+    viewbox = {
+      width : width,
+      height : height,
+      mode : typeof mode === "undefined" ? "in" : mode
+    };
+  };
+
+  this.listen("resize", function(width, height) {
+    if (viewbox) {
+      this.pin({
+        width : viewbox.width,
+        height : viewbox.height,
+        resizeMode : viewbox.mode,
+        resizeWidth : width,
+        resizeHeight : height
+      });
+    } else {
+      this.pin({
+        width : width,
+        height : height
+      });
+    }
+    return true;
+  });
 };
 
 Cut.Root.prototype = new Cut(Cut.Proto);
@@ -831,20 +858,6 @@ Cut.String.prototype.setValue = function(value) {
     child = child._next;
   }
   return this;
-};
-
-Cut.viewport = function(width, height, mode) {
-  mode = mode || "in";
-  return Cut.create().pin({
-    width : width,
-    height : height
-  }).listen("resize", function() {
-    this.pin({
-      resizeMode : mode,
-      resizeWidth : this.parent().pin("width"),
-      resizeHeight : this.parent().pin("height")
-    });
-  });
 };
 
 Cut.row = function(align) {

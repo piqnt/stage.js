@@ -106,14 +106,6 @@ Cut.Loader = {
         DEBUG && console.log("Loading...");
         app(root, document);
 
-        root.listen("resize", function(width, height) {
-          this.pin({
-            width : width,
-            height : height
-          });
-          return true;
-        });
-
         resize();
         window.addEventListener("resize", resize, false);
 
