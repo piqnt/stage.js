@@ -16,7 +16,7 @@ Cut.Loader.load(function(root, container) {
   var last = null;
   var colors = [ "green", "blue", "purple", "red", "orange", "yellow" ];
 
-  var row = Cut.row().appendTo(viewport).pin("align", 0.5);
+  var row = Cut.row().appendTo(viewport).pin("align", 0.5).spacing(1);
   for (var i = 0; i < colors.length; i++) {
 
     Cut.image("base:color_" + colors[i]).appendTo(row).pin("pivot", 0.5)

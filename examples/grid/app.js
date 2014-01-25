@@ -17,9 +17,9 @@ Cut.Loader.load(function(root, container) {
   var last = null;
 
   var j = 0, i = 0;
-  var column = Cut.column().appendTo(viewport).pin("align", 0.5);
+  var column = Cut.column().appendTo(viewport).pin("align", 0.5).spacing(1);
   for (j = 0; j < 9; j++) {
-    var row = Cut.row().appendTo(column);
+    var row = Cut.row().appendTo(column).spacing(1);
     for (i = 0; i < 9; i++) {
       // colors as frames
       var cell = Cut.anim("base:color_").appendTo(row).pin("pivot", 0.5);
