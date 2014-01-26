@@ -13,7 +13,7 @@ Each rendering cycle consists of ticking and painting the tree. Ticking is used 
 
 Rendering is retained and pauses in each cycle unless/until it is touched directly or indirectly by updating it.
 
-### Example
+### Sample Code
 
 Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are pluggable components.
 
