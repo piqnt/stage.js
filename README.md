@@ -6,7 +6,7 @@ Cut.js (name inspired from "cutout animation") is a minimal JavaScript library f
 
 ### How it works
 
-A cut.js app consists of image textures, cutout (sprite) definitions and a tree structure. Each node in tree includes image cutouts and/or child nodes. Each node is pinned (transformed) against its parent and pastes its cutouts on rendering.
+A Cut.js app consists of image textures, cutout (sprite) definitions and a tree structure. Each node in tree includes image cutouts and/or child nodes. Each node is pinned (transformed) against its parent and pastes its cutouts on rendering.
 
 Each rendering cycle consists of ticking and painting the tree. Ticking is used to update the tree nodes and then on painting each node transforms according to its pinning and pastes its cutouts and then delegates to its children.
 
@@ -53,7 +53,7 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
   });
 ```
 
-### Examples
+### More Examples
 
 [![Row, Dynamic](https://raw.github.com/piqnt/cut.js/master/examples/row-dynamic/thumbnail.png)](https://rawgithub.com/piqnt/cut.js/master/examples/row-dynamic/index.html)
 [![Row, Static](https://raw.github.com/piqnt/cut.js/master/examples/row-static/thumbnail.png)](https://rawgithub.com/piqnt/cut.js/master/examples/row-static/index.html)
@@ -64,9 +64,9 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 [![Bars](https://raw.github.com/piqnt/cut.js/master/examples/bars/thumbnail.png)](https://rawgithub.com/piqnt/cut.js/master/examples/bars/index.html)
 
 
-### Projects
+### Projects Using Cut.js
 
-[O!](http://piqnt.com/o/) ([+source](https://github.com/piqnt/game-o))  
+[O!](http://piqnt.com/o/)  
 [006](http://piqnt.com/006/)  
 [Four](http://piqnt.com/4/four/)
 
