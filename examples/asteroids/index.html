@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Asteroids</title>
+    <meta charset="utf-8">
+    <style>
+      body {
+        margin:0;
+        padding:0;
+        overflow: hidden;
+        font-family:"Courier New", Courier, monospace;
+        font-size: 18px;
+        background: #000;
+        color: #ddd;
+      }
+      a {
+        text-decoration: none;
+        font-weight: bold;
+        color: #ddd;
+      }
+      .textBox {
+        margin:10px;
+        display: inline-block;
+      }
+      .textBox.centered {
+        width:500px;
+        height:100px;
+        margin-left: -250px;
+        margin-top: -50px;
+        position: absolute;
+        top:50%;
+        left:50%;
+        vertical-align: middle;
+        text-align: center;
+        font-size: 36px;
+      }
+      .textBox.bottomCenter {
+        width:500px;
+        margin-left: -250px;
+        position: absolute;
+        left:50%;
+        bottom:0;
+        vertical-align: middle;
+        text-align: center;
+      }
+      .textBox.bottomRight {
+        position:absolute;
+        right:0;
+        bottom:0;
+      }
+      .textBox.bottomLeft {
+        position:absolute;
+        left:0;
+        bottom:0;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="logo" class="textBox bottomRight">POWERED BY <a href="https://github.com/schteppe/p2.js">P2.JS</a> &amp; <a href="https://github.com/piqnt/cut.js">CUT.JS</a></div>
+    <div id="logo" class="textBox bottomLeft">GAME BY <a href="https://twitter.com/schteppe">@SCHTEPPE</a></div>
+    <div id="level" class="textBox"></div>
+    <div id="lives" class="textBox"></div>
+    <div id="gameover" class="textBox centered hidden">GAME OVER</div>
+    <div id="instructions" class="textBox bottomCenter">USE ARROW KEYS &amp; SPACE</div>
+
+    <script src="p2.js"></script>    
+    <script src="../../cut-core.js"></script>
+    <script src="../../cut-mouse.js"></script>
+    <script src="../../cut-loader.js"></script>
+    <script src="app.js"></script>
+    <script src="textures.js"></script>
+    
+  </body>
+</html>
