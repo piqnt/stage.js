@@ -23,11 +23,13 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 
     root.viewbox(500, 300);
 
-    var colors = [ "green", "blue", "purple", "red", "orange", "yellow" ];
-  
     var row = Cut.row(0.5).appendTo(root).pin("align", 0.5).spacing(1);
+    
+    var colors = [ "green", "blue", "purple", "red", "orange", "yellow" ];
     for (var i = 0; i < colors.length; i++) {
-      Cut.image("color:" + colors[i]).appendTo(row)
+      var color = colors[i];
+      
+      Cut.image("color:" + color).appendTo(row)
         .listen(Cut.Mouse.MOVE, function(ev, point) {
           this.tween().clear().pin({
             scaleX : Cut.Math.random(0.8, 1.6),
