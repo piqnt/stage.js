@@ -16,8 +16,6 @@ var asteroidRadius = 0.9;
 var asteroidSpeed = 2;
 var asteroidLevels = 4;
 
-var initSpace = asteroidRadius * 2;
-
 var allowShipCollision = true;
 var hideShip = false;
 
@@ -280,11 +278,11 @@ Cut.Loader
           var va = rand(asteroidSpeed);
 
           // Aviod the ship!
-          if (Math.abs(x - shipBody.position[0]) < initSpace) {
+          if (Math.abs(x - shipBody.position[0]) < asteroidRadius * 2) {
             if (y - shipBody.position[1] > 0) {
-              y += initSpace;
+              y += asteroidRadius * 2;
             } else {
-              y -= initSpace;
+              y -= asteroidRadius * 2;
             }
           }
 
