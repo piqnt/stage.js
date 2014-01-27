@@ -21,9 +21,6 @@ var initSpace = asteroidRadius * 2;
 var allowShipCollision = true;
 var hideShip = false;
 
-var level = 1;
-var lives = 3;
-
 var world;
 
 var asteroidShapes = [];
@@ -35,7 +32,7 @@ var bulletBodies = [];
 var shipShape;
 var shipBody;
 
-var lastShootTime = 0;
+var level, lives, lastShootTime = 0, gameover;
 
 Cut.Loader
     .load(function(root, container) {
@@ -121,13 +118,18 @@ Cut.Loader
       shipBody.addShape(shipShape);
       shipBody.ui = Cut.image("base:ship").appendTo(space).pin("handle", 0.5);
 
-      start();
+      newGame();
 
-      addAsteroids();
-
-      // Update the text boxes
-      uiLevel();
-      uiLives();
+      function newGame() {
+        level = 1;
+        lives = 3;
+        // Update the text boxes
+        uiLevel();
+        uiLives();
+        start(true);
+        addAsteroids();
+        uiStart();
+      }
 
       root.tick(function() {
 
@@ -209,6 +211,12 @@ Cut.Loader
 
       // Adds some asteroids to the scene.
       function addAsteroids() {
+        while (asteroidBodies.length) {
+          var asteroidBody = asteroidBodies.shift();
+          world.removeBody(asteroidBody);
+          removeAsteroid(asteroidBody);
+        }
+
         for (var i = 0; i < level; i++) {
           var x = rand(spaceWidth);
           var y = rand(spaceHeight);
@@ -277,7 +285,7 @@ Cut.Loader
           hideShip = true;
 
           if (lives <= 0) {
-            document.getElementById('gameover').classList.remove('hidden');
+            uiEnd();
             return;
           }
           setTimeout(function() {
@@ -287,7 +295,12 @@ Cut.Loader
         }
       }
 
-      function start() {
+      function start(position) {
+        world.removeBody(shipBody);
+
+        if (position) {
+          shipBody.position[0] = shipBody.position[1] = 0;
+        }
         shipBody.force[0] = shipBody.force[1] = 0;
         shipBody.velocity[0] = shipBody.velocity[1] = 0;
         shipBody.angularVelocity = shipBody.angle = 0;
@@ -350,45 +363,52 @@ Cut.Loader
         }
       }
 
+      // If the body is out of space bounds, warp it to the other side
+      function warp(body) {
+        var p = body.position;
+        p[0] = Cut.Math.rotate(p[0], -spaceWidth / 2, spaceWidth / 2);
+        p[1] = Cut.Math.rotate(p[1], -spaceHeight / 2, spaceHeight / 2);
+      }
+
+      // Returns a random number between -0.5 and 0.5
+      function rand(value) {
+        return (Math.random() - 0.5) * (value || 1);
+      }
+
+      // Catch key down events
+      window.onkeydown = function(evt) {
+        gameover && newGame();
+        key[keyName[evt.keyCode]] = true;
+      };
+
+      // Catch key up events
+      window.onkeyup = function(evt) {
+        key[keyName[evt.keyCode]] = false;
+      };
+
+      var key = {}, keyName = {
+        32 : "shoot",
+        37 : "left",
+        38 : "up",
+        39 : "right",
+        40 : "down"
+      };
+
+      function uiLevel() {
+        document.getElementById("level").innerHTML = "Level " + level;
+      }
+
+      function uiLives() {
+        document.getElementById("lives").innerHTML = "Lives " + lives;
+      }
+
+      function uiEnd() {
+        gameover = true;
+        document.getElementById('gameover').classList.remove('hidden');
+      }
+
+      function uiStart() {
+        gameover = false;
+        document.getElementById('gameover').classList.add('hidden');
+      }
     });
-
-// If the body is out of space bounds, warp it to the other side
-function warp(body) {
-  body.position[0] = Cut.Math.rotate(body.position[0], -spaceWidth / 2,
-      spaceWidth / 2);
-  body.position[1] = Cut.Math.rotate(body.position[1], -spaceHeight / 2,
-      spaceHeight / 2);
-}
-
-// Returns a random number between -0.5 and 0.5
-function rand(value) {
-  return (Math.random() - 0.5) * (value || 1);
-}
-
-// Catch key down events
-window.onkeydown = function(evt) {
-  key[keyName[evt.keyCode]] = true;
-};
-
-// Catch key up events
-window.onkeyup = function(evt) {
-  key[keyName[evt.keyCode]] = false;
-};
-
-var key = {}, keyName = {
-  32 : "shoot",
-  37 : "left",
-  38 : "up",
-  39 : "right",
-  40 : "down"
-};
-
-function uiLevel() {
-  var el = document.getElementById("level");
-  el.innerHTML = "Level " + level;
-}
-
-function uiLives() {
-  var el = document.getElementById("lives");
-  el.innerHTML = "Lives " + lives;
-}
