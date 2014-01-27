@@ -54,7 +54,9 @@ Cut.Loader
         warp(bulletBody);
         bulletBody.ui.pin({
           offsetX : bulletBody.position[0],
-          offsetY : -bulletBody.position[1]
+          offsetY : -bulletBody.position[1],
+          alpha : 0.6 + 0.4 * (bulletBody.dieTime - world.time)
+              / bulletLifeTime
         });
       }
 
