@@ -65,6 +65,7 @@ Following code demonstrate a simple use case. Cut.Loader and Cut.Mouse are plugg
 [![Tile](https://raw.github.com/piqnt/cut.js/master/examples/tile/thumbnail.png)](https://rawgithub.com/piqnt/cut.js/master/examples/tile/index.html)
 [![Stretch](https://raw.github.com/piqnt/cut.js/master/examples/stretch/thumbnail.png)](https://rawgithub.com/piqnt/cut.js/master/examples/stretch/index.html)
 [![Bars](https://raw.github.com/piqnt/cut.js/master/examples/bars/thumbnail.png)](https://rawgithub.com/piqnt/cut.js/master/examples/bars/index.html)
+[![Bars](https://raw.github.com/piqnt/cut.js/master/examples/asteroids/thumbnail.png)](https://rawgithub.com/piqnt/cut.js/master/examples/asteroids/index.html)
 
 
 ### Projects Using Cut.js
