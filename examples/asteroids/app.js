@@ -39,109 +39,165 @@ Cut.Loader
 
       Cut.Mouse.subscribe(root, container, true);
 
-      space = root.viewbox(spaceWidth, spaceHeight).pin("handle", -0.5);
+      var space = root.viewbox(spaceWidth, spaceHeight).pin("handle", -0.5);
 
-      function addBullet(bulletBody) {
+      var key = {}, keyName = {
+        32 : "shoot",
+        37 : "left",
+        38 : "up",
+        39 : "right",
+        40 : "down"
+      };
+
+      // Catch key down events
+      window.onkeydown = function(evt) {
+        gameover && start();
+        key[keyName[evt.keyCode]] = true;
+      };
+
+      // Catch key up events
+      window.onkeyup = function(evt) {
+        key[keyName[evt.keyCode]] = false;
+      };
+
+      init();
+      start();
+
+      function uiStart() {
+        gameover = false;
+        document.getElementById('gameover').classList.add('hidden');
+      }
+
+      function uiEnd() {
+        gameover = true;
+        document.getElementById('gameover').classList.remove('hidden');
+      }
+
+      function uiLevel() {
+        document.getElementById("level").innerHTML = "Level " + level;
+      }
+
+      function uiLives() {
+        document.getElementById("lives").innerHTML = "Lives " + lives;
+      }
+
+      function uiAddBullet(bulletBody) {
         bulletBody.ui = Cut.image("base:bullet").appendTo(space).pin("handle",
             0.5);
+        bulletBody.uiRemove = function() {
+          this.ui.remove();
+        };
+        bulletBody.uiUpdate = function() {
+          warp(this);
+          this.ui.pin({
+            offsetX : this.position[0],
+            offsetY : -this.position[1],
+            alpha : 0.6 + 0.4 * (this.dieTime - world.time) / bulletLifeTime
+          });
+        };
       }
 
-      function removeBullet(bulletBody) {
-        bulletBody.ui.remove();
-      }
-
-      function updateBullet(bulletBody) {
-        warp(bulletBody);
-        bulletBody.ui.pin({
-          offsetX : bulletBody.position[0],
-          offsetY : -bulletBody.position[1],
-          alpha : 0.6 + 0.4 * (bulletBody.dieTime - world.time)
-              / bulletLifeTime
-        });
-      }
-
-      function addAsteroid(asteroidBody) {
+      function uiAddAsteroid(asteroidBody) {
         asteroidBody.ui = Cut.image("base:asteroid_1").appendTo(space).pin(
             "handle", 0.5);
+        asteroidBody.uiRemove = function() {
+          this.ui.remove();
+        };
+        asteroidBody.uiUpdate = function() {
+          warp(this);
+          this.ui.pin({
+            offsetX : this.position[0],
+            offsetY : -this.position[1],
+            scale : bulletRadius * 70,
+            rotation : this.angle
+          }).setImage("base:asteroid_" + this.level);
+        };
       }
 
-      function removeAsteroid(asteroidBody) {
-        asteroidBody.ui.remove();
+      function uiAddShip(shipBody) {
+        shipBody.ui = Cut.image("base:ship").appendTo(space).pin("handle", 0.5);
+        shipBody.uiUpdate = function() {
+          warp(this);
+          this.ui.pin({
+            offsetX : this.position[0],
+            offsetY : -this.position[1],
+            rotation : -this.angle,
+            alpha : allowShipCollision ? 1 : 0.5
+          }).visible(!hideShip);
+        };
       }
 
-      function updateAsteroid(asteroidBody) {
-        warp(asteroidBody);
-        asteroidBody.ui.pin({
-          offsetX : asteroidBody.position[0],
-          offsetY : -asteroidBody.position[1],
-          scale : bulletRadius * 70,
-          rotation : asteroidBody.angle
-        }).setImage("base:asteroid_" + asteroidBody.level);
+      function init() {
+        // Init p2.js
+        world = new p2.World({
+          gravity : [ 0, 0 ],
+        });
+
+        // Add ship physics
+        shipShape = new p2.Circle(shipSize);
+        shipShape.collisionGroup = SHIP;
+        shipShape.collisionMask = ASTEROID;
+
+        // Create bullet shape
+        bulletShape = new p2.Circle(bulletRadius);
+        bulletShape.collisionGroup = BULLET;
+        bulletShape.collisionMask = ASTEROID;
+
+        // Init asteroid shapes
+        for (var i = 0; i < asteroidLevels; i++) {
+          var r = (asteroidLevels - i) / asteroidLevels;
+          asteroidShapes[i] = new p2.Circle(r * asteroidRadius);
+          asteroidShapes[i].collisionGroup = ASTEROID;
+          asteroidShapes[i].collisionMask = BULLET | SHIP;
+        }
+
+        shipBody = new p2.Body({
+          mass : 1,
+          position : [ 0, 0 ],
+          angularVelocity : 1
+        });
+        shipBody.addShape(shipShape);
+        uiAddShip(shipBody);
       }
 
-      function updateShip(shipBody) {
-        warp(shipBody);
-        shipBody.ui.pin({
-          offsetX : shipBody.position[0],
-          offsetY : -shipBody.position[1],
-          rotation : -shipBody.angle,
-          alpha : allowShipCollision ? 1 : 0.5
-        }).visible(!hideShip);
-      }
-
-      // Init p2.js
-      world = new p2.World({
-        gravity : [ 0, 0 ],
-      });
-
-      // Add ship physics
-      shipShape = new p2.Circle(shipSize);
-      shipShape.collisionGroup = SHIP;
-      shipShape.collisionMask = ASTEROID;
-
-      // Create bullet shape
-      bulletShape = new p2.Circle(bulletRadius);
-      bulletShape.collisionGroup = BULLET;
-      bulletShape.collisionMask = ASTEROID;
-
-      // Init asteroid shapes
-      for (var i = 0; i < asteroidLevels; i++) {
-        var r = (asteroidLevels - i) / asteroidLevels;
-        asteroidShapes[i] = new p2.Circle(r * asteroidRadius);
-        asteroidShapes[i].collisionGroup = ASTEROID;
-        asteroidShapes[i].collisionMask = BULLET | SHIP;
-      }
-
-      shipBody = new p2.Body({
-        mass : 1,
-        position : [ 0, 0 ],
-        angularVelocity : 1
-      });
-      shipBody.addShape(shipShape);
-      shipBody.ui = Cut.image("base:ship").appendTo(space).pin("handle", 0.5);
-
-      newGame();
-
-      function newGame() {
+      function start() {
         level = 1;
         lives = 3;
         // Update the text boxes
         uiLevel();
         uiLives();
-        start(true);
+        play(true);
         addAsteroids();
         uiStart();
+      }
+
+      function play(position) {
+        world.removeBody(shipBody);
+
+        if (position) {
+          shipBody.position[0] = shipBody.position[1] = 0;
+        }
+        shipBody.force[0] = shipBody.force[1] = 0;
+        shipBody.velocity[0] = shipBody.velocity[1] = 0;
+        shipBody.angularVelocity = shipBody.angle = 0;
+        world.addBody(shipBody);
+        hideShip = false;
+        allowShipCollision = false;
+        setTimeout(function() {
+          allowShipCollision = true;
+        }, 2000);
       }
 
       root.tick(function() {
 
         // Set velocities
-        if (key.left)
-          shipBody.angularVelocity = shipTurnSpeed;
-        else if (key.right)
-          shipBody.angularVelocity = -shipTurnSpeed;
-        else
-          shipBody.angularVelocity = 0;
+        shipBody.angularVelocity = 0;
+        if (key.left) {
+          shipBody.angularVelocity += shipTurnSpeed;
+        }
+        if (key.right) {
+          shipBody.angularVelocity -= shipTurnSpeed;
+        }
 
         // Thrust: add some force in the ship direction
         if (key.up) {
@@ -161,7 +217,7 @@ Cut.Loader
           });
           bulletBody.addShape(bulletShape);
           bulletBodies.push(bulletBody);
-          addBullet(bulletBody);
+          uiAddBullet(bulletBody);
           var magnitude = 2, angle = shipBody.angle + Math.PI / 2;
 
           // Give it initial velocity in the ship direction
@@ -173,6 +229,7 @@ Cut.Loader
               + shipBody.position[0];
           bulletBody.position[1] = shipShape.radius * Math.sin(angle)
               + shipBody.position[1];
+
           world.addBody(bulletBody);
 
           // Keep track of the last time we shot
@@ -188,24 +245,20 @@ Cut.Loader
           // If the bullet is old, delete it
           if (bulletBody.dieTime <= world.time) {
             bulletBodies.splice(i, 1);
-            removeBullet(bulletBody);
+            bulletBody.uiRemove();
             world.removeBody(bulletBody);
             i--;
             continue;
           }
-
-          // If any body is out of bounds, move it to the other end
-          updateBullet(bulletBody);
+          bulletBody.uiUpdate();
         }
 
-        // Warp all asteroids
         for (var i = 0; i !== asteroidBodies.length; i++) {
           var asteroidBody = asteroidBodies[i];
-          updateAsteroid(asteroidBody);
+          asteroidBody.uiUpdate();
         }
 
-        // Warp the ship
-        updateShip(shipBody);
+        shipBody.uiUpdate();
 
         // Move physics bodies forward in time
         world.step(1 / 60);
@@ -216,7 +269,7 @@ Cut.Loader
         while (asteroidBodies.length) {
           var asteroidBody = asteroidBodies.shift();
           world.removeBody(asteroidBody);
-          removeAsteroid(asteroidBody);
+          asteroidBody.uiRemove();
         }
 
         for (var i = 0; i < level; i++) {
@@ -244,7 +297,7 @@ Cut.Loader
           });
           asteroidBody.addShape(asteroidShapes[0]);
           asteroidBodies.push(asteroidBody);
-          addAsteroid(asteroidBody);
+          uiAddAsteroid(asteroidBody);
           world.addBody(asteroidBody);
           asteroidBody.level = 1;
         }
@@ -259,24 +312,27 @@ Cut.Loader
         if ((bodyA.id == shipBody.id || bodyB.id == shipBody.id)) {
           // Ship collided with something
           if (!hideShip && allowShipCollision) {
-            collide(bodyA, bodyB);
+            var aship = bodyA.shapes[0].collisionGroup == SHIP;
+            var ship = aship ? bodyA : bodyB;
+            var asteroid = !aship ? bodyA : bodyB;
+
+            crash(ship, asteroid);
           }
 
         } else if (bodyA.shapes[0].collisionGroup == BULLET
             || bodyB.shapes[0].collisionGroup == BULLET) {
           // Bullet collided with something
-          var bulletBody = bodyA.shapes[0].collisionGroup == BULLET ? bodyA
-              : bodyB, otherBody = bodyB == bulletBody ? bodyA : bodyB;
+          var abullet = bodyA.shapes[0].collisionGroup == BULLET;
+          var bullet = abullet ? bodyA : bodyB;
+          var asteroid = !abullet ? bodyA : bodyB;
 
-          if (otherBody.shapes[0].collisionGroup == ASTEROID) {
-            explode(otherBody, bulletBody);
+          if (asteroid.shapes[0].collisionGroup == ASTEROID) {
+            hit(asteroid, bullet);
           }
         }
       });
 
-      function collide(bodyA, bodyB) {
-        var ship = bodyA.shapes[0].collisionGroup == SHIP ? bodyA : bodyB;
-        var asteroid = bodyB == ship ? bodyA : bodyB;
+      function crash(ship, asteroid) {
 
         if (asteroid.shapes[0].collisionGroup == ASTEROID) {
           lives--;
@@ -292,29 +348,12 @@ Cut.Loader
           }
           setTimeout(function() {
             // Add ship again
-            start();
+            play();
           }, 1000);
         }
       }
 
-      function start(position) {
-        world.removeBody(shipBody);
-
-        if (position) {
-          shipBody.position[0] = shipBody.position[1] = 0;
-        }
-        shipBody.force[0] = shipBody.force[1] = 0;
-        shipBody.velocity[0] = shipBody.velocity[1] = 0;
-        shipBody.angularVelocity = shipBody.angle = 0;
-        world.addBody(shipBody);
-        hideShip = false;
-        allowShipCollision = false;
-        setTimeout(function() {
-          allowShipCollision = true;
-        }, 2000);
-      }
-
-      function explode(asteroidBody, bulletBody) {
+      function hit(asteroidBody, bulletBody) {
         var aidx = asteroidBodies.indexOf(asteroidBody);
         var bidx = bulletBodies.indexOf(bulletBody);
         if (aidx != -1 && bidx != -1) {
@@ -322,46 +361,50 @@ Cut.Loader
           // Remove asteroid
           world.removeBody(asteroidBody);
           asteroidBodies.splice(aidx, 1);
-          removeAsteroid(asteroidBody);
+          asteroidBody.uiRemove();
 
           // Remove bullet
           world.removeBody(bulletBody);
           bulletBodies.splice(bidx, 1);
-          removeBullet(bulletBody);
+          bulletBody.uiRemove();
 
           // Add new sub-asteroids
-          var x = asteroidBody.position[0], y = asteroidBody.position[1];
-          if (asteroidBody.level < 4) {
-            var angleDisturb = Math.PI / 2 * Math.random();
-            for (var i = 0; i < 4; i++) {
-              var angle = Math.PI / 2 * i + angleDisturb;
-              var r = asteroidBody.shapes[0].radius
-                  - asteroidShapes[asteroidBody.level].radius;
-              var sx = x + r * Math.cos(angle);
-              var sy = y + r * Math.sin(angle);
-              var vx = rand(asteroidSpeed);
-              var vy = rand(asteroidSpeed);
-              var va = rand(asteroidSpeed);
-              var subAsteroidBody = new p2.Body({
-                mass : 10,
-                position : [ sx, sy ],
-                velocity : [ vx, vy ],
-                angularVelocity : va
-              });
-              subAsteroidBody.addShape(asteroidShapes[asteroidBody.level]);
-              subAsteroidBody.level = asteroidBody.level + 1;
-              subAsteroidBody.angle = rand() * Math.PI;
-              world.addBody(subAsteroidBody);
-              asteroidBodies.push(subAsteroidBody);
-              addAsteroid(subAsteroidBody);
-            }
-          }
+          split(asteroidBody);
         }
 
         if (asteroidBodies.length == 0) {
           level++;
           uiLevel();
           addAsteroids();
+        }
+      }
+
+      function split(parent) {
+        if (parent.level < 4) {
+          var x = parent.position[0], y = parent.position[1];
+          var angleDisturb = Math.PI / 2 * Math.random();
+          for (var i = 0; i < 4; i++) {
+            var angle = Math.PI / 2 * i + angleDisturb;
+            var r = parent.shapes[0].radius
+                - asteroidShapes[parent.level].radius;
+            var sx = x + r * Math.cos(angle);
+            var sy = y + r * Math.sin(angle);
+            var vx = rand(asteroidSpeed);
+            var vy = rand(asteroidSpeed);
+            var va = rand(asteroidSpeed);
+            var child = new p2.Body({
+              mass : 10,
+              position : [ sx, sy ],
+              velocity : [ vx, vy ],
+              angularVelocity : va
+            });
+            child.addShape(asteroidShapes[parent.level]);
+            child.level = parent.level + 1;
+            child.angle = rand() * Math.PI;
+            world.addBody(child);
+            asteroidBodies.push(child);
+            uiAddAsteroid(child);
+          }
         }
       }
 
@@ -377,40 +420,4 @@ Cut.Loader
         return (Math.random() - 0.5) * (value || 1);
       }
 
-      // Catch key down events
-      window.onkeydown = function(evt) {
-        gameover && newGame();
-        key[keyName[evt.keyCode]] = true;
-      };
-
-      // Catch key up events
-      window.onkeyup = function(evt) {
-        key[keyName[evt.keyCode]] = false;
-      };
-
-      var key = {}, keyName = {
-        32 : "shoot",
-        37 : "left",
-        38 : "up",
-        39 : "right",
-        40 : "down"
-      };
-
-      function uiLevel() {
-        document.getElementById("level").innerHTML = "Level " + level;
-      }
-
-      function uiLives() {
-        document.getElementById("lives").innerHTML = "Lives " + lives;
-      }
-
-      function uiEnd() {
-        gameover = true;
-        document.getElementById('gameover').classList.remove('hidden');
-      }
-
-      function uiStart() {
-        gameover = false;
-        document.getElementById('gameover').classList.add('hidden');
-      }
     });
