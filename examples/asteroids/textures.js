@@ -1,7 +1,7 @@
 Cut.addTexture({
   name : "base",
   imagePath : "base.png",
-  imageRatio : 128,
+  imageRatio : 256,
   ratio : 0.5,
   cutouts : [
     { name : "bullet",     x : 0,   y : 1, width : 1,   height : 1 },
