@@ -7,7 +7,7 @@ It works with modern browsers and mobile devices and intended to be used for gam
 
 ### How it works
 
-A Cut.js app consists of image textures, cutout (sprite) definitions and a tree structure. Each node in tree includes image cutouts and/or child nodes. Each node is pinned (transformed) against its parent and pastes its cutouts on rendering.
+A Cut.js app consists of image textures (sprite sheet), cutout definitions (sprites) and a tree structure. Each node in the tree includes image cutouts and/or child nodes. Each node is pinned (transformed) against its parent and pastes its cutouts on rendering.
 
 Each rendering cycle consists of ticking and painting the tree. Ticking is used to update the tree nodes and then on painting each node transforms according to its pinning and pastes its cutouts and then delegates to its children.
 
