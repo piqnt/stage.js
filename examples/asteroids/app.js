@@ -84,8 +84,8 @@ Cut.Loader.load(function(root, container) {
       ctx.fillStyle = "white";
       ctx.beginPath();
       ctx.arc(64, 64, 6, 0, 2 * Math.PI);
-      ctx.fill();
       ctx.closePath();
+      ctx.fill();
     });
     body.ui = Cut.image(bulletDrawing).appendTo(space).pin("handle", 0.5);
     body.uiRemove = function() {
@@ -150,9 +150,8 @@ Cut.Loader.load(function(root, container) {
       ctx.lineTo(38, 90);
       ctx.lineTo(64, 34);
       ctx.lineTo(90, 90);
-      ctx.lineTo(64, 80);
-      ctx.stroke();
       ctx.closePath();
+      ctx.stroke();
     })).appendTo(space).pin("handle", 0.5).pin("scale", 0.8);
     body.uiUpdate = function() {
       warp(this);
