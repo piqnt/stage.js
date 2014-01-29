@@ -946,15 +946,16 @@ Cut.prototype.box = function(type) {
 };
 
 Cut.Image.prototype.tile = function(inner) {
-
   if (this._tileTicker) {
     return this;
   }
 
-  var cropW = [], cropX = [], offX = [];
-  var cropH = [], cropY = [], offY = [];
+  var base = null;
 
-  var out = null;
+  var self = this;
+  function slice(c) {
+    return self._outs[c] || (self._outs[c] = base.clone());
+  }
 
   this._tileTicker = function() {
 
@@ -963,76 +964,86 @@ Cut.Image.prototype.tile = function(inner) {
     }
     this._tile_mo = this._touch_ts;
 
-    out = out || this._outs[0].clone();
+    base = base || this._outs[0].clone();
 
-    var width = this.pin("width"), height = this.pin("height");
+    var bleft = base.left, bright = base.right;
+    var btop = base.top, bbottom = base.bottom;
+    var bwidth = base.width() - bleft - bright;
+    var bheight = base.height() - btop - bbottom;
 
-    var left = out.left;
-    var right = out.right;
-    width = inner ? width + left + right : Math.max(width, left + right);
-    var maxw = out.width();
-    var x, rx, l, r, w;
-    x = 0, l = 0, r = right;
-    var col = 0;
-    while (x < width) {
-      rx = width - x;
-      w = maxw - l;
-      if (w < rx) {
-        w -= right;
-      } else if (rx < w) {
-        if (!right) { // no right: left
-          w = rx, l = 0;
-        } else if (!left) { // no left: right
-          w = rx, l = maxw - w;
-        } else if (l == 0) { // left & right & first: left & -right
-          w = rx - right;
-        } else { // left & right & !first: right
-          w = rx, l = maxw - w;
-        }
-        w = rx - r;
-      }
-      cropW[col] = w, cropX[col] = l, offX[col] = x, col++;
-      x += w, l = left, r = 0;
-    }
+    var width = this.pin("width");
+    width = inner ? width : width - bleft - bright;
 
-    var top = out.top;
-    var bottom = out.bottom;
-    height = inner ? height + top + bottom : Math.max(height, top + bottom);
-    var maxh = out.height();
-    var y, ry, t, b, h;
-    y = 0, t = 0, b = bottom;
-    var row = 0;
-    while (y < height) {
-      ry = height - y;
-      h = maxh - t;
-      if (h < ry) {
-        h -= bottom;
-      } else if (ry < h) {
-        if (!bottom) {
-          h = ry, t = 0;
-        } else if (!top) {
-          h = ry, t = maxh - h;
-        } else if (t == 0) {
-          h = ry - bottom;
-        } else {
-          h = ry, t = maxh - h;
-        }
-        h = ry - b;
-      }
-      cropH[row] = h, cropY[row] = t, offY[row] = y, row++;
-      y += h, t = top, b = 0;
-    }
+    var height = this.pin("height");
+    height = inner ? height : height - btop - bbottom;
+
+    var left = inner ? -bleft : 0;
+    var top = inner ? -btop : 0;
 
     var c = 0;
-    for (var i = 0; i < col; i++) {
-      for (var j = 0; j < row; j++) {
-        this._outs[c] = this._outs[c] || out.clone();
-        this._outs[c].cropX(cropW[i], cropX[i]);
-        this._outs[c].cropY(cropH[j], cropY[j]);
-        this._outs[c].offset(offX[i] - (inner ? left : 0), offY[j]
-            - (inner ? top : 0));
-        c++;
+
+    // top, left
+    if (btop && bleft) {
+      slice(c++).cropX(bleft, 0).cropY(btop, 0).offset(left, top);
+    }
+
+    // bottom, left
+    if (bbottom && bleft) {
+      slice(c++).cropX(bleft, 0).cropY(bbottom, bheight + btop).offset(left,
+          top + height + btop);
+    }
+
+    // top, right
+    if (btop && bright) {
+      slice(c++).cropX(bright, bwidth + bleft).cropY(btop, 0).offset(
+          left + width + bleft, top);
+    }
+
+    // bottom, right
+    if (bbottom && bright) {
+      slice(c++).cropX(bright, bwidth + bleft).cropY(bbottom, bheight + btop)
+          .offset(left + width + bleft, top + height + btop);
+    }
+
+    var x = left + bleft;
+    var r = width;
+    while (r > 0) {
+      var w = Math.min(bwidth, r);
+      r -= bwidth;
+
+      var y = top + btop;
+      var b = height;
+      while (b > 0) {
+        var h = Math.min(bheight, b);
+        b -= bheight;
+
+        slice(c++).cropX(w, bleft).cropY(h, btop).offset(x, y);
+
+        if (r < 0) {
+          // left
+          if (bleft) {
+            slice(c++).cropX(bleft, 0).cropY(h, btop).offset(left, y);
+          }
+          // right
+          if (bright) {
+            slice(c++).cropX(bright, bwidth + bleft).cropY(h, btop).offset(
+                x + w, y);
+          }
+        }
+
+        y += h;
       }
+
+      // top
+      if (btop) {
+        slice(c++).cropX(w, bleft).cropY(btop, 0).offset(x, top);
+      }
+      // bottom
+      if (bbottom) {
+        slice(c++).cropX(w, bleft).cropY(bbottom, bheight + btop).offset(x, y);
+      }
+
+      x += w;
     }
 
     this._outs.length = c;
@@ -1050,7 +1061,12 @@ Cut.Image.prototype.stretch = function(inner) {
     return this;
   }
 
-  var out = null;
+  var base = null;
+
+  var self = this;
+  function slice(c) {
+    return self._outs[c] || (self._outs[c] = base.clone());
+  }
 
   this._stretchTicker = function() {
 
@@ -1059,91 +1075,74 @@ Cut.Image.prototype.stretch = function(inner) {
     }
     this._stretch_mo = this._pin._transform_ts;
 
-    out = out || this._outs[0].clone();
+    base = base || this._outs[0].clone();
+
+    var oleft = base.left;
+    var oright = base.right;
+    var otop = base.top;
+    var obottom = base.bottom;
+    var owidth = base.width(), oheight = base.height();
 
     var width = this.pin("width"), height = this.pin("height");
+    width = inner ? width + oleft + oright : Math.max(width, oleft + oright);
+    height = inner ? height + otop + obottom : Math.max(height, otop + obottom);
 
-    var left = out.left;
-    var right = out.right;
-    width = inner ? width + left + right : Math.max(width, left + right);
-
-    var top = out.top;
-    var bottom = out.bottom;
-    height = inner ? height + top + bottom : Math.max(height, top + bottom);
-
-    var w = out.width(), h = out.height();
-
-    var c = -1;
-    var slice;
+    var c = 0;
 
     // top, left
-    if (top && left) {
-      c++;
-      slice = this._outs[c] || (this._outs[c] = out.clone());
-      slice.cropX(left, 0).cropY(top, 0).offset(0, 0);
+    if (otop && oleft) {
+      slice(c++).cropX(oleft, 0).cropY(otop, 0).offset(0, 0);
     }
 
     // bottom, left
-    if (bottom && left) {
-      c++;
-      slice = this._outs[c] || (this._outs[c] = out.clone());
-      slice.cropX(left, 0).cropY(bottom, h - bottom).offset(0, height - bottom);
+    if (obottom && oleft) {
+      slice(c++).cropX(oleft, 0).cropY(obottom, oheight - obottom).offset(0,
+          height - obottom);
     }
 
     // top, right
-    if (top && right) {
-      c++;
-      slice = this._outs[c] || (this._outs[c] = out.clone());
-      slice.cropX(right, w - right).cropY(top, 0).offset(width - right, 0);
+    if (otop && oright) {
+      slice(c++).cropX(oright, owidth - oright).cropY(otop, 0).offset(
+          width - oright, 0);
     }
 
     // bottom, right
-    if (bottom && right) {
-      c++;
-      slice = this._outs[c] || (this._outs[c] = out.clone());
-      slice.cropX(right, w - right).cropY(bottom, h - bottom).offset(
-          width - right, height - bottom);
+    if (obottom && oright) {
+      slice(c++).cropX(oright, owidth - oright).cropY(obottom,
+          oheight - obottom).offset(width - oright, height - obottom);
     }
 
     // top
-    if (top) {
-      c++;
-      slice = this._outs[c] || (this._outs[c] = out.clone());
-      slice.cropX(w - left - right, left).cropY(top, 0).offset(left, 0).width(
-          width - left - right);
+    if (otop) {
+      slice(c++).cropX(owidth - oleft - oright, oleft).cropY(otop, 0).offset(
+          oleft, 0).width(width - oleft - oright);
     }
 
     // bottom
-    if (bottom) {
-      c++;
-      slice = this._outs[c] || (this._outs[c] = out.clone());
-      slice.cropX(w - left - right, left).cropY(bottom, h - bottom).offset(
-          left, height - bottom).width(width - left - right);
+    if (obottom) {
+      slice(c++).cropX(owidth - oleft - oright, oleft).cropY(obottom,
+          oheight - obottom).offset(oleft, height - obottom).width(
+          width - oleft - oright);
     }
 
     // left
-    if (left) {
-      c++;
-      slice = this._outs[c] || (this._outs[c] = out.clone());
-      slice.cropX(left, 0).cropY(h - top - bottom, top).offset(0, top).height(
-          height - top - bottom);
+    if (oleft) {
+      slice(c++).cropX(oleft, 0).cropY(oheight - otop - obottom, otop).offset(
+          0, otop).height(height - otop - obottom);
     }
 
     // right
-    if (right) {
-      c++;
-      slice = this._outs[c] || (this._outs[c] = out.clone());
-      slice.cropX(right, w - right).cropY(h - top - bottom, top).offset(
-          width - right, top).height(height - top - bottom);
+    if (oright) {
+      slice(c++).cropX(oright, owidth - oright).cropY(oheight - otop - obottom,
+          otop).offset(width - oright, otop).height(height - otop - obottom);
     }
 
     // center
-    c++;
-    slice = this._outs[c] || (this._outs[c] = out.clone());
-    slice.cropX(w - left - right, left).cropY(h - top - bottom, top).offset(
-        left, top).width(width - left - right).height(height - top - bottom);
+    slice(c++).cropX(owidth - oleft - oright, oleft).cropY(
+        oheight - otop - obottom, otop).offset(oleft, otop).width(
+        width - oleft - oright).height(height - otop - obottom);
 
-    this._outs.length = c + 1;
+    this._outs.length = c;
   };
 
   this.tick(this._stretchTicker);
