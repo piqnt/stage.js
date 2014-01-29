@@ -1200,10 +1200,11 @@ Cut.addTexture = function() {
     Cut.Out._cache[texture.name] = {};
 
     texture.getImage = function() {
-      if (!this._image) {
-        this._image = Cut.getImage(this.imagePath);
+      var self = texture;
+      if (!self._image) {
+        self._image = Cut.getImage(self.imagePath);
       }
-      return this._image;
+      return self._image;
     };
 
     var cutout;
@@ -1242,12 +1243,12 @@ Cut.addTexture = function() {
   return this;
 };
 
-Cut.Out = function(texture, cutout) {
+Cut.Out = function(cutout, image, ratio) {
 
-  this.texture = texture;
   this.cutout = cutout;
-  this.ratio = texture.imageRatio || 1;
   this.name = cutout.name;
+  this.image = image;
+  this.ratio = ratio || 1;
 
   cutout.w = cutout.w || cutout.width;
   cutout.h = cutout.h || cutout.height;
@@ -1272,7 +1273,7 @@ Cut.Out = function(texture, cutout) {
 };
 
 Cut.Out.prototype.clone = function() {
-  return new Cut.Out(this.texture, this.cutout);
+  return new Cut.Out(this.cutout, this.image, this.ratio);
 };
 
 Cut.Out.prototype.width = function(width) {
@@ -1315,7 +1316,7 @@ Cut.Out.prototype.offset = function(x, y) {
 
 Cut.Out.prototype.paste = function(context) {
   Cut._stats.paste++;
-  var img = this.texture.getImage();
+  var img = this.image();
   img && context.drawImage(img, // source
   this.sx, this.sy, this.sw, this.sh, // cut
   this.dx, this.dy, this.dw, this.dh // position
@@ -1324,6 +1325,31 @@ Cut.Out.prototype.paste = function(context) {
 
 Cut.Out.prototype.toString = function() {
   return "[" + this.name + ": " + this.dw + "x" + this.dh + "]";
+};
+
+Cut.Out.drawing = function(w, h, ratio, draw, cutout) {
+  var canvas = document.createElement("canvas");
+  var context = canvas.getContext("2d");
+  canvas.width = w;
+  canvas.height = h;
+
+  if (typeof ratio !== "number") {
+    cutout = draw;
+    draw = ratio;
+    ratio = 1;
+  }
+
+  draw(context);
+
+  cutout || (cutout = {});
+  cutout.x || (cutout.x = 0);
+  cutout.y || (cutout.y = 0);
+  cutout.w || cutout.width || (cutout.w = w / ratio);
+  cutout.h || cutout.height || (cutout.h = h / ratio);
+
+  return new Cut.Out(cutout, function() {
+    return canvas;
+  }, ratio);
 };
 
 Cut.Out._cache = {};
@@ -1364,7 +1390,8 @@ Cut.Out.select = function(selector, prefix) {
     if (!selected) {
       throw "'" + selector + "' cutout not found!";
     }
-    return selected ? new Cut.Out(texture, selected) : null;
+    return selected ? new Cut.Out(selected, texture.getImage,
+        texture.imageRatio) : null;
 
   } else {
     var selected = Cut.Out._cache[texture.name][name + "*"];
@@ -1384,7 +1411,8 @@ Cut.Out.select = function(selector, prefix) {
     }
     var result = [];
     for (var i = 0; i < selected.length; i++) {
-      result.push(new Cut.Out(texture, selected[i]));
+      result
+          .push(new Cut.Out(selected[i], texture.getImage, texture.imageRatio));
     }
     return result;
   }
