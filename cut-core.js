@@ -1155,6 +1155,11 @@ Cut._images = {};
 Cut.loadImages = function(loader, callback) {
   var loading = 0;
 
+  if (!Cut._textures.length) {
+    DEBUG && console.log("No image to load.");
+    callback && callback();
+  }
+  
   var textures = Cut._textures;
   for ( var texture in textures) {
     if (textures[texture].imagePath) {
