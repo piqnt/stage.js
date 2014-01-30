@@ -80,7 +80,7 @@ Cut.Loader.load(function(root, container) {
 
   var bulletDrawing = null;
   function uiAddBullet(body) {
-    bulletDrawing = bulletDrawing || Cut.Out.drawing(128, 128, 128, function(ctx) {
+    bulletDrawing = bulletDrawing || Cut.Out.drawing(1, 1, 128, function(ctx) {
       ctx.fillStyle = "white";
       ctx.beginPath();
       ctx.arc(64, 64, 6, 0, 2 * Math.PI);
@@ -102,7 +102,7 @@ Cut.Loader.load(function(root, container) {
   }
 
   function uiAddAsteroid(body) {
-    body.ui = Cut.image(Cut.Out.drawing(256, 256, 128, function(ctx) {
+    body.ui = Cut.image(Cut.Out.drawing(2, 2, 128, function(ctx) {
       ctx.translate(128, 128);
       ctx.beginPath();
       ctx.lineWidth = 5;
@@ -140,7 +140,8 @@ Cut.Loader.load(function(root, container) {
   }
 
   function uiAddShip(body) {
-    body.ui = Cut.image(Cut.Out.drawing(128, 128, 128, function(ctx) {
+    console.log("add ship");
+    body.ui = Cut.image(Cut.Out.drawing(1, 1, 128, function(ctx) {
       ctx.lineWidth = 6;
       ctx.lineJoin = "round";
       ctx.lineCap = "round";

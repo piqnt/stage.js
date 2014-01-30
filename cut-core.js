@@ -1155,11 +1155,8 @@ Cut._images = {};
 Cut.loadImages = function(loader, callback) {
   var loading = 0;
 
-  if (!Cut._textures.length) {
-    DEBUG && console.log("No image to load.");
-    callback && callback();
-  }
-  
+  var noimage = true;
+
   var textures = Cut._textures;
   for ( var texture in textures) {
     if (textures[texture].imagePath) {
@@ -1168,6 +1165,12 @@ Cut.loadImages = function(loader, callback) {
       var image = loader(src, complete, error);
       Cut.addImage(image, src);
     }
+    noimage = false;
+  }
+
+  if (noimage) {
+    DEBUG && console.log("No image to load.");
+    callback && callback();
   }
 
   function complete() {
@@ -1335,8 +1338,8 @@ Cut.Out.prototype.toString = function() {
 Cut.Out.drawing = function(w, h, ratio, draw, cutout) {
   var canvas = document.createElement("canvas");
   var context = canvas.getContext("2d");
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = Math.ceil(w * ratio);
+  canvas.height = Math.ceil(h * ratio);
 
   if (typeof ratio !== "number") {
     cutout = draw;
@@ -1349,8 +1352,8 @@ Cut.Out.drawing = function(w, h, ratio, draw, cutout) {
   cutout || (cutout = {});
   cutout.x || (cutout.x = 0);
   cutout.y || (cutout.y = 0);
-  cutout.w || cutout.width || (cutout.w = w / ratio);
-  cutout.h || cutout.height || (cutout.h = h / ratio);
+  cutout.w || cutout.width || (cutout.w = w);
+  cutout.h || cutout.height || (cutout.h = h);
 
   return new Cut.Out(cutout, function() {
     return canvas;
