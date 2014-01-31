@@ -127,10 +127,4 @@ window.onkeyup = function() {
   torque = 0;
 };
 
-Cut.Loader.load(function(root, container) {
-  root.viewbox(6, 6).pin("handle", -0.5);
-  var demo = new P2Cut(world, root, container);
-  root.tick(function() {
-    demo.step();
-  });
-});
+P2Cut.view(world, 6, 6);
