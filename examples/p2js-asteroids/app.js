@@ -47,13 +47,13 @@ Cut.Loader.load(function(root, container) {
   };
 
   // Catch key down events
-  window.onkeydown = function(evt) {
+  document.onkeydown = function(evt) {
     gameover && start();
     key[keyName[evt.keyCode]] = true;
   };
 
   // Catch key up events
-  window.onkeyup = function(evt) {
+  document.onkeyup = function(evt) {
     key[keyName[evt.keyCode]] = false;
   };
 
@@ -193,7 +193,7 @@ Cut.Loader.load(function(root, container) {
       mass : 1,
       position : [ 0, 0 ],
       angularVelocity : 1
-    });
+    }).noDamping();
     shipBody.addShape(shipShape);
     uiAddShip(shipBody);
   }
@@ -210,7 +210,9 @@ Cut.Loader.load(function(root, container) {
   }
 
   function play(position) {
-    world.removeBody(shipBody);
+    if (shipBody.world) {
+      shipBody.world.removeBody(shipBody);
+    }
 
     if (position) {
       shipBody.position[0] = shipBody.position[1] = 0;
@@ -251,7 +253,7 @@ Cut.Loader.load(function(root, container) {
       var bulletBody = new p2.Body({
         mass : 0.05,
         position : shipBody.position
-      });
+      }).noDamping();
       bulletBody.addShape(bulletShape);
       bulletBodies.push(bulletBody);
       uiAddBullet(bulletBody);
@@ -331,7 +333,7 @@ Cut.Loader.load(function(root, container) {
         position : [ x, y ],
         velocity : [ vx, vy ],
         angularVelocity : va,
-      });
+      }).noDamping();
       asteroidBody.addShape(asteroidShapes[0]);
       asteroidBodies.push(asteroidBody);
       asteroidBody.level = 1;
@@ -433,7 +435,7 @@ Cut.Loader.load(function(root, container) {
           position : [ sx, sy ],
           velocity : [ vx, vy ],
           angularVelocity : va
-        });
+        }).noDamping();
         child.addShape(asteroidShapes[parent.level]);
         child.level = parent.level + 1;
         child.angle = rand() * Math.PI;
@@ -457,3 +459,8 @@ Cut.Loader.load(function(root, container) {
   }
 
 });
+
+p2.Body.prototype.noDamping = function() {
+  this.damping = this.angularDamping = 0;
+  return this;
+};
