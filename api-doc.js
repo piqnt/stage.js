@@ -148,10 +148,10 @@ var column = Cut.column(halign = 0);
 //
 // Create a new image instance.
 // An image is a cut which pastes a cutout.
-var image = Cut.image("textureName:cutoutName");
+var image = Cut.image(cutout);
 
 // Change image.
-image.setImage("textureName:cutoutName");
+image.setImage(cutout);
 
 // Crop image.
 image.cropX(w, x = 0);
@@ -170,14 +170,14 @@ image.stretch();
 //
 // Create a new anim instance.
 // An anim is a cut which have a set of cutouts and pastes a cutout at a time.
-var anim = Cut.anim("textureName:cutoutPrefix", fps = Cut.Anim.FPS);
+var anim = Cut.anim(cutouts, fps = Cut.Anim.FPS);
 
 // Get or set anim fps.
 anim.fps();
 anim.fps(fps);
 
 // Set anim cutouts.
-anim.setFrames("textureName:cutoutPrefix");
+anim.setFrames(cutouts);
 
 anim.gotoFrame(n, resize = false);
 
@@ -198,12 +198,25 @@ anim.repeat(repeat, callback = null);
 //
 // Create a new string (sequence) instance.
 // String is a row of anim cuts.
-Cut.string("textureName:cutoutPrefix");
+Cut.string(cutouts);
 
-string.setFont("textureName:cutoutPrefix");
+string.setFont(cutouts);
 
 // set string value
 string.setValue(value);
+
+//
+// ### Cut.Out
+//
+// There are two ways to define a cutout (sprite): Canvas drawing and image
+// textures.
+
+//
+// ### Canvas Drawing
+//
+cutout = Cut.Out.drawing(width, height, ratio = 1, function(context) {
+  // Draw to context.
+});
 
 //
 // ### Textures
@@ -228,6 +241,12 @@ Cut.addTexture({
     right : ""
   }, etc ]
 }, etc);
+
+// Single cutout
+cutout = "textureName:cutoutName";
+
+// Multiple cutout
+cutouts = "textureName:cutoutPrefix";
 
 //
 // ### Loader
