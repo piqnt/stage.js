@@ -22,33 +22,39 @@ chassisBody.addShape(chassisShape);
 world.addBody(chassisBody);
 
 // Create wheels
+var wheelShape = new p2.Circle(0.3);
+
 var wheelBody1 = new p2.Body({
   mass : 1,
   position : [ chassisBody.position[0] - 0.5, 0.7 ]
-}), wheelBody2 = new p2.Body({
+});
+wheelBody1.addShape(wheelShape);
+world.addBody(wheelBody1);
+
+var wheelBody2 = new p2.Body({
   mass : 1,
   position : [ chassisBody.position[0] + 0.5, 0.7 ]
-}), wheelShape = new p2.Circle(0.3);
-wheelBody1.addShape(wheelShape);
+});
 wheelBody2.addShape(wheelShape);
-world.addBody(wheelBody1);
 world.addBody(wheelBody2);
 
 // Disable collisions between chassis and wheels
 // Define bits for each shape type
 var WHEELS = 1, CHASSIS = 2, GROUND = 4, OTHER = 8;
 
-wheelShape.collisionGroup = WHEELS; // Assign groups
+// Assign groups
+wheelShape.collisionGroup = WHEELS;
 chassisShape.collisionGroup = CHASSIS;
 planeShape.collisionGroup = GROUND;
 
-wheelShape.collisionMask = GROUND | OTHER; // Wheels can only collide with
-// ground
-chassisShape.collisionMask = GROUND | OTHER; // Chassis can only collide with
-// ground
-planeShape.collisionMask = WHEELS | CHASSIS | OTHER; // Ground can collide
-// with
-// wheels and chassis
+// Wheels can only collide with ground
+wheelShape.collisionMask = GROUND | OTHER;
+
+// Chassis can only collide with ground
+chassisShape.collisionMask = GROUND | OTHER;
+
+// Ground can collide with wheels and chassis
+planeShape.collisionMask = WHEELS | CHASSIS | OTHER;
 
 // Constrain wheels to chassis
 var c1 = new p2.PrismaticConstraint(chassisBody, wheelBody1, {
@@ -126,7 +132,9 @@ Cut.Loader.load(function(root, container) {
   var demo = new P2Cut(world, root, container);
   root.tick(function() {
     demo.step();
-    // var p = chassisBody.position;
-    // status((p[0] * 100 | 0) + " x " + (p[1] * 100 | 0));
+    if (chassisBody) {
+      var p = chassisBody.position;
+      status((p[0] * 100 | 0) + " x " + (p[1] * 100 | 0));
+    }
   });
 });

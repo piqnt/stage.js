@@ -7,7 +7,7 @@ function P2Cut(world, root, container) {
   this.maxSubSteps = 3;
   this.timeStep = 1 / 60;
 
-  this.lineWidth = 0.02;
+  this.lineWidth = 0.025;
 
   world.on("addBody", function(e) {
     self.addRenderable(e.body);
@@ -295,7 +295,10 @@ P2Cut.drawPlane = function(x0, x1, max, lineWidth, lineColor, fillColor) {
     ctx.moveTo(0, max);
     ctx.lineTo(2 * max, max);
     ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
     ctx.strokeStyle = lineColor;
+    ctx.setLineDash && ctx.setLineDash([ 0.12, 0.06 ]);
+    ctx.mozDash = [ 0.12, 0.06 ];
     ctx.stroke();
   });
 
@@ -319,7 +322,7 @@ P2Cut.drawCircle = function(x, y, angle, radius, lineWidth, lineColor,
     }
 
     ctx.moveTo(radius + lineWidth, radius + lineWidth);
-    ctx.lineTo(0, radius + lineWidth);
+    ctx.lineTo(lineWidth, radius + lineWidth);
 
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = lineColor;
@@ -342,6 +345,7 @@ P2Cut.drawSpring = function(length, lineWidth, lineColor) {
 
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = lineColor;
+    ctx.lineJoin = "round";
 
     ctx.moveTo(0, dy);
     for (var i = 1; i < N; i++) {
