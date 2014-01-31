@@ -1,3 +1,11 @@
+P2Cut.view = function(world, width, height) {
+  Cut.Loader.load(function(root, container) {
+    root.viewbox(width, height).pin("handle", -0.5);
+    Cut.Mouse.subscribe(root, container);
+    new P2Cut(world, root, container);
+  });
+};
+
 function P2Cut(world, root, container) {
 
   var self = this;
@@ -6,6 +14,11 @@ function P2Cut(world, root, container) {
 
   this.maxSubSteps = 3;
   this.timeStep = 1 / 60;
+
+  this.mouseConstraint = null;
+  this.mouseBody = new p2.Body();
+  this.mousePoint = p2.vec2.create();
+  this.mousePrecision = 0.15;
 
   this.lineWidth = 0.025;
   this.lineColor = "#000000";
@@ -40,6 +53,18 @@ function P2Cut(world, root, container) {
   for (var i = 0; i < world.springs.length; i++) {
     this.addRenderable(world.springs[i]);
   }
+
+  root.tick(function() {
+    self.step();
+  });
+
+  root.listen(Cut.Mouse.START, function(ev, point) {
+    self.handleMouseDown(point);
+  }).listen(Cut.Mouse.MOVE, function(ev, point) {
+    self.handleMouseMove(point);
+  }).listen(Cut.Mouse.END, function(ev, point) {
+    self.handleMouseUp(point);
+  }).spy(true);
 }
 
 P2Cut.ratio = 128;
@@ -127,7 +152,7 @@ P2Cut.prototype.addRenderable = function(obj) {
   var options = {
     lineWidth : this.lineWidth,
     lineColor : "#000000",
-    fillColor : "#" + randomPastelHex()
+    fillColor : "#" + P2Cut.randomColor()
   };
 
   obj.ui = Cut.create().appendTo(this.root);
@@ -412,8 +437,8 @@ P2Cut.prototype.drawConvex = function(verts, options) {
   });
 };
 
-// http://stackoverflow.com/questions/43044/algorithm-to-randomly-generate-an-aesthetically-pleasing-color-palette
-function randomPastelHex() {
+P2Cut.randomColor = function() {
+  // http://stackoverflow.com/questions/43044/algorithm-to-randomly-generate-an-aesthetically-pleasing-color-palette
   var mix = [ 255, 255, 255 ];
   var red = Math.floor(Math.random() * 256);
   var green = Math.floor(Math.random() * 256);
@@ -424,15 +449,55 @@ function randomPastelHex() {
   green = Math.floor((green + 3 * mix[1]) / 4);
   blue = Math.floor((blue + 3 * mix[2]) / 4);
 
-  return rgbToHex(red, green, blue);
-}
+  return P2Cut.rgbToHex(red, green, blue);
+};
 
-function rgbToHex(r, g, b) {
-  return componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
+P2Cut.rgbToHex = function(r, g, b) {
+  return P2Cut.componentToHex(r) + P2Cut.componentToHex(g)
+      + P2Cut.componentToHex(b);
+};
 
-// http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-function componentToHex(c) {
+P2Cut.componentToHex = function(c) {
   var hex = c.toString(16);
   return hex.length == 1 ? "0" + hex : hex;
-}
+};
+
+P2Cut.prototype.handleMouseDown = function(point) {
+  p2.vec2.set(this.mousePoint, point.x, -point.y);
+
+  point = this.mousePoint;
+
+  // Check if the clicked point overlaps bodies
+  var hits = this.world.hitTest(point, world.bodies, this.mousePrecision);
+
+  while (hits.length > 0) {
+    var hit = hits.shift();
+    if (hit.motionState != p2.Body.STATIC) {
+      // Add mouse joint to the body
+      var localPoint = p2.vec2.create();
+      hit.toLocalFrame(localPoint, point);
+      this.world.addBody(this.mouseBody);
+      this.mouseConstraint = new p2.RevoluteConstraint(this.mouseBody, point,
+          hit, localPoint);
+      this.world.addConstraint(this.mouseConstraint);
+      break;
+    }
+  }
+
+};
+
+P2Cut.prototype.handleMouseMove = function(point) {
+  p2.vec2.set(this.mousePoint, point.x, -point.y);
+};
+
+P2Cut.prototype.handleMouseUp = function(point) {
+  p2.vec2.set(this.mousePoint, point.x, -point.y);
+
+  // Drop constraint
+  if (this.mouseBody.world) {
+    this.world.removeConstraint(this.mouseConstraint);
+    this.mouseConstraint = null;
+    this.world.removeBody(this.mouseBody);
+  }
+
+};

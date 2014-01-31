@@ -58,13 +58,7 @@
           console.log("The circle fell asleep!");
         });
 
-        Cut.Loader.load(function(root, container) {
-          root.viewbox(6, 6).pin("handle", -0.5);
-          var demo = new P2Cut(world, root, container);
-          root.tick(function() {
-            demo.step();
-          });
-        });
+        P2Cut.view(world, 5, 5);
 
     </script>
 </body>
