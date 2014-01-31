@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GearConstraint demo - p2.js physics engine</title>
+    <meta name="description" content="Demonstrates the GearConstraint that syncs the rotation of two bodies with some gear ratio.">
+
+    <link href="../example.css" rel="stylesheet" />
+    <script src="../../cut-core.js"></script>
+    <script src="../../cut-mouse.js"></script>
+    <script src="../../cut-loader.js"></script>
+    <script src="../p2.js"></script>
+    <script src="../p2-cut.js"></script>
+</head>
+<body>
+    <script>
+
+        var shape = new p2.Circle(1);
+
+        var world = new p2.World({
+            doProfiling:true,
+            gravity : [0,-10],
+        });
+
+        // Create first circle
+        var bodyA = new p2.Body({
+            mass: 1,
+            position: [-2,0],
+            angularVelocity : -5,
+        });
+        bodyA.addShape(shape);
+        world.addBody(bodyA);
+
+        // Create second circle
+        var bodyB = new p2.Body({
+            mass: 1,
+            position: [2,0],
+        });
+        bodyB.addShape(shape);
+        world.addBody(bodyB);
+
+        // Create a dummy body that we can hinge them to
+        var dummyBody = new p2.Body();
+        world.addBody(dummyBody);
+
+        // Hinge em
+        var c1 = new p2.RevoluteConstraint(dummyBody,[-2,0],bodyA,[0,0]),
+            c2 = new p2.RevoluteConstraint(dummyBody,[ 2,0],bodyB,[0,0]);
+        world.addConstraint(c1);
+        world.addConstraint(c2);
+
+        // Add gear
+        var gear = new p2.GearConstraint(bodyA,bodyB,{ ratio: 2 });
+        world.addConstraint(gear);
+
+        Cut.Loader.load(function(root, container) {
+          root.viewbox(6, 6).pin("handle", -0.5);
+          var demo = new P2Cut(world, root, container);
+          root.tick(function() {
+            demo.step();
+          });
+        });
+    </script>
+</body>
+</html>

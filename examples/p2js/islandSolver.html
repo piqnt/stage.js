@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Island solver demo - p2.js physics engine</title>
+    <meta name="description" content="How to use the IslandSolver for improved performance.">
+
+    <link href="../example.css" rel="stylesheet" />
+    <script src="../../cut-core.js"></script>
+    <script src="../../cut-mouse.js"></script>
+    <script src="../../cut-loader.js"></script>
+    <script src="../p2.js"></script>
+    <script src="../p2-cut.js"></script>
+</head>
+<body>
+    <script>
+
+        var world = new p2.World({
+            doProfiling : true,
+            gravity : [0,-15],
+        });
+
+        var N = 10,                         // Number of circles in each rope
+            M = 10,                         // Number of ropes
+            r = 0.1,                        // Circle radius
+            subsolver = new p2.GSSolver();  // Solver to use in each subsystem
+
+        world.solver = new p2.IslandSolver(subsolver);
+        subsolver.stiffness = 1e7;
+        subsolver.relaxation = 3;
+        subsolver.tolerance = 0.1;
+        subsolver.iterations = N;
+
+        // Create circle ropes
+        for(var j=0; j<M; j++){
+            var shape = new p2.Circle(r);
+            var lastBody;
+            for(var i=N; i>=0; i--){
+                var x = (j+0.5-M/2)*r*8;
+                var y = (N/2-i)*r*2.1;
+                var p = new p2.Body({
+                    mass: i==0 ? 0 : 1,
+                    position: [x, y]
+                });
+                p.addShape(shape);
+                if(lastBody){
+                    var dist = Math.abs(p.position[1]-lastBody.position[1]);
+                    var c = new p2.DistanceConstraint(p,lastBody, dist);
+                    world.addConstraint(c);
+                } else {
+                    p.velocity[0] = 1*i;
+                }
+                lastBody = p;
+                world.addBody(p);
+            }
+            lastBody = null;
+        }
+
+        Cut.Loader.load(function(root, container) {
+          root.viewbox(6, 6).pin("handle", -0.5);
+          var demo = new P2Cut(world, root, container);
+          root.tick(function() {
+            demo.step();
+          });
+        });
+    </script>
+</body>
+</html>

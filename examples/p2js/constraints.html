@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Constraints demo - p2.js physics engine</title>
+    <meta name="description" content="Tests a few constraints.">
+
+    <link href="../example.css" rel="stylesheet" />
+    <script src="../../cut-core.js"></script>
+    <script src="../../cut-mouse.js"></script>
+    <script src="../../cut-loader.js"></script>
+    <script src="../p2.js"></script>
+    <script src="../p2-cut.js"></script>
+</head>
+<body>
+    <script>
+        var N=10, r=0.1;
+
+        var world = new p2.World({
+            doProfiling:true,
+            gravity : [0,-15],
+        });
+        world.solver.stiffness = 1e7;
+        world.solver.relaxation = 3;
+        world.solver.iterations = N;
+
+        // Add a line
+        var line = new p2.Body({
+            mass: 1,
+            position: [-1.5,-0.5],
+            angle: Math.PI / 2,
+            angularVelocity : 10
+        });
+        line.addShape(new p2.Line(1));
+        world.addBody(line);
+
+        // Add a "null" body
+        var groundBody = new p2.Body();
+        world.addBody(groundBody);
+
+        world.addConstraint( new p2.RevoluteConstraint(line, [0.5,0], groundBody, [-1.5,0]) );
+
+        // Create circle rope
+        var shape = new p2.Circle(r);
+        var lastBody;
+        for(var i=N-1; i>=0; i--){
+            var x = 0;
+            var y = (N-i - N/2)*r*2.1;
+            var p = new p2.Body({
+                mass: i==0 ? 0 : 1,
+                position: [x,y],
+            });
+            p.addShape(shape);
+            if(lastBody){
+                var dist = Math.abs(p.position[1]-lastBody.position[1]);
+                var c = new p2.DistanceConstraint(p,lastBody,dist);
+                world.addConstraint(c);
+            } else {
+                p.velocity[0] = 10;
+            }
+            lastBody = p;
+            world.addBody(p);
+        }
+
+        // Create RevoluteConstraint
+        var bodyA = new p2.Body({
+            mass: 1,
+            position: [3,0],
+            angularVelocity: 30
+        });
+        bodyA.addShape(new p2.Circle(1));
+        world.addBody(bodyA);
+        var bodyB = new p2.Body({
+            mass: 0,
+            position: [3,4],
+        });
+        bodyB.addShape(new p2.Circle(1));
+        world.addBody(bodyB);
+        var pivotA = [0,2];
+        var pivotB = [0,-2];
+        var cr = new p2.RevoluteConstraint(bodyA, pivotA, bodyB, pivotB);
+        cr.upperLimitEnabled = true;
+        cr.upperLimit = Math.PI / 4;
+        cr.lowerLimitEnabled = true;
+        cr.lowerLimit = -Math.PI / 4;
+        world.addConstraint(cr);
+
+        Cut.Loader.load(function(root, container) {
+          root.viewbox(6, 6).pin("handle", -0.5);
+          var demo = new P2Cut(world, root, container);
+          root.tick(function() {
+            demo.step();
+          });
+        });
+    </script>
+</body>
+</html>

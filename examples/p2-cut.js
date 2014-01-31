@@ -8,6 +8,7 @@ function P2Cut(world, root, container) {
   this.timeStep = 1 / 60;
 
   this.lineWidth = 0.025;
+  this.lineColor = "#000000";
 
   world.on("addBody", function(e) {
     self.addRenderable(e.body);
@@ -104,7 +105,7 @@ P2Cut.prototype.step = function() {
   //
   // var g = this.contactGraphics;
   // g.lineStyle(this.lineWidth, 0x000000, 1);
-  // for (var i = 0; i !== this.world.narrowphase.contactEquations.length; i++)
+  // for (var i = 0; i < this.world.narrowphase.contactEquations.length; i++)
   // {
   // var eq = this.world.narrowphase.contactEquations[i], bi = eq.bi, bj =
   // eq.bj, ri = eq.ri, rj = eq.rj, xi = (bi.position[0]), yi = (h -
@@ -123,142 +124,106 @@ P2Cut.prototype.step = function() {
 
 P2Cut.prototype.addRenderable = function(obj) {
 
-  var lineWidth = this.lineWidth;
-  var fillColor = "#" + randomPastelHex();
-  var lineColor = "#000000";
+  var options = {
+    lineWidth : this.lineWidth,
+    lineColor : "#000000",
+    fillColor : "#" + randomPastelHex()
+  };
 
-  var zero = [ 0, 0 ];
+  obj.ui = Cut.create().appendTo(this.root);
 
   var cutout = null;
 
   if (obj instanceof p2.Body && obj.shapes.length) {
-
     if (obj.concavePath && !this.debugPolygons) {
-      // var path = [];
-      // for (var j = 0; j !== obj.concavePath.length; j++) {
-      // var v = obj.concavePath[j];
-      // path.push([ v[0], -v[1] ]);
-      // }
-      // if (path.length) {
-      // sprite = P2Cut.drawPath(path, lineColor, fillColor, lineWidth);
-      // }
+      cutout = this.drawConvex(obj.concavePath, options);
+      Cut.image(cutout).appendTo(obj.ui).pin({
+        handle : 0.5,
+        offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
+        offsetY : obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0,
+        rotation : -obj.shapeAngles[i] || 0
+      });
 
     } else {
       for (var i = 0; i < obj.shapes.length; i++) {
         var shape = obj.shapes[i];
-        var offset = obj.shapeOffsets[i] || zero;
-        var angle = obj.shapeAngles[i] || 0;
 
         if (shape instanceof p2.Circle) {
-          cutout = P2Cut.drawCircle(offset[0], offset[1], angle, shape.radius,
-              lineWidth, lineColor, fillColor);
+          cutout = this.drawCircle(shape.radius, options);
 
         } else if (shape instanceof p2.Particle) {
-          cutout = P2Cut.drawCircle(offset[0], offset[1], angle, 2 * lineWidth,
-              0, lineColor, lineColor);
+          options.fillColor = options.lineColor;
+          cutout = this.drawCircle(2 * this.lineWidth, options);
 
         } else if (shape instanceof p2.Plane) {
-          cutout = P2Cut
-              .drawPlane(-10, 10, 10, lineWidth, lineColor, fillColor);
+          cutout = this.drawPlane(-10, 10, 10, options);
 
         } else if (shape instanceof p2.Line) {
-          // sprite = P2Cut.drawLine(shape.length, lineColor, lineWidth);
+          cutout = this.drawLine(shape.length, options);
 
         } else if (shape instanceof p2.Rectangle) {
-          cutout = P2Cut.drawRectangle(offset[0], offset[1], angle,
-              shape.width, shape.height, lineWidth, lineColor, fillColor);
+          cutout = this.drawRectangle(shape.width, shape.height, options);
 
         } else if (shape instanceof p2.Capsule) {
-          // sprite = P2Cut.drawCapsule(offset[0], -offset[1], angle,
-          // shape.length,
-          // shape.radius, lineColor, fillColor, lineWidth);
+          cutout = this.drawCapsule(shape.length, shape.radius, options);
 
         } else if (shape instanceof p2.Convex) {
-          // Scale verts
-          // var verts = [], vrot = p2.vec2.create();
-          // for (var j = 0; j !== shape.vertices.length; j++) {
-          // var v = shape.vertices[j];
-          // p2.vec2.rotate(vrot, v, angle);
-          // verts.push([ (vrot[0] + offset[0]), -(vrot[1] + offset[1]) ]);
-          // }
-          //
-          // sprite = P2Cut.drawConvex(verts, shape.triangles, lineColor,
-          // fillColor, lineWidth, this.debugPolygons,
-          // [ offset[0], -offset[1] ]);
+          if (shape.vertices.length) {
+            cutout = this.drawConvex(shape.vertices, options);
+          }
         }
+        Cut.image(cutout).appendTo(obj.ui).pin({
+          handle : 0.5,
+          offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
+          offsetY : obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0,
+          rotation : -obj.shapeAngles[i] || 0
+        });
       }
     }
 
   } else if (obj instanceof p2.Spring) {
-    cutout = P2Cut.drawSpring(obj.restLength, lineWidth);
+    cutout = this.drawSpring(obj.restLength, options);
+    Cut.image(cutout).appendTo(obj.ui).pin({
+      handle : 0.5
+    });
   }
 
-  if (cutout) {
-    obj.ui = Cut.image(cutout).appendTo(this.root).pin("handle", 0.5);
-  }
 };
 
 P2Cut.prototype.removeRenderable = function(obj) {
   obj.ui && obj.ui.remove();
 };
 
-P2Cut.drawPath = function(path, color, fillColor, lineWidth) {
-  ctx.lineWidth = typeof (lineWidth) == "number" ? lineWidth : 1;
-  ctx.color = typeof (color) == "undefined" ? 0x000000 : color;
-
-  var xmin = Infinity, xmax = -xmin;
-  var ymin = Infinity, ymax = -ymin;
-  for (var i = 0; i < path.length; i++) {
-    xmin = Math.min(v[0], xmin);
-    ymin = Math.min(v[1], ymin);
-    xmax = Math.max(v[0], xmin);
-    ymax = Math.max(v[1], ymin);
-  }
-
-  return Cut.Out.drawing(xmax - xmin, ymax - ymin, function(ctx) {
-
-    ctx.setTransform(1, 0, 0, 1, xmin, xmax);
-
-    ctx.lineWidth = lineWidth;
-    ctx.color = color;
-
-    for (var i = 0; i < path.length; i++) {
-      var v = path[i], x = v[0], y = v[1];
-      if (i == 0) {
-        ctx.moveTo(x - xmin, y - ymin);
-      } else {
-        ctx.lineTo(x - xmin, y - ymin);
-      }
-    }
-
-    if (path.length > 2 && typeof (fillColor) == "number") {
-      ctx.closePath();
-      ctx.fill = fillColor;
-      ctx.fill();
-    }
-  });
+P2Cut.prototype.options = function(options) {
+  opions = typeof options === "object" ? options : {};
+  options.lineWidth = options.lineWidth || this.lineWidth;
+  options.lineColor = options.lineColor || this.lineColor;
+  options.fillColor = options.fillColor || this.fillColor;
+  return options;
 };
 
-P2Cut.drawLine = function(len, color, lineWidth) {
-  lineWidth = typeof (lineWidth) == "number" ? lineWidth : 1;
-  color = typeof (color) == "undefined" ? 0x000000 : color;
+P2Cut.prototype.drawLine = function(length, options) {
+  options = this.options(options);
+  var lineWidth = options.lineWidth * 2, lineColor = options.lineColor, fillColor = options.fillColor;
 
-  return Cut.Out.drawing(len, lineWidth, function(ctx) {
-    ctx.lineWidth = lineWidth;
-    ctx.color = color;
+  return Cut.Out.drawing(length + 2 * lineWidth, lineWidth, P2Cut.ratio,
+      function(ctx) {
+        ctx.scale(P2Cut.ratio, P2Cut.ratio);
 
-    ctx.setTransform(1, 0, 0, 1, xmin, xmax);
+        ctx.moveTo(lineWidth, lineWidth / 2);
+        ctx.lineTo(lineWidth + length, lineWidth / 2);
 
-    g.moveTo(-len / 2, 0);
-    g.lineTo(len / 2, 0);
-  });
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = lineColor;
+        ctx.stroke();
+      });
 
 };
 
-P2Cut.drawRectangle = function(x, y, angle, w, h, lineWidth, lineColor,
-    fillColor) {
-  lineWidth = typeof (lineWidth) == "number" ? lineWidth : 1;
-  lineColor = typeof (color) == "undefined" ? "#000000" : lineColor;
+P2Cut.prototype.drawRectangle = function(w, h, options) {
+  options = this.options(options);
+  var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
   var width = w + 2 * lineWidth;
   var height = h + 2 * lineWidth;
@@ -277,37 +242,9 @@ P2Cut.drawRectangle = function(x, y, angle, w, h, lineWidth, lineColor,
   });
 };
 
-P2Cut.drawPlane = function(x0, x1, max, lineWidth, lineColor, fillColor) {
-  lineWidth = typeof (lineWidth) == "number" ? lineWidth : 1;
-  lineColor = typeof (color) == "undefined" ? "#000000" : lineColor;
-
-  return Cut.Out.drawing(max * 2, max * 2, P2Cut.ratio, function(ctx) {
-    ctx.scale(P2Cut.ratio, P2Cut.ratio);
-
-    if (fillColor) {
-      ctx.beginPath();
-      ctx.rect(0, max, 2 * max, 2 * max);
-      ctx.fillStyle = fillColor;
-      ctx.fill();
-      ctx.closePath();
-    }
-    ctx.beginPath();
-    ctx.moveTo(0, max);
-    ctx.lineTo(2 * max, max);
-    ctx.lineWidth = lineWidth;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = lineColor;
-    ctx.setLineDash && ctx.setLineDash([ 0.12, 0.06 ]);
-    ctx.mozDash = [ 0.12, 0.06 ];
-    ctx.stroke();
-  });
-
-};
-
-P2Cut.drawCircle = function(x, y, angle, radius, lineWidth, lineColor,
-    fillColor) {
-  lineWidth = typeof (lineWidth) == "number" ? lineWidth : 1;
-  lineColor = typeof (color) == "undefined" ? "#000000" : lineColor;
+P2Cut.prototype.drawCircle = function(radius, options) {
+  options = this.options(options);
+  var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
@@ -330,9 +267,39 @@ P2Cut.drawCircle = function(x, y, angle, radius, lineWidth, lineColor,
   });
 };
 
-P2Cut.drawSpring = function(length, lineWidth, lineColor) {
-  lineWidth = typeof (lineWidth) == "number" ? lineWidth : 1;
-  lineColor = typeof (color) == "undefined" ? 0xffffff : lineColor;
+P2Cut.prototype.drawCapsule = function(len, radius, options) {
+
+  options = this.options(options);
+  var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
+
+  var width = len + 2 * radius + 2 * lineWidth;
+  var height = 2 * radius + 2 * lineWidth;
+
+  return Cut.Out.drawing(width, height, P2Cut.ratio, function(ctx) {
+    ctx.scale(P2Cut.ratio, P2Cut.ratio);
+
+    ctx.beginPath();
+    ctx.moveTo(radius + lineWidth, lineWidth);
+    ctx.lineTo(len + radius + lineWidth, lineWidth);
+    ctx.arc(len + radius + lineWidth, radius + lineWidth, radius, -Math.PI / 2,
+        Math.PI / 2);
+    ctx.lineTo(radius + lineWidth, 2 * radius + lineWidth);
+    ctx.arc(radius + lineWidth, radius + lineWidth, radius, Math.PI / 2,
+        -Math.PI / 2);
+    ctx.closePath();
+    if (fillColor) {
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+    }
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = lineColor;
+    ctx.stroke();
+  });
+};
+
+P2Cut.prototype.drawSpring = function(length, options) {
+  options = this.options(options);
+  var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
   length = Math.max(length, lineWidth * 10);
 
@@ -366,70 +333,83 @@ P2Cut.drawSpring = function(length, lineWidth, lineColor) {
   });
 };
 
-P2Cut.drawCapsule = function(g, x, y, angle, len, radius, color, fillColor,
-    lineWidth) {
-  lineWidth = typeof (lineWidth) == "number" ? lineWidth : 1;
-  color = typeof (color) == "undefined" ? 0x000000 : color;
-  g.lineStyle(lineWidth, color, 1);
+P2Cut.prototype.drawPlane = function(x0, x1, max, options) {
+  options = this.options(options);
+  var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
-  // Draw circles at ends
-  var c = Math.cos(angle);
-  var s = Math.sin(angle);
-  g.beginFill(fillColor);
-  g.drawCircle(-len / 2 * c + x, -len / 2 * s + y, radius);
-  g.drawCircle(len / 2 * c + x, len / 2 * s + y, radius);
-  g.endFill();
+  return Cut.Out.drawing(max * 2, max * 2, P2Cut.ratio, function(ctx) {
+    ctx.scale(P2Cut.ratio, P2Cut.ratio);
 
-  // Draw rectangle
-  g.lineStyle(lineWidth, color, 0);
-  g.beginFill(fillColor);
-  g.moveTo(-len / 2 * c + radius * s + x, -len / 2 * s + radius * c + y);
-  g.lineTo(len / 2 * c + radius * s + x, len / 2 * s + radius * c + y);
-  g.lineTo(len / 2 * c - radius * s + x, len / 2 * s - radius * c + y);
-  g.lineTo(-len / 2 * c - radius * s + x, -len / 2 * s - radius * c + y);
-  g.endFill();
+    if (fillColor) {
+      ctx.beginPath();
+      ctx.rect(0, max, 2 * max, 2 * max);
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.closePath();
+    }
 
-  // Draw lines in between
-  g.lineStyle(lineWidth, color, 1);
-  g.moveTo(-len / 2 * c + radius * s + x, -len / 2 * s + radius * c + y);
-  g.lineTo(len / 2 * c + radius * s + x, len / 2 * s + radius * c + y);
-  g.moveTo(-len / 2 * c - radius * s + x, -len / 2 * s - radius * c + y);
-  g.lineTo(len / 2 * c - radius * s + x, len / 2 * s - radius * c + y);
+    ctx.beginPath();
+    ctx.moveTo(0, max);
+    ctx.lineTo(2 * max, max);
+
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = lineColor;
+    ctx.setLineDash && ctx.setLineDash([ 0.12, 0.06 ]);
+    ctx.mozDash = [ 0.12, 0.06 ];
+
+    ctx.stroke();
+  });
 
 };
 
-P2Cut.drawConvex = function(g, verts, triangles, color, fillColor, lineWidth,
-    debug, offset) {
-  lineWidth = typeof (lineWidth) == "number" ? lineWidth : 1;
-  color = typeof (color) == "undefined" ? 0x000000 : color;
-  if (!debug) {
-    g.lineStyle(lineWidth, color, 1);
-    g.beginFill(fillColor);
-    for (var i = 0; i !== verts.length; i++) {
-      var v = verts[i], x = v[0], y = v[1];
+P2Cut.prototype.drawConvex = function(verts, options) {
+  options = this.options(options);
+  var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
+
+  if (!verts.length) {
+    return;
+  }
+
+  var xmin = Infinity, xmax = -xmin;
+  var ymin = Infinity, ymax = -ymin;
+  for (var i = 0; i < verts.length; i++) {
+    var v = verts[i], x = v[0], y = -v[1];
+    xmin = Math.min(x, xmin);
+    xmax = Math.max(x, xmax);
+    ymin = Math.min(y, ymin);
+    ymax = Math.max(y, ymax);
+  }
+
+  return Cut.Out.drawing(xmax - xmin + 2 * lineWidth, ymax - ymin + 2
+      * lineWidth, P2Cut.ratio, function(ctx) {
+    ctx.scale(P2Cut.ratio, P2Cut.ratio);
+
+    ctx.beginPath();
+    for (var i = 0; i < verts.length; i++) {
+      var v = verts[i], x = v[0] - xmin + lineWidth, y = -v[1] - ymin
+          + lineWidth;
       if (i == 0)
-        g.moveTo(x, y);
+        ctx.moveTo(x, y);
       else
-        g.lineTo(x, y);
-    }
-    g.endFill();
-    if (verts.length > 2) {
-      g.moveTo(verts[verts.length - 1][0], verts[verts.length - 1][1]);
-      g.lineTo(verts[0][0], verts[0][1]);
-    }
-  } else {
-    var colors = [ 0xff0000, 0x00ff00, 0x0000ff ];
-    for (var i = 0; i !== verts.length + 1; i++) {
-      var v0 = verts[i % verts.length], v1 = verts[(i + 1) % verts.length], x0 = v0[0], y0 = v0[1], x1 = v1[0], y1 = v1[1];
-      g.lineStyle(lineWidth, colors[i % colors.length], 1);
-      g.moveTo(x0, y0);
-      g.lineTo(x1, y1);
-      g.drawCircle(x0, y0, lineWidth * 2);
+        ctx.lineTo(x, y);
     }
 
-    g.lineStyle(lineWidth, 0x000000, 1);
-    g.drawCircle(offset[0], offset[1], lineWidth * 2);
-  }
+    if (verts.length > 2) {
+      ctx.closePath();
+    }
+
+    if (fillColor) {
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = lineColor;
+    ctx.stroke();
+  });
 };
 
 // http://stackoverflow.com/questions/43044/algorithm-to-randomly-generate-an-aesthetically-pleasing-color-palette
