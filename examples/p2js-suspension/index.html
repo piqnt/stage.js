@@ -20,22 +20,4 @@
   <script src="p2-cut.js"></script>
   <script src="app.js"></script>
   
-  <script>
-  var statusbox = null;
-  function status(msg) {
-    if (!statusbox) {
-      statusbox = document.createElement("div");
-      statusbox.style.position = "absolute";
-      statusbox.style.color = "black";
-      statusbox.style.background = "white";
-      statusbox.style.zIndex = 999;
-      statusbox.style.top = "5px";
-      statusbox.style.right = "5px";
-      statusbox.style.padding = "1px 5px";
-      document.body.appendChild(statusbox);
-    }
-    statusbox.innerHTML = msg;
-  }
-</script>
-  
 </body></html>

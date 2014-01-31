@@ -132,9 +132,5 @@ Cut.Loader.load(function(root, container) {
   var demo = new P2Cut(world, root, container);
   root.tick(function() {
     demo.step();
-    if (chassisBody) {
-      var p = chassisBody.position;
-      status((p[0] * 100 | 0) + " x " + (p[1] * 100 | 0));
-    }
   });
 });
