@@ -1207,13 +1207,14 @@ Cut.addTexture = function() {
     Cut._textures[texture.name] = texture;
     Cut.Out._cache[texture.name] = {};
 
-    texture.getImage = function() {
-      var self = texture;
-      if (!self._image) {
-        self._image = Cut.getImage(self.imagePath);
-      }
-      return self._image;
-    };
+    texture.getImage = (function(texture) {
+      return function() {
+        if (!texture._image) {
+          texture._image = Cut.getImage(texture.imagePath);
+        }
+        return texture._image;
+      };
+    })(texture);
 
     var cutout;
     var cutouts = texture.cutouts || texture.sprites;
@@ -1325,10 +1326,18 @@ Cut.Out.prototype.offset = function(x, y) {
 Cut.Out.prototype.paste = function(context) {
   Cut._stats.paste++;
   var img = this.image();
-  img && context.drawImage(img, // source
-  this.sx, this.sy, this.sw, this.sh, // cut
-  this.dx, this.dy, this.dw, this.dh // position
-  );
+  try {
+    img && context.drawImage(img, // source
+    this.sx, this.sy, this.sw, this.sh, // cut
+    this.dx, this.dy, this.dw, this.dh // position
+    );
+  } catch (e) {
+    if (!this.failed) {
+      console.log("Unable to paste: ", this.sx, this.sy, this.sw, this.sh,
+          this.dx, this.dy, this.dw, this.dh, img);
+    }
+    this.failed = true;
+  }
 };
 
 Cut.Out.prototype.toString = function() {
