@@ -47,13 +47,17 @@ Cut.create = function() {
 
 Cut.prototype.render = function(context) {
   Cut._stats.tick = Cut._stats.paint = Cut._stats.paste = 0;
-  var t = +new Date();
-  this._tick();
+
+  var now = Cut._now();
+  var elapsed = this._lastTime ? now - this._lastTime : 0;
+  this._lastTime = now;
+
+  this._tick(elapsed);
   this._paint(context);
-  Cut._stats.fps = 1000 / (+new Date() - t);
+  Cut._stats.fps = 1000 / (Cut._now() - now);
 };
 
-Cut.prototype._tick = function() {
+Cut.prototype._tick = function(elapsed) {
   if (!this._visible) {
     return;
   }
@@ -62,19 +66,19 @@ Cut.prototype._tick = function() {
   var length = this._tickBefore.length;
   for (var i = 0; i < length; i++) {
     Cut._stats.tick++;
-    this._tickBefore[i].call(this);
+    this._tickBefore[i].call(this, elapsed);
   }
 
   var child, next = this._first;
   while (child = next) {
     next = child._next;
-    child._tick();
+    child._tick(elapsed);
   }
 
   var length = this._tickAfter.length;
   for (var i = 0; i < length; i++) {
     Cut._stats.tick++;
-    this._tickAfter[i].call(this);
+    this._tickAfter[i].call(this, elapsed);
   }
 };
 
@@ -477,14 +481,12 @@ Cut.Tween = function(cut) {
     return cut._tween;
   }
 
-  var startTime = 0;
   var tween = {};
   var queue = [];
   var next = null;
 
-  function current() {
+  function start() {
     if (next !== queue[queue.length - 1]) {
-      startTime = Cut._now();
       cut.touch();
       queue.push(next);
     }
@@ -506,7 +508,7 @@ Cut.Tween = function(cut) {
   };
 
   tween.pin = function(pin) {
-    var end = current().end;
+    var end = start().end;
     if (arguments.length === 1) {
       Cut._extend(end, arguments[0]);
     } else if (arguments.length === 2) {
@@ -516,12 +518,12 @@ Cut.Tween = function(cut) {
   };
 
   tween.then = function(then) {
-    current().then = then;
+    next.then = then;
     return this;
   };
 
   tween.easing = function(easing) {
-    current().easing = easing;
+    next.easing = easing;
     return this;
   };
 
@@ -533,29 +535,26 @@ Cut.Tween = function(cut) {
     return this;
   };
 
-  cut.tick(function() {
+  cut.tick(function(elapsed) {
     if (!queue.length) {
       return;
     }
 
     this.touch();
 
-    var time = Cut._now();
-    var elapsed = time - startTime;
-
-    if (!elapsed) {
-      return;
-    }
-
     var head = queue[0];
 
-    if (head.delay > 0) {
-      head.delay -= elapsed;
-      startTime = time;
+    if (!head.time) {
+      head.time = 1;
+    } else {
+      head.time += elapsed;
+    }
+
+    if (head.time < head.delay) {
       return;
     }
 
-    var prog = elapsed / head.duration;
+    var prog = (head.time - head.delay) / head.duration;
     var over = prog >= 1;
     prog = prog > 1 ? 1 : prog;
     prog = head.easing ? head.easing(prog) : prog;
@@ -576,7 +575,6 @@ Cut.Tween = function(cut) {
 
     if (over) {
       queue.shift();
-      startTime = time;
       head.then && head.then.call(cut);
     }
 
@@ -718,7 +716,7 @@ Cut.Anim = function() {
 
   this.tick(function() {
     if (this._time && this._frames.length > 1) {
-      var t = +new Date() - this._time;
+      var t = Cut._now() - this._time;
       if (t >= this._ft) {
         var n = t < 2 * this._ft ? 1 : Math.floor(t / this._ft);
         this._time += n * this._ft;
@@ -802,7 +800,7 @@ Cut.Anim.prototype.repeat = function(repeat, callback) {
 
 Cut.Anim.prototype.play = function(reset) {
   if (!this._time || reset) {
-    this._time = +new Date();
+    this._time = Cut._now();
     this.gotoFrame(0);
   }
   return this;
@@ -2117,3 +2115,18 @@ Cut._now = (function() {
     };
   }
 })();
+
+Cut._status = function(msg) {
+  if (!(Cut._statusbox)) {
+    var statusbox = Cut._statusbox = document.createElement("div");
+    statusbox.style.position = "absolute";
+    statusbox.style.color = "black";
+    statusbox.style.background = "white";
+    statusbox.style.zIndex = 999;
+    statusbox.style.top = "5px";
+    statusbox.style.right = "5px";
+    statusbox.style.padding = "1px 5px";
+    document.body.appendChild(statusbox);
+  }
+  Cut._statusbox.innerHTML = msg;
+};
