@@ -59,10 +59,7 @@ P2Cut.prototype = new Cut(Cut.Proto);
 P2Cut.prototype._super = Cut;
 P2Cut.prototype.constructor = P2Cut;
 
-P2Cut.prototype.step = function() {
-  this.lastTime = this.lastTime || Date.now() / 1000;
-  var now = Date.now() / 1000, t = now - this.lastTime;
-  this.lastTime = now;
+P2Cut.prototype.step = function(t) {
   this.world.step(this.timeStep, t, this.maxSubSteps);
 
   for (var i = 0; i < world.bodies.length; i++) {
