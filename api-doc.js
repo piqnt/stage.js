@@ -130,6 +130,19 @@ foo.visit({
 foo.touch();
 
 //
+// ### Tweening
+//
+
+// create a tweening entry
+var tween = foo.tween(duration = 400, delay = 0);
+
+// clear tweening queue
+tween.clear(jumpToEnd = false);
+
+// set pinning values and start tweening
+tween.pin(pinning);
+
+//
 // ### Row
 //
 // Create a new row.
@@ -206,7 +219,7 @@ string.setFont(cutouts);
 string.setValue(value);
 
 //
-// ### Cut.Out
+// ### Cutout
 //
 // There are two ways to define a cutout (sprite): Canvas drawing and image
 // textures.
