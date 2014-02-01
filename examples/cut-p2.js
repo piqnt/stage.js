@@ -1,27 +1,21 @@
-P2Cut.view = function(world, width, height) {
-  Cut.Loader.load(function(root, container) {
-    root.viewbox(width, height).pin("handle", -0.5);
-    Cut.Mouse.subscribe(root, container);
-    new P2Cut(world, root, container);
-  });
+Cut.p2 = function(world, options) {
+  return new P2Cut(world, options);
 };
 
-function P2Cut(world, root, container) {
+function P2Cut(world, options) {
+  P2Cut.prototype._super.apply(this, arguments);
 
   var self = this;
   this.world = world;
-  this.root = root;
 
-  this.maxSubSteps = 3;
-  this.timeStep = 1 / 60;
+  options = options || {};
 
-  this.mouseConstraint = null;
-  this.mouseBody = new p2.Body();
-  this.mousePoint = p2.vec2.create();
-  this.mousePrecision = 0.15;
+  this.ratio = options.ratio || 128;
 
-  this.lineWidth = 0.025;
-  this.lineColor = "#000000";
+  this.maxSubSteps = options.maxSubSteps || 3;
+  this.timeStep = options.timeStep || 1 / 60;
+
+  this.lineWidth = options.lineWidth || 0.025;
 
   world.on("addBody", function(e) {
     self.addRenderable(e.body);
@@ -54,24 +48,16 @@ function P2Cut(world, root, container) {
     this.addRenderable(world.springs[i]);
   }
 
-  root.tick(function() {
-    self.step();
+  this.tick(function() {
+    this.step();
   });
 
-  root.listen(Cut.Mouse.START, function(ev, point) {
-    self.handleMouseDown(point);
-  }).listen(Cut.Mouse.MOVE, function(ev, point) {
-    self.handleMouseMove(point);
-  }).listen(Cut.Mouse.END, function(ev, point) {
-    self.handleMouseUp(point);
-  }).spy(true);
+  this.tempv = p2.vec2.fromValues(0, 0);
 }
 
-P2Cut.ratio = 128;
-
-var X = p2.vec2.fromValues(1, 0);
-var worldAnchorA = p2.vec2.fromValues(0, 0);
-var worldAnchorB = p2.vec2.fromValues(0, 0);
+P2Cut.prototype = new Cut(Cut.Proto);
+P2Cut.prototype._super = Cut;
+P2Cut.prototype.constructor = P2Cut;
 
 P2Cut.prototype.step = function() {
   this.lastTime = this.lastTime || Date.now() / 1000;
@@ -92,13 +78,13 @@ P2Cut.prototype.step = function() {
   for (var i = 0; i < world.springs.length; i++) {
     var spring = world.springs[i];
 
-    spring.getWorldAnchorA(worldAnchorA);
-    spring.getWorldAnchorB(worldAnchorB);
+    spring.getWorldAnchorA(this.tempv);
+    var ax = this.tempv[0];
+    var ay = this.tempv[1];
 
-    var ax = worldAnchorA[0];
-    var ay = worldAnchorA[1];
-    var bx = worldAnchorB[0];
-    var by = worldAnchorB[1];
+    spring.getWorldAnchorB(this.tempv);
+    var bx = this.tempv[0];
+    var by = this.tempv[1];
 
     // Spring position is the mean point between the anchors
     var x = (ax + bx) / 2;
@@ -149,19 +135,11 @@ P2Cut.prototype.step = function() {
 
 P2Cut.prototype.addRenderable = function(obj) {
 
-  var options = {
-    lineWidth : this.lineWidth,
-    lineColor : "#000000",
-    fillColor : "#" + P2Cut.randomColor()
-  };
-
-  obj.ui = Cut.create().appendTo(this.root);
-
-  var cutout = null;
+  obj.ui = Cut.create().appendTo(this);
 
   if (obj instanceof p2.Body && obj.shapes.length) {
     if (obj.concavePath && !this.debugPolygons) {
-      cutout = this.drawConvex(obj.concavePath, options);
+      var cutout = this.drawConvex(obj.concavePath);
       Cut.image(cutout).appendTo(obj.ui).pin({
         handle : 0.5,
         offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
@@ -173,28 +151,30 @@ P2Cut.prototype.addRenderable = function(obj) {
       for (var i = 0; i < obj.shapes.length; i++) {
         var shape = obj.shapes[i];
 
+        var cutout = null;
         if (shape instanceof p2.Circle) {
-          cutout = this.drawCircle(shape.radius, options);
+          cutout = this.drawCircle(shape.radius);
 
         } else if (shape instanceof p2.Particle) {
-          options.fillColor = options.lineColor;
-          cutout = this.drawCircle(2 * this.lineWidth, options);
+          cutout = this.drawCircle(2 * this.lineWidth, {
+            fillColor : "#000000"
+          });
 
         } else if (shape instanceof p2.Plane) {
-          cutout = this.drawPlane(-10, 10, 10, options);
+          cutout = this.drawPlane(-10, 10, 10);
 
         } else if (shape instanceof p2.Line) {
-          cutout = this.drawLine(shape.length, options);
+          cutout = this.drawLine(shape.length);
 
         } else if (shape instanceof p2.Rectangle) {
-          cutout = this.drawRectangle(shape.width, shape.height, options);
+          cutout = this.drawRectangle(shape.width, shape.height);
 
         } else if (shape instanceof p2.Capsule) {
-          cutout = this.drawCapsule(shape.length, shape.radius, options);
+          cutout = this.drawCapsule(shape.length, shape.radius);
 
         } else if (shape instanceof p2.Convex) {
           if (shape.vertices.length) {
-            cutout = this.drawConvex(shape.vertices, options);
+            cutout = this.drawConvex(shape.vertices);
           }
         }
         Cut.image(cutout).appendTo(obj.ui).pin({
@@ -207,7 +187,7 @@ P2Cut.prototype.addRenderable = function(obj) {
     }
 
   } else if (obj instanceof p2.Spring) {
-    cutout = this.drawSpring(obj.restLength, options);
+    var cutout = this.drawSpring(obj.restLength);
     Cut.image(cutout).appendTo(obj.ui).pin({
       handle : 0.5
     });
@@ -220,10 +200,10 @@ P2Cut.prototype.removeRenderable = function(obj) {
 };
 
 P2Cut.prototype.options = function(options) {
-  opions = typeof options === "object" ? options : {};
+  options = typeof options === "object" ? options : {};
   options.lineWidth = options.lineWidth || this.lineWidth;
-  options.lineColor = options.lineColor || this.lineColor;
-  options.fillColor = options.fillColor || this.fillColor;
+  options.lineColor = options.lineColor || "#000000";
+  options.fillColor = options.fillColor || "#" + P2Cut.randomColor();
   return options;
 };
 
@@ -231,9 +211,10 @@ P2Cut.prototype.drawLine = function(length, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth * 2, lineColor = options.lineColor, fillColor = options.fillColor;
 
-  return Cut.Out.drawing(length + 2 * lineWidth, lineWidth, P2Cut.ratio,
+  var ratio = this.ratio;
+  return Cut.Out.drawing(length + 2 * lineWidth, lineWidth, ratio,
       function(ctx) {
-        ctx.scale(P2Cut.ratio, P2Cut.ratio);
+        ctx.scale(ratio, ratio);
 
         ctx.moveTo(lineWidth, lineWidth / 2);
         ctx.lineTo(lineWidth + length, lineWidth / 2);
@@ -253,8 +234,9 @@ P2Cut.prototype.drawRectangle = function(w, h, options) {
   var width = w + 2 * lineWidth;
   var height = h + 2 * lineWidth;
 
-  return Cut.Out.drawing(width, height, P2Cut.ratio, function(ctx) {
-    ctx.scale(P2Cut.ratio, P2Cut.ratio);
+  var ratio = this.ratio;
+  return Cut.Out.drawing(width, height, ratio, function(ctx) {
+    ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.rect(lineWidth, lineWidth, w, h);
     if (fillColor) {
@@ -274,8 +256,9 @@ P2Cut.prototype.drawCircle = function(radius, options) {
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
 
-  return Cut.Out.drawing(width, height, P2Cut.ratio, function(ctx) {
-    ctx.scale(P2Cut.ratio, P2Cut.ratio);
+  var ratio = this.ratio;
+  return Cut.Out.drawing(width, height, ratio, function(ctx) {
+    ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
     if (fillColor) {
@@ -300,8 +283,9 @@ P2Cut.prototype.drawCapsule = function(len, radius, options) {
   var width = len + 2 * radius + 2 * lineWidth;
   var height = 2 * radius + 2 * lineWidth;
 
-  return Cut.Out.drawing(width, height, P2Cut.ratio, function(ctx) {
-    ctx.scale(P2Cut.ratio, P2Cut.ratio);
+  var ratio = this.ratio;
+  return Cut.Out.drawing(width, height, ratio, function(ctx) {
+    ctx.scale(ratio, ratio);
 
     ctx.beginPath();
     ctx.moveTo(radius + lineWidth, lineWidth);
@@ -332,8 +316,9 @@ P2Cut.prototype.drawSpring = function(length, options) {
   var dx = length / N;
   var dy = 0.2 * length;
 
-  return Cut.Out.drawing(length, dy * 2, P2Cut.ratio, function(ctx) {
-    ctx.scale(P2Cut.ratio, P2Cut.ratio);
+  var ratio = this.ratio;
+  return Cut.Out.drawing(length, dy * 2, ratio, function(ctx) {
+    ctx.scale(ratio, ratio);
 
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = lineColor;
@@ -362,8 +347,9 @@ P2Cut.prototype.drawPlane = function(x0, x1, max, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
-  return Cut.Out.drawing(max * 2, max * 2, P2Cut.ratio, function(ctx) {
-    ctx.scale(P2Cut.ratio, P2Cut.ratio);
+  var ratio = this.ratio;
+  return Cut.Out.drawing(max * 2, max * 2, ratio, function(ctx) {
+    ctx.scale(ratio, ratio);
 
     if (fillColor) {
       ctx.beginPath();
@@ -406,9 +392,10 @@ P2Cut.prototype.drawConvex = function(verts, options) {
     ymax = Math.max(y, ymax);
   }
 
+  var ratio = this.ratio;
   return Cut.Out.drawing(xmax - xmin + 2 * lineWidth, ymax - ymin + 2
-      * lineWidth, P2Cut.ratio, function(ctx) {
-    ctx.scale(P2Cut.ratio, P2Cut.ratio);
+      * lineWidth, ratio, function(ctx) {
+    ctx.scale(ratio, ratio);
 
     ctx.beginPath();
     for (var i = 0; i < verts.length; i++) {
@@ -460,44 +447,4 @@ P2Cut.rgbToHex = function(r, g, b) {
 P2Cut.componentToHex = function(c) {
   var hex = c.toString(16);
   return hex.length == 1 ? "0" + hex : hex;
-};
-
-P2Cut.prototype.handleMouseDown = function(point) {
-  p2.vec2.set(this.mousePoint, point.x, -point.y);
-
-  point = this.mousePoint;
-
-  // Check if the clicked point overlaps bodies
-  var hits = this.world.hitTest(point, world.bodies, this.mousePrecision);
-
-  while (hits.length > 0) {
-    var hit = hits.shift();
-    if (hit.motionState != p2.Body.STATIC) {
-      // Add mouse joint to the body
-      var localPoint = p2.vec2.create();
-      hit.toLocalFrame(localPoint, point);
-      this.world.addBody(this.mouseBody);
-      this.mouseConstraint = new p2.RevoluteConstraint(this.mouseBody, point,
-          hit, localPoint);
-      this.world.addConstraint(this.mouseConstraint);
-      break;
-    }
-  }
-
-};
-
-P2Cut.prototype.handleMouseMove = function(point) {
-  p2.vec2.set(this.mousePoint, point.x, -point.y);
-};
-
-P2Cut.prototype.handleMouseUp = function(point) {
-  p2.vec2.set(this.mousePoint, point.x, -point.y);
-
-  // Drop constraint
-  if (this.mouseBody.world) {
-    this.world.removeConstraint(this.mouseConstraint);
-    this.mouseConstraint = null;
-    this.world.removeBody(this.mouseBody);
-  }
-
 };
