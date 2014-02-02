@@ -10,7 +10,7 @@ Cut.Loader.load(function(root, container) {
   var row = Cut.row(0.5).appendTo(root).pin("align", 0.5).spacing(1);
   for (var i = 0; i < colors.length; i++) {
 
-    Cut.image("base:color_" + colors[i]).appendTo(row).listen(Cut.Mouse.MOVE,
+    Cut.image("base:color_" + colors[i]).appendTo(row).on(Cut.Mouse.MOVE,
         function(ev, point) {
           if (this != last) {
             last = this;

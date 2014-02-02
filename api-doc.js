@@ -105,7 +105,7 @@ foo.tick(ticker, beforeChildren = false);
 
 // Register a type-listener to bar.
 // `type` can be array or spaced string of multiple values.
-foo.listen(type, listener);
+foo.on(type, listener);
 
 // Get type-listeners registered to bar.
 foo.listeners(type);
@@ -278,7 +278,7 @@ Cut.Mouse.subscribe(root, container, includingMoveEvents = false);
 
 // Add click listener to bar, other mouse/touch event types are start, end and
 // move.
-bar.listen(Cut.Mouse.CLICK, function(event, point) {
+bar.on(Cut.Mouse.CLICK, function(event, point) {
   // point is relative to this cut
 });
 

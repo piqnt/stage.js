@@ -19,5 +19,12 @@ body {
 	right: 0;
 	bottom: 0;
 	padding: 0 10px 10px 0;
-	font-weight: bold;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
 }

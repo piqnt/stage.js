@@ -6,7 +6,7 @@ Cut.Loader.load(function(root, container) {
 
   var turn = false;
 
-  Cut.image("base:color_dark").appendTo(root).pin("align", 0.5).listen(
+  Cut.image("base:color_dark").appendTo(root).pin("align", 0.5).on(
       Cut.Mouse.CLICK, function(ev, point) {
         turn = !turn;
         this.tween(500, 500).clear().pin({

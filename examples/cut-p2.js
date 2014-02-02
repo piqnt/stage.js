@@ -208,9 +208,8 @@ P2Cut.prototype.drawLine = function(length, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth * 2, lineColor = options.lineColor, fillColor = options.fillColor;
 
-  var ratio = this.ratio;
-  return Cut.Out.drawing(length + 2 * lineWidth, lineWidth, ratio,
-      function(ctx) {
+  return Cut.Out.drawing(length + 2 * lineWidth, lineWidth, this.ratio,
+      function(ctx, ratio) {
         ctx.scale(ratio, ratio);
 
         ctx.moveTo(lineWidth, lineWidth / 2);
@@ -231,8 +230,7 @@ P2Cut.prototype.drawRectangle = function(w, h, options) {
   var width = w + 2 * lineWidth;
   var height = h + 2 * lineWidth;
 
-  var ratio = this.ratio;
-  return Cut.Out.drawing(width, height, ratio, function(ctx) {
+  return Cut.Out.drawing(width, height, this.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.rect(lineWidth, lineWidth, w, h);
@@ -253,8 +251,7 @@ P2Cut.prototype.drawCircle = function(radius, options) {
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
 
-  var ratio = this.ratio;
-  return Cut.Out.drawing(width, height, ratio, function(ctx) {
+  return Cut.Out.drawing(width, height, this.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
@@ -280,8 +277,7 @@ P2Cut.prototype.drawCapsule = function(len, radius, options) {
   var width = len + 2 * radius + 2 * lineWidth;
   var height = 2 * radius + 2 * lineWidth;
 
-  var ratio = this.ratio;
-  return Cut.Out.drawing(width, height, ratio, function(ctx) {
+  return Cut.Out.drawing(width, height, this.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
 
     ctx.beginPath();
@@ -313,8 +309,7 @@ P2Cut.prototype.drawSpring = function(length, options) {
   var dx = length / N;
   var dy = 0.2 * length;
 
-  var ratio = this.ratio;
-  return Cut.Out.drawing(length, dy * 2, ratio, function(ctx) {
+  return Cut.Out.drawing(length, dy * 2, this.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
 
     ctx.lineWidth = lineWidth;
@@ -344,8 +339,7 @@ P2Cut.prototype.drawPlane = function(x0, x1, max, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
-  var ratio = this.ratio;
-  return Cut.Out.drawing(max * 2, max * 2, ratio, function(ctx) {
+  return Cut.Out.drawing(max * 2, max * 2, this.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
 
     if (fillColor) {
@@ -389,9 +383,8 @@ P2Cut.prototype.drawConvex = function(verts, options) {
     ymax = Math.max(y, ymax);
   }
 
-  var ratio = this.ratio;
   return Cut.Out.drawing(xmax - xmin + 2 * lineWidth, ymax - ymin + 2
-      * lineWidth, ratio, function(ctx) {
+      * lineWidth, this.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
 
     ctx.beginPath();

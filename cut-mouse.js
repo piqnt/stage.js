@@ -123,7 +123,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     reverse : true,
     visible : true,
     start : function(cut) {
-      if (!cut.spy()) {
+      if (!(cut.spy() || listener === cut)) {
         cut.matrix().reverse().map(abs, rel);
         if (rel.x < 0 || rel.x > cut._pin._width || rel.y < 0
             || rel.y > cut._pin._height) {

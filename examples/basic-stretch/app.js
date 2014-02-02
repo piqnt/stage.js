@@ -8,7 +8,7 @@ Cut.Loader.load(function(root, container) {
     width : 64,
     height : 64,
     align : 0.5
-  }).listen(Cut.Mouse.CLICK, function(ev, point) {
+  }).on(Cut.Mouse.CLICK, function(ev, point) {
     this.tween().clear().pin({
       width : Cut.Math.random(32, 96),
       height : Cut.Math.random(32, 96)

@@ -10,7 +10,7 @@ Cut.Loader.load(function(root, container) {
   var number = Cut.string("base:d_").setValue("0123456789").pin("align", 0.5)
       .id("str").appendTo(popup);
 
-  root.listen(Cut.Mouse.CLICK, function(ev, point) {
+  root.on(Cut.Mouse.CLICK, function(ev, point) {
     number.setValue(Cut.Math
         .random(0, Math.pow(10, Cut.Math.random(0, 10) | 0)) | 0);
     return true;
@@ -31,13 +31,13 @@ Cut.Loader.load(function(root, container) {
     var yes = Cut.string("base:d_").setValue("012345").pin("align", 0.5);
     var no = Cut.string("base:d_").setValue("6789").pin("align", 0.5);
 
-    Cut.image("base:box").box().stretch().appendTo(row).append(yes).listen(
+    Cut.image("base:box").box().stretch().appendTo(row).append(yes).on(
         Cut.Mouse.CLICK, function() {
           popup.remove();
           return true;
         });
 
-    Cut.image("base:box").box().stretch().appendTo(row).append(no).listen(
+    Cut.image("base:box").box().stretch().appendTo(row).append(no).on(
         Cut.Mouse.CLICK, function() {
           popup.remove();
           return true;

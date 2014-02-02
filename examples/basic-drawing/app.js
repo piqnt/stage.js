@@ -4,7 +4,7 @@ Cut.Loader.load(function(root, container) {
 
   root.viewbox(200, 200);
 
-  Cut.image(Cut.Out.drawing(16, 16, 4, function(context) {
+  Cut.drawing(16, 16, 4, function(context) {
     context.beginPath();
     context.arc(32, 32, 30, 0, 2 * Math.PI, false);
     context.fillStyle = "gray";
@@ -12,6 +12,6 @@ Cut.Loader.load(function(root, container) {
     context.lineWidth = 2;
     context.strokeStyle = "black";
     context.stroke();
-  })).appendTo(root).pin("align", 0.5);
+  }).appendTo(root).pin("align", 0.5);
 
 });
