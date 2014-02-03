@@ -1229,6 +1229,10 @@ Cut.Texture = function(data) {
   }
 
   function filter(cutout) {
+    if (!cutout) {
+      return cutout;
+    }
+
     if (typeof data.filter === "function") {
       cutout = data.filter(cutout);
     }
@@ -1277,8 +1281,12 @@ Cut.Texture = function(data) {
         selectionCache[id] = result;
       }
 
+      if (!result && data.factory) {
+        result = filter(data.factory(selector));
+      }
+
       if (!result) {
-        throw "'" + selector + "' cutout not found!";
+        throw "Cutout not found: '" + data.name + ":" + selector + "'!";
       }
 
       return wrap(result);
@@ -1419,6 +1427,7 @@ Cut.Out.select = function(selector, prefix) {
 
   texture = Cut._textures[texture];
   if (texture == null) {
+    throw "Texture not found: '" + texture + ":" + name + "'!";
     return !prefix ? null : [];
   }
 
