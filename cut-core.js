@@ -679,8 +679,8 @@ Cut.Image.prototype.constructor = Cut.Image;
 Cut.Image.prototype.setImage = function(selector) {
   this._outs[0] = Cut.Out.select(selector);
   this.pin({
-    width : this._outs[0] ? this._outs[0].width() : 0,
-    height : this._outs[0] ? this._outs[0].height() : 0
+    width : this._outs[0] ? this._outs[0].dWidth() : 0,
+    height : this._outs[0] ? this._outs[0].dHeight() : 0
   });
 
   return this;
@@ -771,8 +771,8 @@ Cut.Anim.prototype.gotoFrame = function(frame, resize) {
   this._outs[0] = this._frames[this._frame];
   if (resize) {
     this.pin({
-      width : this._outs[0].width(),
-      height : this._outs[0].height()
+      width : this._outs[0].dWidth(),
+      height : this._outs[0].dHeight()
     });
   }
   this._frame_ts = Cut._TS++;
@@ -831,8 +831,6 @@ Cut.String.prototype.constructor = Cut.String;
 
 Cut.String.prototype.setFont = function(selector) {
   this._font = selector;
-  selector = selector.split(":", 2);
-  this.prefix = selector.length > 1 ? selector[1] : selector[0];
   return this;
 };
 
@@ -847,8 +845,12 @@ Cut.String.prototype.setValue = function(value) {
 
   var child = this._first;
   for (var i = 0; i < value.length; i++) {
-    child = child || Cut.anim(this._font).appendTo(this);
-    child.gotoLabel(this.prefix + value[i], true).show();
+    var cutout = this._font + value[i];
+    if (child) {
+      child.setImage(cutout).show();
+    } else {
+      child = Cut.image(cutout).appendTo(this);
+    }
     child = child._next;
   }
 
@@ -966,8 +968,8 @@ Cut.Image.prototype.tile = function(inner) {
 
     var bleft = base.left, bright = base.right;
     var btop = base.top, bbottom = base.bottom;
-    var bwidth = base.width() - bleft - bright;
-    var bheight = base.height() - btop - bbottom;
+    var bwidth = base.dWidth() - bleft - bright;
+    var bheight = base.dHeight() - btop - bbottom;
 
     var width = this.pin("width");
     width = inner ? width : width - bleft - bright;
@@ -1079,7 +1081,7 @@ Cut.Image.prototype.stretch = function(inner) {
     var oright = base.right;
     var otop = base.top;
     var obottom = base.bottom;
-    var owidth = base.width(), oheight = base.height();
+    var owidth = base.dWidth(), oheight = base.dHeight();
 
     var width = this.pin("width"), height = this.pin("height");
     width = inner ? width + oleft + oright : Math.max(width, oleft + oright);
@@ -1113,32 +1115,32 @@ Cut.Image.prototype.stretch = function(inner) {
     // top
     if (otop) {
       slice(c++).cropX(owidth - oleft - oright, oleft).cropY(otop, 0).offset(
-          oleft, 0).width(width - oleft - oright);
+          oleft, 0).dWidth(width - oleft - oright);
     }
 
     // bottom
     if (obottom) {
       slice(c++).cropX(owidth - oleft - oright, oleft).cropY(obottom,
-          oheight - obottom).offset(oleft, height - obottom).width(
+          oheight - obottom).offset(oleft, height - obottom).dWidth(
           width - oleft - oright);
     }
 
     // left
     if (oleft) {
       slice(c++).cropX(oleft, 0).cropY(oheight - otop - obottom, otop).offset(
-          0, otop).height(height - otop - obottom);
+          0, otop).dHeight(height - otop - obottom);
     }
 
     // right
     if (oright) {
       slice(c++).cropX(oright, owidth - oright).cropY(oheight - otop - obottom,
-          otop).offset(width - oright, otop).height(height - otop - obottom);
+          otop).offset(width - oright, otop).dHeight(height - otop - obottom);
     }
 
     // center
     slice(c++).cropX(owidth - oleft - oright, oleft).cropY(
-        oheight - otop - obottom, otop).offset(oleft, otop).width(
-        width - oleft - oright).height(height - otop - obottom);
+        oheight - otop - obottom, otop).offset(oleft, otop).dWidth(
+        width - oleft - oright).dHeight(height - otop - obottom);
 
     this._outs.length = c;
   };
@@ -1157,9 +1159,9 @@ Cut.loadImages = function(loader, callback) {
 
   var textures = Cut._textures;
   for ( var texture in textures) {
-    if (textures[texture].imagePath) {
+    if (textures[texture].getImagePath()) {
       loading++;
-      var src = textures[texture].imagePath;
+      var src = textures[texture].getImagePath();
       var image = loader(src, complete, error);
       Cut.addImage(image, src);
       noimage = false;
@@ -1193,6 +1195,7 @@ Cut.getImage = function(src) {
 };
 
 Cut.addImage = function(image, src) {
+  console.log(image, src);
   Cut._images[src] = image;
   return this;
 };
@@ -1201,57 +1204,111 @@ Cut._textures = {};
 
 Cut.addTexture = function() {
   for (var i = 0; i < arguments.length; i++) {
-    var texture = arguments[i];
-    Cut._textures[texture.name] = texture;
-    Cut.Out._cache[texture.name] = {};
+    var data = arguments[i];
+    Cut._textures[data.name] = new Cut.Texture(data);
+  }
+  return this;
+};
 
-    texture.getImage = texture.imagePath && (function(texture) {
-      return function() {
-        if (!texture._image) {
-          texture._image = Cut.getImage(texture.imagePath);
-        }
-        return texture._image;
-      };
-    })(texture);
+Cut.Texture = function(data) {
 
-    var cutout;
-    var cutouts = texture.cutouts || texture.sprites;
+  var selectionCache = {};
+  var imageCache = null;
 
-    if (typeof texture.filter === "function") {
-      for (var c = cutouts.length - 1; c >= 0; c--) {
-        if (cutout = texture.filter(cutouts[c])) {
-          cutouts[c] = cutout;
-        } else {
-          cutouts.splice(c, 1);
-        }
-      }
+  this.getImagePath = function() {
+    return data.imagePath;
+  };
+
+  function getImage() {
+    imageCache || (imageCache = Cut.getImage(data.imagePath));
+    return imageCache;
+  }
+
+  for (var i = 0; i < data.cutouts.length; i++) {
+    filter(data.cutouts[i]);
+  }
+
+  function filter(cutout) {
+    if (typeof data.filter === "function") {
+      cutout = data.filter(cutout);
     }
 
-    var ratio = texture.ratio || 1;
-    var trim = texture.trim || 0;
-    for (var c = cutouts.length - 1; c >= 0; c--) {
-      cutout = cutouts[c];
+    if (cutout.getImage) {
+      return cutout;
+    }
 
-      if (cutout.getImage) {
-        continue;
-      }
-
+    var ratio = data.ratio || 1;
+    if (data.ratio != 1) {
       cutout.x *= ratio, cutout.y *= ratio;
-      cutout.w *= ratio, cutout.h *= ratio;
       cutout.width *= ratio, cutout.height *= ratio;
       cutout.top *= ratio, cutout.bottom *= ratio;
       cutout.left *= ratio, cutout.right *= ratio;
-
-      if (trim) {
-        cutout.x += trim, cutout.y += trim;
-        cutout.w -= 2 * trim, cutout.h -= 2 * trim;
-        cutout.width -= 2 * trim, cutout.height -= 2 * trim;
-        cutout.top -= trim, cutout.bottom -= trim;
-        cutout.left -= trim, cutout.right -= trim;
-      }
     }
+
+    var trim = data.trim || 0;
+    if (trim) {
+      cutout.x += trim, cutout.y += trim;
+      cutout.width -= 2 * trim, cutout.height -= 2 * trim;
+      cutout.top -= trim, cutout.bottom -= trim;
+      cutout.left -= trim, cutout.right -= trim;
+    }
+
+    return cutout;
   }
-  return this;
+
+  function wrap(cutout) {
+    return cutout.getImage ? cutout : new Cut.Out(cutout, getImage,
+        data.imageRatio);
+  }
+
+  this.select = function(selector, prefix) {
+
+    if (!prefix) {// one
+
+      var id = selector + "?";
+      var result = selectionCache[id];
+      if (typeof result === "undefined") {
+        for (var i = 0; i < data.cutouts.length; i++) {
+          if (data.cutouts[i].name == selector) {
+            result = data.cutouts[i];
+            break;
+          }
+        }
+        selectionCache[id] = result;
+      }
+
+      if (!result) {
+        throw "'" + selector + "' cutout not found!";
+      }
+
+      return wrap(result);
+
+    } else {// many
+
+      var id = selector + "*";
+      var results = selectionCache[id];
+      if (typeof results === "undefined") {
+        results = [];
+        var length = selector.length;
+        for (var i = 0; i < data.cutouts.length; i++) {
+          var result = data.cutouts[i];
+          if (result.name && result.name.substring(0, length) == selector) {
+            results.push(data.cutouts[i]);
+          }
+        }
+        selectionCache[id] = results;
+      }
+
+      if (!results.length) {
+        throw "'" + selector + "' cutout not found!";
+      }
+
+      for (var i = 0; i < results.length; i++) {
+        results[i] = wrap(results[i]);
+      }
+      return results;
+    }
+  };
 };
 
 Cut.Out = function(cutout, image, ratio) {
@@ -1261,20 +1318,17 @@ Cut.Out = function(cutout, image, ratio) {
   this.getImage = image;
   this.ratio = ratio || 1;
 
-  cutout.w = cutout.w || cutout.width;
-  cutout.h = cutout.h || cutout.height;
-
   this.sx = cutout.x * this.ratio;
   this.sy = cutout.y * this.ratio;
 
-  this.sw = cutout.w * this.ratio;
-  this.sh = cutout.h * this.ratio;
+  this.sw = cutout.width * this.ratio;
+  this.sh = cutout.height * this.ratio;
 
   this.dx = 0;
   this.dy = 0;
 
-  this.dw = cutout.w;
-  this.dh = cutout.h;
+  this.dw = cutout.width;
+  this.dh = cutout.height;
 
   this.top = (cutout.top || 0);
   this.bottom = (cutout.bottom || 0);
@@ -1287,7 +1341,7 @@ Cut.Out.prototype.clone = function() {
   return new Cut.Out(this.cutout, this.getImage, this.ratio);
 };
 
-Cut.Out.prototype.width = function(width) {
+Cut.Out.prototype.dWidth = function(width) {
   if (arguments.length) {
     this.dw = width;
     return this;
@@ -1295,7 +1349,7 @@ Cut.Out.prototype.width = function(width) {
   return this.dw;
 };
 
-Cut.Out.prototype.height = function(height) {
+Cut.Out.prototype.dHeight = function(height) {
   if (arguments.length) {
     this.dh = height;
     return this;
@@ -1305,17 +1359,19 @@ Cut.Out.prototype.height = function(height) {
 
 Cut.Out.prototype.cropX = function(w, x) {
   x = x || 0;
+  w = Math.min(w, this.cutout.width - x);
+  this.dw = w;
+  this.sw = w * this.ratio;
   this.sx = (this.cutout.x + x) * this.ratio;
-  this.dw = Math.min(this.cutout.w - x, w);
-  this.sw = this.dw * this.ratio;
   return this;
 };
 
 Cut.Out.prototype.cropY = function(h, y) {
   y = y || 0;
+  h = Math.min(h, this.cutout.height - y);
+  this.dh = h;
+  this.sh = h * this.ratio;
   this.sy = (this.cutout.y + y) * this.ratio;
-  this.dh = Math.min(this.cutout.h - y, h);
-  this.sh = this.dh * this.ratio;
   return this;
 };
 
@@ -1344,6 +1400,29 @@ Cut.Out.prototype.paste = function(context) {
 
 Cut.Out.prototype.toString = function() {
   return "[" + this.name + ": " + this.dw + "x" + this.dh + "]";
+};
+
+Cut.Out.select = function(selector, prefix) {
+
+  if (typeof selector !== "string") {
+    return selector;
+  }
+
+  selector = selector.split(":", 2);
+  if (selector.length < 2) {
+    throw "Invalid selector: '" + selector + "'!";
+    return null;
+  }
+
+  var texture = selector[0];
+  var name = selector[1];
+
+  texture = Cut._textures[texture];
+  if (texture == null) {
+    return !prefix ? null : [];
+  }
+
+  return texture.select(name, prefix);
 };
 
 Cut.drawing = function() {
@@ -1376,8 +1455,8 @@ Cut.Out.drawing = function(name, w, h, ratio, draw, cutout) {
   cutout.name || (cutout.name = name);
   cutout.x || (cutout.x = 0);
   cutout.y || (cutout.y = 0);
-  cutout.w || cutout.width || (cutout.w = w);
-  cutout.h || cutout.height || (cutout.h = h);
+  cutout.width || (cutout.width = w);
+  cutout.height || (cutout.height = h);
 
   cutout = new Cut.Out(cutout, function() {
     return canvas;
@@ -1386,78 +1465,6 @@ Cut.Out.drawing = function(name, w, h, ratio, draw, cutout) {
   draw.call(cutout, context, ratio);
 
   return cutout;
-};
-
-Cut.Out._cache = {};
-
-Cut.Out.select = function(selector, prefix) {
-
-  if (typeof selector !== "string") {
-    return selector;
-  }
-
-  selector = selector.split(":", 2);
-  if (selector.length < 2) {
-    throw "Invalid selector: '" + selector + "'!";
-    return null;
-  }
-
-  var texture = selector[0];
-  var name = selector[1];
-
-  texture = Cut._textures[texture];
-  if (texture == null) {
-    return !prefix ? null : [];
-  }
-
-  var cutouts = texture.cutouts || texture.sprites;
-
-  if (!prefix) {// one
-    // read/write cache
-    var selected = Cut.Out._cache[texture.name][name + "?"];
-    if (typeof selected === "undefined") {
-      for (var i = 0; i < cutouts.length; i++) {
-        if (cutouts[i].name == name) {
-          selected = cutouts[i];
-          break;
-        }
-      }
-      Cut.Out._cache[texture.name][name + "?"] = selected;
-    }
-
-    if (!selected) {
-      throw "'" + selector + "' cutout not found!";
-    }
-
-    return selected ? (selected.getImage ? selected : new Cut.Out(selected,
-        texture.getImage, texture.imageRatio)) : null;
-
-  } else {// many
-    // read/write cache
-    var selected = Cut.Out._cache[texture.name][name + "*"];
-    if (typeof selected === "undefined") {
-      selected = [];
-      var length = name.length;
-      for (var i = 0; i < cutouts.length; i++) {
-        var cutout = cutouts[i];
-        if (cutout.name && cutout.name.substring(0, length) == name) {
-          selected.push(cutouts[i]);
-        }
-      }
-      Cut.Out._cache[texture.name][name + "*"] = selected;
-    }
-
-    if (!selected.length) {
-      throw "'" + selector + "' cutout not found!";
-    }
-
-    for (var i = 0; i < selected.length; i++) {
-      var cutout = selected[i];
-      selected[i] = cutout.getImage ? cutout : new Cut.Out(cutout,
-          texture.getImage, texture.imageRatio);
-    }
-    return selected;
-  }
 };
 
 Cut.Pin = function() {

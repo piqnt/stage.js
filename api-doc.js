@@ -227,8 +227,9 @@ string.setValue(value);
 //
 // ### Canvas Drawing
 //
-cutout = Cut.Out.drawing(width, height, ratio = 1, function(context) {
-  // Draw to context.
+cutout = Cut.Out.drawing(name = "random", width, height, ratio = 1, function(
+    context, ratio) {
+  // Draw to context. `this` is the created cutout.
 });
 
 //
