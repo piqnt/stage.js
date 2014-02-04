@@ -59,7 +59,7 @@ Cut.P2 = function(world, options) {
   });
 
   this.tempv = p2.vec2.fromValues(0, 0);
-}
+};
 
 Cut.P2.prototype = new Cut(Cut.Proto);
 Cut.P2.prototype._super = Cut;
@@ -68,8 +68,8 @@ Cut.P2.prototype.constructor = Cut.P2;
 Cut.P2.prototype.step = function(t) {
   this.world.step(this.timeStep, t, this.maxSubSteps);
 
-  for (var i = 0; i < world.bodies.length; i++) {
-    var body = world.bodies[i];
+  for (var i = 0; i < this.world.bodies.length; i++) {
+    var body = this.world.bodies[i];
     if (body.ui) {
       body.ui.pin({
         offsetX : body.position[0],
@@ -78,8 +78,8 @@ Cut.P2.prototype.step = function(t) {
       });
     }
   }
-  for (var i = 0; i < world.springs.length; i++) {
-    var spring = world.springs[i];
+  for (var i = 0; i < this.world.springs.length; i++) {
+    var spring = this.world.springs[i];
 
     spring.getWorldAnchorA(this.tempv);
     var ax = this.tempv[0];
