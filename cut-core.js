@@ -845,11 +845,11 @@ Cut.String.prototype.setValue = function(value) {
 
   var child = this._first;
   for (var i = 0; i < value.length; i++) {
-    var cutout = this._font + value[i];
+    var selector = this._font + value[i];
     if (child) {
-      child.setImage(cutout).show();
+      child.setImage(selector).show();
     } else {
-      child = Cut.image(cutout).appendTo(this);
+      child = Cut.image(selector).appendTo(this);
     }
     child = child._next;
   }
@@ -966,8 +966,8 @@ Cut.Image.prototype.tile = function(inner) {
 
     base = base || this._outs[0].clone();
 
-    var bleft = base.left, bright = base.right;
-    var btop = base.top, bbottom = base.bottom;
+    var bleft = base._left, bright = base._right;
+    var btop = base._top, bbottom = base._bottom;
     var bwidth = base.dWidth() - bleft - bright;
     var bheight = base.dHeight() - btop - bbottom;
 
@@ -1019,7 +1019,7 @@ Cut.Image.prototype.tile = function(inner) {
 
         slice(c++).cropX(w, bleft).cropY(h, btop).offset(x, y);
 
-        if (r < 0) {
+        if (r <= 0) {
           // left
           if (bleft) {
             slice(c++).cropX(bleft, 0).cropY(h, btop).offset(left, y);
@@ -1077,10 +1077,8 @@ Cut.Image.prototype.stretch = function(inner) {
 
     base = base || this._outs[0].clone();
 
-    var oleft = base.left;
-    var oright = base.right;
-    var otop = base.top;
-    var obottom = base.bottom;
+    var oleft = base._left, oright = base._right;
+    var otop = base._top, obottom = base._bottom;
     var owidth = base.dWidth(), oheight = base.dHeight();
 
     var width = this.pin("width"), height = this.pin("height");
@@ -1219,7 +1217,7 @@ Cut.Texture = function(data) {
     return data.imagePath;
   };
 
-  function getImage() {
+  function image() {
     imageCache || (imageCache = Cut.getImage(data.imagePath));
     return imageCache;
   }
@@ -1228,40 +1226,40 @@ Cut.Texture = function(data) {
     filter(data.cutouts[i]);
   }
 
-  function filter(cutout) {
-    if (!cutout) {
-      return cutout;
+  function filter(data) {
+    if (!data) {
+      return data;
+    }
+
+    if (data.isCutout) {
+      return data;
     }
 
     if (typeof data.filter === "function") {
-      cutout = data.filter(cutout);
-    }
-
-    if (cutout.getImage) {
-      return cutout;
+      data = data.filter(data);
     }
 
     var ratio = data.ratio || 1;
-    if (data.ratio != 1) {
-      cutout.x *= ratio, cutout.y *= ratio;
-      cutout.width *= ratio, cutout.height *= ratio;
-      cutout.top *= ratio, cutout.bottom *= ratio;
-      cutout.left *= ratio, cutout.right *= ratio;
+    if (ratio != 1) {
+      data.x *= ratio, data.y *= ratio;
+      data.width *= ratio, data.height *= ratio;
+      data.top *= ratio, data.bottom *= ratio;
+      data.left *= ratio, data.right *= ratio;
     }
 
     var trim = data.trim || 0;
     if (trim) {
-      cutout.x += trim, cutout.y += trim;
-      cutout.width -= 2 * trim, cutout.height -= 2 * trim;
-      cutout.top -= trim, cutout.bottom -= trim;
-      cutout.left -= trim, cutout.right -= trim;
+      data.x += trim, data.y += trim;
+      data.width -= 2 * trim, data.height -= 2 * trim;
+      data.top -= trim, data.bottom -= trim;
+      data.left -= trim, data.right -= trim;
     }
 
-    return cutout;
+    return data;
   }
 
   function wrap(cutout) {
-    return cutout.getImage ? cutout : new Cut.Out(cutout, getImage,
+    return cutout.isCutout ? cutout : new Cut.Out(cutout, image,
         data.imageRatio);
   }
 
@@ -1273,8 +1271,9 @@ Cut.Texture = function(data) {
       var result = selectionCache[id];
       if (typeof result === "undefined") {
         for (var i = 0; i < data.cutouts.length; i++) {
-          if (data.cutouts[i].name == selector) {
-            result = data.cutouts[i];
+          var item = data.cutouts[i];
+          if (item.name == selector) {
+            result = item;
             break;
           }
         }
@@ -1299,8 +1298,8 @@ Cut.Texture = function(data) {
         results = [];
         var length = selector.length;
         for (var i = 0; i < data.cutouts.length; i++) {
-          var result = data.cutouts[i];
-          if (result.name && result.name.substring(0, length) == selector) {
+          var item = data.cutouts[i];
+          if (item.name && item.name.substring(0, length) == selector) {
             results.push(data.cutouts[i]);
           }
         }
@@ -1319,95 +1318,96 @@ Cut.Texture = function(data) {
   };
 };
 
-Cut.Out = function(cutout, image, ratio) {
+Cut.Out = function(data, image, ratio) {
 
-  this.cutout = cutout;
-  this.name = cutout.name;
-  this.getImage = image;
-  this.ratio = ratio || 1;
+  this.isCutout = true;
+  this._data = data;
+  this.name = data.name;
+  this._image = image;
+  this._ratio = ratio || 1;
 
-  this.sx = cutout.x * this.ratio;
-  this.sy = cutout.y * this.ratio;
+  this._sx = data.x * this._ratio;
+  this._sy = data.y * this._ratio;
 
-  this.sw = cutout.width * this.ratio;
-  this.sh = cutout.height * this.ratio;
+  this._sw = data.width * this._ratio;
+  this._sh = data.height * this._ratio;
 
-  this.dx = 0;
-  this.dy = 0;
+  this._dx = 0;
+  this._dy = 0;
 
-  this.dw = cutout.width;
-  this.dh = cutout.height;
+  this._dw = data.width;
+  this._dh = data.height;
 
-  this.top = (cutout.top || 0);
-  this.bottom = (cutout.bottom || 0);
+  this._top = (data.top || 0);
+  this._bottom = (data.bottom || 0);
 
-  this.left = (cutout.left || 0);
-  this.right = (cutout.right || 0);
+  this._left = (data.left || 0);
+  this._right = (data.right || 0);
 };
 
 Cut.Out.prototype.clone = function() {
-  return new Cut.Out(this.cutout, this.getImage, this.ratio);
+  return new Cut.Out(this._data, this._image, this._ratio);
 };
 
 Cut.Out.prototype.dWidth = function(width) {
   if (arguments.length) {
-    this.dw = width;
+    this._dw = width;
     return this;
   }
-  return this.dw;
+  return this._dw;
 };
 
 Cut.Out.prototype.dHeight = function(height) {
   if (arguments.length) {
-    this.dh = height;
+    this._dh = height;
     return this;
   }
-  return this.dh;
+  return this._dh;
 };
 
 Cut.Out.prototype.cropX = function(w, x) {
   x = x || 0;
-  w = Math.min(w, this.cutout.width - x);
-  this.dw = w;
-  this.sw = w * this.ratio;
-  this.sx = (this.cutout.x + x) * this.ratio;
+  w = Math.min(w, this._data.width - x);
+  this._dw = w;
+  this._sw = w * this._ratio;
+  this._sx = (this._data.x + x) * this._ratio;
   return this;
 };
 
 Cut.Out.prototype.cropY = function(h, y) {
   y = y || 0;
-  h = Math.min(h, this.cutout.height - y);
-  this.dh = h;
-  this.sh = h * this.ratio;
-  this.sy = (this.cutout.y + y) * this.ratio;
+  h = Math.min(h, this._data.height - y);
+  this._dh = h;
+  this._sh = h * this._ratio;
+  this._sy = (this._data.y + y) * this._ratio;
   return this;
 };
 
 Cut.Out.prototype.offset = function(x, y) {
-  this.dx = x;
-  this.dy = y;
+  this._dx = x;
+  this._dy = y;
   return this;
 };
 
 Cut.Out.prototype.paste = function(context) {
   Cut._stats.paste++;
-  var img = this.getImage();
+  var img = this._image();
   try {
     img && context.drawImage(img, // source
-    this.sx, this.sy, this.sw, this.sh, // cut
-    this.dx, this.dy, this.dw, this.dh // position
+    this._sx, this._sy, this._sw, this._sh, // cut
+    this._dx, this._dy, this._dw, this._dh // position
     );
   } catch (e) {
     if (!this.failed) {
-      console.log("Unable to paste: ", this.sx, this.sy, this.sw, this.sh,
-          this.dx, this.dy, this.dw, this.dh, img);
+      console.log("Unable to paste: ", this._sx, this._sy, this._sw, this._sh,
+          this._dx, this._dy, this._dw, this._dh, img);
     }
     this.failed = true;
   }
 };
 
 Cut.Out.prototype.toString = function() {
-  return "[" + this.name + ": " + this.dw + "x" + this.dh + "]";
+  return "[" + this.name + ": " + this._dw + "x" + this._dh + "]";
 };
 
 Cut.Out.select = function(selector, prefix) {
@@ -1439,7 +1439,7 @@ Cut.drawing = function() {
 };
 
 // name and ratio are optional
-Cut.Out.drawing = function(name, w, h, ratio, draw, cutout) {
+Cut.Out.drawing = function(name, w, h, ratio, draw, data) {
   var canvas = document.createElement("canvas");
   var context = canvas.getContext("2d");
 
@@ -1447,33 +1447,33 @@ Cut.Out.drawing = function(name, w, h, ratio, draw, cutout) {
 
   } else if (typeof ratio === "function") {
     if (typeof name === "string") {
-      cutout = draw, draw = ratio, ratio = 1;
+      data = draw, draw = ratio, ratio = 1;
     } else {
-      cutout = draw, draw = ratio, ratio = h, h = w, w = name, name = Math
+      data = draw, draw = ratio, ratio = h, h = w, w = name, name = Math
           .random() * 1000 | 0;
     }
   } else if (typeof h === "function") {
-    cutout = ratio, draw = h, ratio = 1, h = w, w = name,
+    data = ratio, draw = h, ratio = 1, h = w, w = name,
         name = Math.random() * 1000 | 0;
   }
 
   canvas.width = Math.ceil(w * ratio);
   canvas.height = Math.ceil(h * ratio);
 
-  cutout || (cutout = {});
-  cutout.name || (cutout.name = name);
-  cutout.x || (cutout.x = 0);
-  cutout.y || (cutout.y = 0);
-  cutout.width || (cutout.width = w);
-  cutout.height || (cutout.height = h);
+  data || (data = {});
+  data.name || (data.name = name);
+  data.x || (data.x = 0);
+  data.y || (data.y = 0);
+  data.width || (data.width = w);
+  data.height || (data.height = h);
 
-  cutout = new Cut.Out(cutout, function() {
+  data = new Cut.Out(data, function() {
     return canvas;
   }, ratio);
 
-  draw.call(cutout, context, ratio);
+  draw.call(data, context, ratio);
 
-  return cutout;
+  return data;
 };
 
 Cut.Pin = function() {
