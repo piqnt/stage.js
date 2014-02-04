@@ -373,23 +373,20 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
     return;
   }
 
-  var xmin = Infinity, xmax = -xmin;
-  var ymin = Infinity, ymax = -ymin;
+  var width = 0, height = 0;
   for (var i = 0; i < verts.length; i++) {
     var v = verts[i], x = v[0], y = -v[1];
-    xmin = Math.min(x, xmin);
-    xmax = Math.max(x, xmax);
-    ymin = Math.min(y, ymin);
-    ymax = Math.max(y, ymax);
+    width = Math.max(Math.abs(x), width);
+    height = Math.max(Math.abs(y), height)
   }
 
-  return Cut.Out.drawing(xmax - xmin + 2 * lineWidth, ymax - ymin + 2
+  var cutout = Cut.Out.drawing(2 * width + 2 * lineWidth, 2 * height + 2
       * lineWidth, this.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
 
     ctx.beginPath();
     for (var i = 0; i < verts.length; i++) {
-      var v = verts[i], x = v[0] - xmin + lineWidth, y = -v[1] - ymin
+      var v = verts[i], x = v[0] + width + lineWidth, y = -v[1] + height
           + lineWidth;
       if (i == 0)
         ctx.moveTo(x, y);
@@ -412,6 +409,8 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
     ctx.strokeStyle = lineColor;
     ctx.stroke();
   });
+
+  return cutout;
 };
 
 Cut.P2.randomColor = function() {
