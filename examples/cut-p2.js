@@ -1,9 +1,9 @@
 Cut.p2 = function(world, options) {
-  return new P2Cut(world, options);
+  return new Cut.P2(world, options);
 };
 
-function P2Cut(world, options) {
-  P2Cut.prototype._super.apply(this, arguments);
+Cut.P2 = function(world, options) {
+  Cut.P2.prototype._super.apply(this, arguments);
 
   var self = this;
   this.world = world;
@@ -16,6 +16,12 @@ function P2Cut(world, options) {
   this.timeStep = options.timeStep || 1 / 60;
 
   this.lineWidth = options.lineWidth || 0.025;
+  this.lineColor = options.lineColor || "#000000";
+  this.fillColor = !("fillColor" in options) ? Cut.P2.randomColor
+      : (typeof options.fillColor === "function" ? options.fillColor
+          : function() {
+            return options.fillColor;
+          });
 
   world.on("addBody", function(e) {
     self.addRenderable(e.body);
@@ -55,11 +61,11 @@ function P2Cut(world, options) {
   this.tempv = p2.vec2.fromValues(0, 0);
 }
 
-P2Cut.prototype = new Cut(Cut.Proto);
-P2Cut.prototype._super = Cut;
-P2Cut.prototype.constructor = P2Cut;
+Cut.P2.prototype = new Cut(Cut.Proto);
+Cut.P2.prototype._super = Cut;
+Cut.P2.prototype.constructor = Cut.P2;
 
-P2Cut.prototype.step = function(t) {
+Cut.P2.prototype.step = function(t) {
   this.world.step(this.timeStep, t, this.maxSubSteps);
 
   for (var i = 0; i < world.bodies.length; i++) {
@@ -130,7 +136,7 @@ P2Cut.prototype.step = function(t) {
 
 };
 
-P2Cut.prototype.addRenderable = function(obj) {
+Cut.P2.prototype.addRenderable = function(obj) {
 
   obj.ui = Cut.create().appendTo(this);
 
@@ -154,7 +160,8 @@ P2Cut.prototype.addRenderable = function(obj) {
 
         } else if (shape instanceof p2.Particle) {
           cutout = this.drawCircle(2 * this.lineWidth, {
-            fillColor : "#000000"
+            lineColor : 0,
+            fillColor : this.lineColor
           });
 
         } else if (shape instanceof p2.Plane) {
@@ -192,19 +199,11 @@ P2Cut.prototype.addRenderable = function(obj) {
 
 };
 
-P2Cut.prototype.removeRenderable = function(obj) {
+Cut.P2.prototype.removeRenderable = function(obj) {
   obj.ui && obj.ui.remove();
 };
 
-P2Cut.prototype.options = function(options) {
-  options = typeof options === "object" ? options : {};
-  options.lineWidth = options.lineWidth || this.lineWidth;
-  options.lineColor = options.lineColor || "#000000";
-  options.fillColor = options.fillColor || "#" + P2Cut.randomColor();
-  return options;
-};
-
-P2Cut.prototype.drawLine = function(length, options) {
+Cut.P2.prototype.drawLine = function(length, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth * 2, lineColor = options.lineColor, fillColor = options.fillColor;
 
@@ -223,7 +222,7 @@ P2Cut.prototype.drawLine = function(length, options) {
 
 };
 
-P2Cut.prototype.drawRectangle = function(w, h, options) {
+Cut.P2.prototype.drawRectangle = function(w, h, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
@@ -244,7 +243,7 @@ P2Cut.prototype.drawRectangle = function(w, h, options) {
   });
 };
 
-P2Cut.prototype.drawCircle = function(radius, options) {
+Cut.P2.prototype.drawCircle = function(radius, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
@@ -269,7 +268,7 @@ P2Cut.prototype.drawCircle = function(radius, options) {
   });
 };
 
-P2Cut.prototype.drawCapsule = function(len, radius, options) {
+Cut.P2.prototype.drawCapsule = function(len, radius, options) {
 
   options = this.options(options);
   var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
@@ -299,7 +298,7 @@ P2Cut.prototype.drawCapsule = function(len, radius, options) {
   });
 };
 
-P2Cut.prototype.drawSpring = function(length, options) {
+Cut.P2.prototype.drawSpring = function(length, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
@@ -335,7 +334,7 @@ P2Cut.prototype.drawSpring = function(length, options) {
   });
 };
 
-P2Cut.prototype.drawPlane = function(x0, x1, max, options) {
+Cut.P2.prototype.drawPlane = function(x0, x1, max, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
@@ -365,7 +364,7 @@ P2Cut.prototype.drawPlane = function(x0, x1, max, options) {
 
 };
 
-P2Cut.prototype.drawConvex = function(verts, options) {
+Cut.P2.prototype.drawConvex = function(verts, options) {
   options = this.options(options);
   var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
 
@@ -373,23 +372,20 @@ P2Cut.prototype.drawConvex = function(verts, options) {
     return;
   }
 
-  var xmin = Infinity, xmax = -xmin;
-  var ymin = Infinity, ymax = -ymin;
+  var width = 0, height = 0;
   for (var i = 0; i < verts.length; i++) {
     var v = verts[i], x = v[0], y = -v[1];
-    xmin = Math.min(x, xmin);
-    xmax = Math.max(x, xmax);
-    ymin = Math.min(y, ymin);
-    ymax = Math.max(y, ymax);
+    width = Math.max(Math.abs(x), width);
+    height = Math.max(Math.abs(y), height)
   }
 
-  return Cut.Out.drawing(xmax - xmin + 2 * lineWidth, ymax - ymin + 2
+  var cutout = Cut.Out.drawing(2 * width + 2 * lineWidth, 2 * height + 2
       * lineWidth, this.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
 
     ctx.beginPath();
     for (var i = 0; i < verts.length; i++) {
-      var v = verts[i], x = v[0] - xmin + lineWidth, y = -v[1] - ymin
+      var v = verts[i], x = v[0] + width + lineWidth, y = -v[1] + height
           + lineWidth;
       if (i == 0)
         ctx.moveTo(x, y);
@@ -412,9 +408,19 @@ P2Cut.prototype.drawConvex = function(verts, options) {
     ctx.strokeStyle = lineColor;
     ctx.stroke();
   });
+
+  return cutout;
 };
 
-P2Cut.randomColor = function() {
+Cut.P2.prototype.options = function(options) {
+  options = typeof options === "object" ? options : {};
+  options.lineWidth = options.lineWidth || this.lineWidth;
+  options.lineColor = options.lineColor || this.lineColor;
+  options.fillColor = options.fillColor || this.fillColor();
+  return options;
+};
+
+Cut.P2.randomColor = function() {
   // http://stackoverflow.com/questions/43044/algorithm-to-randomly-generate-an-aesthetically-pleasing-color-palette
   var mix = [ 255, 255, 255 ];
   var red = Math.floor(Math.random() * 256);
@@ -426,15 +432,15 @@ P2Cut.randomColor = function() {
   green = Math.floor((green + 3 * mix[1]) / 4);
   blue = Math.floor((blue + 3 * mix[2]) / 4);
 
-  return P2Cut.rgbToHex(red, green, blue);
+  return "#" + Cut.P2.rgbToHex(red, green, blue);
 };
 
-P2Cut.rgbToHex = function(r, g, b) {
-  return P2Cut.componentToHex(r) + P2Cut.componentToHex(g)
-      + P2Cut.componentToHex(b);
+Cut.P2.rgbToHex = function(r, g, b) {
+  return Cut.P2.componentToHex(r) + Cut.P2.componentToHex(g)
+      + Cut.P2.componentToHex(b);
 };
 
-P2Cut.componentToHex = function(c) {
+Cut.P2.componentToHex = function(c) {
   var hex = c.toString(16);
   return hex.length == 1 ? "0" + hex : hex;
 };
