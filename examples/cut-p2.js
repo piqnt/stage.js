@@ -16,6 +16,12 @@ Cut.P2 = function(world, options) {
   this.timeStep = options.timeStep || 1 / 60;
 
   this.lineWidth = options.lineWidth || 0.025;
+  this.lineColor = options.lineColor || "#000000";
+  this.fillColor = !("fillColor" in options) ? Cut.P2.randomColor
+      : (typeof options.fillColor === "function" ? options.fillColor
+          : function() {
+            return options.fillColor;
+          });
 
   world.on("addBody", function(e) {
     self.addRenderable(e.body);
@@ -154,7 +160,8 @@ Cut.P2.prototype.addRenderable = function(obj) {
 
         } else if (shape instanceof p2.Particle) {
           cutout = this.drawCircle(2 * this.lineWidth, {
-            fillColor : "#000000"
+            lineColor : 0,
+            fillColor : this.lineColor
           });
 
         } else if (shape instanceof p2.Plane) {
@@ -194,14 +201,6 @@ Cut.P2.prototype.addRenderable = function(obj) {
 
 Cut.P2.prototype.removeRenderable = function(obj) {
   obj.ui && obj.ui.remove();
-};
-
-Cut.P2.prototype.options = function(options) {
-  options = typeof options === "object" ? options : {};
-  options.lineWidth = options.lineWidth || this.lineWidth;
-  options.lineColor = options.lineColor || "#000000";
-  options.fillColor = options.fillColor || "#" + Cut.P2.randomColor();
-  return options;
 };
 
 Cut.P2.prototype.drawLine = function(length, options) {
@@ -413,6 +412,14 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
   return cutout;
 };
 
+Cut.P2.prototype.options = function(options) {
+  options = typeof options === "object" ? options : {};
+  options.lineWidth = options.lineWidth || this.lineWidth;
+  options.lineColor = options.lineColor || this.lineColor;
+  options.fillColor = options.fillColor || this.fillColor();
+  return options;
+};
+
 Cut.P2.randomColor = function() {
   // http://stackoverflow.com/questions/43044/algorithm-to-randomly-generate-an-aesthetically-pleasing-color-palette
   var mix = [ 255, 255, 255 ];
@@ -425,7 +432,7 @@ Cut.P2.randomColor = function() {
   green = Math.floor((green + 3 * mix[1]) / 4);
   blue = Math.floor((blue + 3 * mix[2]) / 4);
 
-  return Cut.P2.rgbToHex(red, green, blue);
+  return "#" + Cut.P2.rgbToHex(red, green, blue);
 };
 
 Cut.P2.rgbToHex = function(r, g, b) {
