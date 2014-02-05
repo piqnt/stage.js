@@ -15,13 +15,12 @@ Cut.P2 = function(world, options) {
   this.maxSubSteps = options.maxSubSteps || 3;
   this.timeStep = options.timeStep || 1 / 60;
 
-  this.lineWidth = options.lineWidth || 0.025;
-  this.lineColor = options.lineColor || "#000000";
-  this.fillColor = !("fillColor" in options) ? Cut.P2.randomColor
-      : (typeof options.fillColor === "function" ? options.fillColor
-          : function() {
-            return options.fillColor;
-          });
+  this.lineWidth = "lineWidth" in options ? Cut._function(options.lineWidth)
+      : Cut._function(0.025);
+  this.lineColor = "lineColor" in options ? Cut._function(options.lineColor)
+      : Cut._function("#000000");
+  this.fillColor = "fillColor" in options ? Cut._function(options.fillColor)
+      : Cut._function(Cut.P2.randomColor);
 
   world.on("addBody", function(e) {
     self.addRenderable(e.body);
@@ -108,32 +107,7 @@ Cut.P2.prototype.step = function(t) {
       scaleY : 1 / s,
       rotation : a
     });
-
   }
-
-  // Clear contacts
-  // this.contactGraphics.clear();
-  // if (this.drawContacts) {
-  // this.stage.removeChild(this.contactGraphics);
-  // this.stage.addChild(this.contactGraphics);
-  //
-  // var g = this.contactGraphics;
-  // g.lineStyle(this.lineWidth, 0x000000, 1);
-  // for (var i = 0; i < this.world.narrowphase.contactEquations.length; i++)
-  // {
-  // var eq = this.world.narrowphase.contactEquations[i], bi = eq.bi, bj =
-  // eq.bj, ri = eq.ri, rj = eq.rj, xi = (bi.position[0]), yi = (h -
-  // bi.position[1]), xj = (bj.position[0]), yj = (h - bj.position[1]);
-  //
-  // g.moveTo(xi, yi);
-  // g.lineTo(xi + ri[0], yi - ri[1]);
-  //
-  // g.moveTo(xj, yj);
-  // g.lineTo(xj + rj[0], yj - rj[1]);
-  //
-  // }
-  // }
-
 };
 
 Cut.P2.prototype.addRenderable = function(obj) {
@@ -159,9 +133,9 @@ Cut.P2.prototype.addRenderable = function(obj) {
           cutout = this.drawCircle(shape.radius);
 
         } else if (shape instanceof p2.Particle) {
-          cutout = this.drawCircle(2 * this.lineWidth, {
-            lineColor : 0,
-            fillColor : this.lineColor
+          cutout = this.drawCircle(2 * this.lineWidth(), {
+            lineColor : "",
+            fillColor : this.lineColor()
           });
 
         } else if (shape instanceof p2.Plane) {
@@ -414,33 +388,21 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
 
 Cut.P2.prototype.options = function(options) {
   options = typeof options === "object" ? options : {};
-  options.lineWidth = options.lineWidth || this.lineWidth;
-  options.lineColor = options.lineColor || this.lineColor;
+  options.lineWidth = options.lineWidth || this.lineWidth();
+  options.lineColor = options.lineColor || this.lineColor();
   options.fillColor = options.fillColor || this.fillColor();
   return options;
 };
 
 Cut.P2.randomColor = function() {
-  // http://stackoverflow.com/questions/43044/algorithm-to-randomly-generate-an-aesthetically-pleasing-color-palette
-  var mix = [ 255, 255, 255 ];
-  var red = Math.floor(Math.random() * 256);
-  var green = Math.floor(Math.random() * 256);
-  var blue = Math.floor(Math.random() * 256);
-
-  // mix the color
-  red = Math.floor((red + 3 * mix[0]) / 4);
-  green = Math.floor((green + 3 * mix[1]) / 4);
-  blue = Math.floor((blue + 3 * mix[2]) / 4);
-
-  return "#" + Cut.P2.rgbToHex(red, green, blue);
+  var red = Cut.Math.random(192, 256) | 0;
+  var green = Cut.Math.random(192, 256) | 0;
+  var blue = Cut.Math.random(192, 256) | 0;
+  return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
 };
 
-Cut.P2.rgbToHex = function(r, g, b) {
-  return Cut.P2.componentToHex(r) + Cut.P2.componentToHex(g)
-      + Cut.P2.componentToHex(b);
-};
-
-Cut.P2.componentToHex = function(c) {
-  var hex = c.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
+Cut._function = function(value) {
+  return typeof value === "function" ? value : function() {
+    return value;
+  };
 };
