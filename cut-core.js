@@ -634,26 +634,38 @@ Cut.Root = function(render, request) {
       height : height,
       mode : typeof mode === "undefined" ? "in" : mode
     };
+    updateViewbox();
     return this;
   };
 
+  var resize = null;
   this.on("resize", function(width, height) {
-    if (viewbox) {
-      this.pin({
+    resize = {
+      width : width,
+      height : height,
+    };
+    updateViewbox();
+    return true;
+  });
+
+  function updateViewbox() {
+    if (!resize) {
+    } else if (viewbox) {
+      self.pin({
         width : viewbox.width,
         height : viewbox.height,
         resizeMode : viewbox.mode,
-        resizeWidth : width,
-        resizeHeight : height
+        resizeWidth : resize.width,
+        resizeHeight : resize.height
       });
     } else {
-      this.pin({
-        width : width,
-        height : height
+      self.pin({
+        width : resize.width,
+        height : resize.height
       });
     }
-    return true;
-  });
+  }
+
 };
 
 Cut.Root.prototype = new Cut(Cut.Proto);
