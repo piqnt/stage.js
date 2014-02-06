@@ -162,7 +162,7 @@ Cut.P2.prototype.addRenderable = function(obj) {
         Cut.image(cutout).appendTo(obj.ui).pin({
           handle : 0.5,
           offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
-          offsetY : obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0,
+          offsetY : -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
           rotation : -obj.shapeAngles[i] || 0
         });
       }
