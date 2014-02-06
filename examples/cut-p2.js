@@ -1,3 +1,7 @@
+/*
+ * CutJS viewer for p2.js
+ */
+
 Cut.p2 = function(world, options) {
   return new Cut.P2(world, options);
 };

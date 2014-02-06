@@ -1220,59 +1220,61 @@ Cut.addTexture = function() {
   return this;
 };
 
-Cut.Texture = function(data) {
+Cut.Texture = function(texture) {
 
   var selectionCache = {};
   var imageCache = null;
 
   this.getImagePath = function() {
-    return data.imagePath;
+    return texture.imagePath;
   };
 
   function image() {
-    imageCache || (imageCache = Cut.getImage(data.imagePath));
+    imageCache || (imageCache = Cut.getImage(texture.imagePath));
     return imageCache;
   }
 
-  for (var i = 0; i < data.cutouts.length; i++) {
-    filter(data.cutouts[i]);
+  for (var i = 0; i < texture.cutouts.length; i++) {
+    filter(texture.cutouts[i]);
   }
 
-  function filter(data) {
-    if (!data) {
-      return data;
+  function filter(cutout) {
+    if (!cutout) {
+      return cutout;
     }
 
-    if (data.isCutout) {
-      return data;
+    if (cutout.isCutout) {
+      return cutout;
     }
 
-    if (typeof data.filter === "function") {
-      data = data.filter(data);
+    if (typeof texture.filter === "function") {
+      cutout = texture.filter(cutout);
     }
 
-    var ratio = data.ratio || 1;
+    var ratio = texture.ratio || 1;
     if (ratio != 1) {
-      data.x *= ratio, data.y *= ratio;
-      data.width *= ratio, data.height *= ratio;
-      data.top *= ratio, data.bottom *= ratio;
-      data.left *= ratio, data.right *= ratio;
+      cutout.x *= ratio, cutout.y *= ratio;
+      cutout.width *= ratio, cutout.height *= ratio;
+      cutout.top *= ratio, cutout.bottom *= ratio;
+      cutout.left *= ratio, cutout.right *= ratio;
     }
 
-    var trim = data.trim || 0;
+    var trim = texture.trim || 0;
     if (trim) {
-      data.x += trim, data.y += trim;
-      data.width -= 2 * trim, data.height -= 2 * trim;
-      data.top -= trim, data.bottom -= trim;
-      data.left -= trim, data.right -= trim;
+      cutout.x += trim, cutout.y += trim;
+      cutout.width -= 2 * trim, cutout.height -= 2 * trim;
+      cutout.top -= trim, cutout.bottom -= trim;
+      cutout.left -= trim, cutout.right -= trim;
     }
 
-    return data;
+    return cutout;
   }
 
   function wrap(cutout) {
-    return cutout.isCutout ? cutout : new Cut.Out(cutout, image,
-        data.imageRatio);
+    if (!cutout.isCutout) {
+      cutout = new Cut.Out(cutout, image, texture.imageRatio);
+    }
+    return cutout;
   }
 
   this.select = function(selector, prefix) {
@@ -1282,8 +1284,8 @@ Cut.Texture = function(data) {
       var id = selector + "?";
       var result = selectionCache[id];
       if (typeof result === "undefined") {
-        for (var i = 0; i < data.cutouts.length; i++) {
-          var item = data.cutouts[i];
+        for (var i = 0; i < texture.cutouts.length; i++) {
+          var item = texture.cutouts[i];
           if (item.name == selector) {
             result = item;
             break;
@@ -1292,12 +1294,12 @@ Cut.Texture = function(data) {
         selectionCache[id] = result;
       }
 
-      if (!result && data.factory) {
-        result = filter(data.factory(selector));
+      if (!result && texture.factory) {
+        result = filter(texture.factory(selector));
       }
 
       if (!result) {
-        throw "Cutout not found: '" + data.name + ":" + selector + "'!";
+        throw "Cutout not found: '" + texture.name + ":" + selector + "'!";
       }
 
       return wrap(result);
@@ -1309,10 +1311,10 @@ Cut.Texture = function(data) {
       if (typeof results === "undefined") {
         results = [];
         var length = selector.length;
-        for (var i = 0; i < data.cutouts.length; i++) {
-          var item = data.cutouts[i];
+        for (var i = 0; i < texture.cutouts.length; i++) {
+          var item = texture.cutouts[i];
           if (item.name && item.name.substring(0, length) == selector) {
-            results.push(data.cutouts[i]);
+            results.push(texture.cutouts[i]);
           }
         }
         selectionCache[id] = results;
