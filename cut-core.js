@@ -851,7 +851,7 @@ Cut.String.prototype.setValue = function(value) {
     return this;
   this.value = value;
 
-  if (!value.length) {
+  if (typeof value !== "string" && !Cut._isArray(value)) {
     value = value + "";
   }
 
@@ -1299,7 +1299,7 @@ Cut.Texture = function(texture) {
       }
 
       if (!result) {
-        throw "Cutout not found: '" + texture.name + ":" + selector + "'!";
+        throw "Cutout not found: '" + texture.name + ":" + selector + "'";
       }
 
       return wrap(result);
@@ -1321,7 +1321,7 @@ Cut.Texture = function(texture) {
       }
 
       if (!results.length) {
-        throw "'" + selector + "' cutout not found!";
+        throw "Cutouts not found: '" + texture.name + ":" + selector + "'";
       }
 
       for (var i = 0; i < results.length; i++) {
@@ -1430,22 +1430,22 @@ Cut.Out.select = function(selector, prefix) {
     return selector;
   }
 
-  selector = selector.split(":", 2);
-  if (selector.length < 2) {
-    throw "Invalid selector: '" + selector + "'!";
+  var i = selector.indexOf(":");
+
+  if (i < 0) {
+    throw "Invalid selector: '" + selector + "'";
     return null;
   }
 
-  var texture = selector[0];
-  var name = selector[1];
+  var split = [ selector.slice(0, i), selector.slice(i + 1) ];
 
-  texture = Cut._textures[texture];
+  var texture = Cut._textures[split[0]];
   if (texture == null) {
-    throw "Texture not found: '" + texture + ":" + name + "'!";
+    throw "Texture not found: '" + selector + "'";
     return !prefix ? null : [];
   }
 
-  return texture.select(name, prefix);
+  return texture.select(split[1], prefix);
 };
 
 Cut.drawing = function() {
