@@ -1,1 +1,1 @@
-[Learn More & Browse Examples](http://cutjs.org/) - [API Doc](api-doc.js)
+[Learn More & Browse Examples](http://cutjs.org/)
