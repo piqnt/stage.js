@@ -72,7 +72,9 @@ Cut.Loader = {
         context.clearRect(0, 0, width, height);
         root.render(context);
         FastCanvas.render();
-      }, requestAnimationFrame);
+      }, function(callback) {
+        window.requestAnimationFrame(callback);
+      });
 
       canvas = FastCanvas.create(typeof FASTCANVAS_FALLBACK !== "undefined"
           && FASTCANVAS_FALLBACK);
@@ -132,7 +134,7 @@ Cut.Loader = {
           canvas.width = width;
           canvas.height = height;
         }
-        
+
         root.ratio = ratio;
 
         DEBUG
