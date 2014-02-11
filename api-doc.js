@@ -1,6 +1,6 @@
 //
 // ### Cut
-// The tree nodes are called cut.
+// Tree nodes are called cut.
 
 // Create new plain cut instance.
 // No painting is associated with a plain cut, it is just a parent for other cuts.
@@ -95,35 +95,34 @@ bar.pin(name, value);
 bar.pin({
   // Transparency applied to self and children.
   alpha : "",
-  // Transparency applied to only to self textures.
+  // Transparency applied only to self textures.
   textureAlpha : "",
   scaleX : "",
   scaleY : "",
   skewX : "",
   skewY : "",
   rotation : "",
-  // Set automatically based on cut type, used for relative pinning values.
-  width : "",
-  height : "",
   // Relative location on self used as scale/skew/rotation center.
   pivotX : "",
   pivotY : "",
+  // Automatically set depending on cut type, used for relative pinning values.
+  height : "",
+  width : "",
   // Relative location on self used for positioning .
   handleX : "",
   handleY : "",
   // Relative location on parent used for positioning.
   alignX : "",
   alignY : "",
-  // Positioning offset in pixel.
+  // Distance from parent align to self handle in pixel.
   offsetX : "",
   offsetY : "",
   // Scale to width/height.
-  scaleMode : "", // "in" or "out", optional, if specified scale proportionally.
+  scaleMode : "", // in/out, optional, if specified scale proportionally.
   scaleWidth : "",
   scaleHeight : "",
   // Scale to width/height and then resize to fill width/height.
-  resizeMode : "", // "in" or "out", optional, if specified scale
-  // proportionally.
+  resizeMode : "", // in/out, optional, if specified scale proportionally.
   resizeWidth : "",
   resizeHeight : "",
 });
@@ -142,19 +141,13 @@ tween.clear(jumpToEnd = false);
 // supported for tweening.
 tween.pin(pinning);
 
-//
-// ### Row
-// A row is a cut which organizes its children as a horizontal sequence.
+// Callback when tweening is over.
+tween.then(function() {
+  // this === foo
+});
 
-// Create a new row.
-var row = Cut.row(valign = 0);
-
-//
-// ### Column
-// A column is a cut which organizes its children as a vertical sequence.
-
-// Create a new column.
-var column = Cut.column(halign = 0);
+// Add another tweening to queue.
+tween.tween(duration = 400, delay = 0);
 
 //
 // ### Image
@@ -205,72 +198,79 @@ anim.stop(frame = null);
 anim.repeat(repeat, callback = null);
 
 //
+// ### Row/Column
+// A row is a cut which organizes its children as a horizontal/vertical
+// sequence.
+
+// Create a new row/column.
+var row = Cut.row(valign = 0);
+var column = Cut.column(halign = 0);
+
+//
 // ### String
-// String is a row of image cuts.
+// String is a row of images, but images are dynamically assigned using font and
+// value.
 
 // Create a new string (sequence) instance.
 Cut.string(cutouts);
 
 string.setFont(cutouts);
 
-// set string value
+// Value is a string or array, each char/item is used to select create an image
+// using font cutouts.
 string.setValue(value);
 
 //
 // ### Cutout
-// There are two ways to define a cutout (sprite): Canvas drawing and image
-// textures.
+// There are two ways to define a cutout: Canvas drawing and image textures.
 
 //
-// ### Canvas Drawing
-//
+// Canvas drawing
 cutout = Cut.Out.drawing(name = "random", width, height, ratio = 1, function(
     context, ratio) {
-  // Draw to context. `this` is the created cutout.
+  // Draw to context.
+  // this === create cutout
 });
 
 //
-// ### Textures
-// Register a texture, images are automatically loaded by Cut.Loader.
+// Registering an image texture, images are automatically loaded by Cut.Loader.
 Cut.addTexture({
   name : "",
   imagePath : "",
-  imageRatio : "",
-  filter : "",
-  ratio : "",
+  imageRatio : "", // Optional
+  filter : "", // Optional
+  ratio : "", // Optional
   cutouts : [ {
     name : "",
     x : "",
     y : "",
     width : "",
     height : "",
-    // Optional, used by tiled and stretched images.
-    top : "",
-    bottom : "",
-    left : "",
-    right : ""
+    top : "", // Optional
+    bottom : "", // Optional
+    left : "", // Optional
+    right : "" // Optional
   }, etc ]
 }, etc);
 
-// Single cutout
+// Single cutout selector.
 cutout = "textureName:cutoutName";
 
-// Multiple cutout
+// Multiple cutout selector.
 cutouts = "textureName:cutoutPrefix";
 
 //
 // ### Loader
-// Loaders are used to start and run apps.
+// Loaders are used to start and run apps, rendering cycles are managed by loader.
 
 // Load an app with root node and container element.
 Cut.Loader.load(function(root, container) {
-  // add cuts to root
-  foo.appendTo(root);
+  // Your apps goes here, add nodes to root.
 });
 
 //
 // ### Mouse(Touch)
-// Mouse class is used to capture and process mouse and touch events.  
+// Mouse class is used to capture and process mouse and touch events.
 
 // Subscribe root.
 Cut.Mouse.subscribe(root, container, captureAnyMove = false);
