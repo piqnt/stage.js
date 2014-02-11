@@ -194,8 +194,6 @@ anim.setFrames(cutouts);
 
 anim.gotoFrame(n, resize = false);
 
-anim.gotoLabel("cutoutName", resize = false);
-
 anim.randomFrame();
 
 anim.moveFrame(n);
