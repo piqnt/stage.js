@@ -108,7 +108,6 @@ Cut.P2.prototype.step = function(t) {
       offsetX : x,
       offsetY : -y,
       scaleX : s,
-      scaleY : 1 / s,
       rotation : a
     });
   }
