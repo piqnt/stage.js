@@ -2173,6 +2173,12 @@ Cut._now = (function() {
   }
 })();
 
+Cut._function = function(value) {
+  return typeof value === "function" ? value : function() {
+    return value;
+  };
+};
+
 Cut._status = function(msg) {
   if (!(Cut._statusbox)) {
     var statusbox = Cut._statusbox = document.createElement("div");

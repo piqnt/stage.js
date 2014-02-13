@@ -403,9 +403,3 @@ Cut.P2.randomColor = function() {
   var blue = Cut.Math.random(192, 256) | 0;
   return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
 };
-
-Cut._function = function(value) {
-  return typeof value === "function" ? value : function() {
-    return value;
-  };
-};

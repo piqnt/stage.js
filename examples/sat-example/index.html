@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head>
+  <title>SAT.js - Simple Collision Examples</title>
+  
+  <script src="../lib/SAT.js"></script>
+  <script src="../../cut-core.js"></script>
+  <script src="../../cut-mouse.js"></script>
+  <script src="../../cut-loader.js"></script>
+  <script src="../cut-sat.js"></script>
+  <script src="app.js"></script>
+  
+</head><body style="margin: 50px">
+  <h1>Dynamic Collision Examples</h1>
+
+  <h2>Dynamic response</h2>
+  <p>Drag the shapes around. If they collide they will be moved so that they don't collide.  The circle is "heavy" - it will not be moved by other items (but will move other items)</p>
+  <canvas id="example1" style="border: 1px solid #CCC; width: 640px; height: 480px;"></canvas>
+
+  <h2>Lots of circles, all collidable with each other.</h2>
+  <p>Drag any of the circles and watch them react.</p>
+  <canvas id="example2" style="border: 1px solid #CCC; width: 640px; height: 640px;"></canvas>
+  
+</body></html>

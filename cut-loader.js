@@ -55,6 +55,10 @@ Cut.Loader = {
         root.render(context);
       }, requestAnimationFrame);
 
+      if (typeof canvas === "string") {
+        canvas = document.getElementById(canvas);
+      }
+      
       if (!canvas) {
         canvas = document.getElementById("cutjs");
       }
