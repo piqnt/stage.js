@@ -162,12 +162,9 @@ image.setImage(cutout);
 image.cropX(w, x = 0);
 image.cropY(h, y = 0);
 
-// Tile image to cover pin width and height. To define tile border use top,
-// bottom, left and right with texture cutouts.
+// Tile/Stretch image to resize to pinning width and height. To define border
+// use top, bottom, left and right with cutout definition.
 image.tile();
-
-// Stretch image to cover pin width and height. To define stretch border use
-// top, bottom, left and right with texture cutouts.
 image.stretch();
 
 //
@@ -202,15 +199,15 @@ anim.repeat(repeat, callback = null);
 // sequence.
 
 // Create a new row/column.
-var row = Cut.row(valign = 0);
-var column = Cut.column(halign = 0);
+var row = Cut.row(childrenVerticalAlign = 0);
+var column = Cut.column(childrenHorizontalAlign = 0);
 
 //
 // ### String
 // String is a row of images, but images are dynamically assigned using font and
 // value.
 
-// Create a new string (sequence) instance.
+// Create a new string instance.
 Cut.string(cutouts);
 
 string.setFont(cutouts);
@@ -260,7 +257,8 @@ cutouts = "textureName:cutoutPrefix";
 
 //
 // ### Loader
-// Loaders are used to start and run apps, rendering cycles are managed by loader.
+// Loaders are used to start and run apps, rendering cycles are managed by
+// loader.
 
 // Load an app with root node and container element.
 Cut.Loader.load(function(root, container) {
