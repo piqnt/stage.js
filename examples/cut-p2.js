@@ -14,6 +14,8 @@ Cut.P2 = function(world, options) {
 
   options = options || {};
 
+  this.debug = options.debug || false;
+
   this.ratio = options.ratio || 128;
 
   this.maxSubSteps = options.maxSubSteps || 3;
@@ -115,7 +117,7 @@ Cut.P2.prototype.step = function(t) {
 
 Cut.P2.prototype.addRenderable = function(obj) {
 
-  if (typeof obj.ui !== "undefined") {
+  if (!this.debug && typeof obj.ui !== "undefined") {
     obj.ui && obj.ui.appendTo(this);
     return;
   }

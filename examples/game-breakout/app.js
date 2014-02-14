@@ -1,3 +1,5 @@
+var P2_DEBUG = false;
+
 Cut.Loader.load(function(root, container) {
   Cut.Mouse.subscribe(root, container, true);
   root.viewbox(20, 30).pin("handle", -0.5);
@@ -57,7 +59,7 @@ Cut.Loader.load(function(root, container) {
   bottomWall.ui = null;
   world.addBody(bottomWall);
 
-  var paddleShape = new p2.Capsule(15, 0.5);
+  var paddleShape = new p2.Capsule(1.5, 0.5);
   paddleShape.material = paddleMat;
   var paddleBody = new p2.Body({
     position : [ 0, -10.5 ],
@@ -117,12 +119,14 @@ Cut.Loader.load(function(root, container) {
   });
 
   var p2cut = Cut.p2(world, {
-    lineWidth : 0.015,
-    ratio : 128
+    lineWidth : 0.15,
+    ratio : 128,
+    debug : P2_DEBUG
   }).appendTo(root).on(Cut.Mouse.MOVE, function(ev, point) {
     paddleBody.position[0] = Math.max(-8.5, Math.min(8.5, point.x));
   }).spy(true);
-  Cut.image("base:bg").prependTo(p2cut).pin("align", 0.5);
+
+  !P2_DEBUG && Cut.image("base:bg").prependTo(p2cut).pin("align", 0.5);
 
   var level = 0, lives = 0;
 
