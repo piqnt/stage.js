@@ -2,7 +2,7 @@ var P2_DEBUG = false;
 
 Cut.Loader.load(function(root, container) {
   Cut.Mouse.subscribe(root, container, true);
-  root.viewbox(20, 30).pin("handle", -0.5);
+  root.viewbox(20 / 10, 30 / 10).pin("handle", -0.5);
 
   var M = Cut.Math;
 
@@ -18,9 +18,9 @@ Cut.Loader.load(function(root, container) {
   var brickMat = wallMat;
   var paddleMat = wallMat;
 
-  var leftShape = new p2.Rectangle(25, 1);
+  var leftShape = new p2.Rectangle(25 / 10, 1 / 10);
   var leftWall = new p2.Body({
-    position : [ +9.5, -0.5 ],
+    position : [ +9.5 / 10, -0.5 / 10 ],
     angle : Math.PI / 2,
     mass : 0,
   });
@@ -29,9 +29,9 @@ Cut.Loader.load(function(root, container) {
   leftWall.ui = null;
   world.addBody(leftWall);
 
-  var rightShape = new p2.Rectangle(25, 1);
+  var rightShape = new p2.Rectangle(25 / 10, 1 / 10);
   var rightWall = new p2.Body({
-    position : [ -9.5, -0.5 ],
+    position : [ -9.5 / 10, -0.5 / 10 ],
     angle : Math.PI / 2,
     mass : 0
   });
@@ -40,9 +40,9 @@ Cut.Loader.load(function(root, container) {
   rightWall.ui = null;
   world.addBody(rightWall);
 
-  var topShape = new p2.Rectangle(18, 1);
+  var topShape = new p2.Rectangle(18 / 10, 1 / 10);
   var topWall = new p2.Body({
-    position : [ 0, +12.5 ],
+    position : [ 0, +12.5 / 10 ],
     mass : 0
   });
   topShape.material = wallMat;
@@ -50,9 +50,9 @@ Cut.Loader.load(function(root, container) {
   topWall.ui = null;
   world.addBody(topWall);
 
-  var bottomShape = new p2.Rectangle(18, 1);
+  var bottomShape = new p2.Rectangle(18 / 10, 1 / 10);
   var bottomWall = new p2.Body({
-    position : [ 0, -13.5 ],
+    position : [ 0, -13.5 / 10 ],
     mass : 0
   });
   bottomShape.material = wallMat;
@@ -61,17 +61,17 @@ Cut.Loader.load(function(root, container) {
   bottomWall.ui = null;
   world.addBody(bottomWall);
 
-  var paddleShape = new p2.Capsule(1.5, 0.5);
+  var paddleShape = new p2.Capsule(1.8 / 10, 0.5 / 10);
   paddleShape.material = paddleMat;
   var paddleBody = new p2.Body({
-    position : [ 0, -10.5 ],
+    position : [ 0, -10.5 / 10 ],
     mass : 0
   });
   paddleBody.addShape(paddleShape);
   paddleBody.ui = Cut.anim("base:full").pin("handle", 0.5);
   world.addBody(paddleBody);
 
-  var ballShape = new p2.Circle(0.5);
+  var ballShape = new p2.Circle(0.5 / 10);
   ballShape.material = ballMat;
   var ballBody = new p2.Body({
     position : [ 0, 0 ],
@@ -83,7 +83,7 @@ Cut.Loader.load(function(root, container) {
   ballBody.isBall = true;
   ballBody.ui = Cut.anim("base:ball_", 10).pin("handle", 0.5).play();
 
-  var brickShape = new p2.Capsule(1, 0.5);
+  var brickShape = new p2.Capsule(1 / 10, 0.5 / 10);
   brickShape.material = brickMat;
 
   world.addContactMaterial(new p2.ContactMaterial(ballMat, wallMat, {
@@ -132,16 +132,6 @@ Cut.Loader.load(function(root, container) {
     }
   });
 
-  var p2cut = Cut.p2(world, {
-    lineWidth : 0.1,
-    ratio : 64,
-    debug : P2_DEBUG
-  }).appendTo(root).on(Cut.Mouse.MOVE, function(ev, point) {
-    paddleBody.position[0] = Math.max(-8.5, Math.min(8.5, point.x));
-  }).spy(true);
-
-  !P2_DEBUG && Cut.image("base:bg").prependTo(p2cut).pin("align", 0.5);
-
   var level = 0, lives = 0, speed = 0;
 
   function die() {
@@ -155,7 +145,7 @@ Cut.Loader.load(function(root, container) {
   }
 
   function start(addbricks) {
-    speed = 20;
+    speed = 20 / 10;
     if (lives <= 0) {
       lives = 3;
       level = 0;
@@ -176,7 +166,7 @@ Cut.Loader.load(function(root, container) {
             continue;
           }
           var brickBody = new p2.Body({
-            position : [ (j - 3) * 2, (i + 5) ],
+            position : [ (j - 3) * 2 / 10, (i + 5) / 10 ],
             mass : 0
           });
           brickBody.addShape(brickShape);
@@ -194,8 +184,20 @@ Cut.Loader.load(function(root, container) {
     ballBody.velocity[1] = speed * Math.cos(a);
 
     ballBody.position[0] = 0;
-    ballBody.position[1] = -5;
+    ballBody.position[1] = -5 / 10;
   }
 
   start(true);
+
+  var p2cut = Cut.p2(world, {
+    lineWidth : 0.01,
+    lineColor: "",
+    ratio : 256,
+    debug : P2_DEBUG
+  }).appendTo(root).on(Cut.Mouse.MOVE, function(ev, point) {
+    paddleBody.position[0] = Math.max(-8.5 / 10, Math.min(8.5 / 10, point.x));
+  }).spy(true);
+
+  !P2_DEBUG && Cut.image("base:bg").prependTo(p2cut).pin("align", 0.5);
+
 });

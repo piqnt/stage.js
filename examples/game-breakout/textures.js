@@ -1,8 +1,8 @@
 Cut.addTexture({
   name : "base",
   imagePath : "textures.png",
-  imageRatio : 16,
-  ratio : 1 / 16,
+  imageRatio : 160,
+  ratio : 1 / 160,
   filter : function(cut) {
     cut.y = 512 - (cut.y + cut.height);
     return cut;
