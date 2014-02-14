@@ -1205,7 +1205,6 @@ Cut.getImage = function(src) {
 };
 
 Cut.addImage = function(image, src) {
-  console.log(image, src);
   Cut._images[src] = image;
   return this;
 };

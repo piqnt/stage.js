@@ -12,7 +12,7 @@ var B = function(pos, w, h) {
 };
 
 Cut.Loader.load(function(root, container) {
-  Cut.Mouse.subscribe(root.spy(true), container);
+  Cut.Mouse.subscribe(root, container);
   root.viewbox(400, 400).pin("handle", 0);
 
   var world = new SAT.World();
@@ -41,14 +41,14 @@ Cut.Loader.load(function(root, container) {
 }, "example1");
 
 Cut.Loader.load(function(root, container) {
-  Cut.Mouse.subscribe(root.spy(true), container);
-  root.viewbox(320, 320).pin("handle", 0);
+  Cut.Mouse.subscribe(root, container);
+  root.viewbox(640, 640).pin("handle", 0);
 
   var world = new SAT.World({
     loopCount : 5
   });
-  for (var i = 0; i < 8; i++) {
-    for (var j = 0; j < 8; j++) {
+  for (var i = 0; i < 16; i++) {
+    for (var j = 0; j < 16; j++) {
       world.addBody(new SAT.Body(C(V((40 * i) + 20, (40 * j) + 20), 18), {
         solid : true
       }));

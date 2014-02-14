@@ -115,6 +115,11 @@ Cut.P2.prototype.step = function(t) {
 
 Cut.P2.prototype.addRenderable = function(obj) {
 
+  if (typeof obj.ui !== "undefined") {
+    obj.ui && obj.ui.appendTo(this);
+    return;
+  }
+
   obj.ui = Cut.create().appendTo(this);
 
   if (obj instanceof p2.Body && obj.shapes.length) {
