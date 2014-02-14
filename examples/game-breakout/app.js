@@ -4,6 +4,8 @@ Cut.Loader.load(function(root, container) {
   Cut.Mouse.subscribe(root, container, true);
   root.viewbox(20, 30).pin("handle", -0.5);
 
+  var M = Cut.Math;
+
   var world = new p2.World({
     gravity : [ 0, 0 ],
     defaultFriction : 0
@@ -16,9 +18,9 @@ Cut.Loader.load(function(root, container) {
   var brickMat = wallMat;
   var paddleMat = wallMat;
 
-  var leftShape = new p2.Line(25);
+  var leftShape = new p2.Rectangle(25, 1);
   var leftWall = new p2.Body({
-    position : [ +9, -0.5 ],
+    position : [ +9.5, -0.5 ],
     angle : Math.PI / 2,
     mass : 0,
   });
@@ -27,9 +29,9 @@ Cut.Loader.load(function(root, container) {
   leftWall.ui = null;
   world.addBody(leftWall);
 
-  var rightShape = new p2.Line(25);
+  var rightShape = new p2.Rectangle(25, 1);
   var rightWall = new p2.Body({
-    position : [ -9, -0.5 ],
+    position : [ -9.5, -0.5 ],
     angle : Math.PI / 2,
     mass : 0
   });
@@ -38,9 +40,9 @@ Cut.Loader.load(function(root, container) {
   rightWall.ui = null;
   world.addBody(rightWall);
 
-  var topShape = new p2.Line(18);
+  var topShape = new p2.Rectangle(18, 1);
   var topWall = new p2.Body({
-    position : [ 0, +12 ],
+    position : [ 0, +12.5 ],
     mass : 0
   });
   topShape.material = wallMat;
@@ -48,9 +50,9 @@ Cut.Loader.load(function(root, container) {
   topWall.ui = null;
   world.addBody(topWall);
 
-  var bottomShape = new p2.Line(18);
+  var bottomShape = new p2.Rectangle(18, 1);
   var bottomWall = new p2.Body({
-    position : [ 0, -13 ],
+    position : [ 0, -13.5 ],
     mass : 0
   });
   bottomShape.material = wallMat;
@@ -94,6 +96,18 @@ Cut.Loader.load(function(root, container) {
     var brick = a.isBrick && a || b.isBrick && b;
     var bottom = a.isBottom && a || b.isBottom && b;
     if (ball) {
+
+      // p2
+      if (ball.velocity[1] >= 0) {
+        ball.velocity[1] = Math.max(ball.velocity[1], speed / 3);
+      } else {
+        ball.velocity[1] = Math.min(ball.velocity[1], -speed / 3);
+      }
+      var s = speed / M.length(ball.velocity[0], ball.velocity[1]);
+      ball.velocity[0] *= s;
+      ball.velocity[1] *= s;
+      ball.angularVelocity = ball.angle = 0;
+
       if (bottom) {
         world.removeBody(ball);
         var more = false;
@@ -119,8 +133,8 @@ Cut.Loader.load(function(root, container) {
   });
 
   var p2cut = Cut.p2(world, {
-    lineWidth : 0.15,
-    ratio : 128,
+    lineWidth : 0.1,
+    ratio : 64,
     debug : P2_DEBUG
   }).appendTo(root).on(Cut.Mouse.MOVE, function(ev, point) {
     paddleBody.position[0] = Math.max(-8.5, Math.min(8.5, point.x));
@@ -128,7 +142,7 @@ Cut.Loader.load(function(root, container) {
 
   !P2_DEBUG && Cut.image("base:bg").prependTo(p2cut).pin("align", 0.5);
 
-  var level = 0, lives = 0;
+  var level = 0, lives = 0, speed = 0;
 
   function die() {
     lives--;
@@ -141,7 +155,7 @@ Cut.Loader.load(function(root, container) {
   }
 
   function start(addbricks) {
-    console.log(lives, level);
+    speed = 20;
     if (lives <= 0) {
       lives = 3;
       level = 0;
@@ -149,8 +163,8 @@ Cut.Loader.load(function(root, container) {
     }
 
     if (addbricks) {
-      for (var i = 0; i < world.bodies.length; i++) {
-        if (world.bodies[i].isBrick) {
+      for (var i = world.bodies.length - 1; i >= 0; i--) {
+        if (world.bodies[i].isBrick || world.bodies[i].isBall) {
           world.removeBody(world.bodies[i]);
         }
       }
@@ -174,8 +188,11 @@ Cut.Loader.load(function(root, container) {
     }
 
     world.addBody(ballBody);
-    ballBody.velocity[0] = Math.random() * 20 - 10;
-    ballBody.velocity[1] = 20;
+
+    var a = Math.PI * M.random(-0.1, 0.1);
+    ballBody.velocity[0] = speed * Math.sin(a);
+    ballBody.velocity[1] = speed * Math.cos(a);
+
     ballBody.position[0] = 0;
     ballBody.position[1] = -5;
   }
