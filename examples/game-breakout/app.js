@@ -159,14 +159,14 @@ Cut.Loader.load(function(root, container) {
         }
       }
       var bricks = LEVELS[level % LEVELS.length];
-      for (var i = 0; i < bricks.length; i++) {
-        for (var j = 0; j < bricks[i].length; j++) {
-          var brick = bricks[i][j];
+      for (var j = 0; j < bricks.length; j++) {
+        for (var i = 0; i < bricks[j].length; i++) {
+          var brick = bricks[j][i];
           if (brick === "x") {
             continue;
           }
           var brickBody = new p2.Body({
-            position : [ (j - 3) * 2 / 10, (i + 5) / 10 ],
+            position : [ (i - 3) * 2 / 10, (j + 7 - bricks.length/2) / 10 ],
             mass : 0
           });
           brickBody.addShape(brickShape);
@@ -179,7 +179,7 @@ Cut.Loader.load(function(root, container) {
 
     world.addBody(ballBody);
 
-    var a = Math.PI * M.random(-0.1, 0.1);
+    var a = Math.PI * M.random(-0.2, 0.2);
     ballBody.velocity[0] = speed * Math.sin(a);
     ballBody.velocity[1] = speed * Math.cos(a);
 

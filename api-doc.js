@@ -1,9 +1,9 @@
 //
-// ### Cut
-// Tree nodes are called cut.
+// ### Tree
+//
 
-// Create new plain cut instance.
-// No painting is associated with a plain cut, it is just a parent for other cuts.
+// Create new plain node instance.
+// No painting is associated with a plain node, it is just a parent for other nodes.
 var foo = Cut.create();
 
 // Append/prepend bar, baz, ... to foo's children.
@@ -50,7 +50,6 @@ bar.hide();
 bar.show();
 
 // Register a ticker to be called on ticking (before painting).
-// It can be used to modify the cut.
 foo.tick(ticker, beforeChildren = false);
 
 // Register a type-listener to bar.
@@ -72,16 +71,16 @@ foo.visit({
     return stopVisit ? true : false;
   },
   reverse : reverseChildrenOrder ? true : false,
-  visible : onlyVisibleCuts ? true : false
+  visible : onlyVisibleNodes ? true : false
 });
 
-// Rendering pauses unless/until at least one cut is touched directly or
+// Rendering pauses unless/until at least one node is touched directly or
 // indirectly.
 foo.touch();
 
 //
 // ### Pinning
-// Pinnint is a top level concept, it refers to transforming a node/cut relative
+// Pinnint is a top level concept, it refers to transforming a node relative
 // to its parent.
 
 // Get a pinning value.
@@ -105,7 +104,7 @@ bar.pin({
   // Relative location on self used as scale/skew/rotation center.
   pivotX : "",
   pivotY : "",
-  // Automatically set depending on cut type, used for relative pinning values.
+  // Automatically set depending on node type, used for relative pinning values.
   height : "",
   width : "",
   // Relative location on self used for positioning .
@@ -151,7 +150,7 @@ tween.tween(duration = 400, delay = 0);
 
 //
 // ### Image
-// An image is a cut which pastes a cutout.
+// An image is a node which pastes a cutout.
 
 // Create a new image instance.
 var image = Cut.image(cutout);
@@ -173,7 +172,7 @@ image.stretch();
 
 //
 // ### Anim(Clip)
-// An anim is a cut which have a set of cutouts and pastes a cutout at a time.
+// An anim is a node which have a set of cutouts and pastes a cutout at a time.
 
 // Create a new anim instance.
 var anim = Cut.anim(cutouts, fps = Cut.Anim.FPS);
@@ -199,7 +198,7 @@ anim.repeat(repeat, callback = null);
 
 //
 // ### Row/Column
-// A row is a cut which organizes its children as a horizontal/vertical
+// A row is a node which organizes its children as a horizontal/vertical
 // sequence.
 
 // Create a new row/column.
@@ -278,7 +277,7 @@ Cut.Mouse.subscribe(root, container, captureAnyMove = false);
 // Add click listener to bar, other mouse/touch event types are start, end and
 // move.
 bar.on(Cut.Mouse.CLICK, function(event, point) {
-  // point is relative to this cut
+  // point is relative to this node.
 });
 
 //
