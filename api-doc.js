@@ -5,12 +5,12 @@
 // Load an app with root node and container element.
 Cut.Loader.load(function(root, container) {
   // Your apps goes here, add nodes to the root.
-  // Container is the actual element holding displaying the rendered graphics.
+  // Container is the actual element displaying the rendered graphics.
 });
 
 //
 // ### Tree Model
-// Every app consists of a tree. Tree's root is provided by the Loader.
+// Every app consists of a tree. Tree root is provided by the Loader.
 
 // Create new plain node instance. No painting is associated with a plain node,
 // it is just a parent for other nodes.
