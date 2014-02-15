@@ -1,4 +1,4 @@
-var P2_DEBUG = true;
+var P2_DEBUG = false;
 
 Cut.Loader.load(function(root, container) {
   Cut.Mouse.subscribe(root, container, true);
@@ -61,8 +61,9 @@ Cut.Loader.load(function(root, container) {
   bottomWall.ui = null;
   world.addBody(bottomWall);
 
-  var paddleShape = new p2.Convex([ [ -0.2, 0 ], [ -0.1, 0.1 ], [ 0.1, 0.1 ],
-      [ 0.2, 0 ] ]);
+  var paddleShape = new p2.Convex([ [ 0.2, -0.01 ], [ 0.2, 0.01 ], [ 0.15, 0.05 ],
+      [ 0.05, 0.06 ], [ -0.05, 0.06 ], [ -0.15, 0.05 ], [ -0.2, 0.01 ],
+      [ -0.2, -0.01 ] ]);
   paddleShape.material = paddleMat;
   var paddleBody = new p2.Body({
     position : [ 0, -10.5 / 10 ],
