@@ -21,6 +21,13 @@ body {
 	padding: 0 10px 10px 0;
 }
 
+.hint {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	padding: 0 0 10px 10px;
+}
+
 a {
 	text-decoration: none;
 }
