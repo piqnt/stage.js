@@ -1,4 +1,4 @@
-var P2_DEBUG = false;
+var P2_DEBUG = true;
 
 Cut.Loader.load(function(root, container) {
   Cut.Mouse.subscribe(root, container, true);
@@ -18,9 +18,9 @@ Cut.Loader.load(function(root, container) {
   var brickMat = wallMat;
   var paddleMat = wallMat;
 
-  var leftShape = new p2.Rectangle(25 / 10, 1 / 10);
+  var leftShape = new p2.Line(25 / 10, 1 / 10);
   var leftWall = new p2.Body({
-    position : [ +9.5 / 10, -0.5 / 10 ],
+    position : [ +9 / 10, -0.5 / 10 ],
     angle : Math.PI / 2,
     mass : 0,
   });
@@ -29,9 +29,9 @@ Cut.Loader.load(function(root, container) {
   leftWall.ui = null;
   world.addBody(leftWall);
 
-  var rightShape = new p2.Rectangle(25 / 10, 1 / 10);
+  var rightShape = new p2.Line(25 / 10, 1 / 10);
   var rightWall = new p2.Body({
-    position : [ -9.5 / 10, -0.5 / 10 ],
+    position : [ -9 / 10, -0.5 / 10 ],
     angle : Math.PI / 2,
     mass : 0
   });
@@ -40,9 +40,9 @@ Cut.Loader.load(function(root, container) {
   rightWall.ui = null;
   world.addBody(rightWall);
 
-  var topShape = new p2.Rectangle(18 / 10, 1 / 10);
+  var topShape = new p2.Line(18 / 10, 1 / 10);
   var topWall = new p2.Body({
-    position : [ 0, +12.5 / 10 ],
+    position : [ 0, +12 / 10 ],
     mass : 0
   });
   topShape.material = wallMat;
@@ -50,9 +50,9 @@ Cut.Loader.load(function(root, container) {
   topWall.ui = null;
   world.addBody(topWall);
 
-  var bottomShape = new p2.Rectangle(18 / 10, 1 / 10);
+  var bottomShape = new p2.Line(18 / 10, 1 / 10);
   var bottomWall = new p2.Body({
-    position : [ 0, -13.5 / 10 ],
+    position : [ 0, -13 / 10 ],
     mass : 0
   });
   bottomShape.material = wallMat;
@@ -61,7 +61,8 @@ Cut.Loader.load(function(root, container) {
   bottomWall.ui = null;
   world.addBody(bottomWall);
 
-  var paddleShape = new p2.Capsule(1.8 / 10, 0.5 / 10);
+  var paddleShape = new p2.Convex([ [ -0.2, 0 ], [ -0.1, 0.1 ], [ 0.1, 0.1 ],
+      [ 0.2, 0 ] ]);
   paddleShape.material = paddleMat;
   var paddleBody = new p2.Body({
     position : [ 0, -10.5 / 10 ],
@@ -166,7 +167,7 @@ Cut.Loader.load(function(root, container) {
             continue;
           }
           var brickBody = new p2.Body({
-            position : [ (i - 3) * 2 / 10, (j + 7 - bricks.length/2) / 10 ],
+            position : [ (i - 3) * 2 / 10, (j + 7 - bricks.length / 2) / 10 ],
             mass : 0
           });
           brickBody.addShape(brickShape);
@@ -191,7 +192,7 @@ Cut.Loader.load(function(root, container) {
 
   var p2cut = Cut.p2(world, {
     lineWidth : 0.01,
-    lineColor: "",
+    lineColor : "#888",
     ratio : 256,
     debug : P2_DEBUG
   }).appendTo(root).on(Cut.Mouse.MOVE, function(ev, point) {
