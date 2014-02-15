@@ -36,7 +36,7 @@ Cut.Loader.load(function(root, container) {
             }
           }
         });
-        cells[i][j].setImage("base:-").pin({
+        cells[i][j].setImage("base:-").tween().clear().pin({
           alpha : 0.8,
           scale : 1
         });
