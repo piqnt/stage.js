@@ -1,9 +1,19 @@
 //
-// ### Tree
-//
+// ### Loader
+// Loaders create and run apps and manage rendering cycles.
 
-// Create new plain node instance.
-// No painting is associated with a plain node, it is just a parent for other nodes.
+// Load an app with root node and container element.
+Cut.Loader.load(function(root, container) {
+  // Your apps goes here, add nodes to the root.
+  // Container is the actual element holding displaying the rendered graphics.
+});
+
+//
+// ### Tree Model
+// Every app consists of a tree. Tree's root is provided by the Loader.
+
+// Create new plain node instance. No painting is associated with a plain node,
+// it is just a parent for other nodes.
 var foo = Cut.create();
 
 // Append/prepend bar, baz, ... to foo's children.
@@ -254,16 +264,6 @@ cutout = "textureName:cutoutName";
 
 // Multiple cutout selector.
 cutouts = "textureName:cutoutPrefix";
-
-//
-// ### Loader
-// Loaders are used to start and run apps, rendering cycles are managed by
-// loader.
-
-// Load an app with root node and container element.
-Cut.Loader.load(function(root, container) {
-  // Your apps goes here, add nodes to root.
-});
 
 //
 // ### Mouse(Touch)

@@ -11,7 +11,7 @@ Cut.Loader.load(function(root, container) {
     var color = colors[i];
     
     Cut.image("color:" + color).appendTo(row)
-      .on(Cut.Mouse.MOVE, function(ev, point) {
+      .on(Cut.Mouse.CLICK, function(ev, point) {
         this.tween().clear().pin({
           scaleX : Cut.Math.random(0.8, 1.6),
           scaleY : Cut.Math.random(0.8, 1.6)
