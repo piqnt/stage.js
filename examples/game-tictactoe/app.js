@@ -22,6 +22,9 @@ Cut.Loader.load(function(root, container) {
             start();
             return;
           }
+          if (this.sign) {
+            return;
+          }
           this.sign = (turn++ % 2 == 0) ? "o" : "x";
           this.setImage("base:" + this.sign);
           var line = test(this.i, this.j, this.sign);
@@ -34,6 +37,9 @@ Cut.Loader.load(function(root, container) {
                 scaleY : 1.2
               });
             }
+          }
+          if (turn >= 9) {
+            over = true;
           }
         });
         cells[i][j].setImage("base:-").tween().clear().pin({
@@ -54,7 +60,7 @@ Cut.Loader.load(function(root, container) {
       return [ cells[i][-1], cells[i][0], cells[i][+1] ];
     if (i == j && cells[-1][-1].sign == sign && cells[0][0].sign == sign
         && cells[+1][+1].sign == sign)
-      return [ cells[-1][-1], cells[0][0], , cells[+1][+1] ];
+      return [ cells[-1][-1], cells[0][0], cells[+1][+1] ];
     if (i == -j && cells[-1][+1].sign == sign && cells[0][0].sign == sign
         && cells[+1][-1].sign == sign)
       return [ cells[-1][+1], cells[0][0], cells[+1][-1] ];
