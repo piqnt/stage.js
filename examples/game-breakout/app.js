@@ -5,7 +5,12 @@ var p2s = 0.1;
 Cut.Loader.load(function(root, container) {
   Cut.Mouse.subscribe(root, container, true);
 
-  root.pin("handle", -0.5);
+  root.on("resize", function(width, height) {
+    this.pin({
+      offsetX : (width / 2) | 0,
+      offsetY : (height / 2) | 0,
+    });
+  });
 
   var M = Cut.Math;
 
