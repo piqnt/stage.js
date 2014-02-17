@@ -17,7 +17,7 @@ Cut.Loader.load(function(root, container) {
         if (this != last) {
           last = this;
           // random frame = random color
-          this.randomFrame();
+          this.gotoFrame(Cut.Math.random(this.length()));
           this.tween(Cut.Math.random(2000, 5000)).clear().pin({
             scaleX : Cut.Math.random(0.9, 1.4),
             scaleY : Cut.Math.random(0.9, 1.4),

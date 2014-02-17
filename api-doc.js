@@ -191,16 +191,22 @@ anim.fps(fps);
 // Set anim cutouts.
 anim.setFrames(cutouts);
 
-anim.gotoFrame(n, resize = false);
+// Go to n-th frame.
+anim.gotoFrame(n);
 
-anim.randomFrame();
-
+// Move n frames.
 anim.moveFrame(n);
 
-anim.play(reset = false);
+// Get number of frames.
+anim.length();
 
+// Start playing (from `frame`).
+anim.play(frame = null);
+
+// Stop playing (and go to `frame`).
 anim.stop(frame = null);
 
+// Play `repeat * length` frames and then stop and call callback.
 anim.repeat(repeat, callback = null);
 
 //

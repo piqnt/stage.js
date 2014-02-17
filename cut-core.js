@@ -776,8 +776,12 @@ Cut.Anim.prototype.setFrames = function(selector) {
   return this;
 };
 
+Cut.Anim.prototype.length = function() {
+  return this._frames ? this._frames.length : 0;
+};
+
 Cut.Anim.prototype.gotoFrame = function(frame, resize) {
-  frame = Cut.Math.rotate(frame, this._frames.length);
+  frame = Cut.Math.rotate(frame, this._frames.length) | 0;
   this._frame = frame;
   resize = resize || !this._outs[0];
   this._outs[0] = this._frames[this._frame];
@@ -790,10 +794,6 @@ Cut.Anim.prototype.gotoFrame = function(frame, resize) {
   this._frame_ts = Cut._TS++;
   this.touch();
   return this;
-};
-
-Cut.Anim.prototype.randomFrame = function() {
-  return this.gotoFrame(Math.floor(Math.random() * this._frames.length));
 };
 
 Cut.Anim.prototype.moveFrame = function(move) {
@@ -811,17 +811,19 @@ Cut.Anim.prototype.repeat = function(repeat, callback) {
   return this;
 };
 
-Cut.Anim.prototype.play = function(reset) {
-  if (!this._time || reset) {
+Cut.Anim.prototype.play = function(frame) {
+  if (arguments.length) {
+    this.gotoFrame(frame);
     this._time = Cut._now();
-    this.gotoFrame(0);
+  } else if (!this._time) {
+    this._time = Cut._now();
   }
   return this;
 };
 
 Cut.Anim.prototype.stop = function(frame) {
   this._time = null;
-  if (Cut._isNum(frame)) {
+  if (arguments.length) {
     this.gotoFrame(frame);
   }
   return this;
@@ -1221,9 +1223,9 @@ Cut.addTexture = function() {
 };
 
 Cut.Texture = function(texture) {
-  
+
   texture.cutouts = texture.cutouts || [];
-  
+
   var selectionCache = {};
   var imageCache = null;
 
