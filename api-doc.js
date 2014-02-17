@@ -285,14 +285,15 @@ bar.on(Cut.Mouse.CLICK, function(event, point) {
 });
 
 //
-// ### Extending Cut
+// ### Creating new node classes.
 //
 
-// Home extends Cut.
-function Home() {
-  Home.prototype._super.apply(this, arguments);
+function View() {
+  View.prototype._super.apply(this, arguments);
+  if (arguments[0] === Cut.Proto)
+    return;
   // ...
 }
-Home.prototype = new Cut(Cut.Proto);
-Home.prototype._super = Cut;
-Home.prototype.constructor = Home;
+View.prototype = new Cut(Cut.Proto); // or Object.create(Cut)
+View.prototype._super = Cut;
+View.prototype.constructor = View;
