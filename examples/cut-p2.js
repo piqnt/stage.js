@@ -184,7 +184,7 @@ Cut.P2.prototype.addRenderable = function(obj) {
 };
 
 Cut.P2.prototype.removeRenderable = function(obj) {
-  obj.ui && obj.ui.remove();
+  obj.ui && (obj.ui.drop ? obj.ui.drop() : obj.ui.remove());
 };
 
 Cut.P2.prototype.drawLine = function(length, options) {

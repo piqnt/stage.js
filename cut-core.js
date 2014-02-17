@@ -807,6 +807,7 @@ Cut.Anim.prototype.gotoLabel = function(label, resize) {
 Cut.Anim.prototype.repeat = function(repeat, callback) {
   this._repeat = repeat * this._frames.length - 1;
   this._callback = callback;
+  this.play();
   return this;
 };
 
@@ -1220,7 +1221,9 @@ Cut.addTexture = function() {
 };
 
 Cut.Texture = function(texture) {
-
+  
+  texture.cutouts = texture.cutouts || [];
+  
   var selectionCache = {};
   var imageCache = null;
 

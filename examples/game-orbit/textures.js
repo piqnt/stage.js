@@ -3,7 +3,6 @@ Cut.addTexture({
   factory : function(name) {
     if (name.substring(0, 2) === "d_") {
       var d = name.substr(2, 1);
-      console.log(d);
       return Cut.Out.drawing("d_" + d, 12, 6, 10, function(ctx, ratio) {
         ctx.scale(ratio, ratio);
         ctx.font = "bold 4px Arial";

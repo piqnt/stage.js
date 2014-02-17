@@ -120,54 +120,94 @@ Cut.Loader.load(function(root, container) {
 
       if (bottom) {
         world.removeBody(ball);
-        var more = false;
-        for (var i = 0; i < world.bodies.length; i++) {
-          if (world.bodies[i].isBall) {
-            more = true;
-            break;
-          }
-        }
-        !more && die();
+        !anyBall() && die();
       } else if (brick) {
         world.removeBody(brick);
-        var more = false;
-        for (var i = 0; i < world.bodies.length; i++) {
-          if (world.bodies[i].isBrick) {
-            more = true;
-            break;
-          }
-        }
-        !more && levelup();
+        !anyBricks() && levelup();
       }
     }
   });
 
-  var level = 0, lives = 0, speed = 0;
+  function anyBricks() {
+    for (var i = 0; i < world.bodies.length; i++) {
+      if (world.bodies[i].isBrick) {
+        return true;
+      }
+    }
+  }
+
+  function anyBall() {
+    for (var i = 0; i < world.bodies.length; i++) {
+      if (world.bodies[i].isBall) {
+        return true;
+      }
+    }
+  }
+
+  var level = 0, lives = 0, score = 0, speed = 0;
+
+  function updateMessage(msg) {
+    message.setValue(msg);
+  }
+
+  function updateStatus(msg) {
+    status.setValue("Level: " + (level + 1) + "  Lives: " + lives);
+  }
 
   function die() {
     lives--;
-    start();
+    (lives <= 0) ? gameover() : start();
   }
+
+  function gameover() {
+    updateStatus();
+    clear();
+    init();
+  }
+
+  function init() {
+    level = 0, lives = 3, over = true;
+    updateMessage("Click to start!");
+    paddleBody.ui.hide();
+    logo.tween(500).clear(true).pin("alpha", 1);
+  }
+
+  root.on("click", function() {
+    if (over) {
+      over = false;
+      updateMessage("");
+      paddleBody.ui.show();
+      logo.tween(500).clear(false).pin("alpha", 0).then(start);
+    }
+  });
 
   function levelup() {
     level++;
-    start(true);
+    clear();
+    start();
   }
 
-  function start(addbricks) {
-    speed = 20 * p2s;
-    if (lives <= 0) {
-      lives = 3;
-      level = 0;
-      addbricks = true;
-    }
-
-    if (addbricks) {
-      for (var i = world.bodies.length - 1; i >= 0; i--) {
-        if (world.bodies[i].isBrick || world.bodies[i].isBall) {
-          world.removeBody(world.bodies[i]);
-        }
+  function clear() {
+    for (var i = world.bodies.length - 1; i >= 0; i--) {
+      if (world.bodies[i].isBrick || world.bodies[i].isBall) {
+        world.removeBody(world.bodies[i]);
       }
+    }
+  }
+
+  function start() {
+
+    speed = 20 * p2s;
+
+    updateStatus();
+
+    tri.tween(200).clear(true).pin("alpha", 1).tween(200, 500).pin("alpha", 0);
+    two.tween(200, 1000).clear(true).pin("alpha", 1).tween(200, 500).pin(
+        "alpha", 0);
+    one.tween(200, 2000).clear(true).pin("alpha", 1).tween(200, 500).pin(
+        "alpha", 0);
+
+    if (!anyBricks()) {
       var bricks = LEVELS[level % LEVELS.length];
       for (var j = 0; j < bricks.length; j++) {
         for (var i = 0; i < bricks[j].length; i++) {
@@ -184,22 +224,27 @@ Cut.Loader.load(function(root, container) {
           brickBody.addShape(brickShape);
           brickBody.isBrick = true;
           brickBody.ui = Cut.anim("tiles:b" + brick + "_").pin("handle", 0.5);
+          brickBody.ui.drop = function() {
+            this.repeat(1, function() {
+              this.remove();
+            }).fps(24);
+          };
           world.addBody(brickBody);
         }
       }
     }
 
-    world.addBody(ballBody);
+    setTimeout(function() {
+      world.addBody(ballBody);
 
-    var a = Math.PI * M.random(-0.2, 0.2);
-    ballBody.velocity[0] = speed * Math.sin(a);
-    ballBody.velocity[1] = speed * Math.cos(a);
+      var a = Math.PI * M.random(-0.2, 0.2);
+      ballBody.velocity[0] = speed * Math.sin(a);
+      ballBody.velocity[1] = speed * Math.cos(a);
 
-    ballBody.position[0] = 0;
-    ballBody.position[1] = -5 * p2s;
+      ballBody.position[0] = 0;
+      ballBody.position[1] = -5 * p2s;
+    }, 3000);
   }
-
-  start(true);
 
   var p2cut = Cut.p2(world, {
     lineWidth : 0.01,
@@ -213,6 +258,28 @@ Cut.Loader.load(function(root, container) {
             point.x));
       }).spy(true).pin("scale", 16 / p2s);
 
-  !P2_DEBUG && Cut.image("bg:prerendered").prependTo(p2cut).pin("align", 0.5);
+  var tri = Cut.image("tiles:tri").prependTo(p2cut).pin("align", 0.5).pin(
+      "alpha", 0).visible(!P2_DEBUG);
+  var two = Cut.image("tiles:two").prependTo(p2cut).pin("align", 0.5).pin(
+      "alpha", 0).visible(!P2_DEBUG);
+  var one = Cut.image("tiles:one").prependTo(p2cut).pin("align", 0.5).pin(
+      "alpha", 0).visible(!P2_DEBUG);
+  var logo = Cut.image("logo:logo").prependTo(p2cut).pin("align", 0.5).pin(
+      "alpha", 0).visible(!P2_DEBUG);
+  var bg = Cut.image("bg:prerendered").prependTo(p2cut).pin("align", 0.5)
+      .visible(!P2_DEBUG);
+  var status = Cut.string("font:_").appendTo(bg).pin({
+    alignX : 0.5,
+    alignY : 1,
+    offsetY : -0.5 * p2s,
+  });
+
+  var message = Cut.string("font:_").appendTo(bg).pin({
+    alignX : 0.5,
+    alignY : 1,
+    offsetY : -4 * p2s,
+  });
+
+  init();
 
 });

@@ -1,10 +1,20 @@
 Cut.addTexture({
+  name : "logo",
+  imagePath : "logo.png",
+  imageRatio : 16 / p2s,
+  ratio : 1 / (16 / p2s),
+  cutouts : [
+    { name : "logo", x : 0, y : 0, width : 130, height : 200 }
+  ]
+});
+
+Cut.addTexture({
   name : "bg",
   imagePath : "bg_prerendered.png",
   imageRatio : 16 / p2s,
   ratio : 1 / (16 / p2s),
   cutouts : [
-    { name : "prerendered",        x : 0, y : 0,   width : 320, height : 416 }
+    { name : "prerendered", x : 0, y : 0,  width : 320, height : 416 }
   ]
 });
 
@@ -46,8 +56,26 @@ Cut.addTexture({
     { name : "+",         x : 96,  y : 96,  width : 16,  height : 16 },
     { name : "-",         x : 112, y : 96,  width : 16,  height : 16 },
 
-    { name : "D_3",       x : 0,   y : 96,  width : 32,  height : 48 },
-    { name : "D_2",       x : 0,   y : 96,  width : 32,  height : 48 },
-    { name : "D_1",       x : 0,   y : 96,  width : 32,  height : 48 },
+    { name : "tri",       x : 0,   y : 96,  width : 32,  height : 48 },
+    { name : "two",       x : 32,  y : 96,  width : 32,  height : 48 },
+    { name : "one",       x : 64,  y : 96,  width : 32,  height : 48 },
   ]
+});
+
+Cut.addTexture({
+  name : "font",
+  factory : function(name) {
+    var prefix = "_";
+    if (name.substring(0, prefix.length) === prefix) {
+      var d = name.substr(prefix.length, 1);
+      return Cut.Out.drawing(prefix + d, 2 * p2s, 1 * p2s, 300, function(ctx, ratio) {
+        ctx.scale(ratio * p2s / 12, ratio * p2s / 12);
+        ctx.font = "bold 12px sans-serif";
+        ctx.fillStyle = "#000";
+        ctx.measureText && this.cropX((ctx.measureText(d).width + 0.01) * p2s / 12);
+        ctx.textBaseline = "top";
+        ctx.fillText(d, 0, 0);
+      });
+    }
+  }
 });
