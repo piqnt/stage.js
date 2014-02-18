@@ -27,7 +27,6 @@ function Cut() {
   this._outs = [];
   this._tickBefore = [];
   this._tickAfter = [];
-  this._spy = false;
 
   this._alpha = 1;
 };
@@ -422,14 +421,6 @@ Cut.prototype.empty = function() {
 Cut.prototype.touch = function() {
   this._touch_ts = Cut._TS++;
   this._parent && this._parent.touch();
-  return this;
-};
-
-Cut.prototype.spy = function(spy) {
-  if (!arguments.length) {
-    return this._spy;
-  }
-  this._spy = spy ? true : false;
   return this;
 };
 

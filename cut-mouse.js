@@ -7,6 +7,14 @@
 
 DEBUG = true || (typeof DEBUG === 'undefined' || DEBUG) && console;
 
+Cut.prototype.spy = function(spy) {
+  if (!arguments.length) {
+    return this._spy;
+  }
+  this._spy = spy ? true : false;
+  return this;
+};
+
 Cut.Mouse = {
   CLICK : "click",
   START : "touchstart mousedown",
