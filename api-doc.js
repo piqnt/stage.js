@@ -72,12 +72,27 @@ bar.visible(visible);
 bar.hide();
 bar.show();
 
+// Visit foo's sub-tree.
+foo.visit({
+  start : function(node) {
+    return skipChildren;
+  },
+  end : function(node) {
+    return stopVisit;
+  },
+  reverse : reverseChildrenOrder = false,
+  visible : onlyVisibleNodes = false
+});
+
 //
 // ### Tick & Touch
-//
+// Before every painting the tree is ticked, it is when the app and nodes have
+// the chance to update. If at least one node is touched during ticking
+// rendering cycles will continue otherwise it would pause until it is touched.
 
-// Register a ticker to be called on ticking (before painting).
-foo.tick(ticker, beforeChildren = false);
+// Register a ticker to be called on ticking.
+foo.tick(function(millisecElapsed) {
+}, beforeChildren = false);
 
 // Rendering pauses unless/until at least one node is touched directly or
 // indirectly.
@@ -87,8 +102,8 @@ foo.touch();
 // ### Events
 //
 
-// Register a type-listener to bar.
-// `type` can be array or spaced string of multiple values.
+// Register a type-listener to bar. `type` can be one or an array of strings or
+// spaced strings.
 foo.on(type, listener);
 
 // Get type-listeners registered to bar.
@@ -96,18 +111,6 @@ foo.listeners(type);
 
 // Call type-listeners with args.
 foo.publish(type, args);
-
-// Visit foo's sub-tree.
-foo.visit({
-  start : function() {
-    return skipChildren ? true : false;
-  },
-  end : function() {
-    return stopVisit ? true : false;
-  },
-  reverse : reverseChildrenOrder ? true : false,
-  visible : onlyVisibleNodes ? true : false
-});
 
 //
 // ### Pinning
