@@ -12,7 +12,7 @@ Cut.Loader.load(function(root, container) {
     });
   });
 
-  var ui = {};
+  var ui = {}, sound = {};
 
   var M = Cut.Math;
 
@@ -196,6 +196,7 @@ Cut.Loader.load(function(root, container) {
       var oldball;
       if (ipaddle && (oldball = anyBall())) {
         if (idrop.isDrop == "+") {
+          sound.powerup.play();
           var newball = newBall();
           newball.position[0] = oldball.position[0];
           newball.position[1] = oldball.position[1];
@@ -203,6 +204,7 @@ Cut.Loader.load(function(root, container) {
           newball.velocity[1] = -oldball.velocity[1];
           world.addBody(newball);
         } else {
+          sound.powerdown.play();
           setPaddle(paddleMini);
           clearTimeout(miniPaddle);
           miniPaddle = setTimeout(function() {
@@ -230,11 +232,12 @@ Cut.Loader.load(function(root, container) {
       } else if (ibrick) {
         world.removeBody(ibrick);
         score++;
+        sound.brick.play();
         updateStatus();
         if (!anyBricks()) {
           levelup();
         } else if (Math.random() > 0.8) {
-          var drop = newDrop(Math.random() > 0.5 ? "+" : "-");
+          var drop = newDrop(Math.random() > 0.4 ? "+" : "-");
           drop.position[0] = ibrick.position[0];
           drop.position[1] = ibrick.position[1];
           drop.velocity[1] = -speed / 4;
@@ -319,12 +322,15 @@ Cut.Loader.load(function(root, container) {
     updateStatus();
 
     if (!P2_DEBUG) {
-      ui.tri.tween(200).clear(true).pin("alpha", 1).tween(200, 500).pin(
-          "alpha", 0);
-      ui.two.tween(200, 1000).clear(true).pin("alpha", 1).tween(200, 500).pin(
-          "alpha", 0);
-      ui.one.tween(200, 2000).clear(true).pin("alpha", 1).tween(200, 500).pin(
-          "alpha", 0);
+      ui.tri.tween(200).clear(true).pin("alpha", 1).then(function() {
+        sound.countdown.play();
+      }).tween(200, 500).pin("alpha", 0);
+      ui.two.tween(200, 1000).clear(true).pin("alpha", 1).then(function() {
+        sound.countdown.play();
+      }).tween(200, 500).pin("alpha", 0);
+      ui.one.tween(200, 2000).clear(true).pin("alpha", 1).then(function() {
+        sound.countdown.play();
+      }).tween(200, 500).pin("alpha", 0);
     }
 
     if (!anyBricks()) {
@@ -349,6 +355,7 @@ Cut.Loader.load(function(root, container) {
       ballBody.velocity = [ speed * Math.sin(a), speed * Math.cos(a) ];
       ballBody.position = [ 0, -5 * p2s ];
       world.addBody(ballBody);
+      sound.recover.play();
     }, P2_DEBUG ? 0 : 3000);
   }
 
@@ -380,6 +387,23 @@ Cut.Loader.load(function(root, container) {
     alignX : 0.5,
     alignY : 1,
     offsetY : -4 * p2s,
+  });
+
+  sound.brick = new Howl({
+    urls : [ 'sfx/brickDeath.mp3', 'sfx/brickDeath.ogg', 'sfx/brickDeath.wav' ]
+  });
+  sound.powerup = new Howl({
+    urls : [ 'sfx/powerup.mp3', 'sfx/powerup.ogg', 'sfx/powerup.wav' ]
+  });
+  sound.powerdown = new Howl({
+    urls : [ 'sfx/powerdown.mp3', 'sfx/powerdown.ogg', 'sfx/powerdown.wav' ]
+  });
+  sound.recover = new Howl({
+    urls : [ 'sfx/recover.mp3', 'sfx/recover.ogg', 'sfx/recover.wav' ]
+  });
+  sound.countdown = new Howl({
+    urls : [ 'sfx/countdownBlip.mp3', 'sfx/countdownBlip.ogg',
+        'sfx/countdownBlip.wav' ]
   });
 
   init();
