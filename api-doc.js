@@ -5,7 +5,20 @@
 // Load an app with root node and container element.
 Cut.Loader.load(function(root, container) {
   // Your apps goes here, add nodes to the root.
-  // Container is the actual element displaying the rendered graphics.
+  // Container is the actual element displaying rendered graphics.
+
+  // Pause playing.
+  root.pause();
+
+  // Resume playing.
+  root.resume();
+
+  // Set view box for root.
+  root.viewbox(width, height);
+
+  // Listen to view port resize events.
+  root.on("resize", function(width, height) {
+  });
 });
 
 //
@@ -59,8 +72,20 @@ bar.visible(visible);
 bar.hide();
 bar.show();
 
+//
+// ### Tick & Touch
+//
+
 // Register a ticker to be called on ticking (before painting).
 foo.tick(ticker, beforeChildren = false);
+
+// Rendering pauses unless/until at least one node is touched directly or
+// indirectly.
+foo.touch();
+
+//
+// ### Events
+//
 
 // Register a type-listener to bar.
 // `type` can be array or spaced string of multiple values.
@@ -84,13 +109,9 @@ foo.visit({
   visible : onlyVisibleNodes ? true : false
 });
 
-// Rendering pauses unless/until at least one node is touched directly or
-// indirectly.
-foo.touch();
-
 //
 // ### Pinning
-// Pinnint is a top level concept, it refers to transforming a node relative
+// Pinning is a top level concept, it refers to transforming a node relative
 // to its parent.
 
 // Get a pinning value.
@@ -156,7 +177,7 @@ tween.then(function() {
 });
 
 // Add another tweening to queue.
-tween.tween(duration = 400, delay = 0);
+var nextTween = tween.tween(duration = 400, delay = 0);
 
 //
 // ### Image
@@ -211,7 +232,7 @@ anim.repeat(repeat, callback = null);
 
 //
 // ### Row/Column
-// A row is a node which organizes its children as a horizontal/vertical
+// A row/column is a node which organizes its children as a horizontal/vertical
 // sequence.
 
 // Create a new row/column.
@@ -224,7 +245,7 @@ var column = Cut.column(childrenHorizontalAlign = 0);
 // value.
 
 // Create a new string instance.
-Cut.string(cutouts);
+var string = Cut.string(cutouts);
 
 string.setFont(cutouts);
 
@@ -275,14 +296,20 @@ cutouts = "textureName:cutoutPrefix";
 // ### Mouse(Touch)
 // Mouse class is used to capture and process mouse and touch events.
 
-// Subscribe root.
+// Subscribe root to Mouse events.
 Cut.Mouse.subscribe(root, container, captureAnyMove = false);
 
-// Add click listener to bar, other mouse/touch event types are start, end and
-// move.
+// Add click listener to bar.
 bar.on(Cut.Mouse.CLICK, function(event, point) {
-  // point is relative to this node.
+  // point.x and point.y are relative to this node left and top.
+  return trueToStopPropagating;
 });
+
+// Mouse events:
+Cut.Mouse.CLICK = "click";
+Cut.Mouse.START = "touchstart mousedown";
+Cut.Mouse.MOVE = "touchmove mousemove";
+Cut.Mouse.END = "touchend mouseup";
 
 //
 // ### Creating new node classes.
