@@ -50,8 +50,8 @@ Cut.addTexture({
     { name : "ball_3",    x : 96,  y : 64,  width : 16,  height : 16 },
     { name : "ball_4",    x : 112, y : 64,  width : 16,  height : 16 },
 
-    { name : "full",      x : 0,   y : 64,  width : 48,  height : 16 },
-    { name : "half",      x : 0,   y : 80,  width : 32,  height : 16 },
+    { name : "paddleFull",x : 0,   y : 64,  width : 48,  height : 16 },
+    { name : "paddleMini",x : 0,   y : 80,  width : 32,  height : 16 },
 
     { name : "+",         x : 96,  y : 96,  width : 16,  height : 16 },
     { name : "-",         x : 112, y : 96,  width : 16,  height : 16 },
