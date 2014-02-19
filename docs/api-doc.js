@@ -319,11 +319,8 @@ Cut.Mouse.END = "touchend mouseup";
 //
 
 function View() {
-  View.prototype._super.apply(this, arguments);
-  if (arguments[0] === Cut.Proto)
-    return;
   // ...
 }
-View.prototype = new Cut(Cut.Proto); // or Object.create(Cut)
+View.prototype = Object.create(Cut.prototype);
 View.prototype._super = Cut;
 View.prototype.constructor = View;
