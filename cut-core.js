@@ -56,10 +56,17 @@ Cut.prototype.render = function(context) {
   Cut._stats.fps = 1000 / (Cut._now() - now);
 };
 
+Cut.prototype.MAX_ELAPSE = Infinity;
+
 Cut.prototype._tick = function(elapsed) {
   if (!this._visible) {
     return;
   }
+
+  if (elapsed > this.MAX_ELAPSE) {
+    elapsed = this.MAX_ELAPSE;
+  }
+
   this._pin.tick(this);
 
   var length = this._tickBefore.length;
