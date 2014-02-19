@@ -1,36 +1,31 @@
+// Create new app
 Cut.Loader.load(function(root, container) {
 
+  // Subscribe to Cut.Mouse
   Cut.Mouse.subscribe(root, container);
 
+  // Set view box
   root.viewbox(500, 300);
 
-  var row = Cut.row(0.5).appendTo(root).pin("align", 0.5).spacing(1);
-  
-  var colors = [ "green", "blue", "purple", "red", "orange", "yellow" ];
-  for (var i = 0; i < colors.length; i++) {
-    var color = colors[i];
-    
-    Cut.image("color:" + color).appendTo(row)
-      .on(Cut.Mouse.CLICK, function(ev, point) {
-        this.tween().clear().pin({
-          scaleX : Cut.Math.random(0.8, 1.6),
-          scaleY : Cut.Math.random(0.8, 1.6)
-        });
-        return true;
+  // Create an image node
+  Cut.image("base:box").appendTo(row)
+    // on mouse click on this node
+    .on(Cut.Mouse.CLICK, function(ev, point) {
+      // Tween scaleX/Y value of this node
+      this.tween().clear().pin({
+        scaleX : Math.random() + 0.5,
+        scaleY : Math.random() + 0.5
       });
-  }
+      return true;
+    });
 
 });
 
+// Register an image texture
 Cut.addTexture({
-  name : "color",
-  imagePath : "colors.png",
+  name : "base",
+  imagePath : "base.png",
   cutouts : [
-    { name : "red",    x : 0,   y : 0, width : 30, height : 30 },
-    { name : "purple", x : 30,  y : 0, width : 30, height : 30 },
-    { name : "blue",   x : 60,  y : 0, width : 30, height : 30 },
-    { name : "orange", x : 90,  y : 0, width : 30, height : 30 },
-    { name : "yellow", x : 120, y : 0, width : 30, height : 30 },
-    { name : "green",  x : 150, y : 0, width : 30, height : 30 }
+    { name : "box", x : 0, y : 0, width : 30, height : 30 }
   ]
 });
