@@ -1,11 +1,12 @@
 {
-  "name": "cutjs",
-  "ignore": [
-    "**/.*",
-    "components"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/piqnt/cutjs.git"
-  }
+  "name" : "cutjs",
+  "repository" : {
+    "type" : "git",
+    "url" : "git://github.com/piqnt/cutjs.git"
+  },
+  "homepage" : "http://cutjs.org/",
+  "description" : "DOM for Canvas",
+  "license" : "MIT",
+  "keywords" : [ "cutjs", "canvas", "html5", "javascript", "engine", "dom",
+      "2d", "ui", "layout", "game", "lightweight" ]
 }
