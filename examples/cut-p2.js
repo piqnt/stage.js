@@ -59,8 +59,8 @@ Cut.P2 = function(world, options) {
     this.addRenderable(world.springs[i]);
   }
 
-  this.tick(function() {
-    this.step();
+  this.tick(function(t) {
+    this.step(1 / 60, t / 1000);
   });
 
   this.tempv = p2.vec2.fromValues(0, 0);
