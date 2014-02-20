@@ -253,6 +253,9 @@ Cut.prototype.last = function(visible) {
 
 Cut.prototype.append = function() {
   for (var i = 0; i < arguments.length; i++) {
+    if (!Cut._isCut(arguments[i])) {
+      throw "It is not a Cut node!";
+    }
     arguments[i].appendTo(this);
   }
   return this;
@@ -260,6 +263,9 @@ Cut.prototype.append = function() {
 
 Cut.prototype.prepend = function() {
   for (var i = 0; i < arguments.length; i++) {
+    if (!Cut._isCut(arguments[i])) {
+      throw "It is not a Cut node!";
+    }
     arguments[i].prependTo(this);
   }
   return this;
@@ -268,6 +274,9 @@ Cut.prototype.prepend = function() {
 Cut.prototype.appendTo = function(parent) {
   if (!parent) {
     throw "Parent is null!";
+  }
+  if (!Cut._isCut(parent)) {
+    throw "It is not a Cut node!";
   }
 
   this.remove();
@@ -294,6 +303,9 @@ Cut.prototype.prependTo = function(parent) {
   if (!parent) {
     throw "Parent is null!";
   }
+  if (!Cut._isCut(parent)) {
+    throw "It is not a Cut node!";
+  }
 
   this.remove();
 
@@ -318,6 +330,9 @@ Cut.prototype.prependTo = function(parent) {
 Cut.prototype.insertNext = function() {
   if (arguments.length) {
     for (var i = 0; i < arguments.length; i++) {
+      if (!Cut._isCut(arguments[i])) {
+        throw "It is not a Cut node!";
+      }
       arguments[i] && arguments[i].insertAfter(this);
     }
   }
@@ -327,6 +342,9 @@ Cut.prototype.insertNext = function() {
 Cut.prototype.insertPrev = function() {
   if (arguments.length) {
     for (var i = 0; i < arguments.length; i++) {
+      if (!Cut._isCut(arguments[i])) {
+        throw "It is not a Cut node!";
+      }
       arguments[i] && arguments[i].insertBefore(this);
     }
   }
@@ -336,6 +354,9 @@ Cut.prototype.insertPrev = function() {
 Cut.prototype.insertBefore = function(next) {
   if (!next) {
     throw "Next is null!";
+  }
+  if (!Cut._isCut(next)) {
+    throw "It is not a Cut node!";
   }
 
   this.remove();
@@ -358,6 +379,9 @@ Cut.prototype.insertAfter = function(prev) {
   if (!prev) {
     throw "Prev is null!";
   }
+  if (!Cut._isCut(prev)) {
+    throw "It is not a Cut node!";
+  }
 
   this.remove();
 
@@ -378,6 +402,9 @@ Cut.prototype.insertAfter = function(prev) {
 Cut.prototype.remove = function() {
   if (arguments.length) {
     for (var i = 0; i < arguments.length; i++) {
+      if (!Cut._isCut(arguments[i])) {
+        throw "It is not a Cut node!";
+      }
       arguments[i] && arguments[i].remove();
     }
     return this;
@@ -2132,6 +2159,10 @@ Cut.Math.length = function(x, y) {
 };
 
 Cut._TS = 0;
+
+Cut._isCut = function(obj) {
+  return obj instanceof Cut;
+};
 
 Cut._isNum = function(x) {
   return typeof x === "number";
