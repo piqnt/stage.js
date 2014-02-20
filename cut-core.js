@@ -21,7 +21,7 @@ function Cut() {
   this._first = null;
   this._last = null;
 
-  this._pin = new Cut.Pin().tick(this);
+  this._pin = new Cut.Pin(this);
   this._outs = [];
   this._tickBefore = [];
   this._tickAfter = [];
@@ -84,7 +84,7 @@ Cut.prototype._tick = function(elapsed) {
     elapsed = this.MAX_ELAPSE;
   }
 
-  this._pin.tick(this);
+  this._pin.tick();
 
   var length = this._tickBefore.length;
   for (var i = 0; i < length; i++) {
@@ -1528,9 +1528,9 @@ Cut.Out.drawing = function(name, w, h, ratio, draw, data) {
   return data;
 };
 
-Cut.Pin = function() {
+Cut.Pin = function(owner) {
 
-  this._owner = null;
+  this._owner = owner;
   this._parent = null;
 
   // relative to parent
@@ -1591,9 +1591,8 @@ Cut.Pin.prototype.reset = function() {
   this._matrix_ts = Cut._TS++;
 };
 
-Cut.Pin.prototype.tick = function(owner) {
-  this._owner = owner;
-  this._parent = owner._parent && owner._parent._pin;
+Cut.Pin.prototype.tick = function() {
+  this._parent = this._owner._parent && this._owner._parent._pin;
 
   if (this._handled && this._handle_mo != this._transform_ts) {
     this._handle_mo = this._transform_ts;
