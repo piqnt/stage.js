@@ -261,7 +261,8 @@ function Game() {
 
     while (lastObj + Conf.objSpace <= this.dist) {
       lastObj += Conf.objSpace;
-      obj = Conf.randomCoin.test().random(this) || Conf.randomEnemy.test().random(this);
+      obj = Conf.randomCoin.test().random(this)
+          || Conf.randomEnemy.test().random(this);
       if (obj) {
         x = lastObj + Conf.width;
         y = M.random(Conf.min, Conf.max);
@@ -580,7 +581,7 @@ function App(elem) {
 
   this.open("home");
 
-  this.listen("resize", function(width, height) {
+  this.on("resize", function(width, height) {
     this.pin({
       width : App.width,
       height : App.height,
@@ -594,7 +595,7 @@ function App(elem) {
 
 }
 
-App.prototype = new Cut(Cut.Proto);
+App.prototype = Object.create(Cut.prototype);
 App.prototype._super = Cut;
 App.prototype.constructor = App;
 
@@ -623,7 +624,7 @@ function Home(app) {
 
   var game = app.game;
 
-  this.listen("resize", function(width, height) {
+  this.on("resize", function(width, height) {
     this.pin({
       width : this.parent().pin("width"),
       height : this.parent().pin("height")
@@ -636,11 +637,11 @@ function Home(app) {
     });
   });
 
-  this.listen("open", game.uiUpgrade = function() {
+  this.on("open", game.uiUpgrade = function() {
     refresh();
   });
 
-  this.listen("close", function() {
+  this.on("close", function() {
     this.hide();
   });
 
@@ -653,7 +654,7 @@ function Home(app) {
   var row = Cut.row().appendTo(menu).spacing(4);
   var flags = [];
   for (var i = 0; i < 6; i++) {
-    var flag = Cut.image("base:play").appendTo(row).listen(Cut.Mouse.CLICK,
+    var flag = Cut.image("base:play").appendTo(row).on(Cut.Mouse.CLICK,
         startFrom(i - 1));
     flags.push(flag);
   }
@@ -677,7 +678,7 @@ function Home(app) {
   for (var i = 0; i < Conf.ups.length; i++) {
     var name = Conf.ups[i];
     upgrades[name] = Cut.image("base:option").appendTo(row).attr("name", name)
-        .listen(Cut.Mouse.CLICK, function() {
+        .on(Cut.Mouse.CLICK, function() {
           game.upgrade(this.attr("name"));
         });
   }
@@ -766,7 +767,7 @@ function Home(app) {
   }
 }
 
-Home.prototype = new Cut(Cut.Proto);
+Home.prototype = Object.create(Cut.prototype);
 Home.prototype._super = Cut;
 Home.prototype.constructor = Home;
 
@@ -775,7 +776,7 @@ function Play(app) {
 
   var game = app.game;
 
-  this.listen("resize", function(width, height) {
+  this.on("resize", function(width, height) {
     this.pin({
       width : this.parent().pin("width"),
       height : this.parent().pin("height")
@@ -795,12 +796,12 @@ function Play(app) {
     });
   });
 
-  this.listen("open", function() {
+  this.on("open", function() {
     app.elem.style && (app.elem.style.cursor = "none");
     game.start();
   });
 
-  this.listen("close", function() {
+  this.on("close", function() {
     app.elem.style && (app.elem.style.cursor = "");
     game.end();
     this.hide();
@@ -883,12 +884,39 @@ function Play(app) {
   var l2 = Cut.create().appendTo(field);
   var l3 = Cut.create().appendTo(field);
 
-  field.listen([ Cut.Mouse.MOVE, Cut.Mouse.START ], function(ev, point) {
+  // var lastMouse = null;
+
+  field.on([ Cut.Mouse.MOVE, Cut.Mouse.START ], function(ev, point) {
+    // if (lastMouse) {
+    // var x = lastMouse.x - point.x + game.dist - lastMouse.dist;
+    // var y = lastMouse.y - point.y;
+    // x = game.player.x - x * 3;
+    // y = game.player.y - y * 3;
+    //
+    // cursor.xy(x, y).visible(game.pointer(x, y));
+    //
+    // lastMouse.x = point.x;
+    // lastMouse.y = point.y;
+    // lastMouse.dist = game.dist;
+    //
+    // } else {
     cursor.xy(point.x, point.y).visible(game.pointer(point.x, point.y));
+    // }
+
+    // }).on(Cut.Mouse.START, function(ev, point) {
+    // lastMouse = {
+    // x : point.x,
+    // y : point.y,
+    // dist : game.dist
+    // };
+    //
+    // }).on(Cut.Mouse.END, function(ev, point) {
+    // lastMouse = null;
+
   });
 
   var colors = {
-    list : randomList(bgcolor._frames.length),
+    list : randomList(bgcolor.length()),
     i : 0,
     next : function() {
       return this.list[(this.i++) % this.list.length];
@@ -1060,7 +1088,7 @@ function Play(app) {
   };
 }
 
-Play.prototype = new Cut(Cut.Proto);
+Play.prototype = Object.create(Cut.prototype);
 Play.prototype._super = Cut;
 Play.prototype.constructor = Play;
 

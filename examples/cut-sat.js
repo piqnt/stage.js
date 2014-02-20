@@ -65,7 +65,7 @@ Cut.SAT = function(world, options) {
   });
 };
 
-Cut.SAT.prototype = new Cut(Cut.Proto);
+Cut.SAT.prototype = Cut._create(Cut.prototype);
 Cut.SAT.prototype._super = Cut;
 Cut.SAT.prototype.constructor = Cut.SAT;
 

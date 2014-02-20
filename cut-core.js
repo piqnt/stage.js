@@ -8,8 +8,6 @@
 DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
 function Cut() {
-  if (arguments[0] === Cut.Proto)
-    return;
 
   Cut._stats.create++;
 
@@ -31,7 +29,26 @@ function Cut() {
   this._alpha = 1;
 };
 
-Cut.Proto = {};
+Cut._create = (function() {
+  if (typeof Object.create == "function") {
+    return function() {
+      return Object.create.apply(null, arguments);
+    };
+  } else {
+    var F = function() {
+    };
+    return function(proto) {
+      if (arguments.length > 1) {
+        throw Error("Second argument is not supported!");
+      }
+      if (proto === null || typeof proto != "object") {
+        throw Error("Invalid prototype!");
+      }
+      F.prototype = proto;
+      return new F;
+    };
+  }
+})();
 
 Cut._stats = {
   create : 0,
@@ -614,8 +631,6 @@ Cut.root = function(render, request) {
 
 Cut.Root = function(render, request) {
   Cut.String.prototype._super.apply(this, arguments);
-  if (arguments[0] === Cut.Proto)
-    return;
 
   var paused = true;
   var self = this;
@@ -693,7 +708,7 @@ Cut.Root = function(render, request) {
 
 };
 
-Cut.Root.prototype = new Cut(Cut.Proto);
+Cut.Root.prototype = Cut._create(Cut.prototype);
 Cut.Root.prototype._super = Cut;
 Cut.Root.prototype.constructor = Cut.Root;
 
@@ -705,11 +720,9 @@ Cut.image = function(selector) {
 
 Cut.Image = function() {
   Cut.Image.prototype._super.apply(this, arguments);
-  if (arguments[0] === Cut.Proto)
-    return;
 };
 
-Cut.Image.prototype = new Cut(Cut.Proto);
+Cut.Image.prototype = Cut._create(Cut.prototype);
 Cut.Image.prototype._super = Cut;
 Cut.Image.prototype.constructor = Cut.Image;
 
@@ -739,8 +752,6 @@ Cut.anim = function(selector, fps) {
 
 Cut.Anim = function() {
   Cut.Anim.prototype._super.apply(this, arguments);
-  if (arguments[0] === Cut.Proto)
-    return;
 
   this._fps = Cut.Anim.FPS;
   this._ft = 1000 / this._fps;
@@ -768,7 +779,7 @@ Cut.Anim = function() {
   }, false);
 };
 
-Cut.Anim.prototype = new Cut(Cut.Proto);
+Cut.Anim.prototype = Cut._create(Cut.prototype);
 Cut.Anim.prototype._super = Cut;
 Cut.Anim.prototype.constructor = Cut.Anim;
 
@@ -860,12 +871,10 @@ Cut.string = function(selector) {
 
 Cut.String = function() {
   Cut.String.prototype._super.apply(this, arguments);
-  if (arguments[0] === Cut.Proto)
-    return;
   this.row();
 };
 
-Cut.String.prototype = new Cut(Cut.Proto);
+Cut.String.prototype = Cut._create(Cut.prototype);
 Cut.String.prototype._super = Cut;
 Cut.String.prototype.constructor = Cut.String;
 

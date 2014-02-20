@@ -66,7 +66,7 @@ Cut.P2 = function(world, options) {
   this.tempv = p2.vec2.fromValues(0, 0);
 };
 
-Cut.P2.prototype = new Cut(Cut.Proto);
+Cut.P2.prototype = Cut._create(Cut.prototype);
 Cut.P2.prototype._super = Cut;
 Cut.P2.prototype.constructor = Cut.P2;
 

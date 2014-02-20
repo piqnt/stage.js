@@ -10,7 +10,7 @@ var Extra = Extra || {}, X = Extra;
 Extra.Randomize = Randomize = function() {
   this._options = [];
   this._nope = null;
-  this._filter = function(option) {
+  this._map = function(option) {
     return option;
   };
 };
@@ -20,19 +20,9 @@ Randomize.prototype.reset = function() {
   return this;
 };
 
-Randomize.prototype.clone = function() {
-  var clone = new Randomize();
-  Array.push.apply(clone._options, this._options);
-  clone._nope = this._nope;
-  clone._filter = this._filter;
-  clone._lock = this._lock;
-  clone._condition = this._condition;
-  return clone;
-};
-
-Randomize.prototype.filter = function(func) {
-  this._filter = func || function(option) {
-    return option;
+Randomize.prototype.map = function(func) {
+  this._map = func || function(value) {
+    return value;
   };
   return this;
 };
@@ -48,35 +38,19 @@ Randomize.prototype.nope = function(nope) {
 Randomize.prototype.add = function(option, weight, lock) {
   this._options.push([ option, Randomize._numbor(weight, 1) ]);
   if (lock) {
-    this._lock = this._options.length - 1;
+    this._lock = option;
   }
-  return this;
-};
-
-Randomize.prototype.condition = function(condition, reset) {
-  this._condition = condition;
-  this._reset = reset;
-  return this;
-};
-
-Randomize.prototype.test = function() {
-  this._failed = this._condition && !this._condition.apply(null, arguments);
   return this;
 };
 
 Randomize.prototype.select = function(select) {
-  return this._filter(this._options[select][0]);
+  return this._map(this._options[select][0]);
 };
 
 Randomize.prototype.random = function() {
 
-  if (this._failed) {
-    this._failed = false;
-    return this._filter(this._nope);
-  }
-
-  if (typeof this._lock === "number") {
-    return this.select(this._lock);
+  if (this._lock) {
+    return this._map(this._lock);
   }
 
   var sum = 0;
@@ -95,7 +69,31 @@ Randomize.prototype.random = function() {
       break;
     }
   }
-  return this._filter(selected);
+  return this._map(selected);
+};
+
+Randomize.prototype.condition = function(condition, reset) {
+  this._condition = condition;
+  this._reset = reset;
+  return this;
+};
+
+Randomize.prototype.test = function() {
+  this._test = this._condition ? this._condition.apply(null, arguments) : null;
+  if (!this._tested) {
+    var self = this;
+    this._tested = {
+      random : function() {
+        var test = self._test;
+        self._test = null;
+        if (test === false) {
+          return self._map(self._nope);
+        }
+        return self.random.apply(self, arguments);
+      }
+    };
+  }
+  return this._tested;
 };
 
 Randomize.prototype.spacing = function(spacing, init) {

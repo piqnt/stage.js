@@ -1,5 +1,3 @@
-// Function.bind
-// source: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/bind
 if (!Function.prototype.bind) {
   Function.prototype.bind = function(obj) {
     if (typeof this !== "function") {
@@ -18,4 +16,21 @@ if (!Function.prototype.bind) {
 
     return bound;
   };
+}
+
+if (typeof Object.create != "function") {
+  (function() {
+    var F = function() {
+    };
+    Object.create = function(proto) {
+      if (arguments.length > 1) {
+        throw Error("Second argument not supported!");
+      }
+      if (proto === null || typeof proto != "object") {
+        throw Error("Invalid prototype!");
+      }
+      F.prototype = proto;
+      return new F;
+    };
+  })();
 }
