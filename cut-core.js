@@ -1273,10 +1273,10 @@ Cut.Texture = function(texture) {
   }
 
   for (var i = 0; i < texture.cutouts.length; i++) {
-    filter(texture.cutouts[i]);
+    map(texture.cutouts[i]);
   }
 
-  function filter(cutout) {
+  function map(cutout) {
     if (!cutout) {
       return cutout;
     }
@@ -1285,7 +1285,9 @@ Cut.Texture = function(texture) {
       return cutout;
     }
 
-    if (typeof texture.filter === "function") {
+    if (typeof texture.map === "function") {
+      cutout = texture.map(cutout);
+    } else if (typeof texture.filter === "function") {
       cutout = texture.filter(cutout);
     }
 
@@ -1333,7 +1335,7 @@ Cut.Texture = function(texture) {
       }
 
       if (!result && texture.factory) {
-        result = filter(texture.factory(selector));
+        result = map(texture.factory(selector));
       }
 
       if (!result) {

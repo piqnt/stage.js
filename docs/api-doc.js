@@ -262,30 +262,36 @@ string.setValue(value);
 
 //
 // Canvas drawing
-cutout = Cut.Out.drawing(name = "random", width, height, ratio = 1, function(
-    context, ratio) {
-  // Draw to context.
-  // this === create cutout
-});
+cutout = Cut.Out.drawing(name = randomString, width, height, ratio = 1,
+    function(context, ratio) {
+      // Draw to context.
+      // this === create cutout
+    });
 
 //
 // Registering an image texture, images are automatically loaded by Cut.Loader.
 Cut.addTexture({
-  name : "",
-  imagePath : "",
-  imageRatio : "", // Optional
-  filter : "", // Optional
-  ratio : "", // Optional
+  name : textureName,
+  imagePath : textureImagePath,
+  imageRatio : 1,
+  map : function(cutout) {
+    // apply change to cutouts
+    return cutout;
+  },
+  factory : function(name) {
+    // dynamically create cutout not found in cutouts list
+    return cutout;
+  },
   cutouts : [ {
-    name : "",
-    x : "",
-    y : "",
-    width : "",
-    height : "",
-    top : "", // Optional
-    bottom : "", // Optional
-    left : "", // Optional
-    right : "" // Optional
+    name : cutoutName,
+    x : x,
+    y : y,
+    width : width,
+    height : height,
+    top : 0,
+    bottom : 0,
+    left : 0,
+    right : 0
   }, etc ]
 }, etc);
 
