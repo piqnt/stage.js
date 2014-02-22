@@ -514,76 +514,24 @@ Cut.prototype.matrix = function() {
 };
 
 Cut.prototype.tween = function(duration, delay) {
-  return Cut.Tween(this).tween(duration, delay);
+  return (this._tween || (this._tween = new Cut.Tween(this))).tween(duration,
+      delay);
 };
 
 Cut.Tween = function(cut) {
-  if (cut._tween) {
-    return cut._tween;
-  }
-
-  var tween = {};
-  var queue = [];
-  var next = null;
-
-  function start() {
-    if (next !== queue[queue.length - 1]) {
-      cut.touch();
-      queue.push(next);
-    }
-    return next;
-  }
-
-  tween.queue = function(name) {
-    // select queue
-    return this;
-  };
-
-  tween.tween = function(duration, delay) {
-    next = {
-      end : {},
-      duration : duration || 400,
-      delay : delay || 0
-    };
-    return this;
-  };
-
-  tween.pin = function(pin) {
-    var end = start().end;
-    if (arguments.length === 1) {
-      Cut._extend(end, arguments[0]);
-    } else if (arguments.length === 2) {
-      end[arguments[0]] = arguments[1];
-    }
-    return this;
-  };
-
-  tween.then = function(then) {
-    next.then = then;
-    return this;
-  };
-
-  tween.easing = function(easing) {
-    next.easing = easing;
-    return this;
-  };
-
-  tween.clear = function(forward) {
-    var tween;
-    while (tween = queue.shift()) {
-      forward && cut.pin(tween.end);
-    }
-    return this;
-  };
+  var tween = this;
+  this._owner = cut;
+  this._queue = [];
+  this._next = null;
 
   cut.tick(function(elapsed) {
-    if (!queue.length) {
+    if (!tween._queue.length) {
       return;
     }
 
     this.touch();
 
-    var head = queue[0];
+    var head = tween._queue[0];
 
     if (!head.time) {
       head.time = 1;
@@ -615,13 +563,54 @@ Cut.Tween = function(cut) {
     }
 
     if (over) {
-      queue.shift();
+      tween._queue.shift();
       head.then && head.then.call(cut);
     }
 
   }, true);
+};
 
-  return cut._tween = tween;
+Cut.Tween.prototype.tween = function(duration, delay) {
+  this._next = {
+    id : Cut._TS++,
+    end : {},
+    duration : duration || 400,
+    delay : delay || 0
+  };
+  return this;
+};
+
+Cut.Tween.prototype.pin = function(pin) {
+  if (this._next !== this._queue[this._queue.length - 1]) {
+    this._owner.touch();
+    this._queue.push(this._next);
+  }
+
+  var end = this._next.end;
+  if (arguments.length === 1) {
+    Cut._extend(end, arguments[0]);
+  } else if (arguments.length === 2) {
+    end[arguments[0]] = arguments[1];
+  }
+  return this;
+};
+
+Cut.Tween.prototype.clear = function(forward) {
+  var tween;
+  while (tween = this._queue.shift()) {
+    forward && this._owner.pin(tween.end);
+  }
+  return this;
+};
+
+Cut.Tween.prototype.then = function(then) {
+  this._next.then = then;
+  return this;
+};
+
+Cut.Tween.prototype.easing = function(easing) {
+  this._next.easing = easing;
+  return this;
 };
 
 Cut.root = function(render, request) {
