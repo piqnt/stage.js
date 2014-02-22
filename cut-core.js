@@ -496,8 +496,7 @@ Cut.prototype.pinChildren = function(pin) {
     }
     this._pinAll_mo = this._children_ts;
 
-    var child;
-    var next = this.first(true);
+    var child, next = this.first(true);
     while (child = next) {
       next = child.next(true);
       child.pin(this._pinAll);
@@ -712,9 +711,9 @@ Cut.Root.prototype = Cut._create(Cut.prototype);
 Cut.Root.prototype._super = Cut;
 Cut.Root.prototype.constructor = Cut.Root;
 
-Cut.image = function(selector) {
+Cut.image = function(cutout) {
   var image = new Cut.Image();
-  selector && image.setImage(selector);
+  cutout && image.setImage(cutout);
   return image;
 };
 
@@ -726,8 +725,8 @@ Cut.Image.prototype = Cut._create(Cut.prototype);
 Cut.Image.prototype._super = Cut;
 Cut.Image.prototype.constructor = Cut.Image;
 
-Cut.Image.prototype.setImage = function(selector) {
-  this._outs[0] = Cut.Out.select(selector);
+Cut.Image.prototype.setImage = function(cutout) {
+  this._outs[0] = Cut.Out.select(cutout);
   this.pin({
     width : this._outs[0] ? this._outs[0].dWidth() : 0,
     height : this._outs[0] ? this._outs[0].dHeight() : 0
@@ -744,8 +743,8 @@ Cut.Image.prototype.cropY = function(h, y) {
   return this.setImage(this._outs[0].cropY(h, y));
 };
 
-Cut.anim = function(selector, fps) {
-  var anim = new Cut.Anim().setFrames(selector).gotoFrame(0);
+Cut.anim = function(cutouts, fps) {
+  var anim = new Cut.Anim().setFrames(cutouts).gotoFrame(0);
   fps && anim.fps(fps);
   return anim;
 };
@@ -794,19 +793,19 @@ Cut.Anim.prototype.fps = function(fps) {
   return this;
 };
 
-Cut.Anim.prototype.setFrames = function(selector) {
+Cut.Anim.prototype.setFrames = function(cutouts) {
   this._time = this._time || 0;
 
   this._frame = 0;
   this._frames = [];
   this._labels = {};
 
-  var outs = Cut.Out.select(selector, true);
-  if (outs && outs.length) {
-    for (var i = 0; i < outs.length; i++) {
-      var out = outs[i];
-      this._frames.push(out);
-      this._labels[outs[i].name] = i;
+  cutouts = Cut.Out.select(cutouts, true);
+  if (cutouts && cutouts.length) {
+    for (var i = 0; i < cutouts.length; i++) {
+      var cutout = cutouts[i];
+      this._frames.push(cutout);
+      this._labels[cutout.name] = i;
     }
   }
   return this;
