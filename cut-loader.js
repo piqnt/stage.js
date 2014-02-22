@@ -49,16 +49,16 @@ Cut.Loader = {
       var width = 0, height = 0, ratio = 1;
 
       DEBUG && console.log("Creating root...");
-      var root = Cut.root(function(root) {
+      var root = Cut.root(requestAnimationFrame, function() {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, width, height);
-        root.render(context);
-      }, requestAnimationFrame);
+        this.render(context);
+      });
 
       if (typeof canvas === "string") {
         canvas = document.getElementById(canvas);
       }
-      
+
       if (!canvas) {
         canvas = document.getElementById("cutjs");
       }

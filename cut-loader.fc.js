@@ -67,13 +67,13 @@ Cut.Loader = {
       var width = 0, height = 0, ratio = 1;
 
       DEBUG && console.log("Creating root...");
-      var root = Cut.root(function(root) {
+      var root = Cut.root(function(callback) {
+        window.requestAnimationFrame(callback);
+      }, function() {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, width, height);
-        root.render(context);
+        this.render(context);
         FastCanvas.render();
-      }, function(callback) {
-        window.requestAnimationFrame(callback);
       });
 
       canvas = FastCanvas.create(typeof FASTCANVAS_FALLBACK !== "undefined"

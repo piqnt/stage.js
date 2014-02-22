@@ -613,92 +613,100 @@ Cut.Tween.prototype.easing = function(easing) {
   return this;
 };
 
-Cut.root = function(render, request) {
-  return new Cut.Root(render, request);
+Cut.root = function(request, render) {
+  return new Cut.Root(request, render);
 };
 
-Cut.Root = function(render, request) {
+Cut.Root = function(request, render) {
   Cut.String.prototype._super.apply(this, arguments);
 
-  var paused = true;
-  var self = this;
+  this._paused = true;
+  this._render = render;
+  this._request = request;
 
-  function tick() {
-    if (paused === true) {
-      return;
-    }
-    var mo = self._touch_ts;
-    render(self);
-    request(tick);
-    mo == self._touch_ts && self.pause();
-  }
-
-  this.start = function() {
-    return this.resume();
-  };
-
-  this.pause = function() {
-    paused = true;
-    return this;
-  };
-
-  this.resume = function(force) {
-    if (paused || force) {
-      paused = false;
-      request(tick);
-    }
-    return this;
-  };
-
-  this.touch = function() {
-    this.resume();
-    return Cut.prototype.touch.apply(this, arguments);
-  };
-
-  var viewbox = null;
-  this.viewbox = function(width, height, mode) {
-    viewbox = {
-      width : width,
-      height : height,
-      mode : typeof mode === "undefined" ? "in" : mode
-    };
-    updateViewbox();
-    return this;
-  };
-
-  var resize = null;
   this.on("resize", function(width, height) {
-    resize = {
+    this._size = {
       width : width,
       height : height,
     };
-    updateViewbox();
+    this._updateViewbox();
     return true;
   });
-
-  function updateViewbox() {
-    if (!resize) {
-    } else if (viewbox) {
-      self.pin({
-        width : viewbox.width,
-        height : viewbox.height,
-        resizeMode : viewbox.mode,
-        resizeWidth : resize.width,
-        resizeHeight : resize.height
-      });
-    } else {
-      self.pin({
-        width : resize.width,
-        height : resize.height
-      });
-    }
-  }
-
 };
 
 Cut.Root.prototype = Cut._create(Cut.prototype);
 Cut.Root.prototype._super = Cut;
 Cut.Root.prototype.constructor = Cut.Root;
+
+Cut.Root.prototype.viewbox = function(width, height, mode) {
+  this._viewbox = {
+    width : width,
+    height : height,
+    mode : typeof mode === "undefined" ? "in" : mode
+  };
+  this._updateViewbox();
+  return this;
+};
+
+Cut.Root.prototype._updateViewbox = function() {
+  var viewbox = this._viewbox;
+  var size = this._size;
+  if (!size) {
+  } else if (viewbox) {
+    this.pin({
+      width : viewbox.width,
+      height : viewbox.height,
+      resizeMode : viewbox.mode,
+      resizeWidth : size.width,
+      resizeHeight : size.height
+    });
+  } else {
+    this.pin({
+      width : size.width,
+      height : size.height
+    });
+  }
+};
+
+Cut.Root.prototype.request = function() {
+  var self = this;
+  var request = this._request;
+  request(function() {
+    self.step();
+  });
+};
+
+Cut.Root.prototype.step = function() {
+  if (this._paused === true) {
+    return;
+  }
+  this._touch_mo = this._touch_ts;
+  this._render();
+  this.request();
+  this._touch_mo == this._touch_ts && this.pause();
+};
+
+Cut.Root.prototype.start = function() {
+  return this.resume();
+};
+
+Cut.Root.prototype.resume = function(force) {
+  if (this._paused || force) {
+    this._paused = false;
+    this.request();
+  }
+  return this;
+};
+
+Cut.Root.prototype.pause = function() {
+  this._paused = true;
+  return this;
+};
+
+Cut.Root.prototype.touch = function() {
+  this.resume();
+  return Cut.prototype.touch.apply(this, arguments);
+};
 
 Cut.image = function(cutout) {
   var image = new Cut.Image();
