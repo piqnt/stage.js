@@ -1,6 +1,6 @@
 Cut.addTexture({
   name : "base",
-  imagePath : "../example.png",
+  imagePath : "../basic-texture.png",
   imageRatio : 4,
   trim : 0.2,
   cutouts : [
