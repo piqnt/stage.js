@@ -138,15 +138,15 @@ bar.pin({
   // Relative location on self used as scale/skew/rotation center.
   pivotX : "",
   pivotY : "",
-  // Automatically set depending on node type, used for relative pinning values.
+  // Automatically are set depending on node type.
   height : "",
   width : "",
-  // Relative location on self used for positioning .
-  handleX : "",
-  handleY : "",
   // Relative location on parent used for positioning.
   alignX : "",
   alignY : "",
+  // Relative location on self used for positioning, defaults to align value.
+  handleX : "",
+  handleY : "",
   // Distance from parent align to self handle in pixel.
   offsetX : "",
   offsetY : "",
