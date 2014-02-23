@@ -162,7 +162,7 @@ Cut.Loader
         y : 0
       };
 
-      world.ui = root.viewbox(300, 300).listen("resize", function(width, height) {
+      world.ui = root.viewbox(300, 300).listen("viewport", function(width, height) {
         world.resize(this.pin("width"), this.pin("height"));
       }).pin("handle", -0.5).spy(true);
 

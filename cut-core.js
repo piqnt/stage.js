@@ -639,7 +639,7 @@ Cut.Root = function(request, render) {
     this._request.call(null, requestCallback);
   };
 
-  this.on("resize", function(width, height) {
+  this.on("viewport", function(width, height) {
     this._size = {
       width : width,
       height : height,

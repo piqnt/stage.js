@@ -17,7 +17,7 @@ Cut.Loader.load(function(root, container) {
   root.viewbox(width, height);
 
   // Listen to view port resize events.
-  root.on("resize", function(width, height) {
+  root.on("viewport", function(width, height) {
   });
 });
 

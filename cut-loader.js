@@ -135,7 +135,7 @@ Cut.Loader = {
         root.visit({
           start : function(cut) {
             var stop = true;
-            var listeners = cut.listeners("resize");
+            var listeners = cut.listeners("viewport");
             if (listeners) {
               for (var l = 0; l < listeners.length; l++)
                 stop &= !listeners[l].call(cut, width, height);

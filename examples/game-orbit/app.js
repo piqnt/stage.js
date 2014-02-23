@@ -227,7 +227,7 @@ Cut.Loader.load(function(root, container) {
   Cut.Mouse.subscribe(root, container);
   root.viewbox(150, 150).pin("handle", -0.5);
 
-  root.on("resize", function(width, height) {
+  root.on("viewport", function(width, height) {
     bg.pin({
       resizeMode : "out",
       resizeWidth : width,

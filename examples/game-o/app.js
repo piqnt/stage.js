@@ -581,7 +581,7 @@ function App(elem) {
 
   this.open("home");
 
-  this.on("resize", function(width, height) {
+  this.on("viewport", function(width, height) {
     this.pin({
       width : App.width,
       height : App.height,
@@ -624,7 +624,7 @@ function Home(app) {
 
   var game = app.game;
 
-  this.on("resize", function(width, height) {
+  this.on("viewport", function(width, height) {
     this.pin({
       width : this.parent().pin("width"),
       height : this.parent().pin("height")
@@ -776,7 +776,7 @@ function Play(app) {
 
   var game = app.game;
 
-  this.on("resize", function(width, height) {
+  this.on("viewport", function(width, height) {
     this.pin({
       width : this.parent().pin("width"),
       height : this.parent().pin("height")
