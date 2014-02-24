@@ -141,10 +141,10 @@ bar.pin({
   // Automatically are set depending on node type.
   height : height,
   width : width,
-  // Pin point location on parent used for positioning, in width/height ratio.
+  // Pin point on parent used for positioning, in width/height ratio.
   alignX : 0,
   alignY : 0,
-  // Pin point location on self used for positioning, defaults to align values,
+  // Pin point on self used for positioning, defaults to align values,
   // in width/height ratio.
   handleX : 0,
   handleY : 0,
