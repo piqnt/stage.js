@@ -124,40 +124,49 @@ bar.pin(name, value);
 
 // Set one or more pinning values.
 // If `nameX` equals `nameY`, `name` shorthand can be used instead.
-// For relative values 0 is top/left and 1 is bottom/right.
+// For width/height ratio 0 is top/left and 1 is bottom/right.
 bar.pin({
   // Transparency applied to self and children.
-  alpha : "",
+  alpha : 1,
   // Transparency applied only to self textures.
-  textureAlpha : "",
-  scaleX : "",
-  scaleY : "",
-  skewX : "",
-  skewY : "",
-  rotation : "",
+  textureAlpha : 1,
+  scaleX : 1,
+  scaleY : 1,
+  skewX : 0,
+  skewY : 0,
+  rotation : 0,
   // Relative location on self used as scale/skew/rotation center.
-  pivotX : "",
-  pivotY : "",
+  pivotX : 0,
+  pivotY : 0,
   // Automatically are set depending on node type.
-  height : "",
-  width : "",
-  // Relative location on parent used for positioning.
-  alignX : "",
-  alignY : "",
-  // Relative location on self used for positioning, defaults to align value.
-  handleX : "",
-  handleY : "",
+  height : height,
+  width : width,
+  // Pin point location on parent used for positioning, in width/height ratio.
+  alignX : 0,
+  alignY : 0,
+  // Pin point location on self used for positioning, defaults to align values,
+  // in width/height ratio.
+  handleX : 0,
+  handleY : 0,
   // Distance from parent align to self handle in pixel.
-  offsetX : "",
-  offsetY : "",
-  // Scale to width/height.
-  scaleMode : "", // in/out, optional, if specified scale proportionally.
-  scaleWidth : "",
-  scaleHeight : "",
-  // Scale to width/height and then resize to fill width/height.
-  resizeMode : "", // in/out, optional, if specified scale proportionally.
-  resizeWidth : "",
-  resizeHeight : "",
+  offsetX : 0,
+  offsetY : 0,
+});
+
+// Scale to width/height.
+// Optionally use "in" and "out" as mode to scale proportionally.
+bar.pin({
+  scaleMode : mode,
+  scaleWidth : width,
+  scaleHeight : height,
+});
+
+// Scale to width/height and then resize to fill width/height.
+// Optionally use "in" and "out" as mode to scale proportionally.
+bar.pin({
+  resizeMode : mode,
+  resizeWidth : width,
+  resizeHeight : height,
 });
 
 //
