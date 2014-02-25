@@ -258,6 +258,23 @@ anim.repeat(repeat, callback = null);
 var row = Cut.row(childrenVerticalAlign = 0);
 var column = Cut.column(childrenHorizontalAlign = 0);
 
+// Add spacing between row/column cells.
+row.spacing(space);
+
+//
+// ### Box
+// A box resizes to wrap its children. Can be used with image tile/stretch
+// to create variable size components like windows, button, etc.
+
+// Create a new box.
+var box = Cut.box();
+
+// Make foo a box.
+foo = foo.box();
+
+// Add padding around box.
+box.padding(pad);
+
 //
 // ### String
 // String is a row of images, but images are dynamically assigned using font and
