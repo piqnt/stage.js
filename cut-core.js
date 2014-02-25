@@ -962,16 +962,16 @@ Cut.prototype.box = function(type) {
       if (type == "column") {
         !first && (height += this._spacing || 0);
         child.pin("offsetY") != height && child.pin("offsetY", height);
-        width = Math.max(width, child._pin._boundWidth);
-        height = height + child._pin._boundHeight;
+        width = Math.max(width, child._pin._aabbWidth);
+        height = height + child._pin._aabbHeight;
       } else if (type == "row") {
         !first && (width += this._spacing || 0);
         child.pin("offsetX") != width && child.pin("offsetX", width);
-        width = width + child._pin._boundWidth;
-        height = Math.max(height, child._pin._boundHeight);
+        width = width + child._pin._aabbWidth;
+        height = Math.max(height, child._pin._aabbHeight);
       } else {
-        width = Math.max(width, child._pin._boundWidth);
-        height = Math.max(height, child._pin._boundHeight);
+        width = Math.max(width, child._pin._aabbWidth);
+        height = Math.max(height, child._pin._aabbHeight);
       }
       first = false;
     }
@@ -1535,7 +1535,7 @@ Cut.Pin = function(owner) {
   this._absoluteMatrix = new Cut.Matrix();
 
   // no-translation
-  this._boundMatrix = new Cut.Matrix();
+  this._aabbMatrix = new Cut.Matrix();
 
   this.reset();
 };
@@ -1576,10 +1576,10 @@ Cut.Pin.prototype.reset = function() {
   this._offsetY = 0;
 
   // calculated bounding rect as seen by parent
-  this._boundX = 0;
-  this._boundY = 0;
-  this._boundWidth = this._width;
-  this._boundHeight = this._height;
+  this._aabbX = 0;
+  this._aabbY = 0;
+  this._aabbWidth = this._width;
+  this._aabbHeight = this._height;
 
   this._ts_translate = Cut._TS++;
   this._ts_transform = Cut._TS++;
@@ -1650,12 +1650,12 @@ Cut.Pin.prototype.relativeMatrix = function() {
 
   this.boundMatrix();
 
-  this._x = this._offsetX - this._boundX;
-  this._y = this._offsetY - this._boundY;
+  this._x = this._offsetX - this._aabbX;
+  this._y = this._offsetY - this._aabbY;
 
   if (this._handled) {
-    this._x -= this._handleX * this._boundWidth;
-    this._y -= this._handleY * this._boundHeight;
+    this._x -= this._handleX * this._aabbWidth;
+    this._y -= this._handleY * this._aabbHeight;
   }
 
   if (this._aligned && this._parent) {
@@ -1670,20 +1670,20 @@ Cut.Pin.prototype.relativeMatrix = function() {
 };
 
 Cut.Pin.prototype.boundMatrix = function() {
-  if (this._mo_bound == this._ts_transform) {
+  if (this._mo_aabb == this._ts_transform) {
     return;
   }
-  this._mo_bound = this._ts_transform;
+  this._mo_aabb = this._ts_transform;
 
   if (this._pivoted) {
-    this._boundX = 0;
-    this._boundY = 0;
-    this._boundWidth = this._width;
-    this._boundHeight = this._height;
+    this._aabbX = 0;
+    this._aabbY = 0;
+    this._aabbWidth = this._width;
+    this._aabbHeight = this._height;
     return;
   }
 
-  var m = this._boundMatrix;
+  var m = this._aabbMatrix;
   m.identity();
   m.scale(this._scaleX, this._scaleY);
   m.rotate(this._rotation);
@@ -1695,16 +1695,16 @@ Cut.Pin.prototype.boundMatrix = function() {
   } else {
     p = m.a * this._width, q = m.c * this._height;
   }
-  this._boundX = Math.min(p, q);
-  this._boundWidth = Math.abs(p - q);
+  this._aabbX = Math.min(p, q);
+  this._aabbWidth = Math.abs(p - q);
 
   if (m.b > 0 && m.d > 0 || m.b < 0 && m.d < 0) {
     p = 0, q = m.b * this._width + m.d * this._height;
   } else {
     p = m.b * this._width, q = m.d * this._height;
   }
-  this._boundY = Math.min(p, q);
-  this._boundHeight = Math.abs(p - q);
+  this._aabbY = Math.min(p, q);
+  this._aabbHeight = Math.abs(p - q);
 };
 
 Cut.Pin.prototype.update = function() {
