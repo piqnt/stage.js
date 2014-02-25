@@ -14,20 +14,24 @@ body {
 	overflow: hidden;
 }
 
-.about {
+.about,.hint {
 	position: absolute;
+	padding: 0.7em 1em;
+	background: rgba(240, 240, 240, 0.7);
+}
+
+.dark .about,.dark  .hint {
+	background: rgba(32, 32, 32, 0.7);
+}
+
+.about {
 	right: 0.5em;
 	bottom: 0.5em;
-	padding: 0.7em 1em;
-	background: rgba(127, 127, 127, 0.3);
 }
 
 .hint {
-	position: absolute;
-  left: 0.5em;
-  bottom: 0.5em;
-  padding: 0.7em 1em;
-  background: rgba(127, 127, 127, 0.3);
+	left: 0.5em;
+	bottom: 0.5em;
 }
 
 a {
