@@ -196,8 +196,8 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     }
 
     // see loader
-    abs.x *= listener.ratio || 1;
-    abs.y *= listener.ratio || 1;
+    abs.x *= listener._ratio || 1;
+    abs.y *= listener._ratio || 1;
   }
 
 };

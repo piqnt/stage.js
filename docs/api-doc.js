@@ -72,6 +72,13 @@ bar.visible(visible);
 bar.hide();
 bar.show();
 
+// Iterate over foo's children.
+var child, next = foo.first();
+while (child = next) {
+  next = child.next();
+  // use child
+}
+
 // Visit foo's sub-tree.
 foo.visit({
   start : function(node) {

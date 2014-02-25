@@ -141,7 +141,7 @@ Cut.Loader = {
         canvas.width = width;
         canvas.height = height;
 
-        root.ratio = ratio;
+        root._ratio = ratio;
 
         DEBUG
             && console.log("Resize: " + width + " x " + height + " / " + ratio);
