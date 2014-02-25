@@ -1,32 +1,22 @@
 var V = function(x, y) {
   return new SAT.Vector(x, y);
 };
-var P = function(pos, points) {
-  return new SAT.Polygon(pos, points);
-};
-var C = function(pos, r) {
-  return new SAT.Circle(pos, r);
-};
-var B = function(pos, w, h) {
-  return new SAT.Box(pos, w, h);
-};
 
 Cut.Loader.load(function(root, container) {
   Cut.Mouse.subscribe(root, container);
-  root.viewbox(400, 400).pin("handle", 0);
+  root.viewbox(400, 400).pin("handle", -0.5);
 
   var world = new SAT.World();
-  var poly;
-  world.addBody(poly = new SAT.Body(P(V(160, 120),
-      [ V(0, 0), V(60, 0), V(100, 40), V(60, 80), V(0, 80) ]).translate(-50,
-      -40), {
+  var poly = new SAT.Body(new SAT.Polygon(V(-60, -60), [ V(0, -30), V(30, 0),
+      V(0, 30), V(-30, 0) ]), {
+    solid : true
+  });
+  world.addBody(poly);
+  world.addBody(new SAT.Body(new SAT.Polygon(V(60, 60), [ V(-20, -20), V(20, -20),
+      V(20, 20), V(-20, 20) ]), {
     solid : true
   }));
-  world.addBody(new SAT.Body(P(V(10, 10), [ V(0, 0), V(30, 0), V(30, 30),
-      V(0, 30) ]), {
-    solid : true
-  }));
-  world.addBody(new SAT.Body(C(V(50, 200), 30), {
+  world.addBody(new SAT.Body(new SAT.Circle(V(0, 0), 30), {
     solid : true,
     heavy : true
   }));
@@ -38,22 +28,4 @@ Cut.Loader.load(function(root, container) {
   // });
 
   new Cut.SAT(world).appendTo(root);
-}, "example1");
-
-Cut.Loader.load(function(root, container) {
-  Cut.Mouse.subscribe(root, container);
-  root.viewbox(640, 640).pin("handle", 0);
-
-  var world = new SAT.World({
-    loopCount : 5
-  });
-  for (var i = 0; i < 16; i++) {
-    for (var j = 0; j < 16; j++) {
-      world.addBody(new SAT.Body(C(V((40 * i) + 20, (40 * j) + 20), 18), {
-        solid : true
-      }));
-    }
-  }
-
-  new Cut.SAT(world).appendTo(root);
-}, "example2");
+});
