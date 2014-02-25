@@ -48,24 +48,6 @@
     key[keyName[evt.keyCode]] = false;
   };
 
-  function uiStart() {
-    gameover = false;
-    document.getElementById("gameover").classList.add("hidden");
-  }
-
-  function uiEnd() {
-    gameover = true;
-    document.getElementById("gameover").classList.remove("hidden");
-  }
-
-  function uiLevel() {
-    document.getElementById("level").innerHTML = "Level " + level;
-  }
-
-  function uiLives() {
-    document.getElementById("lives").innerHTML = "Lives " + lives;
-  }
-
   function init() {
     // Init p2.js
     world = new p2.World({
@@ -125,8 +107,7 @@
     level = 1;
     lives = 3;
     // Update the text boxes
-    uiLevel();
-    uiLives();
+    uiStatus();
     play(true);
     addAsteroids();
     uiStart();
@@ -289,7 +270,7 @@
 
     if (asteroid.shapes[0].collisionGroup == ASTEROID) {
       lives--;
-      uiLives();
+      uiStatus();
 
       // Remove the ship body for a while
       world.removeBody(shipBody);
@@ -327,7 +308,7 @@
 
     if (asteroidBodies.length == 0) {
       level++;
-      uiLevel();
+      uiStatus();
       addAsteroids();
     }
   }
@@ -366,14 +347,29 @@
     return (Math.random() - 0.5) * (value || 1);
   }
 
+  var ui = {};
+
   Cut.Loader.load(function(root, container) {
     Cut.Mouse.subscribe(root, container);
     root.viewbox(spaceWidth, spaceHeight).pin("handle", -0.5);
-    Cut.p2(world, {
+    ui.p2 = Cut.p2(world, {
       lineColor : "#fff",
       fillColor : ""
     }).appendTo(root);
     root.tick(tick);
+
+    ui.status = Cut.string("font:_").pin({
+      align : -0.5,
+      handle : 0,
+      offset : 0.1
+    }).appendTo(root);
+
+    ui.gameover = Cut.string("font:_").setValue("Game Over!").pin({
+      handle : 0.5,
+      scale : 1.6
+    }).appendTo(root);
+
+    start();
   });
 
   p2.Body.prototype.noDamping = function() {
@@ -382,6 +378,40 @@
   };
 
   init();
-  start();
+
+  function uiStart() {
+    gameover = false;
+    ui.gameover.hide();
+  }
+
+  function uiEnd() {
+    gameover = true;
+    ui.gameover.show();
+  }
+
+  function uiStatus() {
+    ui.status.setValue("Level: " + level + " Lives: " + lives)
+  }
 
 })();
+
+var PPU = 64;
+
+Cut.addTexture({
+  name : "font",
+  factory : function(name) {
+    var prefix = "_";
+    if (name.substring(0, prefix.length) === prefix) {
+      var d = name.substr(prefix.length, 1);
+      return Cut.Out.drawing(prefix + d, 32 / PPU, 18 / PPU, 128, function(ctx,
+          ratio) {
+        ctx.scale(ratio / PPU, ratio / PPU);
+        ctx.font = "bold 16px monospace";
+        ctx.fillStyle = "#eee";
+        ctx.measureText && this.cropX((ctx.measureText(d).width) / PPU);
+        ctx.textBaseline = "top";
+        ctx.fillText(d, 0, 1);
+      });
+    }
+  }
+});

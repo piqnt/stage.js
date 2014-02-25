@@ -16,22 +16,33 @@ body {
 
 .about {
 	position: absolute;
-	right: 0;
-	bottom: 0;
-	padding: 0 10px 10px 0;
+	right: 0.5em;
+	bottom: 0.5em;
+	padding: 0.7em 1em;
+	background: rgba(127, 127, 127, 0.3);
 }
 
 .hint {
 	position: absolute;
-	left: 0;
-	bottom: 0;
-	padding: 0 0 10px 10px;
+  left: 0.5em;
+  bottom: 0.5em;
+  padding: 0.7em 1em;
+  background: rgba(127, 127, 127, 0.3);
 }
 
 a {
 	text-decoration: none;
+	color: blue;
 }
 
 a:hover {
 	text-decoration: underline;
+}
+
+.dark {
+	color: #bbb;
+}
+
+.dark a {
+	color: #fff;
 }
