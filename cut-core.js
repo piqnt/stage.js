@@ -1555,9 +1555,6 @@ Cut.Pin = function(owner) {
   // relative to root
   this._absoluteMatrix = new Cut.Matrix();
 
-  // no-translation
-  this._aabbMatrix = new Cut.Matrix();
-
   this.reset();
 };
 
@@ -1669,7 +1666,29 @@ Cut.Pin.prototype.relativeMatrix = function() {
     rel.translate(this._pivotX * this._width, this._pivotY * this._height);
   }
 
-  this.boundMatrix();
+  if (this._pivoted) {
+    this._aabbX = 0;
+    this._aabbY = 0;
+    this._aabbWidth = this._width;
+    this._aabbHeight = this._height;
+  } else {
+    var p, q, m = rel;
+    if (m.a > 0 && m.c > 0 || m.a < 0 && m.c < 0) {
+      p = 0, q = m.a * this._width + m.c * this._height;
+    } else {
+      p = m.a * this._width, q = m.c * this._height;
+    }
+    this._aabbX = Math.min(p, q);
+    this._aabbWidth = Math.abs(p - q);
+
+    if (m.b > 0 && m.d > 0 || m.b < 0 && m.d < 0) {
+      p = 0, q = m.b * this._width + m.d * this._height;
+    } else {
+      p = m.b * this._width, q = m.d * this._height;
+    }
+    this._aabbY = Math.min(p, q);
+    this._aabbHeight = Math.abs(p - q);
+  }
 
   this._x = this._offsetX - this._aabbX;
   this._y = this._offsetY - this._aabbY;
@@ -1688,44 +1707,6 @@ Cut.Pin.prototype.relativeMatrix = function() {
   rel.translate(this._x, this._y);
 
   return this._relativeMatrix;
-};
-
-Cut.Pin.prototype.boundMatrix = function() {
-  if (this._mo_aabb == this._ts_transform) {
-    return;
-  }
-  this._mo_aabb = this._ts_transform;
-
-  if (this._pivoted) {
-    this._aabbX = 0;
-    this._aabbY = 0;
-    this._aabbWidth = this._width;
-    this._aabbHeight = this._height;
-    return;
-  }
-
-  var m = this._aabbMatrix;
-  m.identity();
-  m.scale(this._scaleX, this._scaleY);
-  m.rotate(this._rotation);
-  m.skew(this._skewX, this._skewX);
-
-  var p, q;
-  if (m.a > 0 && m.c > 0 || m.a < 0 && m.c < 0) {
-    p = 0, q = m.a * this._width + m.c * this._height;
-  } else {
-    p = m.a * this._width, q = m.c * this._height;
-  }
-  this._aabbX = Math.min(p, q);
-  this._aabbWidth = Math.abs(p - q);
-
-  if (m.b > 0 && m.d > 0 || m.b < 0 && m.d < 0) {
-    p = 0, q = m.b * this._width + m.d * this._height;
-  } else {
-    p = m.b * this._width, q = m.d * this._height;
-  }
-  this._aabbY = Math.min(p, q);
-  this._aabbHeight = Math.abs(p - q);
 };
 
 Cut.Pin.prototype.update = function() {
