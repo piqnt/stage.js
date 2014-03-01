@@ -555,8 +555,8 @@ Coin.prototype.remove = function() {
 
 Cut.Anim.FPS = 11;
 
-Cut.Loader.load(function(root, elem) {
-  Cut.Mouse.subscribe(root, elem, true);
+Cut(function(root, elem) {
+  Cut.Mouse(root, elem, true);
   return new App(elem).appendTo(root);
 });
 

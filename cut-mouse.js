@@ -15,12 +15,14 @@ Cut.prototype.spy = function(spy) {
   return this;
 };
 
-Cut.Mouse = {
-  CLICK : "click",
-  START : "touchstart mousedown",
-  MOVE : "touchmove mousemove",
-  END : "touchend mouseup",
+Cut.Mouse = function() {
+  Cut.Mouse.subscribe.apply(Cut.Mouse, arguments);
 };
+
+Cut.Mouse.CLICK = "click";
+Cut.Mouse.START = "touchstart mousedown";
+Cut.Mouse.MOVE = "touchmove mousemove";
+Cut.Mouse.END = "touchend mouseup";
 
 Cut.Mouse.subscribe = function(listener, elem, move) {
   elem = elem || document;

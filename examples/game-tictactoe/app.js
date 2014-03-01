@@ -1,5 +1,5 @@
-Cut.Loader.load(function(root, container) {
-  Cut.Mouse.subscribe(root, container);
+Cut(function(root, container) {
+  Cut.Mouse(root, container);
   root.viewbox(50, 50).pin("handle", -0.5);
 
   Cut.image("base:bg").pin("handle", 0.5).appendTo(root);

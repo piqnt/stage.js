@@ -127,8 +127,8 @@ window.onkeyup = function() {
   torque = 0;
 };
 
-Cut.Loader.load(function(root, container) {
-  Cut.Mouse.subscribe(root, container);
+Cut(function(root, container) {
+  Cut.Mouse(root, container);
   root.viewbox(8, 6).pin("handle", -0.5);
   var p2cut = Cut.p2(world).appendTo(root);
 });

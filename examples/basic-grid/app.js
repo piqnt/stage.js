@@ -1,6 +1,6 @@
-Cut.Loader.load(function(root, container) {
+Cut(function(root, container) {
 
-  Cut.Mouse.subscribe(root, container, true);
+  Cut.Mouse(root, container, true);
 
   root.viewbox(300, 300);
 

@@ -8,6 +8,9 @@
 DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
 function Cut() {
+  if (!(this instanceof Cut)) {
+    return Cut.Loader.load.apply(Cut.Loader, arguments);
+  }
 
   Cut._stats.create++;
 
@@ -2231,3 +2234,35 @@ Cut._status = function(msg) {
   }
   Cut._statusbox.innerHTML = msg;
 };
+
+Cut.Loader = (function() {
+  var queue = [];
+  var loaded = [];
+  var started = false;
+  return {
+    load : function(app, canvas) {
+      if (started) {
+        loaded.push(this.init.apply(this, arguments));
+      } else {
+        queue.push(arguments);
+      }
+    },
+    start : function() {
+      started = true;
+      var args;
+      while (args = queue.shift()) {
+        loaded.push(this.init.apply(this, args));
+      }
+    },
+    pause : function() {
+      for (var i = queue.length - 1; i >= 0; i--) {
+        loaded[i].pause();
+      }
+    },
+    resume : function() {
+      for (var i = queue.length - 1; i >= 0; i--) {
+        loaded[i].resume();
+      }
+    }
+  };
+})();

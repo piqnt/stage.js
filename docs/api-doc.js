@@ -3,7 +3,7 @@
 // Loaders create and run apps and manage rendering cycles.
 
 // Load an app with root node and container element.
-Cut.Loader.load(function(root, container) {
+Cut(function(root, container) {
   // Your apps goes here, add nodes to the root.
   // Container is the actual element displaying rendered graphics.
 
@@ -339,7 +339,7 @@ cutouts = "textureName:cutoutPrefix";
 // Mouse class is used to capture and process mouse and touch events.
 
 // Subscribe root to Mouse events.
-Cut.Mouse.subscribe(root, container, captureAnyMove = false);
+Cut.Mouse(root, container, captureAnyMove = false);
 
 // Add click listener to bar.
 bar.on(Cut.Mouse.CLICK, function(event, point) {

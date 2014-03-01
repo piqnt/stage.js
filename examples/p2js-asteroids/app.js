@@ -349,8 +349,8 @@
 
   var ui = {};
 
-  Cut.Loader.load(function(root, container) {
-    Cut.Mouse.subscribe(root, container);
+  Cut(function(root, container) {
+    Cut.Mouse(root, container);
     root.viewbox(spaceWidth, spaceHeight).pin("handle", -0.5);
     ui.p2 = Cut.p2(world, {
       lineColor : "#fff",

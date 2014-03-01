@@ -154,7 +154,7 @@ Drone.prototype.animate = function(t) {
 Cut.Loader
     .load(function(root, canvas) {
 
-      Cut.Mouse.subscribe(root, canvas);
+      Cut.Mouse(root, canvas);
 
       var world = new World();
       var _down_keys = {}, _down_mouse = {
