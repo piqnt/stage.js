@@ -1143,7 +1143,7 @@ Cut.prototype.sequence = function(type) {
     while (child = next) {
       next = child.next(true);
       var w, h;
-      if (child._pin._box === "aabb") {
+      if (!child._pin._pivoted) {
         child.pin()._aabb();
         w = child._pin._aabbWidth;
         h = child._pin._aabbHeight;
@@ -1198,7 +1198,7 @@ Cut.prototype.box = function(type) {
       next = child.next(true);
 
       var w, h;
-      if (child._pin._box === "aabb") {
+      if (!child._pin._pivoted) {
         child.pin()._aabb();
         w = child._pin._aabbWidth;
         h = child._pin._aabbHeight;
@@ -1598,8 +1598,6 @@ Cut.Pin.prototype.reset = function() {
   this._skewX = 0;
   this._rotation = 0;
 
-  this._box = "aabb"; // use default
-
   // scale/skew/rotate center
   this._pivoted = false;
   this._pivotX = null;
@@ -1694,32 +1692,29 @@ Cut.Pin.prototype.relativeMatrix = function() {
   this._x = this._offsetX;
   this._y = this._offsetY;
 
-  if (!this._handled) {
-  } else if (this._box === "aabb") {
+  if (!this._pivoted) {
     // set handle on aabb
     this._aabb();
     this._x -= this._aabbX + this._handleX * this._aabbWidth;
     this._y -= this._aabbY + this._handleY * this._aabbHeight;
 
-  } else if (this._box === "origin") {
-    // set handle on origin but don't transform it
+  } else {
+    // set handle on origin
     this._x -= this._handleX * this._width;
     this._y -= this._handleY * this._height;
 
-  } else if (this._box === "transform") {
-    // set handle on origin and transform it
-    this._x -= rel.mapX(this._handleX * this._width, this._handleY
-        * this._height);
-    this._y -= rel.mapY(this._handleX * this._width, this._handleY
-        * this._height);
   }
+  // // set handle on origin and transform it
+  // this._x -= rel.mapX(this._handleX * this._width, this._handleY
+  // * this._height);
+  // this._y -= rel.mapY(this._handleX * this._width, this._handleY
+  // * this._height);
 
   if (this._aligned && this._parent) {
     this._parent.relativeMatrix();
     this._x += this._alignX * this._parent._width;
     this._y += this._alignY * this._parent._height;
   }
-
 
   rel.translate(this._x, this._y);
 
@@ -1960,12 +1955,6 @@ Cut.Pin._setters = {
   handleY : function(pin, value, set) {
     pin._handleY = value;
     pin._handled = true;
-    pin._translate_flag = true;
-  },
-
-  box : function(pin, value, set) {
-    pin._box = value;
-    pin._transform_flag = true;
     pin._translate_flag = true;
   }
 

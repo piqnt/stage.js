@@ -152,7 +152,7 @@ bar.pin({
   alignX : 0,
   alignY : 0,
   // Pin point on self used for positioning, defaults to align values,
-  // in width/height ratio.
+  // in width/height ratio. If pivoted on origin box, otherwise on aabb.
   handleX : 0,
   handleY : 0,
   // Distance from parent align to self handle in pixel.
