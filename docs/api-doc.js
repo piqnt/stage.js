@@ -148,11 +148,11 @@ bar.pin({
   // Automatically are set depending on node type.
   height : height,
   width : width,
-  // Pin point on parent used for positioning, in width/height ratio.
+  // Pin point on parent used for positioning, as width/height ratio.
   alignX : 0,
   alignY : 0,
   // Pin point on self used for positioning, defaults to align values,
-  // in width/height ratio. If pivoted on origin box, otherwise on aabb.
+  // as width/height ratio of origin box if pivoted, otherwise ratio of aabb.
   handleX : 0,
   handleY : 0,
   // Distance from parent align to self handle in pixel.
