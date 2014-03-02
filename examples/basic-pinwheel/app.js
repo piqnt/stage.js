@@ -3,11 +3,11 @@ Cut.Loader.load(function(root, container) {
   root.viewbox(1000, 1000).pin("handle", -0.5);
 
   var clicked = false;
-  var logo = Cut.image("pin:wheel").appendTo(root).pin("pivot", 0.5).pin(
-      "handle", 0.5).on(Cut.Mouse.CLICK, function() {
-    clicked = true;
-    then();
-  });
+  var logo = Cut.image("pin:wheel").appendTo(root).pin("handle", 0.5).on(
+      Cut.Mouse.CLICK, function() {
+        clicked = true;
+        then();
+      });
 
   function then() {
     logo.pin("rotation", logo.pin("rotation") % (Math.PI * 2));

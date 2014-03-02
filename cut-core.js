@@ -1142,10 +1142,15 @@ Cut.prototype.sequence = function(type) {
     var first = true;
     while (child = next) {
       next = child.next(true);
-      child.pin().aabb();
-      var w = child._pin._pivoted ? child._pin._width : child._pin._aabb.width;
-      var h = child._pin._pivoted ? child._pin._height
-          : child._pin._aabb.height;
+      var w, h;
+      if (child._pin._box === "aabb") {
+        child.pin()._aabb();
+        w = child._pin._aabbWidth;
+        h = child._pin._aabbHeight;
+      } else {
+        w = child._pin._width;
+        h = child._pin._height;
+      }
       if (type == "column") {
         !first && (height += this._spacing || 0);
         child.pin("offsetY") != height && child.pin("offsetY", height);
@@ -1191,9 +1196,19 @@ Cut.prototype.box = function(type) {
     var child, next = this.first(true);
     while (child = next) {
       next = child.next(true);
-      child.pin().aabb();
-      width = Math.max(width, child._pin._aabb.width);
-      height = Math.max(height, child._pin._aabb.height);
+
+      var w, h;
+      if (child._pin._box === "aabb") {
+        child.pin()._aabb();
+        w = child._pin._aabbWidth;
+        h = child._pin._aabbHeight;
+      } else {
+        w = child._pin._width;
+        h = child._pin._height;
+      }
+      child.pin()._aabb();
+      width = Math.max(width, w);
+      height = Math.max(height, h);
     }
     width += 2 * this._padding || 0;
     height += 2 * this._padding || 0;
@@ -1561,6 +1576,9 @@ Cut.Pin = function(owner) {
   // relative to root
   this._absoluteMatrix = new Cut.Matrix();
 
+  // aabb
+  this._aabbMatrix = new Cut.Matrix();
+
   this.reset();
 };
 
@@ -1579,6 +1597,8 @@ Cut.Pin.prototype.reset = function() {
   this._skewX = 0;
   this._skewX = 0;
   this._rotation = 0;
+
+  this._box = "aabb"; // use default
 
   // scale/skew/rotate center
   this._pivoted = false;
@@ -1599,12 +1619,10 @@ Cut.Pin.prototype.reset = function() {
   this._offsetX = 0;
   this._offsetY = 0;
 
-  this._aabb = {
-    x : 0,
-    y : 0,
-    width : this._width,
-    height : this._height
-  };
+  this._aabbX = 0;
+  this._aabbY = 0;
+  this._aabbWidth = this._width;
+  this._aabbHeight = this._height;
 
   this._ts_translate = Cut._TS++;
   this._ts_transform = Cut._TS++;
@@ -1676,7 +1694,20 @@ Cut.Pin.prototype.relativeMatrix = function() {
   this._x = this._offsetX;
   this._y = this._offsetY;
 
-  if (this._handled) {
+  if (!this._handled) {
+  } else if (this._box === "aabb") {
+    // set handle on aabb
+    this._aabb();
+    this._x -= this._aabbX + this._handleX * this._aabbWidth;
+    this._y -= this._aabbY + this._handleY * this._aabbHeight;
+
+  } else if (this._box === "origin") {
+    // set handle on origin but don't transform it
+    this._x -= this._handleX * this._width;
+    this._y -= this._handleY * this._height;
+
+  } else if (this._box === "transform") {
+    // set handle on origin and transform it
     this._x -= rel.mapX(this._handleX * this._width, this._handleY
         * this._height);
     this._y -= rel.mapY(this._handleX * this._width, this._handleY
@@ -1689,31 +1720,38 @@ Cut.Pin.prototype.relativeMatrix = function() {
     this._y += this._alignY * this._parent._height;
   }
 
+
   rel.translate(this._x, this._y);
 
   return this._relativeMatrix;
 };
 
-Cut.Pin.prototype.aabb = function() {
+Cut.Pin.prototype._aabb = function() {
 
   if (this._mo_aabb == this._ts_transform) {
-    return this._aabb;
+    return;
   }
   this._mo_aabb = this._ts_transform;
 
-  var p, q, m = this.relativeMatrix();
+  var m = this._aabbMatrix;
+  m.identity();
+  m.scale(this._scaleX, this._scaleY);
+  m.rotate(this._rotation);
+  m.skew(this._skewX, this._skewX);
+
+  var p, q;
+
   if (m.a > 0 && m.c > 0 || m.a < 0 && m.c < 0) {
     p = 0, q = m.a * this._width + m.c * this._height;
   } else {
     p = m.a * this._width, q = m.c * this._height;
   }
-
   if (p > q) {
-    this._aabb.x = q;
-    this._aabb.width = p - q;
+    this._aabbX = q;
+    this._aabbWidth = p - q;
   } else {
-    this._aabb.x = p;
-    this._aabb.width = q - p;
+    this._aabbX = p;
+    this._aabbWidth = q - p;
   }
 
   if (m.b > 0 && m.d > 0 || m.b < 0 && m.d < 0) {
@@ -1722,14 +1760,12 @@ Cut.Pin.prototype.aabb = function() {
     p = m.b * this._width, q = m.d * this._height;
   }
   if (p > q) {
-    this._aabb.y = q;
-    this._aabb.height = p - q;
+    this._aabbY = q;
+    this._aabbHeight = p - q;
   } else {
-    this._aabb.y = p;
-    this._aabb.height = q - p;
+    this._aabbY = p;
+    this._aabbHeight = q - p;
   }
-
-  return this._aabb;
 };
 
 Cut.Pin.prototype.update = function() {
@@ -1924,6 +1960,12 @@ Cut.Pin._setters = {
   handleY : function(pin, value, set) {
     pin._handleY = value;
     pin._handled = true;
+    pin._translate_flag = true;
+  },
+
+  box : function(pin, value, set) {
+    pin._box = value;
+    pin._transform_flag = true;
     pin._translate_flag = true;
   }
 
