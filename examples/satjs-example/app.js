@@ -12,8 +12,8 @@ Cut(function(root, container) {
     solid : true
   });
   world.addBody(poly);
-  world.addBody(new SAT.Body(new SAT.Polygon(V(60, 60), [ V(-20, -20), V(20, -20),
-      V(20, 20), V(-20, 20) ]), {
+  world.addBody(new SAT.Body(new SAT.Polygon(V(60, 60), [ V(-20, -20),
+      V(20, -20), V(20, 20), V(-20, 20) ]), {
     solid : true
   }));
   world.addBody(new SAT.Body(new SAT.Circle(V(0, 0), 30), {
@@ -21,11 +21,11 @@ Cut(function(root, container) {
     heavy : true
   }));
 
-  // var time = 0;
-  // root.tick(function(t) {
-  // poly.shape.rotate(Math.PI * (time += t) / 1000);
-  // root.touch();
-  // });
+  var time = 0;
+  root.tick(function(t) {
+    poly.shape.setAngle(poly.shape.angle + (Math.PI / 60));
+    root.touch();
+  });
 
   new Cut.SAT(world).appendTo(root);
 });

@@ -76,7 +76,8 @@ Cut.SAT.prototype.simulate = function(t) {
     var body = this.world.bodies[i];
     body.ui && body.ui.pin({
       offsetX : body.shape.pos.x,
-      offsetY : body.shape.pos.y
+      offsetY : body.shape.pos.y,
+      rotation : body.shape.angle
     });
   }
 };
