@@ -1676,8 +1676,8 @@ Cut.Pin.prototype.relativeMatrix = function() {
     // set handle on origin
     this._boxX = 0;
     this._boxY = 0;
-    this._boxWidth = this._height;
-    this._boxHeight = this._width;
+    this._boxWidth = this._width;
+    this._boxHeight = this._height;
 
   } else {
     // set handle on aabb
@@ -1738,7 +1738,7 @@ Cut.Pin.prototype.update = function() {
     var set = arguments[0], key, value;
     for (key in set) {
       if (!Cut.Pin._setters[key] && !Cut.Pin._setters2[key]) {
-        DEBUG && console.log("Invalid pin: " + key + "/" + set[key]);
+        // DEBUG && console.log("Invalid pin: " + key + "/" + set[key]);
       }
     }
 
@@ -1768,7 +1768,7 @@ Cut.Pin.prototype.update = function() {
       (value || value === 0) && setter.call(ctx, this, value, Cut.Pin._EMPTY);
 
     } else {
-      DEBUG && console.log("Invalid pin: " + key + "/" + value);
+      // DEBUG && console.log("Invalid pin: " + key + "/" + value);
     }
   }
 
