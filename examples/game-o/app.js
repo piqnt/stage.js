@@ -685,10 +685,7 @@ function Home(app) {
 
   function refresh() {
     for (var i = 0; i < flags.length; i++) {
-      var button = flags[i].empty();
-      button.pin("alpha", 1).pinChildren({
-        alpha : 1
-      });
+      var button = flags[i].empty().pin("alpha", 0.9);
       if (i <= game.data.upgrades.flags) {
         var value = Conf.k(game.data.flags[i - 1]);
         value = i > 0 ? (value || "-") : 0;
@@ -701,9 +698,6 @@ function Home(app) {
         continue;
       }
       var price = game.price("flags");
-      button.pin("alpha", 0.9).pinChildren({
-        alpha : price <= game.data.stats.coins ? 1 : 0.5
-      });
       if (i == game.data.upgrades.flags + 1) {
         Cut.string("base:d_").setValue(Conf.$(price)).pin({
           alignY : 0.5,
@@ -712,6 +706,9 @@ function Home(app) {
           alpha : 0.8,
           scale : 0.6
         }).appendTo(button);
+      }
+      for (var child = button.first(); child; child = child.next()) {
+        child.pin("alpha", price <= game.data.stats.coins ? 1 : 0.5);
       }
     }
 
@@ -736,12 +733,9 @@ function Home(app) {
 
     for (var i = 0; i < Conf.ups.length; i++) {
       var name = Conf.ups[i];
-      var button = upgrades[name].empty();
       var price = game.price(name);
       var level = game.data.upgrades[name] || 0;
-      button.pin("alpha", 0.9).pinChildren({
-        alpha : price <= game.data.stats.coins ? 1 : 0.5
-      });
+      var button = upgrades[name].empty().pin("alpha", 0.9);
       // image
       Cut.image("base:up_" + name).pin("align", 0.5).appendTo(button);
       // price
@@ -762,6 +756,10 @@ function Home(app) {
           alpha : 0.8,
           scale : 0.6
         }).appendTo(button);
+      }
+
+      for (var child = button.first(); child; child = child.next()) {
+        child.pin("alpha", price <= game.data.stats.coins ? 1 : 0.5);
       }
     }
   }
