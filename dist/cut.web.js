@@ -19,7 +19,7 @@ function Cut() {
     this._first = null;
     this._last = null;
     this._pin = new Cut.Pin(this);
-    this._outs = [];
+    this._cutouts = [];
     this._tickBefore = [];
     this._tickAfter = [];
     this._alpha = 1;
@@ -101,6 +101,15 @@ Cut.prototype.tick = function(ticker, before) {
     }
 };
 
+Cut.prototype.untick = function(ticker) {
+    var i;
+    if (!ticker) {} else if ((i = this._tickBefore.indexOf(ticker)) >= 0) {
+        this._tickBefore.splice(i, 1);
+    } else if ((i = this._tickAfter.indexOf(ticker)) >= 0) {
+        this._tickAfter.splice(i, 1);
+    }
+};
+
 Cut.prototype._paint = function(context) {
     if (!this._visible) {
         return;
@@ -113,9 +122,9 @@ Cut.prototype._paint = function(context) {
     if (context.globalAlpha != alpha) {
         context.globalAlpha = alpha;
     }
-    var length = this._outs.length;
+    var length = this._cutouts.length;
     for (var i = 0; i < length; i++) {
-        this._outs[i].paste(context);
+        this._cutouts[i].paste(context);
     }
     if (context.globalAlpha != this._alpha) {
         context.globalAlpha = this._alpha;
@@ -436,26 +445,6 @@ Cut.prototype.pin = function() {
     return obj === this._pin ? this : obj;
 };
 
-Cut.prototype.pinChildren = function(pin) {
-    pin && Cut._extend(this._pinAll = this._pinAll || {}, pin);
-    if (this._pinAllTicker) {
-        return this;
-    }
-    this._pinAllTicker = function() {
-        if (this._mo_pinAll == this._ts_children) {
-            return;
-        }
-        this._mo_pinAll = this._ts_children;
-        var child, next = this.first(true);
-        while (child = next) {
-            next = child.next(true);
-            child.pin(this._pinAll);
-        }
-    };
-    this.tick(this._pinAllTicker, true);
-    return this;
-};
-
 Cut.prototype.matrix = function() {
     return this._pin.absoluteMatrix(this, this._parent ? this._parent._pin : null);
 };
@@ -654,41 +643,39 @@ Cut.Image.prototype._super = Cut;
 Cut.Image.prototype.constructor = Cut.Image;
 
 Cut.Image.prototype.setImage = function(cutout) {
-    this._outs[0] = Cut.Out.select(cutout);
+    this._cutouts[0] = Cut.Out.select(cutout);
+    this._cutouts.length = 1;
     this.pin({
-        width: this._outs[0] ? this._outs[0].dWidth() : 0,
-        height: this._outs[0] ? this._outs[0].dHeight() : 0
+        width: this._cutouts[0] ? this._cutouts[0].dWidth() : 0,
+        height: this._cutouts[0] ? this._cutouts[0].dHeight() : 0
     });
+    this._cutout = this._cutouts[0].clone();
     return this;
 };
 
 Cut.Image.prototype.cropX = function(w, x) {
-    return this.setImage(this._outs[0].cropX(w, x));
+    return this.setImage(this._cutouts[0].cropX(w, x));
 };
 
 Cut.Image.prototype.cropY = function(h, y) {
-    return this.setImage(this._outs[0].cropY(h, y));
+    return this.setImage(this._cutouts[0].cropY(h, y));
+};
+
+Cut.Image.prototype._slice = function(i) {
+    return this._cutouts[i] || (this._cutouts[i] = this._cutout.clone());
 };
 
 Cut.Image.prototype.tile = function(inner) {
-    if (this._tileTicker) {
-        return this;
-    }
-    var base = null;
-    var self = this;
-    function slice(c) {
-        return self._outs[c] || (self._outs[c] = base.clone());
-    }
-    this._tileTicker = function() {
+    this.untick(this._repeatTicker);
+    this._repeatTicker = function() {
         if (this._mo_tile == this._ts_touch) {
             return;
         }
         this._mo_tile = this._ts_touch;
-        base = base || this._outs[0].clone();
-        var bleft = base._left, bright = base._right;
-        var btop = base._top, bbottom = base._bottom;
-        var bwidth = base.dWidth() - bleft - bright;
-        var bheight = base.dHeight() - btop - bbottom;
+        var bleft = this._cutout._left, bright = this._cutout._right;
+        var btop = this._cutout._top, bbottom = this._cutout._bottom;
+        var bwidth = this._cutout.dWidth() - bleft - bright;
+        var bheight = this._cutout.dHeight() - btop - bbottom;
         var width = this.pin("width");
         width = inner ? width : width - bleft - bright;
         var height = this.pin("height");
@@ -697,16 +684,16 @@ Cut.Image.prototype.tile = function(inner) {
         var top = inner ? -btop : 0;
         var c = 0;
         if (btop && bleft) {
-            slice(c++).cropX(bleft, 0).cropY(btop, 0).offset(left, top);
+            this._slice(c++).cropX(bleft, 0).cropY(btop, 0).offset(left, top);
         }
         if (bbottom && bleft) {
-            slice(c++).cropX(bleft, 0).cropY(bbottom, bheight + btop).offset(left, top + height + btop);
+            this._slice(c++).cropX(bleft, 0).cropY(bbottom, bheight + btop).offset(left, top + height + btop);
         }
         if (btop && bright) {
-            slice(c++).cropX(bright, bwidth + bleft).cropY(btop, 0).offset(left + width + bleft, top);
+            this._slice(c++).cropX(bright, bwidth + bleft).cropY(btop, 0).offset(left + width + bleft, top);
         }
         if (bbottom && bright) {
-            slice(c++).cropX(bright, bwidth + bleft).cropY(bbottom, bheight + btop).offset(left + width + bleft, top + height + btop);
+            this._slice(c++).cropX(bright, bwidth + bleft).cropY(bbottom, bheight + btop).offset(left + width + bleft, top + height + btop);
         }
         var x = left + bleft;
         var r = width;
@@ -718,86 +705,78 @@ Cut.Image.prototype.tile = function(inner) {
             while (b > 0) {
                 var h = Math.min(bheight, b);
                 b -= bheight;
-                slice(c++).cropX(w, bleft).cropY(h, btop).offset(x, y);
+                this._slice(c++).cropX(w, bleft).cropY(h, btop).offset(x, y);
                 if (r <= 0) {
                     if (bleft) {
-                        slice(c++).cropX(bleft, 0).cropY(h, btop).offset(left, y);
+                        this._slice(c++).cropX(bleft, 0).cropY(h, btop).offset(left, y);
                     }
                     if (bright) {
-                        slice(c++).cropX(bright, bwidth + bleft).cropY(h, btop).offset(x + w, y);
+                        this._slice(c++).cropX(bright, bwidth + bleft).cropY(h, btop).offset(x + w, y);
                     }
                 }
                 y += h;
             }
             if (btop) {
-                slice(c++).cropX(w, bleft).cropY(btop, 0).offset(x, top);
+                this._slice(c++).cropX(w, bleft).cropY(btop, 0).offset(x, top);
             }
             if (bbottom) {
-                slice(c++).cropX(w, bleft).cropY(bbottom, bheight + btop).offset(x, y);
+                this._slice(c++).cropX(w, bleft).cropY(bbottom, bheight + btop).offset(x, y);
             }
             x += w;
         }
-        this._outs.length = c;
+        this._cutouts.length = c;
     };
-    this.tick(this._tileTicker);
+    this.tick(this._repeatTicker);
     return this;
 };
 
 Cut.Image.prototype.stretch = function(inner) {
-    if (this._stretchTicker) {
-        return this;
-    }
-    var base = null;
-    var self = this;
-    function slice(c) {
-        return self._outs[c] || (self._outs[c] = base.clone());
-    }
-    this._stretchTicker = function() {
+    this.untick(this._repeatTicker);
+    this._repeatTicker = function() {
         if (this._mo_stretch == this._pin._ts_transform) {
             return;
         }
         this._mo_stretch = this._pin._ts_transform;
-        base = base || this._outs[0].clone();
-        var oleft = base._left, oright = base._right;
-        var otop = base._top, obottom = base._bottom;
-        var owidth = base.dWidth(), oheight = base.dHeight();
+        var oleft = this._cutout._left, oright = this._cutout._right;
+        var otop = this._cutout._top, obottom = this._cutout._bottom;
+        var owidth = this._cutout.dWidth(), oheight = this._cutout.dHeight();
         var width = this.pin("width"), height = this.pin("height");
         width = inner ? width + oleft + oright : Math.max(width, oleft + oright);
         height = inner ? height + otop + obottom : Math.max(height, otop + obottom);
         var c = 0;
         if (otop && oleft) {
-            slice(c++).cropX(oleft, 0).cropY(otop, 0).offset(0, 0);
+            this._slice(c++).cropX(oleft, 0).cropY(otop, 0).offset(0, 0);
         }
         if (obottom && oleft) {
-            slice(c++).cropX(oleft, 0).cropY(obottom, oheight - obottom).offset(0, height - obottom);
+            this._slice(c++).cropX(oleft, 0).cropY(obottom, oheight - obottom).offset(0, height - obottom);
         }
         if (otop && oright) {
-            slice(c++).cropX(oright, owidth - oright).cropY(otop, 0).offset(width - oright, 0);
+            this._slice(c++).cropX(oright, owidth - oright).cropY(otop, 0).offset(width - oright, 0);
         }
         if (obottom && oright) {
-            slice(c++).cropX(oright, owidth - oright).cropY(obottom, oheight - obottom).offset(width - oright, height - obottom);
+            this._slice(c++).cropX(oright, owidth - oright).cropY(obottom, oheight - obottom).offset(width - oright, height - obottom);
         }
         if (otop) {
-            slice(c++).cropX(owidth - oleft - oright, oleft).cropY(otop, 0).offset(oleft, 0).dWidth(width - oleft - oright);
+            this._slice(c++).cropX(owidth - oleft - oright, oleft).cropY(otop, 0).offset(oleft, 0).dWidth(width - oleft - oright);
         }
         if (obottom) {
-            slice(c++).cropX(owidth - oleft - oright, oleft).cropY(obottom, oheight - obottom).offset(oleft, height - obottom).dWidth(width - oleft - oright);
+            this._slice(c++).cropX(owidth - oleft - oright, oleft).cropY(obottom, oheight - obottom).offset(oleft, height - obottom).dWidth(width - oleft - oright);
         }
         if (oleft) {
-            slice(c++).cropX(oleft, 0).cropY(oheight - otop - obottom, otop).offset(0, otop).dHeight(height - otop - obottom);
+            this._slice(c++).cropX(oleft, 0).cropY(oheight - otop - obottom, otop).offset(0, otop).dHeight(height - otop - obottom);
         }
         if (oright) {
-            slice(c++).cropX(oright, owidth - oright).cropY(oheight - otop - obottom, otop).offset(width - oright, otop).dHeight(height - otop - obottom);
+            this._slice(c++).cropX(oright, owidth - oright).cropY(oheight - otop - obottom, otop).offset(width - oright, otop).dHeight(height - otop - obottom);
         }
-        slice(c++).cropX(owidth - oleft - oright, oleft).cropY(oheight - otop - obottom, otop).offset(oleft, otop).dWidth(width - oleft - oright).dHeight(height - otop - obottom);
-        this._outs.length = c;
+        this._slice(c++).cropX(owidth - oleft - oright, oleft).cropY(oheight - otop - obottom, otop).offset(oleft, otop).dWidth(width - oleft - oright).dHeight(height - otop - obottom);
+        this._cutouts.length = c;
     };
-    this.tick(this._stretchTicker);
+    this.tick(this._repeatTicker);
     return this;
 };
 
-Cut.anim = function(cutouts, fps) {
-    var anim = new Cut.Anim().setFrames(cutouts).gotoFrame(0);
+Cut.anim = function(frames, fps) {
+    var anim = new Cut.Anim().setFrames(frames).gotoFrame(0);
     fps && anim.fps(fps);
     return anim;
 };
@@ -844,15 +823,15 @@ Cut.Anim.prototype.fps = function(fps) {
     return this;
 };
 
-Cut.Anim.prototype.setFrames = function(cutouts) {
+Cut.Anim.prototype.setFrames = function(frames) {
     this._time = this._time || 0;
     this._frame = 0;
     this._frames = [];
     this._labels = {};
-    cutouts = Cut.Out.select(cutouts, true);
-    if (cutouts && cutouts.length) {
-        for (var i = 0; i < cutouts.length; i++) {
-            var cutout = cutouts[i];
+    frames = Cut.Out.select(frames, true);
+    if (frames && frames.length) {
+        for (var i = 0; i < frames.length; i++) {
+            var cutout = frames[i];
             this._frames.push(cutout);
             this._labels[cutout.name] = i;
         }
@@ -867,12 +846,12 @@ Cut.Anim.prototype.length = function() {
 Cut.Anim.prototype.gotoFrame = function(frame, resize) {
     frame = Cut.Math.rotate(frame, this._frames.length) | 0;
     this._frame = frame;
-    resize = resize || !this._outs[0];
-    this._outs[0] = this._frames[this._frame];
+    resize = resize || !this._cutouts[0];
+    this._cutouts[0] = this._frames[this._frame];
     if (resize) {
         this.pin({
-            width: this._outs[0].dWidth(),
-            height: this._outs[0].dHeight()
+            width: this._cutouts[0].dWidth(),
+            height: this._cutouts[0].dHeight()
         });
     }
     this._ts_frame = Cut._TS++;
@@ -913,8 +892,8 @@ Cut.Anim.prototype.stop = function(frame) {
     return this;
 };
 
-Cut.string = function(selector) {
-    return new Cut.String().setFont(selector);
+Cut.string = function(font) {
+    return new Cut.String().setFont(font);
 };
 
 Cut.String = function() {
@@ -928,8 +907,14 @@ Cut.String.prototype._super = Cut;
 
 Cut.String.prototype.constructor = Cut.String;
 
-Cut.String.prototype.setFont = function(selector) {
-    this._font = selector;
+Cut.String.prototype.setFont = function(font) {
+    if (typeof font == "string") {
+        this._font = function(value) {
+            return font + value;
+        };
+    } else if (Cut._isFunc(font)) {
+        this._font = font;
+    }
     return this;
 };
 
@@ -941,7 +926,7 @@ Cut.String.prototype.setValue = function(value) {
     }
     var child = this._first;
     for (var i = 0; i < value.length; i++) {
-        var selector = this._font + value[i];
+        var selector = this._font(value[i]);
         if (child) {
             child.setImage(selector).show();
         } else {
@@ -961,9 +946,7 @@ Cut.row = function(align) {
 };
 
 Cut.prototype.row = function(align) {
-    this.sequence("row").pinChildren({
-        alignY: align
-    });
+    this.sequence("row", align);
     return this;
 };
 
@@ -972,19 +955,17 @@ Cut.column = function(align) {
 };
 
 Cut.prototype.column = function(align) {
-    this.sequence("column").pinChildren({
-        alignX: align
-    });
+    this.sequence("column", align);
     return this;
 };
 
-Cut.sequence = function(type) {
-    return new Cut.create().sequence();
+Cut.sequence = function(type, align) {
+    return new Cut.create().sequence(type, align);
 };
 
-Cut.prototype.sequence = function(type) {
-    if (this._seqTicker) return this;
-    this._seqTicker = function() {
+Cut.prototype.sequence = function(type, align) {
+    this.untick(this._layoutTicker);
+    this._layoutTicker = function() {
         if (this._mo_seq == this._ts_touch) {
             return;
         }
@@ -1002,11 +983,13 @@ Cut.prototype.sequence = function(type) {
                 child.pin("offsetY") != height && child.pin("offsetY", height);
                 width = Math.max(width, w);
                 height = height + h;
+                child.pin("alignX") != align && child.pin("alignX", align);
             } else if (type == "row") {
                 !first && (width += this._spacing || 0);
                 child.pin("offsetX") != width && child.pin("offsetX", width);
                 width = width + w;
                 height = Math.max(height, h);
+                child.pin("alignY") != align && child.pin("alignY", align);
             }
             first = false;
         }
@@ -1015,7 +998,7 @@ Cut.prototype.sequence = function(type) {
         this.pin("width") != width && this.pin("width", width);
         this.pin("height") != height && this.pin("height", height);
     };
-    this.tick(this._seqTicker);
+    this.tick(this._layoutTicker);
     return this;
 };
 
@@ -1023,7 +1006,7 @@ Cut.box = function() {
     return new Cut.create().box();
 };
 
-Cut.prototype.box = function(type) {
+Cut.prototype.box = function() {
     if (this._boxTicker) return this;
     this._boxTicker = function() {
         if (this._mo_box == this._ts_touch) {
