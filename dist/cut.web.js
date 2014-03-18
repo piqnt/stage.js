@@ -365,6 +365,7 @@ Cut.prototype.insertBefore = function(next) {
     this._next = next;
     this._ts_parent = Cut._TS++;
     this.touch();
+    return this;
 };
 
 Cut.prototype.insertAfter = function(prev) {
@@ -384,6 +385,7 @@ Cut.prototype.insertAfter = function(prev) {
     this._next = next;
     this._ts_parent = Cut._TS++;
     this.touch();
+    return this;
 };
 
 Cut.prototype.remove = function() {
@@ -970,6 +972,8 @@ Cut.prototype.sequence = function(type, align) {
             return;
         }
         this._mo_seq = this._ts_touch;
+        var alignChildren = this._mo_seqAlign != this._ts_children;
+        this._mo_seqAlign = this._ts_children;
         var width = 0, height = 0;
         var child, next = this.first(true);
         var first = true;
@@ -983,13 +987,13 @@ Cut.prototype.sequence = function(type, align) {
                 child.pin("offsetY") != height && child.pin("offsetY", height);
                 width = Math.max(width, w);
                 height = height + h;
-                child.pin("alignX") != align && child.pin("alignX", align);
+                alignChildren && child.pin("alignX", align);
             } else if (type == "row") {
                 !first && (width += this._spacing || 0);
                 child.pin("offsetX") != width && child.pin("offsetX", width);
                 width = width + w;
                 height = Math.max(height, h);
-                child.pin("alignY") != align && child.pin("alignY", align);
+                alignChildren && child.pin("alignY", align);
             }
             first = false;
         }
