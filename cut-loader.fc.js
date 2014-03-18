@@ -14,14 +14,14 @@ DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 window.addEventListener("load", function() {
   DEBUG && console.log("On load.");
   // device ready not called; must be in a browser
-  var readyTimeout = setTimeout(function() {
-    DEBUG && console.log("On deviceready timeout.");
-    Cut.Loader.start();
-  }, 2000);
+  // var readyTimeout = setTimeout(function() {
+  //   DEBUG && console.log("On deviceready timeout.");
+  //   Cut.Loader.start();
+  // }, 2000);
 
   document.addEventListener("deviceready", function() {
     DEBUG && console.log("On deviceready.");
-    clearTimeout(readyTimeout);
+    // clearTimeout(readyTimeout);
     Cut.Loader.start();
   }, false);
 
