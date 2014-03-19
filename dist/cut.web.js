@@ -1331,8 +1331,6 @@ Cut.Pin = function(owner) {
     this.reset();
 };
 
-Cut.Pin._EMPTY = {};
-
 Cut.Pin.prototype.reset = function() {
     this._textureAlpha = 1;
     this._alpha = 1;
@@ -1341,7 +1339,7 @@ Cut.Pin.prototype.reset = function() {
     this._scaleX = 1;
     this._scaleY = 1;
     this._skewX = 0;
-    this._skewX = 0;
+    this._skewY = 0;
     this._rotation = 0;
     this._pivoted = false;
     this._pivotX = null;
@@ -1405,8 +1403,8 @@ Cut.Pin.prototype.relativeMatrix = function() {
         rel.translate(-this._pivotX * this._width, -this._pivotY * this._height);
     }
     rel.scale(this._scaleX, this._scaleY);
+    rel.skew(this._skewX, this._skewY);
     rel.rotate(this._rotation);
-    rel.skew(this._skewX, this._skewX);
     if (this._pivoted) {
         rel.translate(this._pivotX * this._width, this._pivotY * this._height);
     }
@@ -1455,38 +1453,31 @@ Cut.Pin.prototype.relativeMatrix = function() {
     return this._relativeMatrix;
 };
 
+Cut.Pin._SINGLE = {};
+
 Cut.Pin.prototype.update = function() {
     if (arguments.length == 1 && typeof arguments[0] === "string") {
         return this["_" + arguments[0]];
     }
     this._transform_flag = false;
     this._translate_flag = false;
-    if (arguments.length == 1 && typeof arguments[0] === "object") {
-        var set = arguments[0], key, value;
-        for (key in set) {
-            if (!Cut.Pin._setters[key] && !Cut.Pin._setters2[key]) {}
+    var pin = null, key = null, value = null;
+    if (arguments.length == 2 && typeof arguments[0] === "string") {
+        for (key in Cut.Pin._SINGLE) {
+            delete Cut.Pin._SINGLE[key];
         }
-        ctx = Cut.Pin._setters;
-        for (key in set) {
-            value = set[key];
-            if (setter = ctx[key]) {
-                (value || value === 0) && setter.call(ctx, this, value, set);
+        (pin = Cut.Pin._SINGLE)[arguments[0]] = arguments[1];
+    } else if (arguments.length == 1 && typeof arguments[0] === "object") {
+        pin = arguments[0];
+    }
+    if (pin) {
+        for (key in pin) {
+            if (typeof (value = pin[key]) !== "undefined") {
+                if (setter = Cut.Pin._setters[key]) {
+                    setter.call(Cut.Pin._setters, this, value, pin);
+                }
             }
         }
-        ctx = Cut.Pin._setters2;
-        for (key in set) {
-            value = set[key];
-            if (setter = ctx[key]) {
-                (value || value === 0) && setter.call(ctx, this, value, set);
-            }
-        }
-    } else if (arguments.length == 2 && typeof arguments[0] === "string") {
-        var key = arguments[0], value = arguments[1];
-        if ((ctx = Cut.Pin._setters) && (setter = ctx[key])) {
-            (value || value === 0) && setter.call(ctx, this, value, Cut.Pin._EMPTY);
-        } else if ((ctx = Cut.Pin._setters2) && (setter = ctx[key])) {
-            (value || value === 0) && setter.call(ctx, this, value, Cut.Pin._EMPTY);
-        } else {}
     }
     if (this._translate_flag) {
         this._translate_flag = false;
@@ -1608,10 +1599,7 @@ Cut.Pin._setters = {
         pin._handleY = value;
         pin._handled = true;
         pin._translate_flag = true;
-    }
-};
-
-Cut.Pin._setters2 = {
+    },
     resizeMode: function(pin, value, set) {
         if (Cut._isNum(set.resizeWidth) && Cut._isNum(set.resizeHeight)) {
             this.resizeWidth(pin, set.resizeWidth, set, true);
@@ -1665,6 +1653,15 @@ Cut.Pin._setters2 = {
         }
         pin._scaleY = value / pin._height_;
         pin._transform_flag = true;
+    },
+    matrix: function(pin, value, set) {
+        this.scaleX(pin, value.a, set);
+        this.skewX(pin, value.c / value.d, set);
+        this.skewY(pin, value.b / value.a, set);
+        this.scaleY(pin, value.d, set);
+        this.offsetX(pin, value.tx, set);
+        this.offsetY(pin, value.ty, set);
+        this.rotation(pin, 0, set);
     }
 };
 
@@ -1759,28 +1756,38 @@ Cut.Matrix.prototype.scale = function(x, y) {
     return this;
 };
 
-Cut.Matrix.prototype.skew = function(b, c) {
-    if (!b && !c) {
+Cut.Matrix.prototype.skew = function(x, y) {
+    if (!x && !y) {
         return this;
     }
     this.changed = true;
-    this.a += this.b * c;
-    this.d += this.c * b;
-    this.b += this.a * b;
-    this.c += this.d * c;
-    this.tx += this.ty * c;
-    this.ty += this.tx * b;
+    var a = this.a + this.b * x;
+    var b = this.b + this.a * y;
+    var c = this.c + this.d * x;
+    var d = this.d + this.c * y;
+    var tx = this.tx + this.ty * x;
+    var ty = this.ty + this.tx * y;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.tx = tx;
+    this.ty = ty;
     return this;
 };
 
-Cut.Matrix.prototype.concat = function(m) {
+Cut.Matrix.prototype.concat = function(m, reverse) {
     this.changed = true;
-    var a = this.a * m.a + this.b * m.c;
-    var b = this.b * m.d + this.a * m.b;
-    var c = this.c * m.a + this.d * m.c;
-    var d = this.d * m.d + this.c * m.b;
-    var tx = this.tx * m.a + m.tx + this.ty * m.c;
-    var ty = this.ty * m.d + m.ty + this.tx * m.b;
+    var n = this;
+    if (reverse) {
+        n = m, m = this;
+    }
+    var a = n.a * m.a + n.b * m.c;
+    var b = n.b * m.d + n.a * m.b;
+    var c = n.c * m.a + n.d * m.c;
+    var d = n.d * m.d + n.c * m.b;
+    var tx = n.tx * m.a + m.tx + n.ty * m.c;
+    var ty = n.ty * m.d + m.ty + n.tx * m.b;
     this.a = a;
     this.b = b;
     this.c = c;
