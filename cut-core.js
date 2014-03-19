@@ -1729,15 +1729,13 @@ Cut.Pin.prototype.update = function() {
     pin = arguments[0];
   }
 
-  // TODO: map setter2 keys to setter keys
+  // TODO: map write only keys to read/write keys
 
   if (pin) {
     for (key in pin) {
       if (typeof (value = pin[key]) !== "undefined") {
         if (setter = Cut.Pin._setters[key]) {
           setter.call(Cut.Pin._setters, this, value, pin);
-        } else if (setter = Cut.Pin._setters2[key]) {
-          setter.call(Cut.Pin._setters2, this, value, pin);
         }
       }
     }
@@ -1889,11 +1887,7 @@ Cut.Pin._setters = {
     pin._handleY = value;
     pin._handled = true;
     pin._translate_flag = true;
-  }
-
-};
-
-Cut.Pin._setters2 = {
+  },
 
   resizeMode : function(pin, value, set) {
     if (Cut._isNum(set.resizeWidth) && Cut._isNum(set.resizeHeight)) {
@@ -1953,6 +1947,15 @@ Cut.Pin._setters2 = {
     }
     pin._scaleY = value / pin._height_;
     pin._transform_flag = true;
+  },
+
+  matrix : function(pin, value, set) {
+    this.scaleX(pin, value.a, set);
+    this.skewX(pin, value.c / value.d, set);
+    this.skewY(pin, value.b / value.a, set);
+    this.scaleY(pin, value.d, set);
+    this.offsetX(pin, value.tx, set);
+    this.offsetY(pin, value.ty, set);
   }
 };
 
