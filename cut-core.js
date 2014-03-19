@@ -132,7 +132,7 @@ Cut.prototype._paint = function(context) {
   }
   Cut._stats.paint++;
 
-  var m = this.matrix();
+  var m = this._pin.absoluteMatrix();
   context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
 
   this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
@@ -496,11 +496,6 @@ Cut.prototype.pin = function() {
   }
   var obj = this._pin.update.apply(this._pin, arguments);
   return obj === this._pin ? this : obj;
-};
-
-Cut.prototype.matrix = function() {
-  return this._pin
-      .absoluteMatrix(this, this._parent ? this._parent._pin : null);
 };
 
 Cut.prototype.tween = function(duration, delay) {
