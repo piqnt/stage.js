@@ -1647,8 +1647,8 @@ Cut.Pin.prototype.relativeMatrix = function() {
     rel.translate(-this._pivotX * this._width, -this._pivotY * this._height);
   }
   rel.scale(this._scaleX, this._scaleY);
-  rel.rotate(this._rotation);
   rel.skew(this._skewX, this._skewY);
+  rel.rotate(this._rotation);
   if (this._pivoted) {
     rel.translate(this._pivotX * this._width, this._pivotY * this._height);
   }
@@ -1956,6 +1956,7 @@ Cut.Pin._setters = {
     this.scaleY(pin, value.d, set);
     this.offsetX(pin, value.tx, set);
     this.offsetY(pin, value.ty, set);
+    this.rotation(pin, 0, set);
   }
 };
 
