@@ -115,8 +115,8 @@ Cut.prototype._paint = function(context) {
         return;
     }
     Cut._stats.paint++;
-    var m = this.matrix();
-    context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
+    var m = this._pin.absoluteMatrix();
+    context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
     this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
     var alpha = this._pin._textureAlpha * this._alpha;
     if (context.globalAlpha != alpha) {
@@ -445,10 +445,6 @@ Cut.prototype.pin = function() {
     }
     var obj = this._pin.update.apply(this._pin, arguments);
     return obj === this._pin ? this : obj;
-};
-
-Cut.prototype.matrix = function() {
-    return this._pin.absoluteMatrix(this, this._parent ? this._parent._pin : null);
 };
 
 Cut.prototype.tween = function(duration, delay) {
@@ -1659,28 +1655,28 @@ Cut.Pin._setters = {
         this.skewX(pin, value.c / value.d, set);
         this.skewY(pin, value.b / value.a, set);
         this.scaleY(pin, value.d, set);
-        this.offsetX(pin, value.tx, set);
-        this.offsetY(pin, value.ty, set);
+        this.offsetX(pin, value.e, set);
+        this.offsetY(pin, value.f, set);
         this.rotation(pin, 0, set);
     }
 };
 
-Cut.Matrix = function(a, b, c, d, tx, ty) {
+Cut.Matrix = function(a, b, c, d, e, f) {
     this.changed = true;
     this.a = a || 1;
     this.b = b || 0;
     this.c = c || 0;
     this.d = d || 1;
-    this.tx = tx || 0;
-    this.ty = ty || 0;
+    this.e = e || 0;
+    this.f = f || 0;
 };
 
 Cut.Matrix.prototype.toString = function() {
-    return "[" + this.a + ", " + this.b + ", " + this.c + ", " + this.d + ", " + this.tx + ", " + this.ty + "]";
+    return "[" + this.a + ", " + this.b + ", " + this.c + ", " + this.d + ", " + this.e + ", " + this.f + "]";
 };
 
 Cut.Matrix.prototype.clone = function() {
-    return new Cut.Matrix(this.a, this.b, this.c, this.d, this.tx, this.ty);
+    return new Cut.Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
 };
 
 Cut.Matrix.prototype.copyTo = function(m) {
@@ -1694,8 +1690,8 @@ Cut.Matrix.prototype.copyFrom = function(m) {
     this.b = m.b;
     this.c = m.c;
     this.d = m.d;
-    this.tx = m.tx;
-    this.ty = m.ty;
+    this.e = m.e;
+    this.f = m.f;
     return this;
 };
 
@@ -1705,8 +1701,8 @@ Cut.Matrix.prototype.identity = function() {
     this.b = 0;
     this.c = 0;
     this.d = 1;
-    this.tx = 0;
-    this.ty = 0;
+    this.e = 0;
+    this.f = 0;
     return this;
 };
 
@@ -1721,14 +1717,14 @@ Cut.Matrix.prototype.rotate = function(angle) {
     var b = u * this.b + v * this.a;
     var c = u * this.c - v * this.d;
     var d = u * this.d + v * this.c;
-    var tx = u * this.tx - v * this.ty;
-    var ty = u * this.ty + v * this.tx;
+    var e = u * this.e - v * this.f;
+    var f = u * this.f + v * this.e;
     this.a = a;
     this.b = b;
     this.c = c;
     this.d = d;
-    this.tx = tx;
-    this.ty = ty;
+    this.e = e;
+    this.f = f;
     return this;
 };
 
@@ -1737,8 +1733,8 @@ Cut.Matrix.prototype.translate = function(x, y) {
         return this;
     }
     this.changed = true;
-    this.tx += x;
-    this.ty += y;
+    this.e += x;
+    this.f += y;
     return this;
 };
 
@@ -1751,8 +1747,8 @@ Cut.Matrix.prototype.scale = function(x, y) {
     this.b *= y;
     this.c *= x;
     this.d *= y;
-    this.tx *= x;
-    this.ty *= y;
+    this.e *= x;
+    this.f *= y;
     return this;
 };
 
@@ -1765,35 +1761,32 @@ Cut.Matrix.prototype.skew = function(x, y) {
     var b = this.b + this.a * y;
     var c = this.c + this.d * x;
     var d = this.d + this.c * y;
-    var tx = this.tx + this.ty * x;
-    var ty = this.ty + this.tx * y;
+    var e = this.e + this.f * x;
+    var f = this.f + this.e * y;
     this.a = a;
     this.b = b;
     this.c = c;
     this.d = d;
-    this.tx = tx;
-    this.ty = ty;
+    this.e = e;
+    this.f = f;
     return this;
 };
 
-Cut.Matrix.prototype.concat = function(m, reverse) {
+Cut.Matrix.prototype.concat = function(m) {
     this.changed = true;
     var n = this;
-    if (reverse) {
-        n = m, m = this;
-    }
     var a = n.a * m.a + n.b * m.c;
     var b = n.b * m.d + n.a * m.b;
     var c = n.c * m.a + n.d * m.c;
     var d = n.d * m.d + n.c * m.b;
-    var tx = n.tx * m.a + m.tx + n.ty * m.c;
-    var ty = n.ty * m.d + m.ty + n.tx * m.b;
+    var e = n.e * m.a + m.e + n.f * m.c;
+    var f = n.f * m.d + m.f + n.e * m.b;
     this.a = a;
     this.b = b;
     this.c = c;
     this.d = d;
-    this.tx = tx;
-    this.ty = ty;
+    this.e = e;
+    this.f = f;
     return this;
 };
 
@@ -1806,25 +1799,25 @@ Cut.Matrix.prototype.reverse = function() {
         this.reversed.b = -this.b / z;
         this.reversed.c = -this.c / z;
         this.reversed.d = this.a / z;
-        this.reversed.tx = (this.c * this.ty - this.tx * this.d) / z;
-        this.reversed.ty = (this.tx * this.b - this.a * this.ty) / z;
+        this.reversed.e = (this.c * this.f - this.e * this.d) / z;
+        this.reversed.f = (this.e * this.b - this.a * this.f) / z;
     }
     return this.reversed;
 };
 
 Cut.Matrix.prototype.map = function(p, q) {
     q = q || {};
-    q.x = this.a * p.x + this.c * p.y + this.tx;
-    q.y = this.b * p.x + this.d * p.y + this.ty;
+    q.x = this.a * p.x + this.c * p.y + this.e;
+    q.y = this.b * p.x + this.d * p.y + this.f;
     return q;
 };
 
 Cut.Matrix.prototype.mapX = function(x, y) {
-    return this.a * x + this.c * y + this.tx;
+    return this.a * x + this.c * y + this.e;
 };
 
 Cut.Matrix.prototype.mapY = function(x, y) {
-    return this.b * x + this.d * y + this.ty;
+    return this.b * x + this.d * y + this.f;
 };
 
 Cut.Math = {};
