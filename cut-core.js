@@ -1561,7 +1561,7 @@ Cut.Pin.prototype.reset = function() {
   this._scaleX = 1;
   this._scaleY = 1;
   this._skewX = 0;
-  this._skewX = 0;
+  this._skewY = 0;
   this._rotation = 0;
 
   // scale/skew/rotate center
@@ -1650,7 +1650,7 @@ Cut.Pin.prototype.relativeMatrix = function() {
   }
   rel.scale(this._scaleX, this._scaleY);
   rel.rotate(this._rotation);
-  rel.skew(this._skewX, this._skewX);
+  rel.skew(this._skewX, this._skewY);
   if (this._pivoted) {
     rel.translate(this._pivotX * this._width, this._pivotY * this._height);
   }
@@ -2066,29 +2066,42 @@ Cut.Matrix.prototype.scale = function(x, y) {
   return this;
 };
 
-Cut.Matrix.prototype.skew = function(b, c) {
-  if (!b && !c) {
+Cut.Matrix.prototype.skew = function(x, y) {
+  if (!x && !y) {
     return this;
   }
   this.changed = true;
-  this.a += this.b * c;
-  this.d += this.c * b;
-  this.b += this.a * b;
-  this.c += this.d * c;
-  this.tx += this.ty * c;
-  this.ty += this.tx * b;
+
+  var a = this.a + this.b * x;
+  var b = this.b + this.a * y;
+  var c = this.c + this.d * x;
+  var d = this.d + this.c * y;
+  var tx = this.tx + this.ty * x;
+  var ty = this.ty + this.tx * y;
+
+  this.a = a;
+  this.b = b;
+  this.c = c;
+  this.d = d;
+  this.tx = tx;
+  this.ty = ty;
   return this;
 };
 
-Cut.Matrix.prototype.concat = function(m) {
+Cut.Matrix.prototype.concat = function(m, reverse) {
   this.changed = true;
 
-  var a = this.a * m.a + this.b * m.c;
-  var b = this.b * m.d + this.a * m.b;
-  var c = this.c * m.a + this.d * m.c;
-  var d = this.d * m.d + this.c * m.b;
-  var tx = this.tx * m.a + m.tx + this.ty * m.c;
-  var ty = this.ty * m.d + m.ty + this.tx * m.b;
+  var n = this;
+  if (reverse) {
+    n = m, m = this;
+  }
+
+  var a = n.a * m.a + n.b * m.c;
+  var b = n.b * m.d + n.a * m.b;
+  var c = n.c * m.a + n.d * m.c;
+  var d = n.d * m.d + n.c * m.b;
+  var tx = n.tx * m.a + m.tx + n.ty * m.c;
+  var ty = n.ty * m.d + m.ty + n.tx * m.b;
 
   this.a = a;
   this.b = b;
