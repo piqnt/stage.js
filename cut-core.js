@@ -1548,8 +1548,6 @@ Cut.Pin = function(owner) {
   this.reset();
 };
 
-Cut.Pin._EMPTY = {};
-
 Cut.Pin.prototype.reset = function() {
 
   this._textureAlpha = 1;
@@ -1708,6 +1706,8 @@ Cut.Pin.prototype.relativeMatrix = function() {
   return this._relativeMatrix;
 };
 
+Cut.Pin._SINGLE = {};
+
 Cut.Pin.prototype.update = function() {
 
   if (arguments.length == 1 && typeof arguments[0] === "string") {
@@ -1717,41 +1717,29 @@ Cut.Pin.prototype.update = function() {
   this._transform_flag = false;
   this._translate_flag = false;
 
-  if (arguments.length == 1 && typeof arguments[0] === "object") {
-    var set = arguments[0], key, value;
-    for (key in set) {
-      if (!Cut.Pin._setters[key] && !Cut.Pin._setters2[key]) {
-        // DEBUG && console.log("Invalid pin: " + key + "/" + set[key]);
-      }
+  var pin = null, key = null, value = null;
+
+  if (arguments.length == 2 && typeof arguments[0] === "string") {
+    for (key in Cut.Pin._SINGLE) {
+      delete Cut.Pin._SINGLE[key];
     }
+    (pin = Cut.Pin._SINGLE)[arguments[0]] = arguments[1];
 
-    ctx = Cut.Pin._setters;
-    for (key in set) {
-      value = set[key];
-      if (setter = ctx[key]) {
-        (value || value === 0) && setter.call(ctx, this, value, set);
+  } else if (arguments.length == 1 && typeof arguments[0] === "object") {
+    pin = arguments[0];
+  }
+
+  // TODO: map setter2 keys to setter keys
+
+  if (pin) {
+    for (key in pin) {
+      if (typeof (value = pin[key]) !== "undefined") {
+        if (setter = Cut.Pin._setters[key]) {
+          setter.call(Cut.Pin._setters, this, value, pin);
+        } else if (setter = Cut.Pin._setters2[key]) {
+          setter.call(Cut.Pin._setters2, this, value, pin);
+        }
       }
-    }
-
-    ctx = Cut.Pin._setters2;
-    for (key in set) {
-      value = set[key];
-      if (setter = ctx[key]) {
-        (value || value === 0) && setter.call(ctx, this, value, set);
-      }
-    }
-
-  } else if (arguments.length == 2 && typeof arguments[0] === "string") {
-    var key = arguments[0], value = arguments[1];
-
-    if ((ctx = Cut.Pin._setters) && (setter = ctx[key])) {
-      (value || value === 0) && setter.call(ctx, this, value, Cut.Pin._EMPTY);
-
-    } else if ((ctx = Cut.Pin._setters2) && (setter = ctx[key])) {
-      (value || value === 0) && setter.call(ctx, this, value, Cut.Pin._EMPTY);
-
-    } else {
-      // DEBUG && console.log("Invalid pin: " + key + "/" + value);
     }
   }
 
