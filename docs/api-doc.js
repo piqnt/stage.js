@@ -133,26 +133,44 @@ foo.publish(type, args);
 bar.pin(name);
 // Set a pinning value.
 bar.pin(name, value);
-
 // Set one or more pinning values.
-// If `nameX` equals `nameY`, `name` shorthand can be used instead.
-// For width/height ratio 0 is top/left and 1 is bottom/right.
+bar.pin({
+  name : value
+});
+
+// Transparency
 bar.pin({
   // Transparency applied to self and children.
   alpha : 1,
   // Transparency applied only to self textures.
-  textureAlpha : 1,
+  textureAlpha : 1
+});
+
+// When `nameX` equals `nameY`, `name` shorthand can be used instead.
+
+// Transformation
+// `rotation` is applied after scale and skew
+bar.pin({
   scaleX : 1,
   scaleY : 1,
   skewX : 0,
   skewY : 0,
-  rotation : 0,
-  // Relative location on self used as scale/skew/rotation center.
-  pivotX : 0,
-  pivotY : 0,
-  // Automatically are set depending on node type.
+  rotation : 0
+});
+
+// Size
+// Usually are set automatically depending on node type.
+bar.pin({
   height : height,
   width : width,
+});
+
+// Positioning
+// For width/height ratio 0 is top/left and 1 is bottom/right.
+bar.pin({
+  // Relative location on self used as scale/skew/rotation center. See handle.
+  pivotX : 0,
+  pivotY : 0,
   // Pin point on parent used for positioning, as ratio of parent width/height.
   alignX : 0,
   alignY : 0,
@@ -165,7 +183,7 @@ bar.pin({
   offsetY : 0,
 });
 
-// Scale to width/height.
+// Scale to new width/height.
 // Optionally use "in" and "out" as mode to scale proportionally.
 bar.pin({
   scaleMode : mode,
@@ -173,7 +191,7 @@ bar.pin({
   scaleHeight : height,
 });
 
-// Scale to width/height and then resize to fill width/height.
+// Scale to new width/height and then resize to fill width/height.
 // Optionally use "in" and "out" as mode to scale proportionally.
 bar.pin({
   resizeMode : mode,
