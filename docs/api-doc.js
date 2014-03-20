@@ -326,7 +326,6 @@ string.setFont(function(charOrItem) {
 // Image cutouts are used to refrence graphics to be painted.
 
 // Cutouts are usually added to an app by adding textures.
-// It shoul be outside app block.
 Cut.addTexture(texture = {
   name : textureName,
   imagePath : textureImagePath,
@@ -343,13 +342,13 @@ Cut.addTexture(texture = {
     right : 0
   }, etc ],
 
-  // cutoutDefs are passed through `map`, they can be modifed here.
+  // `cutouts` are passed through `map`, they can be modifed here.
   map : function(cutoutDef) {
     return cutoutDef;
   },
 
+  // `factory` is called when a cutoutName is not found in `cutouts`.
   factory : function(cutoutName) {
-    // `factory` is called when a cutout is not found is `cutouts`
     // Dynamically create a cutoutDef or cutout.
     return cutoutDef; // or cutout
   }
