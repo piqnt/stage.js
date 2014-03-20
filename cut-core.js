@@ -498,6 +498,11 @@ Cut.prototype.pin = function() {
   return obj === this._pin ? this : obj;
 };
 
+Cut.prototype.matrix = function() {
+  return this._pin
+      .absoluteMatrix(this, this._parent ? this._parent._pin : null);
+};
+
 Cut.prototype.tween = function(duration, delay) {
   return (this._tween || (this._tween = new Cut.Tween(this))).tween(duration,
       delay);
