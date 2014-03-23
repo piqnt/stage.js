@@ -6,8 +6,9 @@
  */
 
 var Extra = Extra || {}, X = Extra;
+Extra.Randomize = Randomize;
 
-Extra.Randomize = Randomize = function() {
+function Randomize() {
   this._options = [];
   this._nope = null;
   this._map = function(option) {
