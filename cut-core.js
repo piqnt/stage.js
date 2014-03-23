@@ -1335,12 +1335,12 @@ Cut.Texture = function(texture) {
             break;
           }
         }
+        if (!result && texture.factory) {
+          result = map(texture.factory(selector));
+        }
         selectionCache[id] = result;
       }
 
-      if (!result && texture.factory) {
-        result = map(texture.factory(selector));
-      }
 
       if (!result) {
         throw "Cutout not found: '" + texture.name + ":" + selector + "'";
