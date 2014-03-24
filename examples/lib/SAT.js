@@ -670,6 +670,7 @@
     var radiusSq = c['r'] * c['r'];
     var distanceSq = differenceV.len2();
     // If the distance between is smaller than the radius then the point is inside the circle.
+    T_VECTORS.push(differenceV);
     return distanceSq <= radiusSq;
   }
   SAT['pointInCircle'] = pointInCircle;

@@ -93,7 +93,7 @@ Cut(function(root, container) {
   };
 
   game.uiUpdateCell = function(cell) {
-    console.log("tic.uiUpdateCell");
+    console.log("Box.uiUpdateCell");
     cell.ui.setImage("base:" + (cell.sign || "-"));
     cell.ui.pin({
       alpha : 0.8,
