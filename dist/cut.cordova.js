@@ -1961,14 +1961,25 @@ DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
 
 window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
-    Cut.Loader.start();
+    document.addEventListener("deviceready", function() {
+        DEBUG && console.log("On deviceready.");
+        Cut.Loader.start();
+    }, false);
+    document.addEventListener("pause", function() {
+        Cut.Loader.pause();
+    }, false);
+    document.addEventListener("resume", function() {
+        Cut.Loader.resume();
+    }, false);
 }, false);
 
 Cut.Loader.init = function(app, canvas) {
     var context = null, full = false;
     var width = 0, height = 0, ratio = 1;
     DEBUG && console.log("Creating root...");
-    var root = Cut.root(requestAnimationFrame, function() {
+    var root = Cut.root(function(callback) {
+        window.requestAnimationFrame(callback);
+    }, function() {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, width, height);
         this.render(context);
