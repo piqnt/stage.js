@@ -151,158 +151,157 @@ Drone.prototype.animate = function(t) {
   this.uiUpdate();
 };
 
-Cut.Loader
-    .load(function(root, canvas) {
+Cut(function(root, canvas) {
 
-      Cut.Mouse(root, canvas);
+  Cut.Mouse(root, canvas);
 
-      var world = new World();
-      var _down_keys = {}, _down_mouse = {
-        x : 0,
-        y : 0
-      };
+  var world = new World();
+  var _down_keys = {}, _down_mouse = {
+    x : 0,
+    y : 0
+  };
 
-      world.ui = root.viewbox(300, 300).listen("viewport", function(width, height) {
-        world.resize(this.pin("width"), this.pin("height"));
-      }).pin("handle", -0.5).spy(true);
+  world.ui = root.viewbox(300, 300).listen("viewport", function(width, height) {
+    world.resize(this.pin("width"), this.pin("height"));
+  }).pin("handle", -0.5).spy(true);
 
-      root.tick(function() {
-        world.animate();
-      });
+  root.tick(function() {
+    world.animate();
+  });
 
-      world.init(0, 0);
+  world.init(0, 0);
 
-      // Control
+  // Control
 
-      var speed = 100 / 1000;
-      var acc = speed * 2 / 1000;
-      var drone = world.addObject(new Drone(speed, speed * 2, acc));
+  var speed = 100 / 1000;
+  var acc = speed * 2 / 1000;
+  var drone = world.addObject(new Drone(speed, speed * 2, acc));
 
-      drone.accRelative = function(o, t) {
-        o.main = _down_keys[38] ? +1 : _down_keys[40] ? -1 : 0;
-        o.side = _down_keys[37] ? +1 : _down_keys[39] ? -1 : 0;
-        return o.side || o.main;
-      };
+  drone.accRelative = function(o, t) {
+    o.main = _down_keys[38] ? +1 : _down_keys[40] ? -1 : 0;
+    o.side = _down_keys[37] ? +1 : _down_keys[39] ? -1 : 0;
+    return o.side || o.main;
+  };
 
-      drone.accAbsolute = function(o, t) {
-        o.x = _down_keys[65] ? -1 : _down_keys[68] ? +1 : 0;
-        o.y = _down_keys[87] ? -1 : _down_keys[83] ? +1 : 0;
+  drone.accAbsolute = function(o, t) {
+    o.x = _down_keys[65] ? -1 : _down_keys[68] ? +1 : 0;
+    o.y = _down_keys[87] ? -1 : _down_keys[83] ? +1 : 0;
 
-        if (o.x || o.y) {
-          return true;
-        }
+    if (o.x || o.y) {
+      return true;
+    }
 
-        if (b0 !== null && g0 !== null) {
-          o.x = M.rotate(g - g0, -180, 180) / 180;
-          o.y = M.rotate(b - b0, -180, 180) / 180;
-          var min = 0.05;
-          return o.x > min || o.x < -min || o.y > min || o.y < -min;
-        }
+    if (b0 !== null && g0 !== null) {
+      o.x = M.rotate(g - g0, -180, 180) / 180;
+      o.y = M.rotate(b - b0, -180, 180) / 180;
+      var min = 0.05;
+      return o.x > min || o.x < -min || o.y > min || o.y < -min;
+    }
 
-        return false;
-      };
+    return false;
+  };
 
-      drone.accOrbit = function(o, t) {
-        if (!_down_mouse.valid) {
-          return false;
-        }
-        o.x = _down_mouse.x;
-        o.y = _down_mouse.y;
-        return true;
-      };
+  drone.accOrbit = function(o, t) {
+    if (!_down_mouse.valid) {
+      return false;
+    }
+    o.x = _down_mouse.x;
+    o.y = _down_mouse.y;
+    return true;
+  };
 
-      // Keyboard
+  // Keyboard
 
-      document.onkeydown = function(e) {
-        world.run(true);
-        root.touch();
-        e = e || window.event;
-        _down_keys[e.keyCode] = true;
-      };
-      document.onkeyup = function(e) {
-        e = e || window.event;
-        _down_keys[e.keyCode] = false;
-      };
+  document.onkeydown = function(e) {
+    world.run(true);
+    root.touch();
+    e = e || window.event;
+    _down_keys[e.keyCode] = true;
+  };
+  document.onkeyup = function(e) {
+    e = e || window.event;
+    _down_keys[e.keyCode] = false;
+  };
 
-      // Mouse
-      world.ui.listen(Cut.Mouse.START, function(ev, point) {
-        world.run(true);
-        root.touch();
-        if (b !== null && g !== null) {
-          a0 = a;
-          b0 = b;
-          g0 = g;
-        } else {
-          _down_mouse.x = point.x;
-          _down_mouse.y = point.y;
-          _down_mouse.valid = true;
-        }
-        return true;
+  // Mouse
+  world.ui.listen(Cut.Mouse.START, function(ev, point) {
+    world.run(true);
+    root.touch();
+    if (b !== null && g !== null) {
+      a0 = a;
+      b0 = b;
+      g0 = g;
+    } else {
+      _down_mouse.x = point.x;
+      _down_mouse.y = point.y;
+      _down_mouse.valid = true;
+    }
+    return true;
 
-      }).listen(Cut.Mouse.END, function(ev, point) {
-        a0 = b0 = g0 = null;
-        _down_mouse.valid = false;
-        return true;
+  }).listen(Cut.Mouse.END, function(ev, point) {
+    a0 = b0 = g0 = null;
+    _down_mouse.valid = false;
+    return true;
 
-      }).listen(Cut.Mouse.MOVE, function(ev, point) {
-        if (_down_mouse.valid) {
-          _down_mouse.x = point.x;
-          _down_mouse.y = point.y;
-        }
-        return true;
+  }).listen(Cut.Mouse.MOVE, function(ev, point) {
+    if (_down_mouse.valid) {
+      _down_mouse.x = point.x;
+      _down_mouse.y = point.y;
+    }
+    return true;
 
-      });
+  });
 
-      // Tilting
+  // Tilting
 
-      var a0 = null, b0 = null, g0 = null, a = null, b = null, g = null, o = null, update = 0;
+  var a0 = null, b0 = null, g0 = null, a = null, b = null, g = null, o = null, update = 0;
 
-      // $status.bind("mousedown touchstart", function(e) {
-      // a0 = a;
-      // b0 = b;
-      // g0 = g;
-      // return false;
-      // });
+  // $status.bind("mousedown touchstart", function(e) {
+  // a0 = a;
+  // b0 = b;
+  // g0 = g;
+  // return false;
+  // });
 
-      // window.addEventListener("deviceorientation", function(event) {
-      // var now = +new Date;
-      // if (update < now - 300) {
-      // update = now;
-      // a = event.alpha;
-      // b = event.beta;
-      // g = event.gamma;
-      // o = window.orientation;
-      // if (_.isNumber(a) && _.isNumber(a) && _.isNumber(g)) {
-      // $status.text(Math.round(a) + ", " + Math.round(b) + ", "
-      // + Math.round(g) + " (" + (o || 0) + ")");
-      // }
-      // }
-      // }, true);
+  // window.addEventListener("deviceorientation", function(event) {
+  // var now = +new Date;
+  // if (update < now - 300) {
+  // update = now;
+  // a = event.alpha;
+  // b = event.beta;
+  // g = event.gamma;
+  // o = window.orientation;
+  // if (_.isNumber(a) && _.isNumber(a) && _.isNumber(g)) {
+  // $status.text(Math.round(a) + ", " + Math.round(b) + ", "
+  // + Math.round(g) + " (" + (o || 0) + ")");
+  // }
+  // }
+  // }, true);
 
-      // function resize(event) {
-      // var h = $(window).height();
-      // var w = $(window).width();
-      // var o = window.orientation;
-      // DEBUG && console.log(o, w, h);
-      // if (o) {
-      // var transform = "translate(" + (-h / 2) + "px," + (-w / 2)
-      // + "px) rotate(" + -o + "deg) translate(" + (-h / 2 * o / 90)
-      // + "px," + (w / 2 * o / 90) + "px) ";
-      // $world.css({
-      // transform : transform
-      // });
-      // world.resize(h, w);
-      // } else {
-      // $world.css({
-      // transform : "",
-      // });
-      // world.resize(w, h);
-      // }
-      // return false;
-      // }
-      // $(window).bind('orientationchange', resize);
+  // function resize(event) {
+  // var h = $(window).height();
+  // var w = $(window).width();
+  // var o = window.orientation;
+  // DEBUG && console.log(o, w, h);
+  // if (o) {
+  // var transform = "translate(" + (-h / 2) + "px," + (-w / 2)
+  // + "px) rotate(" + -o + "deg) translate(" + (-h / 2 * o / 90)
+  // + "px," + (w / 2 * o / 90) + "px) ";
+  // $world.css({
+  // transform : transform
+  // });
+  // world.resize(h, w);
+  // } else {
+  // $world.css({
+  // transform : "",
+  // });
+  // world.resize(w, h);
+  // }
+  // return false;
+  // }
+  // $(window).bind('orientationchange', resize);
 
-    });
+});
 
 Drone.prototype.uiCreate = function(world) {
   this.world = world;

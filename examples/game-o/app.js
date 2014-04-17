@@ -379,13 +379,13 @@ function Game() {
     }
   };
 
-  this.dots = new Pool(function() {
+  this.dots = new Pool().create(function() {
     return new Dot(this);
-  }.bind(this), function(obj) {
+  }.bind(this)).exit(function(obj) {
     obj.onCheckOut();
-  }, function(obj) {
+  }).enter(function(obj) {
     obj.onCheckIn();
-  }, function(obj) {
+  }).discard(function(obj) {
     obj.uiRemove();
   }).max(127);
 

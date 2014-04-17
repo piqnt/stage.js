@@ -108,7 +108,7 @@ function Game(root) {
     ui.next.appendTo(ships[next].ui);
   }
 
-  var asteroidRandom = new X.Randomize().spacing(function() {
+  var asteroidRandom = new Randomize().spacing(function() {
     return M.random(2, 3) * 180 / (time / 1000 + 180) * 1000;
   }, 0).add(function() {
     var a = M.random(0, 2 * Math.PI);

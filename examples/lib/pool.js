@@ -8,10 +8,9 @@
 var Extra = Extra || {}, X = Extra;
 Extra.Pool = Pool;
 
-function Pool(_create, _exit, _enter, _discard) {
-
+function Pool() {
+  var _create, _exit, _enter, _discard;
   var _list = [], _max = 4, _name = "";
-
   var _created = 0, _checkedout = 0, _checkedin = 0, _discarded = 0;
 
   this.create = function(create) {
@@ -20,12 +19,12 @@ function Pool(_create, _exit, _enter, _discard) {
   };
 
   this.exit = function(exit) {
-    _exit = func;
+    _exit = exit;
     return this;
   };
 
   this.enter = function(enter) {
-    _enter = func;
+    _enter = enter;
     return this;
   };
 
@@ -75,8 +74,8 @@ function Pool(_create, _exit, _enter, _discard) {
   };
 
   this.toString = function() {
-    return "Pool (" + _name + "):" + " +" + _created + " >" + _checkedout
-        + " <" + _checkedin + " -" + _discarded + " =" + _list.length + "/"
-        + _max;
+    return "Pool" + (_name ? " (" + _name + ")" : "") + ":" + " +" + _created
+        + " >" + _checkedout + " <" + _checkedin + " -" + _discarded + " ="
+        + _list.length + "/" + _max;
   };
 }
