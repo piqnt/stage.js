@@ -209,9 +209,17 @@ var tween = foo.tween(duration = 400, delay = 0);
 // Clear tweening queue.
 tween.clear(jumpToEnd = false);
 
-// Set pinning values and start tweening. Currently short-hand names are not
+// Set pinning values and start tweening. Currently pinning short-hands are not
 // supported for tweening.
 tween.pin(pinning);
+
+// Set easing for tweening. `easing` can be either a function or identifier as
+// "name[-mode][(params)]", for example "quad" or "poly-in-out(3)".
+// Available names are: linear, quad, cubic, quart, quint, poly(p),
+// sin/sine, exp, circle/circ, bounce, elastic(a, p), back(s)
+// Available modes are: in, out,in-out, out-in.
+tween.ease(function(easing) {
+});
 
 // Callback when tweening is over.
 tween.then(function() {

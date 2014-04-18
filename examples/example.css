@@ -20,7 +20,7 @@ body {
 	background: rgba(240, 240, 240, 0.7);
 }
 
-.dark .about,.dark  .hint {
+.dark .about,.dark .hint {
 	background: rgba(32, 32, 32, 0.7);
 }
 
@@ -44,7 +44,7 @@ a:hover {
 }
 
 .dark {
-	color: #bbb;
+	color: #ccc;
 }
 
 .dark a {

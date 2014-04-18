@@ -116,6 +116,7 @@ function Game(width, height) {
       }
       Block.unset(this.i, this.j, this);
       Block.set(this.i = i, this.j = j, this);
+      this.dirty = true;
       return true;
     };
 
@@ -180,10 +181,13 @@ Cut(function(root, container) {
         game.click(block);
       });
     }).update(function(block) {
-      block.ui.tween(150).clear().pin({
-        offsetX : block.i * 2 + 1,
-        offsetY : block.j * 2 + 1
-      });
+      if (block.dirty) {
+        block.ui.tween(200).ease("quad-out").clear().pin({
+          offsetX : block.i * 2 + 1,
+          offsetY : block.j * 2 + 1
+        });
+        block.dirty = false;
+      }
     }).exit(function(block) {
       block.ui.tween(150).clear().pin({
         alpha : 0

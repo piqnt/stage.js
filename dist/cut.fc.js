@@ -1,5 +1,5 @@
 /*
- * CutJS 0.1.48
+ * CutJS 0.1.49
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -474,20 +474,21 @@ Cut.Tween = function(cut) {
         if (head.time < head.delay) {
             return;
         }
-        var prog = (head.time - head.delay) / head.duration;
-        var over = prog >= 1;
-        prog = prog > 1 ? 1 : prog;
-        prog = head.easing ? head.easing(prog) : prog;
         if (!head.start) {
             head.start = {};
             for (var key in head.end) {
-                var value = cut.pin(key);
-                head.start[key] = value || 0;
+                var start = cut.pin(key);
+                if (typeof start === "number") {
+                    head.start[key] = start;
+                }
             }
         }
+        var prog = (head.time - head.delay) / head.duration;
+        var over = prog >= 1;
+        prog = prog > 1 ? 1 : prog;
+        prog = typeof head.easing == "function" ? head.easing(prog) : prog;
         for (var key in head.start) {
-            var start = head.start[key];
-            var end = head.end[key];
+            var start = head.start[key], end = head.end[key];
             cut.pin(key, start + (end - start) * prog);
         }
         if (over) {
@@ -534,8 +535,8 @@ Cut.Tween.prototype.then = function(then) {
     return this;
 };
 
-Cut.Tween.prototype.easing = function(easing) {
-    this._next.easing = easing;
+Cut.Tween.prototype.ease = function(easing) {
+    this._next.easing = Cut.Easing(easing);
     return this;
 };
 
@@ -1956,6 +1957,163 @@ Cut.Loader = function() {
         }
     };
 }();
+
+Cut.Easing = function() {
+    function identity(t) {
+        return t;
+    }
+    var modes = {
+        "in": function(f) {
+            return function(t) {
+                return f(t);
+            };
+        },
+        out: function(f) {
+            return function(t) {
+                return 1 - f(1 - t);
+            };
+        },
+        "in-out": function(f) {
+            return function(t) {
+                if (t < .5) {
+                    return f(2 * t) / 2;
+                } else {
+                    return 1 - f(2 * (1 - t)) / 2;
+                }
+            };
+        },
+        "out-in": function(f) {
+            return function(t) {
+                if (t < .5) {
+                    return 1 - f(2 * (1 - t)) / 2;
+                } else {
+                    return f(2 * t) / 2;
+                }
+            };
+        }
+    };
+    var easings = {};
+    function select(token) {
+        if (typeof token === "function") {
+            return token;
+        }
+        if (typeof token !== "string") {
+            return modes["in"](identity);
+        }
+        var match = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
+        if (!match || !match.length) {
+            return modes["in"](identity);
+        }
+        var name = match[1] || "", mode = match[3] || "", params = match[5];
+        mode = modes[mode] || modes["in"];
+        params = params ? params.replace(/\s+/, "").split(",") : [];
+        var easing = easings[name];
+        var fn = easing ? easing.fn || easing.fc.apply(easing.fc, params) : identity;
+        return mode(fn);
+    }
+    select.add = function(easing) {
+        var names = easing.name.split(/\s+/);
+        for (var i = 0; i < names.length; i++) {
+            names[i] && (easings[names[i]] = easing);
+        }
+    };
+    return select;
+}();
+
+Cut.Easing.add({
+    name: "linear",
+    fn: function(t) {
+        return t;
+    }
+});
+
+Cut.Easing.add({
+    name: "quad",
+    fn: function(t) {
+        return t * t;
+    }
+});
+
+Cut.Easing.add({
+    name: "cubic",
+    fn: function(t) {
+        return t * t * t;
+    }
+});
+
+Cut.Easing.add({
+    name: "quart",
+    fn: function(t) {
+        return t * t * t * t;
+    }
+});
+
+Cut.Easing.add({
+    name: "quint",
+    fn: function(t) {
+        return t * t * t * t * t;
+    }
+});
+
+Cut.Easing.add({
+    name: "sin sine",
+    fn: function(t) {
+        return 1 - Math.cos(t * Math.PI / 2);
+    }
+});
+
+Cut.Easing.add({
+    name: "exp",
+    fn: function(t) {
+        return t == 0 ? 0 : Math.pow(2, 10 * (t - 1));
+    }
+});
+
+Cut.Easing.add({
+    name: "circle circ",
+    fn: function(t) {
+        return 1 - Math.sqrt(1 - t * t);
+    }
+});
+
+Cut.Easing.add({
+    name: "bounce",
+    fn: function(t) {
+        return t < 1 / 2.75 ? 7.5625 * t * t : t < 2 / 2.75 ? 7.5625 * (t -= 1.5 / 2.75) * t + .75 : t < 2.5 / 2.75 ? 7.5625 * (t -= 2.25 / 2.75) * t + .9375 : 7.5625 * (t -= 2.625 / 2.75) * t + .984375;
+    }
+});
+
+Cut.Easing.add({
+    name: "poly",
+    fc: function(e) {
+        return function(t) {
+            return Math.pow(t, e);
+        };
+    }
+});
+
+Cut.Easing.add({
+    name: "elastic",
+    fc: function(a, p) {
+        p = p || .45;
+        a = a || 1;
+        var s = p / (2 * Math.PI) * Math.asin(1 / a);
+        return function(t) {
+            return 1 + a * Math.pow(2, -10 * t) * Math.sin((t - s) * (2 * Math.PI) / p);
+        };
+    }
+});
+
+Cut.Easing.add({
+    name: "back",
+    fc: function(s) {
+        console.log(s);
+        s = arguments.length ? s : 1.70158;
+        return function(t) {
+            return t * t * ((s + 1) * t - s);
+        };
+    }
+});
 
 DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
 
