@@ -52,7 +52,7 @@ function Bullet(speed) {
 
 var Asteroid = Bullet;
 
-function Game(root) {
+function Space() {
 
   var speed = 4;
   var acc = 0.00001;
@@ -60,34 +60,31 @@ function Game(root) {
   var collide = 6;
   var off = 1200;
 
-  var ui = {};
-
   var time = 0;
-  var next = 0;
-  var life = 0, up = 0, down = 0;
 
-  var planet = {};
+  var planet = {
+    life : 0,
+    down : 0,
+    up : 0,
+    next : 0
+  };
 
-  var ships = [ uiAddShip(new Ship(8, 2, 0)),
-      uiAddShip(new Ship(8, 2, Math.PI / 3 * 2)),
-      uiAddShip(new Ship(8, 2, Math.PI / 3 * 4)) ];
+  var next = {};
+  var ships = [];
   var bullets = [];
   var asteroids = [];
 
-  ui.status = Cut.row().spacing(2).pin({
-    offset : 1,
-    align : -0.5,
-    handle : 0
-  }).appendTo(root);
-  ui.up = Cut.string("base:d_").appendTo(ui.status);
-  ui.down = Cut.string("base:d_").appendTo(ui.status);
-
-  function start() {
+  this.start = function() {
     time = 0;
-    life = 16, up = 0, down = 0;
+    planet.life = 16, planet.up = 0, planet.down = 0;
 
-    ui.up.setValue(up);
-    ui.down.setValue(down);
+    if (ships.length == 0) {
+      ships.push(this.uiAddShip(new Ship(8, 2, 0)));
+      ships.push(this.uiAddShip(new Ship(8, 2, Math.PI / 3 * 2)));
+      ships.push(this.uiAddShip(new Ship(8, 2, Math.PI / 3 * 4)));
+      this.uiAddPlanet(planet);
+      this.uiAddNext(next);
+    }
 
     for (var i = bullets.length - 1; i >= 0; i--) {
       var bullet = bullets[i];
@@ -105,10 +102,10 @@ function Game(root) {
       ship.off = 0;
     }
 
-    ui.next.appendTo(ships[next].ui);
-  }
+    next.uiNext(ships[planet.next]);
+  };
 
-  var asteroidRandom = new Randomize().spacing(function() {
+  var randomAsteroid = new Randomize().spacing(function() {
     return M.random(2, 3) * 180 / (time / 1000 + 180) * 1000;
   }, 0).add(function() {
     var a = M.random(0, 2 * Math.PI);
@@ -122,147 +119,192 @@ function Game(root) {
     });
   });
 
-  root
-      .tick(function(t) {
-        t = Math.min(t, 100);
-        time += t;
+  this.tick = function(t) {
+    t = Math.min(t, 100);
+    time += t;
 
-        ui.next.pin("alpha", ships[next].off <= 0 ? 1 : 0.6);
+    next.uiUpdate();
 
-        for (var s = ships.length - 1; s >= 0; s--) {
-          var ship = ships[s];
-          ship.tick(t, time);
-          var alpha = 1 / (ship.off / 100 + 1);
-          ship.ui.pin("alpha", alpha);
-          ship.ui.xy(ship.x, ship.y);
-        }
+    for (var s = ships.length - 1; s >= 0; s--) {
+      var ship = ships[s];
+      ship.tick(t, time);
+      ship.uiUpdate();
+    }
 
+    for (var j = asteroids.length - 1; j >= 0; j--) {
+      var asteroid = asteroids[j];
+      if (M.length(asteroid.x, asteroid.y) < collide || asteroid.tick(t, time)) {
+        planet.life--;
+        asteroid.remove();
+        asteroids.splice(j, 1);
+        planet.down++;
+      }
+      asteroid.uiUpdate();
+    }
+
+    for (var i = bullets.length - 1; i >= 0; i--) {
+      var bullet = bullets[i];
+      if (bullet.tick(t, time)) {
         for (var j = asteroids.length - 1; j >= 0; j--) {
           var asteroid = asteroids[j];
-          if (M.length(asteroid.x, asteroid.y) < collide
-              || asteroid.tick(t, time)) {
-            life--;
+          if (M.length(asteroid.x - bullet.x, asteroid.y - bullet.y) < explode) {
             asteroid.remove();
             asteroids.splice(j, 1);
-            ui.down.setValue("-" + ++down);
+            planet.life = Math.min(16, planet.life + 1);
+            planet.up++;
           }
-          asteroid.ui.xy(asteroid.x, asteroid.y);
         }
+        this.uiExplode(bullet);
+        bullet.remove();
+        bullets.splice(i, 1);
+      }
+      bullet.uiUpdate();
+    }
 
-        for (var i = bullets.length - 1; i >= 0; i--) {
-          var bullet = bullets[i];
-          if (bullet.tick(t, time)) {
-            for (var j = asteroids.length - 1; j >= 0; j--) {
-              var asteroid = asteroids[j];
-              if (M.length(asteroid.x - bullet.x, asteroid.y - bullet.y) < explode) {
-                asteroid.remove();
-                asteroids.splice(j, 1);
-                life = Math.min(16, life + 1);
-                ui.up.setValue("+" + ++up);
-              }
-            }
-            Cut.image("base:explosion").pin("handle", 0.5).xy(bullet.x,
-                bullet.y).appendTo(root).pin("scale", 0.1).tween(50).pin({
-              scaleX : 1,
-              scaleY : 1
-            }).tween(200).pin("alpha", 0);
-            bullet.remove();
-            bullets.splice(i, 1);
-          }
+    var asteroid = randomAsteroid.test(t).random();
+    asteroid && asteroids.push(this.uiAddAsteroid(asteroid()));
 
-          bullet.ui.xy(bullet.x, bullet.y);
-        }
+    planet.uiUpdate();
 
-        var asteroid = asteroidRandom.test(t).random();
-        asteroid && asteroids.push(uiAddAsteroid(asteroid()));
+    if (planet.life == 0) {
+      this.uiGameover();
+    }
+  };
 
-        planet.ui.pin("alpha", Math.min(1, Math.max(0, life / 16)));
-
-        if (life == 0) {
-          start();
-        }
-      });
-
-  ui.next = Cut.image("base:next").pin("align", 0.5);
-  root.on(Cut.Mouse.START, function(ev, point) {
-    var ship = ships[next];
+  this.shoot = function(loc) {
+    var ship = ships[planet.next];
     if (ship.off <= 0) {
       ship.off = off;
-      var bullet = new Bullet(25).shoot(ship, point);
+      var bullet = new Bullet(25).shoot(ship, loc);
       bullets.push(bullet);
-      uiAddBullet(bullet);
-      next = ++next % ships.length;
-      ui.next.appendTo(ships[next].ui);
+      this.uiAddBullet(bullet);
+      planet.next = ++planet.next % ships.length;
+      next.uiNext(ships[planet.next]);
     }
-  });
-
-  planet.ui = Cut.image("base:planet").pin("handle", 0.5).appendTo(root);
-
-  function uiAddShip(obj) {
-    obj.ui = Cut.image("base:ship").pin("handle", 0.5).appendTo(root);
-    obj.uiRemove = function() {
-      this.ui.remove();
-    };
-    return obj;
-  }
-
-  function uiAddAsteroid(obj) {
-    obj.ui = Cut.image("base:asteroid").pin("handle", 0.5).appendTo(root);
-    obj.uiRemove = function() {
-      this.ui.remove();
-    };
-    return obj;
-  }
-
-  function uiAddBullet(obj) {
-    obj.ui = Cut.image("base:bullet").pin("handle", 0.5).appendTo(root);
-    obj.uiRemove = function() {
-      this.ui.remove();
-    };
-    return obj;
-  }
+  };
 }
 
 Cut(function(root, container) {
   Cut.Mouse(root, container);
-  root.viewbox(150, 150).pin("handle", -0.5);
+  root.viewbox(150, 150).pin('handle', -0.5);
 
-  root.on("viewport", function(width, height) {
-    bg.pin({
-      resizeMode : "out",
+  var ui = {};
+
+  root.on('viewport', function(width, height) {
+    ui.bg.pin({
+      resizeMode : 'out',
       resizeWidth : width,
       resizeHeight : height
     });
   });
 
-  var bg = Cut.image("base:bg").pin("handle", 0.5).appendTo(root);
+  ui.bg = Cut.image('base:bg').pin('handle', 0.5).appendTo(root);
 
-  var game = new Game(root);
+  ui.status = Cut.row().spacing(2).pin({
+    offset : 1,
+    align : -0.5,
+    handle : 0
+  }).appendTo(root);
+  ui.up = Cut.string('base:d_').appendTo(ui.status);
+  ui.down = Cut.string('base:d_').appendTo(ui.status);
+
+  var space = new Space(root);
+
+  space.uiAddPlanet = function(obj) {
+    obj.ui = Cut.image('base:planet').pin('handle', 0.5).appendTo(root);
+    obj.uiRemove = function() {
+      this.ui.remove();
+    };
+    obj.uiUpdate = function() {
+      this.ui.pin('alpha', Math.min(1, Math.max(0, this.life / 16)));
+      ui.up.setValue((this.up > 0 ? '+' : '') + this.up);
+      ui.down.setValue(-this.down);
+    };
+    return obj;
+  };
+
+  space.uiAddBullet = function(obj) {
+    obj.ui = Cut.image('base:bullet').pin('handle', 0.5).appendTo(root);
+    obj.uiRemove = function() {
+      this.ui.remove();
+    };
+    obj.uiUpdate = function() {
+      this.ui.pin({
+        offsetX : this.x,
+        offsetY : this.y
+      });
+    };
+    return obj;
+  };
+
+  space.uiAddShip = function(obj) {
+    obj.ui = Cut.image('base:ship').pin('handle', 0.5).appendTo(root);
+    obj.uiRemove = function() {
+      this.ui.remove();
+    };
+    obj.uiUpdate = function() {
+      this.ui.pin('alpha', 1 / (this.off / 100 + 1));
+      this.ui.pin({
+        offsetX : this.x,
+        offsetY : this.y
+      });
+    };
+    return obj;
+  };
+
+  space.uiAddAsteroid = function(obj) {
+    obj.ui = Cut.image('base:asteroid').pin('handle', 0.5).appendTo(root);
+    obj.uiRemove = function() {
+      this.ui.remove();
+    };
+    obj.uiUpdate = function() {
+      this.ui.pin({
+        offsetX : this.x,
+        offsetY : this.y
+      });
+    };
+    return obj;
+  };
+
+  space.uiAddNext = function(obj) {
+    obj.ui = Cut.image('base:next').pin('align', 0.5);
+    var _next;
+    obj.uiNext = function(next) {
+      this.ui.appendTo(next.ui);
+      _next = next;
+    };
+    obj.uiUpdate = function() {
+      _next && this.ui.pin('alpha', _next.off <= 0 ? 1 : 0.6);
+    };
+    return obj;
+  };
+
+  space.uiExplode = function(loc) {
+    Cut.image('base:explosion').pin('handle', 0.5).pin({
+      offsetX : loc.x,
+      offsetY : loc.y
+    }).appendTo(root).pin('scale', 0.1).tween(50).pin({
+      scaleX : 1,
+      scaleY : 1
+    }).tween(200).pin('alpha', 0).then(function() {
+      this.remove();
+    });
+  };
+
+  space.uiGameover = function() {
+    this.start();
+  };
+
+  root.tick(function(t) {
+    space.tick(t);
+  });
+
+  root.on(Cut.Mouse.START, function(ev, point) {
+    space.shoot(point);
+  });
+
+  space.start();
 
 });
-
-Cut.prototype.xy = function(x, y) {
-  this.pin({
-    offsetX : x,
-    offsetY : y
-  });
-  return this;
-};
-
-Cut.prototype.x = function(x) {
-  if (!arguments.length) {
-    return this.pin("offsetX");
-  }
-  this.pin("offsetX", x);
-  return this;
-};
-
-Cut.prototype.y = function(y) {
-  if (!arguments.length) {
-    return this.pin("offsetY");
-  }
-  this.pin("offsetY", y);
-  return this;
-};
 
 var M = Cut.Math;
