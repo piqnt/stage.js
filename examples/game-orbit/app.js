@@ -1,10 +1,10 @@
 function Ship(r, f, p) {
   this.x = 0;
   this.y = 0;
-  this.r = r;
-  this.f = -f;
-  this.p = p || 0;
-  this.off = 0;
+  this.r = r; // radius
+  this.f = -f; // rotation frequency
+  this.p = p || 0; // rotation phase offset
+  this.off = 0; // time to reload and ready
   this.tick = function(t, time) {
     this.off = Math.max(0, this.off - t);
     this.x = this.r * Math.sin(this.f * time / 1000 + this.p);
@@ -18,9 +18,9 @@ function Ship(r, f, p) {
 function Bullet(speed) {
   this.x = 0;
   this.y = 0;
-  this.tx = 0;
+  this.tx = 0; // target
   this.ty = 0;
-  this.vx = 0;
+  this.vx = 0; // velocity vector
   this.vy = 0;
   this.speed = speed;
   this.shoot = function(from, to) {
@@ -54,11 +54,11 @@ var Asteroid = Bullet;
 
 function Space() {
 
-  var speed = 4;
-  var acc = 0.00001;
-  var explode = 6;
-  var collide = 6;
-  var off = 1200;
+  var speed = 4; // asteroids speed
+  var acc = 0.00001; // asteroids acceleration
+  var explode = 6; // explode radius
+  var collide = 6; // collision radius
+  var off = 1200; // ship realod time
 
   var time = 0;
 
