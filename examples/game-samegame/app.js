@@ -127,21 +127,21 @@ function Game(width, height) {
   }
 
   Block.get = function(i, j) {
-    return _map[i + ":" + j];
+    return _map[i + ':' + j];
   };
 
   Block.set = function(i, j, block) {
-    if (_map[i + ":" + j]) {
-      throw "Location unavailable: " + i + ":" + j;
+    if (_map[i + ':' + j]) {
+      throw 'Location unavailable: ' + i + ':' + j;
     }
-    _map[i + ":" + j] = block;
+    _map[i + ':' + j] = block;
   };
 
   Block.unset = function(i, j, block) {
-    if (_map[i + ":" + j] !== block) {
-      throw "Invalid location: " + i + ":" + j;
+    if (_map[i + ':' + j] !== block) {
+      throw 'Invalid location: ' + i + ':' + j;
     }
-    delete _map[i + ":" + j];
+    delete _map[i + ':' + j];
   };
 
 }
@@ -149,8 +149,6 @@ function Game(width, height) {
 Cut(function(root, container) {
   Cut.Mouse(root, container);
   root.viewbox(24, 24);
-
-  // Cut.image("base:bg").pin("align", 0.5).appendTo(root);
 
   var width = 8, height = 8;
 
@@ -162,17 +160,33 @@ Cut(function(root, container) {
     align : 0.5
   }).spy(true);
 
+  Cut.image('base:easy').appendTo(ui.board).pin({
+    alignX : 1,
+    alignY : 1,
+    handleY : 0,
+    offsetX : -2,
+    offsetY : 0.5
+  }).on(Cut.Mouse.CLICK, function() {
+    game.restart(4);
+  });
+
+  Cut.image('base:hard').appendTo(ui.board).pin({
+    alignX : 1,
+    alignY : 1,
+    handleY : 0,
+    offsetX : 0.1,
+    offsetY : 0.5
+  }).on(Cut.Mouse.CLICK, function() {
+    game.restart(5);
+  });
+
   delta.blocks = new Delta();
 
   var game = new Game(width, height);
 
-  game.uiGameover = function() {
-    alert("Game Over!");
-  };
-
   game.uiUpdate = function() {
     delta.blocks.data(game.blocks()).enter(function(block) {
-      block.ui = Cut.image("base:block-" + block.color).appendTo(ui.board);
+      block.ui = Cut.image('base:block-' + block.color).appendTo(ui.board);
       block.ui.pin({
         offsetX : block.i * 2 + 1,
         offsetY : block.j * 2 + 1,
@@ -182,7 +196,7 @@ Cut(function(root, container) {
       });
     }).update(function(block) {
       if (block.dirty) {
-        block.ui.tween(200).ease("quad-out").clear().pin({
+        block.ui.tween(200).ease('quad-out').clear().pin({
           offsetX : block.i * 2 + 1,
           offsetY : block.j * 2 + 1
         });
@@ -198,14 +212,5 @@ Cut(function(root, container) {
   };
 
   game.restart();
-
-  document.onkeydown = function(e) {
-    e = e || window.event;
-    if (e.keyCode == 69) {
-      game.restart(4);
-    } else if (e.keyCode == 72) {
-      game.restart(5);
-    }
-  };
 
 });
