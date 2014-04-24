@@ -2,6 +2,27 @@
  * CutJS viewer for PhysicsJS
  */
 
+Physics.renderer('cutjs', function(proto) {
+  return {
+    init : function(options) {
+      proto.init.call(this, options);
+    },
+    drawMeta : function(meta) {
+    },
+    createView : function(data) {
+    },
+    drawBody : function(body, view) {
+      if (body && view) {
+        view.pin({
+          offsetX : body.state.pos.x || body.state.pos.get(0),
+          offsetY : body.state.pos.y || body.state.pos.get(1),
+          rotation : body.state.angular.pos
+        });
+      }
+    }
+  };
+});
+
 Cut.PJS = function(world, options) {
   Cut.PJS.prototype._super.apply(this, arguments);
 
@@ -19,6 +40,14 @@ Cut.PJS = function(world, options) {
   this.fillColor = 'fillColor' in options ? Cut._function(options.fillColor)
       : Cut._function(Cut.PJS.randomColor);
 
+  world.subscribe('add:body', function(data) {
+    data.body && self.addRenderable(data.body);
+  });
+
+  world.subscribe('remove:body', function(data) {
+    data.body && self.removeRenderable(data.body);
+  });
+
   var bodies = world.getBodies();
   for (var i = 0; i < bodies.length; i++) {
     this.addRenderable(bodies[i]);
@@ -33,26 +62,6 @@ Cut.PJS = function(world, options) {
     // }
   });
 
-  world.subscribe('add:body', this.addRenderable, this);
-  world.subscribe('remove:body', this.removeRenderable, this);
-
-  var first = true;
-  world.subscribe('render', function(data) {
-    for (var i = 0; i < data.bodies.length; i++) {
-      var body = data.bodies[i];
-      if (first) {
-        first = false;
-        console.log(body);
-      }
-
-      body.view && body.view.pin({
-        offsetX : body.state.pos.get(0),
-        offsetY : body.state.pos.get(1),
-        rotation : body.state.angular.pos
-      });
-    }
-  });
-
   world.add(Physics.renderer('cutjs', {}));
 
 };
@@ -62,29 +71,28 @@ Cut.PJS.prototype._super = Cut;
 Cut.PJS.prototype.constructor = Cut.PJS;
 
 Cut.PJS.prototype.addRenderable = function(obj) {
-  if (obj.geometry) {
-    obj.view = Cut.create().appendTo(this);
-
-    var cutout = null;
-    var shape = obj.shape;
-
-    if ('circle' == obj.geometry.name) {
-      cutout = this.drawCircle(obj.geometry.radius);
-
-      // } else {
-      // if (shape.points.length) {
-      // cutout = this.drawConvex(shape.points);
-      // }
-    }
-
-    Cut.image(cutout).appendTo(obj.view).pin({
-      handle : 0.5
-    });
+  console.log('add');
+  if (obj.view || !obj.geometry) {
+    return;
   }
+  var geometry = obj.geometry;
+  var cutout = null;
+  if ('circle' == geometry.name) {
+    cutout = this.drawCircle(geometry.radius);
+    // } else {
+    // if (shape.points.length) {
+    // cutout = this.drawConvex(shape.points);
+    // }
+  }
+  obj.view = Cut.create().append(Cut.image(cutout).pin({
+    handle : 0.5
+  })).appendTo(this);
 };
 
 Cut.PJS.prototype.removeRenderable = function(obj) {
+  console.log('remove');
   obj.view && obj.view.remove();
+  return this;
 };
 
 Cut.PJS.prototype.drawCircle = function(radius, options) {
@@ -171,22 +179,3 @@ Cut.PJS.randomColor = function() {
   var blue = Cut.Math.random(192, 256) | 0;
   return '#' + red.toString(16) + green.toString(16) + blue.toString(16);
 };
-
-Physics.renderer('cutjs', function(proto) {
-
-  return {
-
-    init : function(options) {
-      proto.init.call(this, options);
-    },
-
-    createView : function(geometry, styles) {
-    },
-
-    drawMeta : function(meta) {
-    },
-
-    drawBody : function(body, view) {
-    }
-  };
-});

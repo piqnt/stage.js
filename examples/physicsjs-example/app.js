@@ -9,30 +9,30 @@ Cut(function(root, container) {
     circles.push(Physics.body('circle', {
       x : 0,
       y : 0,
-      vx : 0,
       radius : 30
     }));
 
     circles.push(Physics.body('circle', {
-      x : Physics.util.random(-100, 100),
-      y : Physics.util.random(-100, 100),
+      x : Math.random() * 200 - 100,
+      y : Math.random() * 200 - 100,
       radius : 45,
       mass : 2,
-      vx : Physics.util.random(-0.5, 0.5),
-      vy : Physics.util.random(-0.5, 0.5),
+      vx : Math.random() - 0.5,
+      vy : Math.random() - 0.5,
       angularVelocity : 0.01
     }));
 
     circles.push(Physics.body('circle', {
-      x : Physics.util.random(-100, 100),
-      y : Physics.util.random(-100, 100),
+      x : Math.random() * 200 - 100,
+      y : Math.random() * 200 - 100,
       radius : 60,
       mass : 1.5,
-      vx : Physics.util.random(-0.5, 0.5),
-      vy : Physics.util.random(-0.5, 0.5)
+      vx : Math.random() - 0.5,
+      vy : Math.random() - 0.5
     }));
 
     world.add(circles);
+
 
     world.add(Physics.behavior('edge-collision-detection', {
       aabb : Physics.aabb(-400, -300, 400, 300),
@@ -46,4 +46,5 @@ Cut(function(root, container) {
   });
 
   new Cut.PJS(world).appendTo(root);
+
 });
