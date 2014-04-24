@@ -2,27 +2,6 @@
  * CutJS viewer for PhysicsJS
  */
 
-Physics.renderer('cutjs', function(proto) {
-  return {
-    init : function(options) {
-      proto.init.call(this, options);
-    },
-    drawMeta : function(meta) {
-    },
-    createView : function(data) {
-    },
-    drawBody : function(body, view) {
-      if (body && view) {
-        view.pin({
-          offsetX : body.state.pos.x || body.state.pos.get(0),
-          offsetY : body.state.pos.y || body.state.pos.get(1),
-          rotation : body.state.angular.pos
-        });
-      }
-    }
-  };
-});
-
 Cut.PJS = function(world, options) {
   Cut.PJS.prototype._super.apply(this, arguments);
 
@@ -40,29 +19,38 @@ Cut.PJS = function(world, options) {
   this.fillColor = 'fillColor' in options ? Cut._function(options.fillColor)
       : Cut._function(Cut.PJS.randomColor);
 
-  world.subscribe('add:body', function(data) {
+  var subscribe = world.subscribe || world.on;
+
+  subscribe.call(world, 'add:body', function(data) {
     data.body && self.addRenderable(data.body);
   });
 
-  world.subscribe('remove:body', function(data) {
+  subscribe.call(world, 'remove:body', function(data) {
     data.body && self.removeRenderable(data.body);
   });
 
   var bodies = world.getBodies();
   for (var i = 0; i < bodies.length; i++) {
-    this.addRenderable(bodies[i]);
+    var body = bodies[i];
+    this.addRenderable(body);
   }
 
   var time = 0;
   this.tick(function(t) {
     time += t;
     world.step(time);
-    // if (!world.isPaused()) {
-    world.render();
-    // }
+    var bodies = world.getBodies();
+    for (var i = 0; i < bodies.length; i++) {
+      var body = bodies[i];
+      if (body.view) {
+        body.view.pin({
+          offsetX : body.state.pos.get(0),
+          offsetY : body.state.pos.get(1),
+          rotation : body.state.angular.pos
+        });
+      }
+    }
   });
-
-  world.add(Physics.renderer('cutjs', {}));
 
 };
 
