@@ -2271,58 +2271,34 @@ Cut.Easing = (function() {
     return t;
   }
 
-  var modes = {
-    'in' : function(f) {
-      return function(t) {
-        return f(t);
-      };
-    },
-    'out' : function(f) {
-      return function(t) {
-        return 1 - f(1 - t);
-      };
-    },
-    'in-out' : function(f) {
-      return function(t) {
-        if (t < 0.5) {
-          return f(2 * t) / 2;
-        } else {
-          return 1 - f(2 * (1 - t)) / 2;
-        }
-      };
-    },
-    'out-in' : function(f) {
-      return function(t) {
-        if (t < 0.5) {
-          return 1 - f(2 * (1 - t)) / 2;
-        } else {
-          return f(2 * t) / 2;
-        }
-      };
-    }
-  };
-
-  var easings = {};
+  var easings = {}, modes = {};
 
   function select(token) {
     if (typeof token === 'function') {
       return token;
     }
     if (typeof token !== 'string') {
-      return modes['in'](identity);
+      return identity;
     }
     var match = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
     if (!match || !match.length) {
-      return modes['in'](identity);
+      return identity;
     }
-    var name = match[1] || '', mode = match[3] || '', params = match[5];
-    mode = modes[mode] || modes['in'];
+    var name = match[1] || '', mode = match[3] || 'in', params = match[5];
+    mode = modes[mode];
     params = params ? params.replace(/\s+/, '').split(',') : [];
     var easing = easings[name];
     var fn = easing ? easing.fn || easing.fc.apply(easing.fc, params)
         : identity;
-    return mode(fn);
+    return mode ? mode(fn) : fn;
   }
+
+  select.addMode = function(mode) {
+    var names = mode.name.split(/\s+/);
+    for (var i = 0; i < names.length; i++) {
+      names[i] && (modes[names[i]] = mode.fn);
+    }
+  };
 
   select.add = function(easing) {
     var names = easing.name.split(/\s+/);
@@ -2333,6 +2309,42 @@ Cut.Easing = (function() {
 
   return select;
 })();
+
+Cut.Easing.addMode({
+  name : 'in',
+  fn : function(f) {
+    return function(t) {
+      return f(t);
+    };
+  }
+});
+
+Cut.Easing.addMode({
+  name : 'out',
+  fn : function(f) {
+    return function(t) {
+      return 1 - f(1 - t);
+    };
+  }
+});
+
+Cut.Easing.addMode({
+  name : 'in-out',
+  fn : function(f) {
+    return function(t) {
+      return (t < 0.5) ? (f(2 * t) / 2) : (1 - f(2 * (1 - t)) / 2);
+    };
+  }
+});
+
+Cut.Easing.addMode({
+  name : 'out-in',
+  fn : function(f) {
+    return function(t) {
+      return (t < 0.5) ? (1 - f(2 * (1 - t)) / 2) : (f(2 * t) / 2);
+    };
+  }
+});
 
 Cut.Easing.add({
   name : 'linear',
