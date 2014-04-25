@@ -1,29 +1,18 @@
-/*
+/**
  * CutJS viewer for PhysicsJS
  */
-
 Cut.PJS = function(world, options) {
   Cut.PJS.prototype._super.apply(this, arguments);
 
   var self = this;
   this.world = world;
 
-  this.options = {
+  this.options = Cut._options({
     lineWidth : 2,
     lineColor : '#000000',
     fillColor : Cut.PJS.randomColor,
-    ratio : 1,
-    get : function(name) {
-      return typeof this[name] == 'function' ? this[name]() : this[name];
-    },
-    merge : function(object) {
-      object = typeof target === 'object' ? object : {};
-      for ( var name in this) {
-        object[name] = name in object ? object[name] : this[name];
-      }
-      return object;
-    }
-  }.merge(options);
+    ratio : 1
+  }).mixin(options);
 
   var subscribe = world.subscribe || world.on;
   subscribe.call(world, 'add:body', function(data) {
@@ -88,15 +77,14 @@ Cut.PJS.prototype.removeRenderable = function(obj) {
 };
 
 Cut.PJS.prototype.drawCircle = function(radius, options) {
-  options = this.options.merge(options);
+  options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
 
-  return Cut.Out.drawing(width * 1, height * 1, this.options.ratio, function(
-      ctx, ratio) {
+  return Cut.Out.drawing(width, height, options.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
@@ -112,7 +100,7 @@ Cut.PJS.prototype.drawCircle = function(radius, options) {
 };
 
 Cut.PJS.prototype.drawConvex = function(verts, options) {
-  options = this.options.merge(options);
+  options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -128,7 +116,7 @@ Cut.PJS.prototype.drawConvex = function(verts, options) {
   }
 
   var cutout = Cut.Out.drawing(2 * width + 2 * lineWidth, 2 * height + 2
-      * lineWidth, this.options.ratio, function(ctx, ratio) {
+      * lineWidth, options.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
 
     ctx.beginPath();

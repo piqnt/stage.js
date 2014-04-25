@@ -352,7 +352,7 @@
   Cut(function(root, container) {
     Cut.Mouse(root, container);
     root.viewbox(spaceWidth, spaceHeight).pin("handle", -0.5);
-    ui.p2 = Cut.p2(world, {
+    ui.p2 = new Cut.P2(world, {
       lineColor : "#fff",
       fillColor : ""
     }).appendTo(root);

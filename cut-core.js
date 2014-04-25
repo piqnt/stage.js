@@ -2218,6 +2218,28 @@ Cut._function = function(value) {
   };
 };
 
+Cut._options = function(options) {
+  options.get = function(name) {
+    return typeof this[name] == 'function' ? this[name]() : this[name];
+  };
+  options.extend = function(obj) {
+    obj = typeof obj === 'object' ? obj : {};
+    for ( var name in this) {
+      obj[name] = name in obj ? obj[name] : this[name];
+    }
+    return obj;
+  };
+  options.mixin = function(obj) {
+    if (typeof obj === 'object') {
+      for ( var name in obj) {
+        this[name] = obj[name];
+      }
+    }
+    return this;
+  };
+  return options;
+};
+
 Cut._status = function(msg) {
   if (!(Cut._statusbox)) {
     var statusbox = Cut._statusbox = document.createElement("div");

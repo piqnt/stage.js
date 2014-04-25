@@ -130,5 +130,5 @@ window.onkeyup = function() {
 Cut(function(root, container) {
   Cut.Mouse(root, container);
   root.viewbox(8, 6).pin("handle", -0.5);
-  var p2cut = Cut.p2(world).appendTo(root);
+  new Cut.P2(world).appendTo(root);
 });
