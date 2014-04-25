@@ -8,23 +8,27 @@ Cut.PJS = function(world, options) {
   var self = this;
   this.world = world;
 
-  options = options || {};
-
-  this.ratio = options.ratio || 1;
-
-  this.lineWidth = 'lineWidth' in options ? Cut._function(options.lineWidth)
-      : Cut._function(2);
-  this.lineColor = 'lineColor' in options ? Cut._function(options.lineColor)
-      : Cut._function('#000000');
-  this.fillColor = 'fillColor' in options ? Cut._function(options.fillColor)
-      : Cut._function(Cut.PJS.randomColor);
+  this.options = {
+    lineWidth : 2,
+    lineColor : '#000000',
+    fillColor : Cut.PJS.randomColor,
+    ratio : 1,
+    get : function(name) {
+      return typeof this[name] == 'function' ? this[name]() : this[name];
+    },
+    merge : function(object) {
+      object = typeof target === 'object' ? object : {};
+      for ( var name in this) {
+        object[name] = name in object ? object[name] : this[name];
+      }
+      return object;
+    }
+  }.merge(options);
 
   var subscribe = world.subscribe || world.on;
-
   subscribe.call(world, 'add:body', function(data) {
     data.body && self.addRenderable(data.body);
   });
-
   subscribe.call(world, 'remove:body', function(data) {
     data.body && self.removeRenderable(data.body);
   });
@@ -84,13 +88,15 @@ Cut.PJS.prototype.removeRenderable = function(obj) {
 };
 
 Cut.PJS.prototype.drawCircle = function(radius, options) {
-  options = this.options(options);
-  var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
+  options = this.options.merge(options);
+  var lineWidth = options.get('lineWidth'), lineColor = options
+      .get('lineColor'), fillColor = options.get('fillColor');
 
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
 
-  return Cut.Out.drawing(width, height, this.ratio, function(ctx, ratio) {
+  return Cut.Out.drawing(width * 1, height * 1, this.options.ratio, function(
+      ctx, ratio) {
     ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
@@ -106,8 +112,9 @@ Cut.PJS.prototype.drawCircle = function(radius, options) {
 };
 
 Cut.PJS.prototype.drawConvex = function(verts, options) {
-  options = this.options(options);
-  var lineWidth = options.lineWidth, lineColor = options.lineColor, fillColor = options.fillColor;
+  options = this.options.merge(options);
+  var lineWidth = options.get('lineWidth'), lineColor = options
+      .get('lineColor'), fillColor = options.get('fillColor');
 
   if (!verts.length) {
     return;
@@ -121,7 +128,7 @@ Cut.PJS.prototype.drawConvex = function(verts, options) {
   }
 
   var cutout = Cut.Out.drawing(2 * width + 2 * lineWidth, 2 * height + 2
-      * lineWidth, this.ratio, function(ctx, ratio) {
+      * lineWidth, this.options.ratio, function(ctx, ratio) {
     ctx.scale(ratio, ratio);
 
     ctx.beginPath();
@@ -151,14 +158,6 @@ Cut.PJS.prototype.drawConvex = function(verts, options) {
   });
 
   return cutout;
-};
-
-Cut.PJS.prototype.options = function(options) {
-  options = typeof options === 'object' ? options : {};
-  options.lineWidth = options.lineWidth || this.lineWidth();
-  options.lineColor = options.lineColor || this.lineColor();
-  options.fillColor = options.fillColor || this.fillColor();
-  return options;
 };
 
 Cut.PJS.randomColor = function() {
