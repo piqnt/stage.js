@@ -28,15 +28,15 @@ Cut.PJS = function(world, options) {
     this.addRenderable(body);
   }
 
-  var time = 0;
+  var time = Date.now();
   this.tick(function(t) {
     time += t;
     world.step(time);
     var bodies = world.getBodies();
     for (var i = 0; i < bodies.length; i++) {
       var body = bodies[i];
-      if (body.view) {
-        body.view.pin({
+      if (body.ui) {
+        body.ui.pin({
           offsetX : body.state.pos.get(0),
           offsetY : body.state.pos.get(1),
           rotation : body.state.angular.pos
@@ -53,7 +53,7 @@ Cut.PJS.prototype.constructor = Cut.PJS;
 
 Cut.PJS.prototype.addRenderable = function(obj) {
   console.log('add');
-  if (obj.view || !obj.geometry) {
+  if (obj.ui || !obj.geometry) {
     return;
   }
   var geometry = obj.geometry;
@@ -65,14 +65,14 @@ Cut.PJS.prototype.addRenderable = function(obj) {
     // cutout = this.drawConvex(shape.points);
     // }
   }
-  obj.view = Cut.create().append(Cut.image(cutout).pin({
+  obj.ui = Cut.create().append(Cut.image(cutout).pin({
     handle : 0.5
   })).appendTo(this);
 };
 
 Cut.PJS.prototype.removeRenderable = function(obj) {
   console.log('remove');
-  obj.view && obj.view.remove();
+  obj.ui && obj.ui.remove();
   return this;
 };
 
