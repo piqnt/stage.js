@@ -16,7 +16,7 @@ Cut.Loader.load(function(root, container) {
           logo.pin("rotation") - Math.PI * 2).then(then);
     } else {
       logo.tween(2000).clear().pin("rotation",
-          logo.pin("rotation") - Math.PI * 2).easing(function(t) {
+          logo.pin("rotation") - Math.PI * 2).ease(function(t) {
         return Math.sin(t * Math.PI / 2);
       });
     }
