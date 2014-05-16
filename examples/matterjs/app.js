@@ -1,9 +1,6 @@
-var ppu = 16.0;
-
 Cut(function(root, container) {
   Cut.Mouse(root, container, true);
 
-  var M = Cut.Math, Mouse = Cut.Mouse;
   var Engine = Matter.Engine, World = Matter.World, Bodies = Matter.Bodies, Body = Matter.Body, Events = Matter.Events;
 
   root.MAX_ELAPSE = 100;
