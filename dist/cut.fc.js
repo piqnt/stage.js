@@ -4,6 +4,8 @@
  * Available under the MIT license
  * @license
  */
+(function() {
+
 DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
 
 function Cut() {
@@ -418,6 +420,7 @@ Cut.prototype.remove = function() {
     }
     this._prev = this._next = this._parent = null;
     this._ts_parent = Cut._TS++;
+    // this._parent.touch();
     return this;
 };
 
@@ -686,15 +689,19 @@ Cut.Image.prototype.tile = function(inner) {
         var left = inner ? -bleft : 0;
         var top = inner ? -btop : 0;
         var c = 0;
+        // top, left
         if (btop && bleft) {
             this._slice(c++).cropX(bleft, 0).cropY(btop, 0).offset(left, top);
         }
+        // bottom, left
         if (bbottom && bleft) {
             this._slice(c++).cropX(bleft, 0).cropY(bbottom, bheight + btop).offset(left, top + height + btop);
         }
+        // top, right
         if (btop && bright) {
             this._slice(c++).cropX(bright, bwidth + bleft).cropY(btop, 0).offset(left + width + bleft, top);
         }
+        // bottom, right
         if (bbottom && bright) {
             this._slice(c++).cropX(bright, bwidth + bleft).cropY(bbottom, bheight + btop).offset(left + width + bleft, top + height + btop);
         }
@@ -710,18 +717,22 @@ Cut.Image.prototype.tile = function(inner) {
                 b -= bheight;
                 this._slice(c++).cropX(w, bleft).cropY(h, btop).offset(x, y);
                 if (r <= 0) {
+                    // left
                     if (bleft) {
                         this._slice(c++).cropX(bleft, 0).cropY(h, btop).offset(left, y);
                     }
+                    // right
                     if (bright) {
                         this._slice(c++).cropX(bright, bwidth + bleft).cropY(h, btop).offset(x + w, y);
                     }
                 }
                 y += h;
             }
+            // top
             if (btop) {
                 this._slice(c++).cropX(w, bleft).cropY(btop, 0).offset(x, top);
             }
+            // bottom
             if (bbottom) {
                 this._slice(c++).cropX(w, bleft).cropY(bbottom, bheight + btop).offset(x, y);
             }
@@ -747,30 +758,39 @@ Cut.Image.prototype.stretch = function(inner) {
         width = inner ? width + oleft + oright : Math.max(width, oleft + oright);
         height = inner ? height + otop + obottom : Math.max(height, otop + obottom);
         var c = 0;
+        // top, left
         if (otop && oleft) {
             this._slice(c++).cropX(oleft, 0).cropY(otop, 0).offset(0, 0);
         }
+        // bottom, left
         if (obottom && oleft) {
             this._slice(c++).cropX(oleft, 0).cropY(obottom, oheight - obottom).offset(0, height - obottom);
         }
+        // top, right
         if (otop && oright) {
             this._slice(c++).cropX(oright, owidth - oright).cropY(otop, 0).offset(width - oright, 0);
         }
+        // bottom, right
         if (obottom && oright) {
             this._slice(c++).cropX(oright, owidth - oright).cropY(obottom, oheight - obottom).offset(width - oright, height - obottom);
         }
+        // top
         if (otop) {
             this._slice(c++).cropX(owidth - oleft - oright, oleft).cropY(otop, 0).offset(oleft, 0).dWidth(width - oleft - oright);
         }
+        // bottom
         if (obottom) {
             this._slice(c++).cropX(owidth - oleft - oright, oleft).cropY(obottom, oheight - obottom).offset(oleft, height - obottom).dWidth(width - oleft - oright);
         }
+        // left
         if (oleft) {
             this._slice(c++).cropX(oleft, 0).cropY(oheight - otop - obottom, otop).offset(0, otop).dHeight(height - otop - obottom);
         }
+        // right
         if (oright) {
             this._slice(c++).cropX(oright, owidth - oright).cropY(oheight - otop - obottom, otop).offset(width - oright, otop).dHeight(height - otop - obottom);
         }
+        // center
         this._slice(c++).cropX(owidth - oleft - oright, oleft).cropY(oheight - otop - obottom, otop).offset(oleft, otop).dWidth(width - oleft - oright).dHeight(height - otop - obottom);
         this._cutouts.length = c;
     };
@@ -1150,6 +1170,7 @@ Cut.Texture = function(texture) {
     }
     this.select = function(selector, prefix) {
         if (!prefix) {
+            // one
             var id = selector + "?";
             var result = selectionCache[id];
             if (typeof result === "undefined") {
@@ -1170,6 +1191,7 @@ Cut.Texture = function(texture) {
             }
             return wrap(result);
         } else {
+            // many
             var id = selector + "*";
             var results = selectionCache[id];
             if (typeof results === "undefined") {
@@ -1262,7 +1284,9 @@ Cut.Out.prototype.paste = function(context) {
     Cut._stats.paste++;
     var img = this._image();
     try {
-        img && context.drawImage(img, this._sx, this._sy, this._sw, this._sh, this._dx, this._dy, this._dw, this._dh);
+        img && context.drawImage(img, // source
+        this._sx, this._sy, this._sw, this._sh, // cut
+        this._dx, this._dy, this._dw, this._dh);
     } catch (e) {
         if (!this.failed) {
             console.log("Unable to paste: ", this._sx, this._sy, this._sw, this._sh, this._dx, this._dy, this._dw, this._dh, img);
@@ -1297,6 +1321,7 @@ Cut.drawing = function() {
     return Cut.image(Cut.Out.drawing.apply(Cut.Out, arguments));
 };
 
+// name and ratio are optional
 Cut.Out.drawing = function(name, w, h, ratio, draw, data) {
     var canvas = document.createElement("canvas");
     var context = canvas.getContext("2d");
@@ -1327,7 +1352,9 @@ Cut.Out.drawing = function(name, w, h, ratio, draw, data) {
 Cut.Pin = function(owner) {
     this._owner = owner;
     this._parent = null;
+    // relative to parent
     this._relativeMatrix = new Cut.Matrix();
+    // relative to root
     this._absoluteMatrix = new Cut.Matrix();
     this.reset();
 };
@@ -1342,15 +1369,19 @@ Cut.Pin.prototype.reset = function() {
     this._skewX = 0;
     this._skewY = 0;
     this._rotation = 0;
+    // scale/skew/rotate center
     this._pivoted = false;
     this._pivotX = null;
     this._pivotY = null;
+    // self pin point
     this._handled = false;
     this._handleX = 0;
     this._handleY = 0;
+    // parent pin point
     this._aligned = false;
     this._alignX = 0;
     this._alignY = 0;
+    // as seen by parent px
     this._offsetX = 0;
     this._offsetY = 0;
     this._boxX = 0;
@@ -1410,11 +1441,13 @@ Cut.Pin.prototype.relativeMatrix = function() {
         rel.translate(this._pivotX * this._width, this._pivotY * this._height);
     }
     if (this._pivoted) {
+        // set handle on origin
         this._boxX = 0;
         this._boxY = 0;
         this._boxWidth = this._width;
         this._boxHeight = this._height;
     } else {
+        // set handle on aabb
         var p, q, m = rel;
         if (m.a > 0 && m.c > 0 || m.a < 0 && m.c < 0) {
             p = 0, q = m.a * this._width + m.c * this._height;
@@ -1471,6 +1504,7 @@ Cut.Pin.prototype.update = function() {
     } else if (arguments.length == 1 && typeof arguments[0] === "object") {
         pin = arguments[0];
     }
+    // TODO: map write only keys to read/write keys
     if (pin) {
         for (key in pin) {
             if (typeof (value = pin[key]) !== "undefined") {
@@ -1717,6 +1751,7 @@ Cut.Matrix.prototype.rotate = function(angle) {
     }
     this.changed = true;
     var u = angle ? Math.cos(angle) : 1;
+    // android bug may give bad 0 values
     var v = angle ? Math.sin(angle) : 0;
     var a = u * this.a - v * this.b;
     var b = u * this.b + v * this.a;
@@ -1911,6 +1946,28 @@ Cut._function = function(value) {
     };
 };
 
+Cut._options = function(options) {
+    options.get = function(name) {
+        return typeof this[name] == "function" ? this[name]() : this[name];
+    };
+    options.extend = function(obj) {
+        obj = typeof obj === "object" ? obj : {};
+        for (var name in this) {
+            obj[name] = name in obj ? obj[name] : this[name];
+        }
+        return obj;
+    };
+    options.mixin = function(obj) {
+        if (typeof obj === "object") {
+            for (var name in obj) {
+                this[name] = obj[name];
+            }
+        }
+        return this;
+    };
+    return options;
+};
+
 Cut._status = function(msg) {
     if (!Cut._statusbox) {
         var statusbox = Cut._statusbox = document.createElement("div");
@@ -1962,55 +2019,31 @@ Cut.Easing = function() {
     function identity(t) {
         return t;
     }
-    var modes = {
-        "in": function(f) {
-            return function(t) {
-                return f(t);
-            };
-        },
-        out: function(f) {
-            return function(t) {
-                return 1 - f(1 - t);
-            };
-        },
-        "in-out": function(f) {
-            return function(t) {
-                if (t < .5) {
-                    return f(2 * t) / 2;
-                } else {
-                    return 1 - f(2 * (1 - t)) / 2;
-                }
-            };
-        },
-        "out-in": function(f) {
-            return function(t) {
-                if (t < .5) {
-                    return 1 - f(2 * (1 - t)) / 2;
-                } else {
-                    return f(2 * t) / 2;
-                }
-            };
-        }
-    };
-    var easings = {};
+    var easings = {}, modes = {};
     function select(token) {
         if (typeof token === "function") {
             return token;
         }
         if (typeof token !== "string") {
-            return modes["in"](identity);
+            return identity;
         }
         var match = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
         if (!match || !match.length) {
-            return modes["in"](identity);
+            return identity;
         }
-        var name = match[1] || "", mode = match[3] || "", params = match[5];
-        mode = modes[mode] || modes["in"];
+        var name = match[1] || "", mode = match[3] || "in", params = match[5];
+        mode = modes[mode];
         params = params ? params.replace(/\s+/, "").split(",") : [];
         var easing = easings[name];
         var fn = easing ? easing.fn || easing.fc.apply(easing.fc, params) : identity;
-        return mode(fn);
+        return mode ? mode(fn) : fn;
     }
+    select.addMode = function(mode) {
+        var names = mode.name.split(/\s+/);
+        for (var i = 0; i < names.length; i++) {
+            names[i] && (modes[names[i]] = mode.fn);
+        }
+    };
     select.add = function(easing) {
         var names = easing.name.split(/\s+/);
         for (var i = 0; i < names.length; i++) {
@@ -2019,6 +2052,42 @@ Cut.Easing = function() {
     };
     return select;
 }();
+
+Cut.Easing.addMode({
+    name: "in",
+    fn: function(f) {
+        return function(t) {
+            return f(t);
+        };
+    }
+});
+
+Cut.Easing.addMode({
+    name: "out",
+    fn: function(f) {
+        return function(t) {
+            return 1 - f(1 - t);
+        };
+    }
+});
+
+Cut.Easing.addMode({
+    name: "in-out",
+    fn: function(f) {
+        return function(t) {
+            return t < .5 ? f(2 * t) / 2 : 1 - f(2 * (1 - t)) / 2;
+        };
+    }
+});
+
+Cut.Easing.addMode({
+    name: "out-in",
+    fn: function(f) {
+        return function(t) {
+            return t < .5 ? 1 - f(2 * (1 - t)) / 2 : f(2 * t) / 2;
+        };
+    }
+});
 
 Cut.Easing.add({
     name: "linear",
@@ -2117,41 +2186,41 @@ Cut.Easing.add({
 
 DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
 
+/**
+ * Default loader for web.
+ */
 window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
-    document.addEventListener("deviceready", function() {
-        DEBUG && console.log("On deviceready.");
-        Cut.Loader.start();
-    }, false);
-    document.addEventListener("pause", function() {
-        Cut.Loader.pause();
-    }, false);
-    document.addEventListener("resume", function() {
-        Cut.Loader.resume();
-    }, false);
+    Cut.Loader.start();
 }, false);
 
 Cut.Loader.init = function(app, canvas) {
-    var context = null;
+    var context = null, full = false;
     var width = 0, height = 0, ratio = 1;
-    if (typeof FastCanvas === "undefined") {
-        FastCanvas = window.FastCanvas;
-    }
     DEBUG && console.log("Creating root...");
-    var root = Cut.root(function(callback) {
-        window.requestAnimationFrame(callback);
-    }, function() {
+    var root = Cut.root(requestAnimationFrame, function() {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, width, height);
         this.render(context);
-        FastCanvas.render();
     });
-    canvas = FastCanvas.create(typeof FASTCANVAS_FALLBACK !== "undefined" && FASTCANVAS_FALLBACK);
-    console.log("FastCanvas: " + FastCanvas.isFast);
+    if (typeof canvas === "string") {
+        canvas = document.getElementById(canvas);
+    }
+    if (!canvas) {
+        canvas = document.getElementById("cutjs");
+    }
+    if (!canvas) {
+        full = true;
+        DEBUG && console.log("Creating element...");
+        canvas = document.createElement("canvas");
+        canvas.style.position = "absolute";
+        var body = document.body;
+        body.insertBefore(canvas, body.firstChild);
+    }
     DEBUG && console.log("Loading images...");
     Cut.loadImages(function(src, handleComplete, handleError) {
-        var image = FastCanvas.createImage();
-        DEBUG && console.log("Loading image: " + src + (image.id ? ", ID: " + image.id : ""));
+        var image = new Image();
+        DEBUG && console.log("Loading image: " + src);
         image.onload = handleComplete;
         image.onerror = handleError;
         image.src = src;
@@ -2163,27 +2232,28 @@ Cut.Loader.init = function(app, canvas) {
         var devicePixelRatio = window.devicePixelRatio || 1;
         var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
         ratio = devicePixelRatio / backingStoreRatio;
+        canvas.resize = resize;
         DEBUG && console.log("Loading...");
-        app(root, document);
+        app(root, canvas);
         resize();
         window.addEventListener("resize", resize, false);
         DEBUG && console.log("Start playing...");
         root.start();
     }
     function resize() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        if (!FastCanvas.isFast) {
+        if (full) {
+            width = window.innerWidth > 0 ? window.innerWidth : screen.width;
+            height = window.innerHeight > 0 ? window.innerHeight : screen.height;
             canvas.style.width = width + "px";
             canvas.style.height = height + "px";
+        } else {
+            width = canvas.clientWidth;
+            height = canvas.clientHeight;
         }
-        DEBUG && console.log("Size: " + width + " x " + height + " / " + ratio);
         width *= ratio;
         height *= ratio;
-        if (!FastCanvas.isFast) {
-            canvas.width = width;
-            canvas.height = height;
-        }
+        canvas.width = width;
+        canvas.height = height;
         root._ratio = ratio;
         DEBUG && console.log("Resize: " + width + " x " + height + " / " + ratio);
         root.visit({
@@ -2222,12 +2292,6 @@ Cut.Loader.init = function(app, canvas) {
             clearTimeout(id);
         };
     }
-    var nop = function() {};
-    document.addEventListener("touchstart", nop);
-    document.addEventListener("mousedown", nop);
-    document.addEventListener("touchend", nop);
-    document.addEventListener("mouseup", nop);
-    document.addEventListener("click", nop);
 }();
 
 DEBUG = true || (typeof DEBUG === "undefined" || DEBUG) && console;
@@ -2295,6 +2359,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     }
     function mouseEnd(event) {
         try {
+            // New xy is not valid/available, last xy is used instead.
             DEBUG && console.log("Mouse End: " + event.type + " " + abs);
             !move && elem.removeEventListener(MOVE, mouseMove);
             event.preventDefault();
@@ -2313,6 +2378,8 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     function mouseMove(event) {
         try {
             update(event, elem);
+            // DEBUG && console.log("Mouse Move: " + event.type + " " +
+            // abs);
             event.preventDefault();
             publish(event.type, event);
         } catch (e) {
@@ -2363,6 +2430,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     };
     function update(event, elem) {
         var isTouch = false;
+        // touch screen events
         if (event.touches) {
             if (event.touches.length) {
                 isTouch = true;
@@ -2372,13 +2440,16 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
                 return;
             }
         } else {
+            // mouse events
             abs.x = event.clientX;
             abs.y = event.clientY;
+            // http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html
             if (document.body.scrollLeft || document.body.scrollTop) {} else if (document.documentElement) {
                 abs.x += document.documentElement.scrollLeft;
                 abs.y += document.documentElement.scrollTop;
             }
         }
+        // accounts for border
         abs.x -= elem.clientLeft || 0;
         abs.y -= elem.clientTop || 0;
         var par = elem;
@@ -2386,12 +2457,29 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
             abs.x -= par.offsetLeft || 0;
             abs.y -= par.offsetTop || 0;
             if (!isTouch) {
+                // touch events offset scrolling with pageX/Y
+                // so scroll offset not needed for them
                 abs.x += par.scrollLeft || 0;
                 abs.y += par.scrollTop || 0;
             }
             par = par.offsetParent;
         }
+        // see loader
         abs.x *= listener._ratio || 1;
         abs.y *= listener._ratio || 1;
     }
 };
+
+  if (typeof define === "function" && define.amd) { // AMD
+    define('Cut', [], function() {
+      return Cut;
+    });
+
+  } else if (typeof module !== 'undefined') { // CommonJS
+    module.exports = Cut;
+
+  } else { // Other
+    arguments[0].Cut = Cut;
+  }
+
+})(this);

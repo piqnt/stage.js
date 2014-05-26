@@ -1,4 +1,5 @@
 function Game(width, height) {
+  var ID = 0;
   var _map = {}, _blocks = [];
 
   this.blocks = function() {
@@ -76,6 +77,7 @@ function Game(width, height) {
   }
 
   function Block(color) {
+    this.id = ID++;
     this.color = color;
 
     this.match = function(list, search, color) {
@@ -180,7 +182,7 @@ Cut(function(root, container) {
     game.restart(5);
   });
 
-  delta.blocks = new Delta();
+  delta.blocks = new Delta("id");
 
   var game = new Game(width, height);
 

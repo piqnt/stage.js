@@ -5,64 +5,127 @@
  * @license
  */
 
-var Extra = Extra || {}, X = Extra;
-Extra.Delta = Delta;
+(function() {
 
-function Delta() {
+  function Delta(fn) {
 
-  var _data = [], _entered = [], _exited = [];
+    if (typeof fn == 'string') {
+      fn = (function(name) {
+        return function(d) {
+          return d[name];
+        };
+      })(fn);
+    }
 
-  this.data = function(data) {
-    if (!data)
-      throw "Invalid data: " + data;
+    var _data = [], _entered = [], _exited = [];
 
-    _entered.length = 0;
-    for (var i = 0; i < data.length; i++) {
-      if (_data.indexOf(data[i]) < 0) {
-        _entered.push(data[i]);
+    var _map = {}, _xmap = {};
+
+    this.data = function(data) {
+      if (!data)
+        throw "Invalid data: " + data;
+
+      if (typeof fn == 'function') {
+        _entered.length = 0;
+        _exited.length = 0;
+        _data.length = data.length;
+
+        for (var i = 0; i < data.length; i++) {
+          var d = data[i], id = fn(d);
+          if (!_map[id]) {
+            _entered.push(d);
+          } else {
+            delete _map[id];
+          }
+          _xmap[id] = _data[i] = d;
+        }
+
+        for ( var id in _map) {
+          _exited.push(_map[id]);
+          delete _map[id];
+        }
+
+        var temp = _map;
+        _map = _xmap;
+        _xmap = temp;
+      } else {
+
+        _entered.length = 0;
+        for (var i = 0; i < data.length; i++) {
+          if (_data.indexOf(data[i]) < 0) {
+            _entered.push(data[i]);
+          }
+        }
+
+        _exited.length = 0;
+        for (var i = 0; i < _data.length; i++) {
+          if (data.indexOf(_data[i]) < 0) {
+            _exited.push(_data[i]);
+          }
+        }
+
+        _data.length = data.length;
+        for (var i = 0; i < data.length; i++) {
+          _data[i] = data[i];
+        }
       }
-    }
 
-    _exited.length = 0;
-    for (var i = 0; i < _data.length; i++) {
-      if (data.indexOf(_data[i]) < 0) {
-        _exited.push(_data[i]);
+      return this;
+    };
+
+    this.update = function(callback) {
+      if (!arguments.length) {
+        return _data;
       }
-    }
+      if (typeof callback !== "function")
+        throw "Invalid update callback!";
+      for (var i = 0; i < _data.length; i++) {
+        callback(_data[i]);
+      }
+      return this;
+    };
 
-    _data.length = data.length;
-    for (var i = 0; i < data.length; i++) {
-      _data[i] = data[i];
-    }
+    this.enter = function(callback) {
+      if (!arguments.length) {
+        return _entered;
+      }
+      if (typeof callback !== "function")
+        throw "Invalid enter callback!";
+      for (var i = 0; i < _entered.length; i++) {
+        callback(_entered[i]);
+      }
+      return this;
+    };
 
-    return this;
-  };
+    this.exit = function(callback) {
+      if (!arguments.length) {
+        return _exited;
+      }
+      if (typeof callback !== "function") {
+        throw "Invalid exit callback!";
+      }
+      for (var i = 0; i < _exited.length; i++) {
+        callback(_exited[i]);
+      }
+      return this;
+    };
 
-  this.update = function(callback) {
-    if (typeof callback !== "function")
-      throw "Invalid update callback!";
-    for (var i = 0; i < _data.length; i++) {
-      callback(_data[i]);
-    }
-    return this;
-  };
+    this.toString = function() {
+      return "+[" + this.enter() + "] -[" + this.exit() + "] =["
+          + this.update() + "]";
+    };
+  }
 
-  this.enter = function(callback) {
-    if (typeof callback !== "function")
-      throw "Invalid enter callback!";
-    for (var i = 0; i < _entered.length; i++) {
-      callback(_entered[i]);
-    }
-    return this;
-  };
+  if (typeof define === "function" && define.amd) { // AMD
+    define('Delta', [], function() {
+      return Delta;
+    });
 
-  this.exit = function(callback) {
-    if (typeof callback !== "function") {
-      throw "Invalid exit callback!";
-    }
-    for (var i = 0; i < _exited.length; i++) {
-      callback(_exited[i]);
-    }
-    return this;
-  };
-}
+  } else if (typeof module !== 'undefined') { // CommonJS
+    module.exports = Delta;
+
+  } else { // Other
+    arguments[0].Delta = Delta;
+  }
+
+})(this);
