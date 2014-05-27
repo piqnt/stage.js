@@ -12,15 +12,15 @@ var paths = {
   fc : [ 'cut-core.js', 'cut-loader.fc.js', 'cut-mouse.js' ]
 };
 
-gulp.task('default', [ 'web', 'cordova', 'fc' ]);
+gulp.task('default', [ 'dist' ]);
 
 gulp.task('web', dist(paths.web, 'cut.web.js', 'cut.web.min.js'));
 gulp.task('cordova', dist(paths.web, 'cut.cordova.js', 'cut.cordova.min.js'));
 gulp.task('fc', dist(paths.web, 'cut.fc.js', 'cut.fc.min.js'));
+gulp.task('dist', [ 'web', 'cordova', 'fc' ]);
 
 gulp.task('bump', function() {
-  var task = gulp;
-  task = task.src([ './bower.json', './package.json' ]);
+  var task = gulp.src([ './bower.json', './package.json' ]);
   task = task.pipe(bump(args.bump ? {
     version : args.bump
   } : {}));
@@ -31,8 +31,7 @@ gulp.task('bump', function() {
 function dist(files, src, min) {
   return function() {
     var pkg = getPackageJson();
-    var task = gulp;
-    task = task.src(files);
+    var task = gulp.src(files);
     task = task.pipe(concat(src));
     task = task
         .pipe(uglify({
