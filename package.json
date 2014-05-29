@@ -2,6 +2,7 @@
   "name": "cutjs",
   "version": "0.1.49",
   "description": "Lightweight, fast, interactable 2D HTML5 rendering engine for cross-platform game development.",
+  "main": "./dist/cut.web.js",
   "homepage": "http://cutjs.org/",
   "keywords": [
     "html5",
