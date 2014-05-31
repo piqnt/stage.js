@@ -149,6 +149,6 @@ Cut.addTexture({
     { name : "option",     x : 9.5,      y : 6.25,  width : 1.5,        height : 1.5 },
     { name : "play",       x : 7.5,      y : 6.25,  width : 1.5,        height : 1.5 },
                            
-    { name : "border",     x : 0,        y : 6,     width : 1,          height : 1 , top: 1/8, bottom: 1/8, left: 1/8, right: 1/8}
+    { name : "border",     x : 14,       y : 0,     width : 1,          height : 1 , top: 1/8, bottom: 1/8, left: 1/8, right: 1/8}
   ]
 });
