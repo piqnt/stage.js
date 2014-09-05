@@ -80,15 +80,15 @@
   }
 
   if (typeof define === "function" && define.amd) { // AMD
-    define('Pool', [], function() {
+    define(function() {
       return Pool;
     });
-
-  } else if (typeof module !== 'undefined') { // CommonJS
+  }
+  if (typeof module !== 'undefined') { // CommonJS
     module.exports = Pool;
-
-  } else { // Other
-    arguments[0].Pool = Pool;
+  }
+  if (window) { // Browser
+    window.Pool = Pool;
   }
 
-})(this);
+})();

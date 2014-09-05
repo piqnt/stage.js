@@ -138,15 +138,15 @@
   };
 
   if (typeof define === "function" && define.amd) { // AMD
-    define('Randomize', [], function() {
+    define(function() {
       return Randomize;
     });
-
-  } else if (typeof module !== 'undefined') { // CommonJS
+  }
+  if (typeof module !== 'undefined') { // CommonJS
     module.exports = Randomize;
-
-  } else { // Other
-    arguments[0].Randomize = Randomize;
+  }
+  if (window) { // Browser
+    window.Randomize = Randomize;
   }
 
-})(this);
+})();
