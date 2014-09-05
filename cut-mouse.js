@@ -27,16 +27,28 @@ Cut.Mouse.END = "touchend mouseup";
 Cut.Mouse.subscribe = function(listener, elem, move) {
   elem = elem || document;
 
-  var isTouchSupported = "ontouchstart" in window;
-  var CLICK = "click";
-  var START = isTouchSupported ? "touchstart" : "mousedown";
-  var MOVE = isTouchSupported ? "touchmove" : "mousemove";
-  var END = isTouchSupported ? "touchend" : "mouseup";
+  elem.addEventListener("click", mouseClick);
 
-  elem.addEventListener(CLICK, mouseClick);
-  elem.addEventListener(START, mouseStart);
-  elem.addEventListener(END, mouseEnd);
-  move && elem.addEventListener(MOVE, mouseMove);
+  // TODO: with 'if' mouse doesn't work on touch screen, without 'if' two events
+  // on Android
+  if ("ontouchstart" in window) {
+    elem.addEventListener("touchstart", function(event) {
+      mouseStart(event, "touchmove");
+    });
+    elem.addEventListener("touchend", function(event) {
+      mouseEnd(event, "touchmove");
+    });
+    move && elem.addEventListener("touchmove", mouseMove);
+
+  } else {
+    elem.addEventListener("mousedown", function(event) {
+      mouseStart(event, "mousemove");
+    });
+    elem.addEventListener("mouseup", function(event) {
+      mouseEnd(event, "mousemove");
+    });
+    move && elem.addEventListener("mousemove", mouseMove);
+  }
 
   var visitor = null;
 
@@ -62,10 +74,10 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     state : 0
   };
 
-  function mouseStart(event) {
+  function mouseStart(event, moveName) {
     update(event, elem);
     DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
-    !move && elem.addEventListener(MOVE, mouseMove);
+    !move && elem.addEventListener(moveName, mouseMove);
     event.preventDefault();
     publish(event.type, event);
 
@@ -74,11 +86,11 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     clicked.state = 1;
   }
 
-  function mouseEnd(event) {
+  function mouseEnd(event, moveName) {
     try {
       // New xy is not valid/available, last xy is used instead.
       DEBUG && console.log("Mouse End: " + event.type + " " + abs);
-      !move && elem.removeEventListener(MOVE, mouseMove);
+      !move && elem.removeEventListener(moveName, mouseMove);
       event.preventDefault();
       publish(event.type, event);
 
