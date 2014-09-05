@@ -13,8 +13,8 @@ Cut(function(root, container) {
   // Resume playing.
   root.resume();
 
-  // Set view box for root.
-  root.viewbox(width, height);
+  // Set view box for root. Valid `mode` values are 'in' and 'out'.
+  root.viewbox(width, height, mode = "in");
 
   // Listen to view port resize events.
   root.on("viewport", function(width, height) {
