@@ -1,4 +1,4 @@
-Cut.Loader.load(function(root, container) {
+Cut(function(root, container) {
   Cut.Mouse.subscribe(root, container, true);
   root.viewbox(1000, 1000).pin("handle", -0.5);
 
