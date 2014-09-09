@@ -1,60 +1,43 @@
 Cut.addTexture({
+  name : "d",
+  imagePath : "d.png",
+  imageRatio : 8,
+  ratio : 8,
+  cutouts : [
+    { name : "0",    x : 0,     y : 0,    width : 0.7,   height : 1 },
+    { name : "1",    x : 1,     y : 0,    width : 0.7,   height : 1 },
+    { name : "2",    x : 2,     y : 0,    width : 0.7,   height : 1 },
+    { name : "3",    x : 3,     y : 0,    width : 0.7,   height : 1 },
+    { name : "4",    x : 4,     y : 0,    width : 0.7,   height : 1 },
+    { name : "5",    x : 5,     y : 0,    width : 0.7,   height : 1 },
+    { name : "6",    x : 6,     y : 0,    width : 0.7,   height : 1 },
+    { name : "7",    x : 7,     y : 0,    width : 0.7,   height : 1 },
+    { name : "8",    x : 8,     y : 0,    width : 0.7,   height : 1 },
+    { name : "9",    x : 9,     y : 0,    width : 0.7,   height : 1 },
+    { name : "-",    x : 10,    y : 0,    width : 0.7,   height : 1 },
+    { name : "+",    x : 11,    y : 0,    width : 0.8,   height : 1 }
+  ]
+});
+
+Cut.addTexture({
   name : "base",
-  factory : function(name) {
-    if (name.substring(0, 2) === "d_") {
-      var d = name.substr(2, 1);
-      return Cut.Out.drawing("d_" + d, 12, 6, 10, function(ctx, ratio) {
-        ctx.scale(ratio, ratio);
-        ctx.font = "bold 4px Arial";
-        ctx.fillStyle = "#bbb";
-        ctx.measureText && this.cropX(ctx.measureText(d).width + 0.4);
-        ctx.textBaseline = "top";
-        ctx.fillText(d, 0.2, 1);
-      });
-    }
-  },
-  cutouts : [ Cut.Out.drawing("bg", 100, 100, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
-    ctx.rect(0, 0, 100, 100);
-    ctx.fillStyle = "#000";
-    ctx.fill();
+  imagePath : "base.png",
+  imageRatio : 8,
+  cutouts : [
+    { name : "planet",    x : 0,     y : 0,    width : 16,   height : 16 },
+    { name : "explosion", x : 16,    y : 0,    width : 16,   height : 16 },
+    { name : "ship",      x : 0,     y : 16,   width : 4,    height : 4 },
+    { name : "next",      x : 4,     y : 16,   width : 4,    height : 4 },
+    { name : "asteroid",  x : 8,     y : 16,   width : 4,    height : 4 },
+    { name : "bullet",    x : 12,    y : 16,   width : 4,    height : 4 }
+  ]
+});
 
-  }), Cut.Out.drawing("planet", 10, 10, 10, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
-    ctx.arc(5, 5, 5, 0, 2 * Math.PI);
-    ctx.fillStyle = "#eee";
-    ctx.fill();
-
-  }), Cut.Out.drawing("explosion", 10, 10, 10, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
-    ctx.arc(5, 5, 5, 0, 2 * Math.PI);
-    ctx.fillStyle = "#aaa";
-    ctx.fill();
-
-  }), Cut.Out.drawing("ship", 2, 2, 10, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
-    ctx.arc(1, 1, 1, 0, 2 * Math.PI);
-    ctx.fillStyle = "#fff";
-    ctx.fill();
-
-  }), Cut.Out.drawing("next", 4, 4, 10, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
-    ctx.arc(2, 2, 1.6, 0, 2 * Math.PI);
-    ctx.lineWidth = 0.3;
-    ctx.strokeStyle = "#fff";
-    ctx.stroke();
-
-  }), Cut.Out.drawing("asteroid", 2, 2, 10, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
-    ctx.arc(1, 1, 1, 0, 2 * Math.PI);
-    ctx.fillStyle = "#888";
-    ctx.fill();
-
-  }), Cut.Out.drawing("bullet", 2, 2, 10, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
-    ctx.arc(1, 1, 0.6, 0, 2 * Math.PI);
-    ctx.fillStyle = "#fff";
-    ctx.fill();
-
-  }) ]
+Cut.addTexture({
+  name : "bg",
+  imagePath : "bg.png",
+  imageRatio : 8,
+  cutouts : [
+    { name : "black",    x : 0,    y : 0,   width : 128,    height : 128 }
+  ]
 });

@@ -192,21 +192,21 @@ Cut(function(root, container) {
 
   root.on('viewport', function(width, height) {
     ui.bg.pin({
-      resizeMode : 'out',
-      resizeWidth : width,
-      resizeHeight : height
+      scaleMode : 'out',
+      scaleWidth : root.pin('width'),
+      scaleHeight : root.pin('height')
     });
   });
 
-  ui.bg = Cut.image('base:bg').pin('handle', 0.5).appendTo(root);
+  ui.bg = Cut.image('bg:black').pin('handle', 0.5).appendTo(root);
 
   ui.status = Cut.row().spacing(2).pin({
     offset : 1,
     align : -0.5,
     handle : 0
   }).appendTo(root);
-  ui.up = Cut.string('base:d_').appendTo(ui.status);
-  ui.down = Cut.string('base:d_').appendTo(ui.status);
+  ui.up = Cut.string('d:').appendTo(ui.status).pin('scale',0.8);
+  ui.down = Cut.string('d:').appendTo(ui.status).pin('scale',0.8);
 
   var space = new Space(root);
 
