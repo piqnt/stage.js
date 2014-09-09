@@ -696,6 +696,22 @@ Cut.Root.prototype.touch = function() {
   return Cut.prototype.touch.apply(this, arguments);
 };
 
+Cut.Root.prototype.resize = function(width, height, ratio) {
+  this._ratio = ratio || 1;
+  this.visit({
+    start : function(cut) {
+      var stop = true;
+      var listeners = cut.listeners("viewport");
+      if (listeners) {
+        for (var l = 0; l < listeners.length; l++)
+          stop &= !listeners[l].call(cut, width, height);
+      }
+      return stop;
+    }
+  });
+  return this;
+};
+
 Cut.image = function(cutout) {
   var image = new Cut.Image();
   cutout && image.setImage(cutout);
@@ -1226,7 +1242,7 @@ Cut.loadImages = function(loader, callback) {
   }
 
   function complete() {
-    DEBUG && console.log("Loading image completed.");
+    DEBUG && console.log("Image loaded.");
     done();
   }
 
@@ -2257,31 +2273,43 @@ Cut._status = function(msg) {
 
 Cut.Loader = (function() {
   var queue = [];
-  var loaded = [];
+  var roots = [];
   var started = false;
   return {
-    load : function(app, canvas) {
-      if (started) {
-        loaded.push(this.init.apply(this, arguments));
-      } else {
+    load : function(app, configs) {
+      if (!started) {
         queue.push(arguments);
+        return;
       }
+      DEBUG && console.log("Loading images...");
+      var self = this;
+      Cut.loadImages(this.loadImage, function() {
+        DEBUG && console.log("Images loaded.");
+        DEBUG && console.log("Initing...");
+        var root = self.init(function(root, canvas) {
+          DEBUG && console.log("Loading app...");
+          app(root, canvas);
+        }, configs);
+        roots.push(root);
+        DEBUG && console.log("Start playing...");
+        root.start();
+      });
     },
     start : function() {
       started = true;
       var args;
       while (args = queue.shift()) {
-        loaded.push(this.init.apply(this, args));
+        this.load.apply(this, args);
       }
     },
     pause : function() {
       for (var i = queue.length - 1; i >= 0; i--) {
-        loaded[i].pause();
+        roots[i].pause();
       }
     },
     resume : function() {
       for (var i = queue.length - 1; i >= 0; i--) {
-        loaded[i].resume();
+        roots[i].resume();
       }
     }
   };
