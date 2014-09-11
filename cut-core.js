@@ -201,12 +201,17 @@ Cut.prototype.listeners = function(type) {
 Cut.prototype.publish = function(name, args) {
   var listeners = this.listeners(name);
   if (!listeners || !listeners.length) {
-    return false;
+    return 0;
   }
   for (var l = 0; l < listeners.length; l++) {
     listeners[l].apply(this, args);
   }
-  return true;
+  return listeners.length;
+};
+
+Cut.prototype.trigger = function(name, args) {
+  this.publish(name, args);
+  return this;
 };
 
 Cut.prototype.visit = function(visitor) {
@@ -630,10 +635,10 @@ Cut.Root = function(request, render) {
     this._request.call(null, requestCallback);
   };
 
-  this.on("viewport", function(width, height) {
+  this.on("viewport", function(viewport) {
     this._size = {
-      width : width,
-      height : height,
+      width : viewport.width,
+      height : viewport.height,
     };
     this._updateViewbox();
     return true;
@@ -648,7 +653,7 @@ Cut.Root.prototype.viewbox = function(width, height, mode) {
   this._viewbox = {
     width : width,
     height : height,
-    mode : typeof mode === "undefined" ? "in" : mode
+    mode : /^(in|out)$/.test(mode) ? mode : 'in'
   };
   this._updateViewbox();
   return this;
@@ -698,15 +703,13 @@ Cut.Root.prototype.touch = function() {
 
 Cut.Root.prototype.resize = function(width, height, ratio) {
   this._ratio = ratio || 1;
+  var data = {};
+  data.width = width;
+  data.height = height;
+  data.ratio = ratio;
   this.visit({
     start : function(cut) {
-      var stop = true;
-      var listeners = cut.listeners("viewport");
-      if (listeners) {
-        for (var l = 0; l < listeners.length; l++)
-          stop &= !listeners[l].call(cut, width, height);
-      }
-      return stop;
+      return !cut.publish("viewport", [ data ]);
     }
   });
   return this;
@@ -2487,7 +2490,6 @@ Cut.Easing.add({
 Cut.Easing.add({
   name : 'back',
   fc : function(s) {
-    console.log(s);
     s = arguments.length ? s : 1.70158;
     return function(t) {
       return t * t * ((s + 1) * t - s);

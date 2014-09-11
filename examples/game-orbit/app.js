@@ -190,7 +190,7 @@ Cut(function(root, container) {
 
   var ui = {};
 
-  root.on('viewport', function(width, height) {
+  root.on('viewport', function() {
     ui.bg.pin({
       scaleMode : 'out',
       scaleWidth : root.pin('width'),

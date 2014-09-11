@@ -584,16 +584,15 @@ Cut(function(root, elem) {
 
     this.open("home");
 
-    this.on("viewport", function(width, height) {
+    this.on("viewport", function(viewport) {
       this.pin({
         width : Conf.width,
         height : Conf.height * 1.2,
         resizeMode : "in",
-        resizeWidth : width,
-        resizeHeight : height - TOP,
+        resizeWidth : viewport.width,
+        resizeHeight : viewport.height - TOP,
         offsetY : TOP
       });
-      return true;
     });
 
   }
@@ -602,21 +601,15 @@ Cut(function(root, elem) {
   App.prototype._super = Cut;
   App.prototype.constructor = App;
 
-  App.prototype.open = function(name) {
-    var open = name;
+  App.prototype.open = function(open) {
     if (typeof open == "string") {
       open = this[open];
     }
     if (this.opened === open) {
       return;
     }
-    if (this.opened) {
-      this.opened.publish("close") || this.opened.hide();
-    }
-    (this.opened = open).publish("open");
-    this.opened.show();
-
-    // this.fs.visible(open === this.home);
+    this.opened && this.opened.trigger("close");
+    this.opened = open.trigger("open");
   };
 
   function Home(app) {
@@ -624,7 +617,7 @@ Cut(function(root, elem) {
 
     var game = app.game;
 
-    this.on("viewport", function(width, height) {
+    this.on("viewport", function() {
       this.pin({
         width : this.parent().pin("width"),
         height : this.parent().pin("height")
@@ -639,10 +632,13 @@ Cut(function(root, elem) {
 
     this.on("open", game.uiUpgrade = function() {
       refresh();
+      this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
     });
 
     this.on("close", function() {
-      this.hide();
+      this.tween(200).pin('alpha', 0).then(function() {
+        this.hide();
+      });
     });
 
     var bg = Cut.image("base:homebg").appendTo(this).pin("align", 0.5);
@@ -774,7 +770,7 @@ Cut(function(root, elem) {
 
     var game = app.game;
 
-    this.on("viewport", function(width, height) {
+    this.on("viewport", function() {
       this.pin({
         width : this.parent().pin("width"),
         height : this.parent().pin("height")
@@ -797,12 +793,15 @@ Cut(function(root, elem) {
     this.on("open", function() {
       elem.style && (elem.style.cursor = "none");
       game.start();
+      this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
     });
 
     this.on("close", function() {
       elem.style && (elem.style.cursor = "");
       game.end();
-      this.hide();
+      this.tween(200).pin('alpha', 0).then(function() {
+        this.hide();
+      });
     });
 
     this.tick(function(t) {

@@ -17,7 +17,8 @@ Cut(function(root, container) {
   root.viewbox(width, height, mode = "in");
 
   // Listen to view port resize events.
-  root.on("viewport", function(width, height) {
+  root.on("viewport", function(viewport) {
+    // `viewport` attributes are `width` and `height`.
   });
 });
 
@@ -121,8 +122,8 @@ foo.on(type, listener);
 // Get type-listeners registered to bar.
 foo.listeners(type);
 
-// Call type-listeners with args.
-foo.publish(type, args);
+// Call type-listeners with args, returns this.
+foo.trigger(type, args);
 
 //
 // ### Pinning
@@ -260,7 +261,7 @@ anim.fps();
 anim.fps(fps);
 
 // Set anim frames as cutout prefix. See Cutout section for more.
-anim.setFrames("texture:prefix");
+anim.setFrames(cutouts);
 
 // Set anim frames as cutout array. See Cutout section for more.
 anim.setFrames(array);
@@ -322,7 +323,7 @@ var string = Cut.string(cutouts);
 string.setValue(value);
 
 // Set string font as cutout prefix. See Cutout section for more.
-string.setFont("texture:prefix");
+string.setFont(cutouts);
 
 // Set string font. 'factory' func takes a char/item and return a cutout.
 string.setFont(function(charOrItem) {
@@ -363,14 +364,25 @@ Cut.addTexture(texture = {
 }, etc);
 
 // Then texture cutouts can be referenced through the app.
-Cut.image(cutout = "textureName:cutoutName");
+// Single selection:
+Cut.image("textureName:cutoutName");
+// Multiple selection:
+Cut.anim("textureName:cutoutPrefix");
+Cut.string("textureName:cutoutPrefix");
+
+//
+// ### Drawing
+// 
 
 // Cutouts can also be created using Canvas drawing.
-Cut.image(cutout = Cut.Out.drawing(name = randomString, width, height,
-    ratio = 1, function(context, ratio) {
+cutout = Cut.Out.drawing(name = randomString, width, height, ratio = 1,
+    function(context, ratio) {
       // context is a 2D Canvas context created using width and height.
       // this === create cutout
-    }));
+    });
+
+// It can be use to create an image for example:
+Cut.image(Cut.Out.drawing());
 
 // There is also a shorthand for that.
 Cut.drawing();
