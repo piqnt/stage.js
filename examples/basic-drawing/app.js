@@ -4,31 +4,32 @@ Cut(function(root, container) {
 
   root.viewbox(200, 200);
 
-  var drawing = Cut.image().appendTo(root).pin("align", 0.5);
+  var width = 50, height = 50, r1 = 10, r2 = 20;
+
+  var image = Cut.image().appendTo(root).pin("align", 0.5);
 
   root.on(Cut.Mouse.CLICK, function() {
-    star();
+    draw();
   });
 
   var p = 4;
-  star();
+  draw();
 
-  function star() {
-    var w = 50, h = 50, r = 10, m = 2;
+  function draw() {
     p = (p + 1 - 3) % 3 + 3;
-    drawing.setImage(Cut.Out.drawing(w, h, 4, function(ctx, ratio) {
+    image.setImage(Cut.Out.drawing(width, height, 4, function(ctx, ratio) {
       ctx.scale(ratio, ratio);
 
       // draw star
-      ctx.translate(w / 2, h / 2);
+      ctx.translate(width / 2, height / 2);
       ctx.beginPath();
       ctx.rotate(Math.PI / p);
-      ctx.moveTo(0, 0 - r);
+      ctx.moveTo(0, 0 - r1);
       for (var i = 0; i < p; i++) {
         ctx.rotate(Math.PI / p);
-        ctx.lineTo(0, 0 - (r * m));
+        ctx.lineTo(0, 0 - r2);
         ctx.rotate(Math.PI / p);
-        ctx.lineTo(0, 0 - r);
+        ctx.lineTo(0, 0 - r1);
       }
 
       // fill & stroke

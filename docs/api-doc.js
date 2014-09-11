@@ -375,17 +375,16 @@ Cut.string("textureName:cutoutPrefix");
 // 
 
 // Cutouts can also be created using Canvas drawing.
-cutout = Cut.Out.drawing(name = randomString, width, height, ratio = 1,
-    function(context, ratio) {
-      // context is a 2D Canvas context created using width and height.
-      // this === create cutout
-    });
+cutout = Cut.Out.drawing(width, height, ratio = 1, function(context, ratio) {
+  // context is a 2D Canvas context created using width and height.
+  // this === create cutout
+});
 
 // It can be use to create an image for example:
-Cut.image(Cut.Out.drawing());
+Cut.image(Cut.Out.drawing(params));
 
 // There is also a shorthand for that.
-Cut.drawing();
+Cut.drawing(params);
 
 // Canvas drawing can also be used in `texture.cutout` and `texture.factory` to
 // creat cutouts instead of using cutoutDef.

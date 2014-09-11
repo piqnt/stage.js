@@ -988,7 +988,7 @@ Cut.Anim.prototype.setFrames = function(frames) {
     for (var i = 0; i < frames.length; i++) {
       var cutout = frames[i];
       this._frames.push(cutout);
-      this._labels[cutout.name] = i;
+      this._labels[cutout._name] = i;
     }
   }
   return this;
@@ -1274,8 +1274,8 @@ Cut._textures = {};
 
 Cut.addTexture = function() {
   for (var i = 0; i < arguments.length; i++) {
-    var data = arguments[i];
-    Cut._textures[data.name] = new Cut.Texture(data);
+    var texture = arguments[i];
+    Cut._textures[texture.name] = new Cut.Texture(texture);
   }
   return this;
 };
@@ -1395,35 +1395,48 @@ Cut.Texture = function(texture) {
   };
 };
 
-Cut.Out = function(data, image, ratio) {
-
+Cut.Out = function(def, image, ratio) {
   this.isCutout = true;
-  this._data = data;
-  this.name = data.name;
+
   this._image = image;
   this._ratio = ratio || 1;
 
-  this._sx = data.x * this._ratio;
-  this._sy = data.y * this._ratio;
+  this._name = def.name;
 
-  this._sw = data.width * this._ratio;
-  this._sh = data.height * this._ratio;
+  this._x = def.x;
+  this._y = def.y;
+  this._width = def.width;
+  this._height = def.height;
+
+  this._top = def.top || 0;
+  this._bottom = def.bottom || 0;
+  this._left = def.left || 0;
+  this._right = def.right || 0;
+
+  this._reset();
+
+  return this;
+};
+
+Cut.Out.prototype._reset = function() {
+  this._sx = this._x * this._ratio;
+  this._sy = this._y * this._ratio;
+  this._sw = this._width * this._ratio;
+  this._sh = this._height * this._ratio;
 
   this._dx = 0;
   this._dy = 0;
-
-  this._dw = data.width;
-  this._dh = data.height;
-
-  this._top = (data.top || 0);
-  this._bottom = (data.bottom || 0);
-
-  this._left = (data.left || 0);
-  this._right = (data.right || 0);
+  this._dw = this._width;
+  this._dh = this._height;
 };
 
 Cut.Out.prototype.clone = function() {
-  return new Cut.Out(this._data, this._image, this._ratio);
+  var clone = Cut._create(Cut.Out.prototype);
+  for ( var attr in this)
+    if (this.hasOwnProperty(attr))
+      clone[attr] = this[attr];
+  clone._reset();
+  return clone;
 };
 
 Cut.Out.prototype.dWidth = function(width) {
@@ -1444,19 +1457,19 @@ Cut.Out.prototype.dHeight = function(height) {
 
 Cut.Out.prototype.cropX = function(w, x) {
   x = x || 0;
-  w = Math.min(w, this._data.width - x);
+  w = Math.min(w, this._width - x);
   this._dw = w;
   this._sw = w * this._ratio;
-  this._sx = (this._data.x + x) * this._ratio;
+  this._sx = (this._x + x) * this._ratio;
   return this;
 };
 
 Cut.Out.prototype.cropY = function(h, y) {
   y = y || 0;
-  h = Math.min(h, this._data.height - y);
+  h = Math.min(h, this._height - y);
   this._dh = h;
   this._sh = h * this._ratio;
-  this._sy = (this._data.y + y) * this._ratio;
+  this._sy = (this._y + y) * this._ratio;
   return this;
 };
 
@@ -1468,26 +1481,32 @@ Cut.Out.prototype.offset = function(x, y) {
 
 Cut.Out.prototype.paste = function(context) {
   Cut._stats.paste++;
-  var img = this._image();
+  var img = typeof this._image === "function" ? this._image() : this._image;
   try {
     img && context.drawImage(img, // source
     this._sx, this._sy, this._sw, this._sh, // cut
     this._dx, this._dy, this._dw, this._dh // position
     );
   } catch (e) {
-    if (!this.failed) {
-      console.log("Unable to paste: ", this._sx, this._sy, this._sw, this._sh,
-          this._dx, this._dy, this._dw, this._dh, img);
+    if (!this._failed) {
+      console.log("Unable to paste: " + this, img);
+      this._failed = true;
     }
-    this.failed = true;
   }
 };
 
 Cut.Out.prototype.toString = function() {
-  return "[" + this.name + ": " + this._dw + "x" + this._dh + "]";
+  return "[" + this._name + ": " + this._sx + "x" + this._sy + "-" + this._sw
+      + "x" + this._sh + "" + this._dx + "x" + this._dy + "-" + this._dw + "x"
+      + this._dh + "]";
+
 };
 
 Cut.Out.select = function(selector, prefix) {
+
+  if (typeof selector === "function") {
+    return Cut.Out.select(selector());
+  }
 
   if (typeof selector !== "string") {
     return selector;
@@ -1515,42 +1534,42 @@ Cut.drawing = function() {
   return Cut.image(Cut.Out.drawing.apply(Cut.Out, arguments));
 };
 
-// name and ratio are optional
-Cut.Out.drawing = function(name, w, h, ratio, draw, data) {
+// [name], width, height, [ratio], [draw]
+// def, [draw]
+Cut.Out.drawing = function() {
   var canvas = document.createElement("canvas");
   var context = canvas.getContext("2d");
 
-  if (typeof draw === "function") {
-
-  } else if (typeof ratio === "function") {
-    if (typeof name === "string") {
-      data = draw, draw = ratio, ratio = 1;
-    } else {
-      data = draw, draw = ratio, ratio = h, h = w, w = name, name = Math
-          .random() * 1000 | 0;
+  var def = {};
+  var ai = 0;
+  if (typeof arguments[ai] === "object") {
+    def = arguments[ai++];
+  } else {
+    if (typeof arguments[ai] === "string") {
+      def.name = arguments[ai++];
     }
-  } else if (typeof h === "function") {
-    data = ratio, draw = h, ratio = 1, h = w, w = name,
-        name = Math.random() * 1000 | 0;
+    def.width = arguments[ai++];
+    def.height = arguments[ai++];
+    if (typeof arguments[ai] === "number") {
+      def.ratio = arguments[ai++];
+    }
+    def.x = 0;
+    def.y = 0;
   }
 
-  canvas.width = Math.ceil(w * ratio);
-  canvas.height = Math.ceil(h * ratio);
+  def.ratio = def.ratio || 1;
+  def.name = def.name || (Math.random() * 1000 | 0);
 
-  data || (data = {});
-  data.name || (data.name = name);
-  data.x || (data.x = 0);
-  data.y || (data.y = 0);
-  data.width || (data.width = w);
-  data.height || (data.height = h);
+  canvas.width = Math.ceil(def.width * def.ratio);
+  canvas.height = Math.ceil(def.height * def.ratio);
 
-  data = new Cut.Out(data, function() {
-    return canvas;
-  }, ratio);
+  var cut = new Cut.Out(def, canvas, def.ratio);
 
-  draw.call(data, context, ratio);
+  if (typeof arguments[arguments.length - 1] === 'function') {
+    arguments[arguments.length - 1].call(cut, context, def.ratio);
+  }
 
-  return data;
+  return cut;
 };
 
 Cut.Pin = function(owner) {
