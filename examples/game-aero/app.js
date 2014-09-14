@@ -163,7 +163,7 @@ Cut(function(root, canvas) {
 
   world.ui = root.viewbox(300, 300).listen("viewport", function() {
     world.resize(this.pin("width"), this.pin("height"));
-  }).pin("handle", -0.5).spy(true);
+  }).pin("handle", -0.5);
 
   root.tick(function() {
     world.animate();

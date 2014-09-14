@@ -19,6 +19,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "should": "~4.0.4",
     "minimist": "~0.1.0",
     "gulp": "~3.6.2",
     "gulp-uglify": "~0.3.0",

@@ -189,6 +189,7 @@ Cut.prototype.on = Cut.prototype.listen = function(types, listener) {
       this._listeners = this._listeners || {};
       this._listeners[type] = this._listeners[type] || [];
       this._listeners[type].push(listener);
+      this._listenOn(type);
     }
   }
   return this;
@@ -328,6 +329,8 @@ Cut.prototype.appendTo = function(parent) {
     parent._first = this;
   }
 
+  this._parent._listenOn(this);
+
   this._ts_parent = Cut._TS++;
   parent._ts_children = Cut._TS++;
   parent.touch();
@@ -355,6 +358,8 @@ Cut.prototype.prependTo = function(parent) {
   if (!parent._last) {
     parent._last = this;
   }
+
+  this._parent._listenOn(this);
 
   this._ts_parent = Cut._TS++;
   parent._ts_children = Cut._TS++;
@@ -406,6 +411,8 @@ Cut.prototype.insertBefore = function(next) {
   this._prev = prev;
   this._next = next;
 
+  this._parent._listenOn(this);
+
   this._ts_parent = Cut._TS++;
   this.touch();
   return this;
@@ -430,6 +437,8 @@ Cut.prototype.insertAfter = function(prev) {
   this._parent = parent;
   this._prev = prev;
   this._next = next;
+
+  this._parent._listenOn(this);
 
   this._ts_parent = Cut._TS++;
   this.touch();
@@ -461,9 +470,9 @@ Cut.prototype.remove = function() {
     if (this._parent._last === this) {
       this._parent._last = this._prev;
     }
-  }
 
-  if (this._parent) {
+    this._parent._listenOff(this);
+
     this._parent._ts_children = Cut._TS++;
     this._parent.touch();
   }
@@ -480,6 +489,8 @@ Cut.prototype.empty = function() {
   while (child = next) {
     next = child._next;
     child._prev = child._next = child._parent = null;
+
+    this._listenOff(child);
   }
 
   this._first = this._last = null;
@@ -487,6 +498,48 @@ Cut.prototype.empty = function() {
   this._ts_children = Cut._TS++;
   this.touch();
   return this;
+};
+
+Cut.prototype._listenOn = function(obj) {
+  if (typeof obj === 'string') {
+    this._listenersCount = this._listenersCount || {};
+    if (!this._listenersCount[obj] && this._parent) {
+      this._parent._listenOn(obj);
+    }
+    this._listenersCount[obj] = (this._listenersCount[obj] || 0) + 1;
+  } else if (typeof obj === 'object') {
+    if (obj._listenersCount) {
+      for ( var type in obj._listenersCount) {
+        if (obj._listenersCount[type] > 0) {
+          this._listenOn(type);
+        }
+      }
+    }
+  }
+};
+
+Cut.prototype._listenOff = function(obj) {
+  if (typeof obj === 'string') {
+    this._listenersCount = this._listenersCount || {};
+    if (this._listenersCount[obj] == 1 && this._parent) {
+      this._parent._listenOff(obj);
+    }
+    this._listenersCount[obj] = Math.max((this._listenersCount[obj] || 0) - 1,
+        0);
+
+  } else if (typeof obj === 'object') {
+    if (obj._listenersCount) {
+      for ( var type in obj._listenersCount) {
+        if (obj._listenersCount[type] > 0) {
+          this._listenOff(type);
+        }
+      }
+    }
+  }
+};
+
+Cut.prototype._listens = function(type) {
+  return (this._listenersCount && this._listenersCount[type]) || 0;
 };
 
 Cut.prototype.touch = function() {
@@ -1350,7 +1403,8 @@ Cut.Texture = function(texture) {
       if (typeof result === "undefined") {
         for (var i = 0; i < texture.cutouts.length; i++) {
           var item = texture.cutouts[i];
-          if (item.name == selector) {
+          var name = (item._name || item.name);
+          if (name == selector) {
             result = item;
             break;
           }
@@ -1376,7 +1430,8 @@ Cut.Texture = function(texture) {
         var length = selector.length;
         for (var i = 0; i < texture.cutouts.length; i++) {
           var item = texture.cutouts[i];
-          if (item.name && item.name.substring(0, length) == selector) {
+          var name = (item._name || item.name);
+          if (name && name.substring(0, length) == selector) {
             results.push(texture.cutouts[i]);
           }
         }
@@ -2515,3 +2570,7 @@ Cut.Easing.add({
     };
   }
 });
+
+if (typeof module !== 'undefined') {
+  module.exports = Cut;
+}

@@ -160,7 +160,7 @@ Cut(function(root, container) {
     width : width * 2,
     height : height * 2,
     align : 0.5
-  }).spy(true);
+  });
 
   Cut.image('base:easy').appendTo(ui.board).pin({
     alignX : 1,

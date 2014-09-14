@@ -24,7 +24,7 @@ Cut.Mouse.START = "touchstart mousedown";
 Cut.Mouse.MOVE = "touchmove mousemove";
 Cut.Mouse.END = "touchend mouseup";
 
-Cut.Mouse.subscribe = function(listener, elem, move) {
+Cut.Mouse.subscribe = function(root, elem, move) {
   elem = elem || document;
 
   elem.addEventListener("click", mouseClick);
@@ -138,29 +138,34 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     abs.event = event;
     rel.x = abs.x;
     rel.y = abs.y;
-    listener.visit(visitor);
+    // visitor.count = 0;
+    root.visit(visitor);
+    // console.log(visitor.count);
   }
 
   visitor = {
     reverse : true,
     visible : true,
     start : function(cut) {
-      if (!(cut.spy() || listener === cut)) {
-        cut.matrix().reverse().map(abs, rel);
-        if (rel.x < 0 || rel.x > cut._pin._width || rel.y < 0
-            || rel.y > cut._pin._height) {
-          return true;
-        }
+      if (!cut._listens(abs.type)) {
+        return true;
       }
     },
     end : function(cut) {
+      // visitor.count++;
       var listeners = cut.listeners(abs.type);
-      if (listeners) {
-        cut.matrix().reverse().map(abs, rel);
-        for (var l = 0; l < listeners.length; l++)
-          if (listeners[l].call(cut, abs.event, rel)) {
-            return true;
-          }
+      if (!listeners) {
+        return;
+      }
+      cut.matrix().reverse().map(abs, rel);
+      if (cut !== root && !cut._spy && rel.x < 0 && rel.x > cut._pin._width
+          && rel.y < 0 && rel.y > cut._pin._height) {
+        return;
+      }
+      for (var l = 0; l < listeners.length; l++) {
+        if (listeners[l].call(cut, abs.event, rel)) {
+          return;
+        }
       }
     }
   };
@@ -182,7 +187,7 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
       // mouse events
       abs.x = event.clientX;
       abs.y = event.clientY;
-      // http://www.softcomplex.com/docs/get_window_size_and_scrollbar_position.html
+      // See http://goo.gl/JuVnF2
       if (document.body.scrollLeft || document.body.scrollTop) {
         // body is added as offsetParent
       } else if (document.documentElement) {
@@ -210,8 +215,8 @@ Cut.Mouse.subscribe = function(listener, elem, move) {
     }
 
     // see loader
-    abs.x *= listener._ratio || 1;
-    abs.y *= listener._ratio || 1;
+    abs.x *= root._ratio || 1;
+    abs.y *= root._ratio || 1;
   }
 
 };

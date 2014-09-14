@@ -571,14 +571,13 @@ Cut(function(root, elem) {
 
   function App() {
     App.prototype._super.apply(this, arguments);
-    this.spy(true);
 
     this.game = new Game();
 
-    this.home = new Home(this).appendTo(this).hide().spy(true).pin({
+    this.home = new Home(this).appendTo(this).hide().pin({
       align : 0.5
     });
-    this.play = new Play(this).appendTo(this).hide().spy(true).pin({
+    this.play = new Play(this).appendTo(this).hide().pin({
       align : 0.5
     });
 
@@ -630,7 +629,11 @@ Cut(function(root, elem) {
       });
     });
 
-    this.on("open", game.uiUpgrade = function() {
+    game.uiUpgrade = function() {
+      refresh();
+    };
+
+    this.on("open", function() {
       refresh();
       this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
     });
