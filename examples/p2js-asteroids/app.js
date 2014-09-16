@@ -397,7 +397,7 @@
 
 var PPU = 64;
 
-Cut.addTexture({
+Cut({
   name : "font",
   factory : function(name) {
     var prefix = "_";

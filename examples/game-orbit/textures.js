@@ -1,4 +1,4 @@
-Cut.addTexture({
+Cut({
   name : "d",
   imagePath : "d.png",
   imageRatio : 8,
@@ -19,7 +19,7 @@ Cut.addTexture({
   ]
 });
 
-Cut.addTexture({
+Cut({
   name : "base",
   imagePath : "base.png",
   imageRatio : 8,
@@ -33,7 +33,7 @@ Cut.addTexture({
   ]
 });
 
-Cut.addTexture({
+Cut({
   name : "bg",
   imagePath : "bg.png",
   imageRatio : 8,

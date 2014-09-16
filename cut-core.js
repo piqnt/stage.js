@@ -9,7 +9,11 @@ DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
 function Cut() {
   if (!(this instanceof Cut)) {
-    return Cut.Loader.load.apply(Cut.Loader, arguments);
+    if (typeof arguments[0] === 'function') {
+      return Cut.Loader.load.apply(Cut.Loader, arguments);
+    } else if (typeof arguments[0] === 'object') {
+      return Cut.Texture.add.apply(Cut.Texture, arguments);
+    }
   }
 
   Cut._stats.create++;
@@ -1274,65 +1278,99 @@ Cut.prototype.spacing = function(space) {
   return this;
 };
 
-Cut._images = {};
+// TODO use prototype
+Cut.Loader = (function() {
+  var queue = [];
+  var roots = [];
+  var images = {};
+  var started = false;
 
-Cut.loadImages = function(loader, callback) {
-  var loading = 0;
+  function loadImages(loader, callback) {
+    var loading = 0;
 
-  var noimage = true;
+    var noimage = true;
 
-  var textures = Cut._textures;
-  for ( var texture in textures) {
-    if (textures[texture].getImagePath()) {
-      loading++;
-      var src = textures[texture].getImagePath();
-      var image = loader(src, complete, error);
-      Cut.addImage(image, src);
-      noimage = false;
+    var textures = Cut.Texture._list;
+    for ( var texture in textures) {
+      if (textures[texture].getImagePath()) {
+        loading++;
+        var src = textures[texture].getImagePath();
+        var image = loader(src, complete, error);
+        Cut.Loader.addImage(image, src);
+        noimage = false;
+      }
     }
-  }
 
-  if (noimage) {
-    DEBUG && console.log("No image to load.");
-    callback && callback();
-  }
-
-  function complete() {
-    DEBUG && console.log("Image loaded.");
-    done();
-  }
-
-  function error(msg) {
-    DEBUG && console.log("Error loading image: " + msg);
-    done();
-  }
-
-  function done() {
-    if (--loading <= 0) {
+    if (noimage) {
+      DEBUG && console.log("No image to load.");
       callback && callback();
     }
+
+    function complete() {
+      DEBUG && console.log("Image loaded.");
+      done();
+    }
+
+    function error(msg) {
+      DEBUG && console.log("Error loading image: " + msg);
+      done();
+    }
+
+    function done() {
+      if (--loading <= 0) {
+        callback && callback();
+      }
+    }
   }
-};
 
-Cut.getImage = function(src) {
-  return Cut._images[src];
-};
+  return {
+    load : function(app, configs) {
+      if (!started) {
+        queue.push(arguments);
+        return;
+      }
+      DEBUG && console.log("Loading images...");
+      var self = this;
+      loadImages(this.loadImage, function() {
+        DEBUG && console.log("Images loaded.");
+        DEBUG && console.log("Initing...");
+        var root = self.init(function(root, canvas) {
+          DEBUG && console.log("Loading app...");
+          app(root, canvas);
+        }, configs);
+        roots.push(root);
+        DEBUG && console.log("Start playing...");
+        root.start();
+      });
+    },
+    start : function() {
+      started = true;
+      var args;
+      while (args = queue.shift()) {
+        this.load.apply(this, args);
+      }
+    },
+    pause : function() {
+      for (var i = queue.length - 1; i >= 0; i--) {
+        roots[i].pause();
+      }
+    },
+    resume : function() {
+      for (var i = queue.length - 1; i >= 0; i--) {
+        roots[i].resume();
+      }
+    },
+    getImage : function(src) {
+      return images[src];
+    },
+    addImage : function(image, src) {
+      images[src] = image;
+      return this;
+    }
+  };
+})();
 
-Cut.addImage = function(image, src) {
-  Cut._images[src] = image;
-  return this;
-};
-
-Cut._textures = {};
-
-Cut.addTexture = function() {
-  for (var i = 0; i < arguments.length; i++) {
-    var texture = arguments[i];
-    Cut._textures[texture.name] = new Cut.Texture(texture);
-  }
-  return this;
-};
-
+// TODO use prototype
 Cut.Texture = function(texture) {
 
   texture.cutouts = texture.cutouts || [];
@@ -1345,7 +1383,9 @@ Cut.Texture = function(texture) {
   };
 
   function image() {
-    imageCache || (imageCache = Cut.getImage(texture.imagePath));
+    if (!imageCache) {
+      imageCache = Cut.Loader.getImage(texture.imagePath);
+    }
     return imageCache;
   }
 
@@ -1354,11 +1394,7 @@ Cut.Texture = function(texture) {
   }
 
   function map(cutout) {
-    if (!cutout) {
-      return cutout;
-    }
-
-    if (cutout.isCutout) {
+    if (!cutout || cutout.isCutout) {
       return cutout;
     }
 
@@ -1448,6 +1484,23 @@ Cut.Texture = function(texture) {
       return results;
     }
   };
+};
+
+Cut.Texture._list = {};
+
+Cut.Texture.add = function() {
+  for (var i = 0; i < arguments.length; i++) {
+    var texture = arguments[i];
+    Cut.Texture._list[texture.name] = new Cut.Texture(texture);
+  }
+  return this;
+};
+
+/**
+ * @deprecated Use Cut();
+ */
+Cut.addTexture = function() {
+  return Cut.Texture.add.apply(Cut.Texture, arguments);
 };
 
 Cut.Out = function(def, image, ratio) {
@@ -1576,7 +1629,7 @@ Cut.Out.select = function(selector, prefix) {
 
   var split = [ selector.slice(0, i), selector.slice(i + 1) ];
 
-  var texture = Cut._textures[split[0]];
+  var texture = Cut.Texture._list[split[0]];
   if (texture == null) {
     throw "Texture not found: '" + selector + "'";
     return !prefix ? null : [];
@@ -2347,50 +2400,6 @@ Cut._status = function(msg) {
   }
   Cut._statusbox.innerHTML = msg;
 };
-
-Cut.Loader = (function() {
-  var queue = [];
-  var roots = [];
-  var started = false;
-  return {
-    load : function(app, configs) {
-      if (!started) {
-        queue.push(arguments);
-        return;
-      }
-      DEBUG && console.log("Loading images...");
-      var self = this;
-      Cut.loadImages(this.loadImage, function() {
-        DEBUG && console.log("Images loaded.");
-        DEBUG && console.log("Initing...");
-        var root = self.init(function(root, canvas) {
-          DEBUG && console.log("Loading app...");
-          app(root, canvas);
-        }, configs);
-        roots.push(root);
-        DEBUG && console.log("Start playing...");
-        root.start();
-      });
-    },
-    start : function() {
-      started = true;
-      var args;
-      while (args = queue.shift()) {
-        this.load.apply(this, args);
-      }
-    },
-    pause : function() {
-      for (var i = queue.length - 1; i >= 0; i--) {
-        roots[i].pause();
-      }
-    },
-    resume : function() {
-      for (var i = queue.length - 1; i >= 0; i--) {
-        roots[i].resume();
-      }
-    }
-  };
-})();
 
 Cut.Easing = (function() {
 

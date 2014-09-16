@@ -335,7 +335,7 @@ string.setFont(function(charOrItem) {
 // Image cutouts are used to refrence graphics to be painted.
 
 // Cutouts are usually added to an app by adding textures.
-Cut.addTexture(texture = {
+Cut({
   name : textureName,
   imagePath : textureImagePath,
   imageRatio : 1,
@@ -388,7 +388,7 @@ Cut.drawing(params);
 
 // Canvas drawing can also be used in `texture.cutout` and `texture.factory` to
 // creat cutouts instead of using cutoutDef.
-Cut.addTexture(texture = {
+Cut({
   name : textureName,
 
   cutouts : [ Cut.Out.drawing(), etc ],

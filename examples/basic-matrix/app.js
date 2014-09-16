@@ -11,7 +11,7 @@ Cut(function(root, container) {
       matrix.identity().scale(1, 0.5).rotate(Math.PI / 4));
 });
 
-Cut.addTexture({
+Cut({
   name : "pin",
   imagePath : "box.png",
   cutouts : [ {

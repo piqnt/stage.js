@@ -1,4 +1,4 @@
-Cut.addTexture({
+Cut({
   name : "base",
   cutouts : [ Cut.Out.drawing("bg", 30, 30, 20, function(ctx, ratio) {
     ctx.scale(ratio, ratio);

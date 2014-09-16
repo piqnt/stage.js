@@ -1,4 +1,4 @@
-Cut.addTexture({
+Cut({
   name : "base",
   imagePath : "../basic-texture.png",
   imageRatio : 4,

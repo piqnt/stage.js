@@ -24,7 +24,7 @@ Cut(function(root, container) {
   }
 });
 
-Cut.addTexture({
+Cut({
   name : "pin",
   imagePath : "pinwheel.png",
   cutouts : [ {

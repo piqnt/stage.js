@@ -5,26 +5,25 @@ Cut(function(root, container) {
   Cut.Mouse(root, container);
 
   // Set view box
-  root.viewbox(500, 300);
+  root.viewbox(300, 200);
 
-  // Create an image node
-  Cut.image("base:box").appendTo(root)
-    // on mouse click on this node
+  // Create an image node, append it to root and align it to center
+  Cut.image("sample:box").appendTo(root).pin("align", 0.5)
+    // On mouse click...
     .on(Cut.Mouse.CLICK, function(ev, point) {
       // Tween scale values of this node
       this.tween().clear().pin({
         scaleX : Math.random() + 0.5,
         scaleY : Math.random() + 0.5
       });
-      return true;
     });
-
+  
 });
 
 // Register an image texture
-Cut.addTexture({
-  name : "base",
-  imagePath : "base.png",
+Cut({
+  name : "sample",
+  imagePath : "sample.png",
   cutouts : [
     { name : "box", x : 0, y : 0, width : 30, height : 30 }
   ]
