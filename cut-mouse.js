@@ -7,14 +7,6 @@
 
 DEBUG = true || (typeof DEBUG === 'undefined' || DEBUG) && console;
 
-Cut.prototype.spy = function(spy) {
-  if (!arguments.length) {
-    return this._spy;
-  }
-  this._spy = spy ? true : false;
-  return this;
-};
-
 Cut.Mouse = function() {
   Cut.Mouse.subscribe.apply(Cut.Mouse, arguments);
 };
@@ -158,7 +150,8 @@ Cut.Mouse.subscribe = function(root, elem, move) {
         return;
       }
       cut.matrix().reverse().map(abs, rel);
-      if (cut !== root && !cut._spy && rel.x < 0 && rel.x > cut._pin._width
+      var spy = cut.attr('spy');
+      if (cut !== root && !spy && rel.x < 0 && rel.x > cut._pin._width
           && rel.y < 0 && rel.y > cut._pin._height) {
         return;
       }

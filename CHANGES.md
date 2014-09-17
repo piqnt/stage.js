@@ -1,4 +1,5 @@
 #### v0.2
+* replaced `spy(true)` with `attr('spy', true)`
 * replaced `Cut.addTexture(...)` with `Cut(...)`
 * using deep listeners count instead of `spy` to optimized mouse event distribution
 * `drawing` signature changed from `([name], width, height, [ratio], callback, [def])` to `([name], width, height, [ratio], [callback])` and `(def, [callback])`

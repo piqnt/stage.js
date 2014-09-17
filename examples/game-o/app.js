@@ -827,7 +827,7 @@ Cut(function(root, elem) {
 
     var top = Cut.image("base:shadow").stretch().appendTo(this);
 
-    var field = Cut.create().appendTo(this).spy(true).pin({
+    var field = Cut.create().appendTo(this).attr('spy', true).pin({
       width : Conf.width,
       height : Conf.height,
       alignX : 0.5,

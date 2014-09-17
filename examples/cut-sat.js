@@ -31,7 +31,7 @@ Cut.SAT = function(world, options) {
   });
 
   var dragPoint = {}, dragShape = null;
-  this.spy(true).on(Cut.Mouse.START, function(ev, point) {
+  this.attr('spy', true).on(Cut.Mouse.START, function(ev, point) {
     dragPoint = {
       x : point.x,
       y : point.y
