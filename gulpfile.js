@@ -40,7 +40,7 @@ function dist(files, src, min) {
           output : {
             beautify : true,
             comments : function(node, comment) {
-              return comment.type != "comment2"
+              return comment.type != 'comment2'
                   || !/@license/i.test(comment.value);
             }
           }

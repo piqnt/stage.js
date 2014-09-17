@@ -13,25 +13,25 @@ DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
  * (Use FastCanvas loader for Android.)
  */
 
-window.addEventListener("load", function() {
-  DEBUG && console.log("On load.");
+window.addEventListener('load', function() {
+  DEBUG && console.log('On load.');
   // device ready not called; must be in a browser
   // var readyTimeout = setTimeout(function() {
-  // DEBUG && console.log("On deviceready timeout.");
+  // DEBUG && console.log('On deviceready timeout.');
   // Cut.Loader.start();
   // }, 2000);
 
-  document.addEventListener("deviceready", function() {
-    DEBUG && console.log("On deviceready.");
+  document.addEventListener('deviceready', function() {
+    DEBUG && console.log('On deviceready.');
     // clearTimeout(readyTimeout);
     Cut.Loader.start();
   }, false);
 
-  document.addEventListener("pause", function() {
+  document.addEventListener('pause', function() {
     Cut.Loader.pause();
   }, false);
 
-  document.addEventListener("resume", function() {
+  document.addEventListener('resume', function() {
     Cut.Loader.resume();
   }, false);
 }, false);
@@ -41,24 +41,24 @@ Cut.Loader.init = function(app, configs) {
   var canvas = configs.canvas, context = null, full = false;
   var width = 0, height = 0, ratio = 1;
 
-  if (typeof canvas === "string") {
+  if (typeof canvas === 'string') {
     canvas = document.getElementById(canvas);
   }
 
   if (!canvas) {
-    canvas = document.getElementById("cutjs");
+    canvas = document.getElementById('cutjs');
   }
 
   if (!canvas) {
     full = true;
-    DEBUG && console.log("Creating element...");
-    canvas = document.createElement("canvas");
-    canvas.style.position = "absolute";
+    DEBUG && console.log('Creating element...');
+    canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
     var body = document.body;
     body.insertBefore(canvas, body.firstChild);
   }
 
-  context = canvas.getContext("2d");
+  context = canvas.getContext('2d');
 
   var devicePixelRatio = window.devicePixelRatio || 1;
   var backingStoreRatio = context.webkitBackingStorePixelRatio
@@ -73,7 +73,7 @@ Cut.Loader.init = function(app, configs) {
         return window.setTimeout(callback, 1000 / 60);
       };
 
-  DEBUG && console.log("Creating root...");
+  DEBUG && console.log('Creating root...');
   var root = Cut.root(requestAnimationFrame, function() {
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.clearRect(0, 0, width, height);
@@ -83,7 +83,7 @@ Cut.Loader.init = function(app, configs) {
   app(root, canvas);
 
   resize();
-  window.addEventListener("resize", resize, false);
+  window.addEventListener('resize', resize, false);
 
   function resize() {
 
@@ -91,8 +91,8 @@ Cut.Loader.init = function(app, configs) {
       width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
       height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
 
-      canvas.style.width = width + "px";
-      canvas.style.height = height + "px";
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
 
     } else {
       width = canvas.clientWidth;
@@ -105,7 +105,7 @@ Cut.Loader.init = function(app, configs) {
     canvas.width = width;
     canvas.height = height;
 
-    DEBUG && console.log("Resize: " + width + " x " + height + " / " + ratio);
+    DEBUG && console.log('Resize: ' + width + ' x ' + height + ' / ' + ratio);
 
     root.resize(width, height, ratio);
   }
@@ -115,7 +115,7 @@ Cut.Loader.init = function(app, configs) {
 
 Cut.Loader.loadImage = function(src, handleComplete, handleError) {
   var image = new Image();
-  DEBUG && console.log("Loading image: " + src);
+  DEBUG && console.log('Loading image: ' + src);
   image.onload = handleComplete;
   image.onerror = handleError;
   image.src = src;

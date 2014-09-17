@@ -11,35 +11,35 @@ Cut.Mouse = function() {
   Cut.Mouse.subscribe.apply(Cut.Mouse, arguments);
 };
 
-Cut.Mouse.CLICK = "click";
-Cut.Mouse.START = "touchstart mousedown";
-Cut.Mouse.MOVE = "touchmove mousemove";
-Cut.Mouse.END = "touchend mouseup";
+Cut.Mouse.CLICK = 'click';
+Cut.Mouse.START = 'touchstart mousedown';
+Cut.Mouse.MOVE = 'touchmove mousemove';
+Cut.Mouse.END = 'touchend mouseup';
 
 Cut.Mouse.subscribe = function(root, elem, move) {
   elem = elem || document;
 
-  elem.addEventListener("click", mouseClick);
+  elem.addEventListener('click', mouseClick);
 
   // TODO: with 'if' mouse doesn't work on touch screen, without 'if' two events
   // on Android
-  if ("ontouchstart" in window) {
-    elem.addEventListener("touchstart", function(event) {
-      mouseStart(event, "touchmove");
+  if ('ontouchstart' in window) {
+    elem.addEventListener('touchstart', function(event) {
+      mouseStart(event, 'touchmove');
     });
-    elem.addEventListener("touchend", function(event) {
-      mouseEnd(event, "touchmove");
+    elem.addEventListener('touchend', function(event) {
+      mouseEnd(event, 'touchmove');
     });
-    move && elem.addEventListener("touchmove", mouseMove);
+    move && elem.addEventListener('touchmove', mouseMove);
 
   } else {
-    elem.addEventListener("mousedown", function(event) {
-      mouseStart(event, "mousemove");
+    elem.addEventListener('mousedown', function(event) {
+      mouseStart(event, 'mousemove');
     });
-    elem.addEventListener("mouseup", function(event) {
-      mouseEnd(event, "mousemove");
+    elem.addEventListener('mouseup', function(event) {
+      mouseEnd(event, 'mousemove');
     });
-    move && elem.addEventListener("mousemove", mouseMove);
+    move && elem.addEventListener('mousemove', mouseMove);
   }
 
   var visitor = null;
@@ -48,7 +48,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
     x : 0,
     y : 0,
     toString : function() {
-      return (this.x | 0) + "x" + (this.y | 0);
+      return (this.x | 0) + 'x' + (this.y | 0);
     }
   };
 
@@ -56,7 +56,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
     x : 0,
     y : 0,
     toString : function() {
-      return abs + " / " + (this.x | 0) + "x" + (this.y | 0);
+      return abs + ' / ' + (this.x | 0) + 'x' + (this.y | 0);
     }
   };
 
@@ -68,7 +68,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
 
   function mouseStart(event, moveName) {
     update(event, elem);
-    DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
+    DEBUG && console.log('Mouse Start: ' + event.type + ' ' + abs);
     !move && elem.addEventListener(moveName, mouseMove);
     event.preventDefault();
     publish(event.type, event);
@@ -81,14 +81,14 @@ Cut.Mouse.subscribe = function(root, elem, move) {
   function mouseEnd(event, moveName) {
     try {
       // New xy is not valid/available, last xy is used instead.
-      DEBUG && console.log("Mouse End: " + event.type + " " + abs);
+      DEBUG && console.log('Mouse End: ' + event.type + ' ' + abs);
       !move && elem.removeEventListener(moveName, mouseMove);
       event.preventDefault();
       publish(event.type, event);
 
       if (clicked.state == 1 && clicked.x == abs.x && clicked.y == abs.y) {
-        DEBUG && console.log("Mouse Click [+]");
-        publish("click", event);
+        DEBUG && console.log('Mouse Click [+]');
+        publish('click', event);
         clicked.state = 2;
       } else {
         clicked.state = 0;
@@ -101,7 +101,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
   function mouseMove(event) {
     try {
       update(event, elem);
-      // DEBUG && console.log("Mouse Move: " + event.type + " " +
+      // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
       // abs);
       event.preventDefault();
       publish(event.type, event);
@@ -113,12 +113,12 @@ Cut.Mouse.subscribe = function(root, elem, move) {
   function mouseClick(event) {
     try {
       update(event, elem);
-      DEBUG && console.log("Mouse Click: " + event.type + " " + abs);
+      DEBUG && console.log('Mouse Click: ' + event.type + ' ' + abs);
       event.preventDefault();
       if (clicked.state != 2) {
         publish(event.type, event);
       } else {
-        DEBUG && console.log("Mouse Click [-]");
+        DEBUG && console.log('Mouse Click [-]');
       }
     } catch (e) {
       console && console.log(e);
