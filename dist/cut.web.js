@@ -2462,7 +2462,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
     function mouseMove(event) {
         try {
             update(event, elem);
-            // DEBUG && console.log("Mouse Move: " + event.type + " " +
+            // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
             // abs);
             event.preventDefault();
             publish(event.type, event);

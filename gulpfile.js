@@ -5,6 +5,7 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var wrap = require('gulp-wrap');
 var bump = require('gulp-bump');
+var mocha = require('gulp-mocha');
 
 var paths = {
   web : [ 'cut-core.js', 'cut-loader.web.js', 'cut-mouse.js' ],
@@ -12,7 +13,7 @@ var paths = {
   fc : [ 'cut-core.js', 'cut-loader.fc.js', 'cut-mouse.js' ]
 };
 
-gulp.task('default', [ 'dist' ]);
+gulp.task('default', [ 'mocha', 'dist' ]);
 
 gulp.task('web', dist(paths.web, 'cut.web.js', 'cut.web.min.js'));
 gulp.task('cordova', dist(paths.web, 'cut.cordova.js', 'cut.cordova.min.js'));
@@ -26,6 +27,12 @@ gulp.task('bump', function() {
   } : {}));
   task = task.pipe(gulp.dest('./'));
   return task;
+});
+
+gulp.task('mocha', function() {
+  return gulp.src('test/*.js', {
+    read : false
+  }).pipe(mocha({}));
 });
 
 function dist(files, src, min) {

@@ -25,6 +25,7 @@
     "gulp-uglify": "~0.3.0",
     "gulp-concat": "~2.2.0",
     "gulp-wrap": "~0.3.0",
-    "gulp-bump": "~0.1.8"
+    "gulp-bump": "~0.1.8",
+    "gulp-mocha": "~1.1.0"
   }
 }
