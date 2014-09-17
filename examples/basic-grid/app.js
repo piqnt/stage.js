@@ -13,7 +13,7 @@ Cut(function(root, container) {
     for (i = 0; i < 9; i++) {
       // colors as frames
       var cell = Cut.anim("base:color_").appendTo(row).pin("pivot", 0.5);
-      cell.on(Cut.Mouse.MOVE, function(ev, point) {
+      cell.on(Cut.Mouse.MOVE, function(point) {
         if (this != last) {
           last = this;
           // random frame = random color

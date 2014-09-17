@@ -904,14 +904,14 @@ Cut(function(root, elem) {
       cursor.xy(point.x, point.y).visible(game.pointer(point.x, point.y));
       // }
 
-      // }).on(Mouse.START, function(ev, point) {
+      // }).on(Mouse.START, function(point) {
       // lastMouse = {
       // x : point.x,
       // y : point.y,
       // dist : game.dist
       // };
       //
-      // }).on(Mouse.END, function(ev, point) {
+      // }).on(Mouse.END, function(point) {
       // lastMouse = null;
 
     });

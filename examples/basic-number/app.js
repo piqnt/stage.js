@@ -10,7 +10,7 @@ Cut(function(root, container) {
   var number = Cut.string("base:d_").setValue("0123456789").pin("align", 0.5)
       .id("str").appendTo(popup);
 
-  root.on(Cut.Mouse.CLICK, function(ev, point) {
+  root.on(Cut.Mouse.CLICK, function(point) {
     number.setValue(Cut.Math
         .random(0, Math.pow(10, Cut.Math.random(0, 10) | 0)) | 0);
     return true;

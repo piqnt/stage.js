@@ -161,7 +161,7 @@ Cut(function(root, canvas) {
     y : 0
   };
 
-  world.ui = root.viewbox(300, 300).listen("viewport", function() {
+  world.ui = root.viewbox(300, 300).on("viewport", function() {
     world.resize(this.pin("width"), this.pin("height"));
   }).pin("handle", -0.5);
 
@@ -224,7 +224,7 @@ Cut(function(root, canvas) {
   };
 
   // Mouse
-  world.ui.listen(Cut.Mouse.START, function(ev, point) {
+  world.ui.on(Cut.Mouse.START, function(point) {
     world.run(true);
     root.touch();
     if (b !== null && g !== null) {
@@ -238,12 +238,12 @@ Cut(function(root, canvas) {
     }
     return true;
 
-  }).listen(Cut.Mouse.END, function(ev, point) {
+  }).on(Cut.Mouse.END, function(point) {
     a0 = b0 = g0 = null;
     _down_mouse.valid = false;
     return true;
 
-  }).listen(Cut.Mouse.MOVE, function(ev, point) {
+  }).on(Cut.Mouse.MOVE, function(point) {
     if (_down_mouse.valid) {
       _down_mouse.x = point.x;
       _down_mouse.y = point.y;

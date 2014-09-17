@@ -11,7 +11,7 @@ Cut(function(root, container) {
   for (var i = 0; i < colors.length; i++) {
 
     Cut.image("base:color_" + colors[i]).appendTo(row).pin("pivot", 0.5).on(
-        Cut.Mouse.MOVE, function(ev, point) {
+        Cut.Mouse.MOVE, function(point) {
           if (this != last) {
             last = this;
             this.tween().clear().pin({

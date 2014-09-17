@@ -1,4 +1,5 @@
 #### v0.2
+* Mouse events signature changed from `(rawEvent, point)` to `(point)` where new `point.raw` is old `rawEvent`
 * support pinning shorthands for tweening
 * replaced `spy(true)` with `attr('spy', true)`
 * replaced `Cut.addTexture(...)` with `Cut(...)`

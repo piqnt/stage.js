@@ -31,7 +31,7 @@ Cut.SAT = function(world, options) {
   });
 
   var dragPoint = {}, dragShape = null;
-  this.attr('spy', true).on(Cut.Mouse.START, function(ev, point) {
+  this.attr('spy', true).on(Cut.Mouse.START, function(point) {
     dragPoint = {
       x : point.x,
       y : point.y
@@ -45,7 +45,7 @@ Cut.SAT = function(world, options) {
       }
     }
 
-  }).on(Cut.Mouse.MOVE, function(ev, point) {
+  }).on(Cut.Mouse.MOVE, function(point) {
     if (dragShape) {
       dragShape.pos.x -= dragPoint.x - point.x;
       dragShape.pos.y -= dragPoint.y - point.y;
@@ -55,7 +55,7 @@ Cut.SAT = function(world, options) {
       y : point.y
     };
 
-  }).on(Cut.Mouse.END, function(ev, point) {
+  }).on(Cut.Mouse.END, function(point) {
     dragShape = null;
   });
 };

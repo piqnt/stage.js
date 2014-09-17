@@ -404,8 +404,9 @@ Cut({
 Cut.Mouse(root, container, captureAnyMove = false);
 
 // Add click listener to bar.
-bar.on(Cut.Mouse.CLICK, function(event, point) {
+bar.on(Cut.Mouse.CLICK, function(point) {
   // point.x and point.y are relative to this node left and top.
+  // point.raw is original event
   return trueToStopPropagating;
 });
 

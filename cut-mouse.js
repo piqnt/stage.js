@@ -155,8 +155,9 @@ Cut.Mouse.subscribe = function(root, elem, move) {
           || rel.y > cut._pin._height) {
         return;
       }
+      rel.raw = abs.event;
       for (var l = 0; l < listeners.length; l++) {
-        if (listeners[l].call(cut, abs.event, rel)) {
+        if (listeners[l].call(cut, rel)) {
           return;
         }
       }

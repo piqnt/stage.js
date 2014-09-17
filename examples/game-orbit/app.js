@@ -299,7 +299,7 @@ Cut(function(root, container) {
     space.tick(t);
   });
 
-  root.on(Cut.Mouse.START, function(ev, point) {
+  root.on(Cut.Mouse.START, function(point) {
     space.shoot(point);
   });
 

@@ -4,7 +4,7 @@ Cut(function(root, container) {
 
   root.viewbox(500, 300);
 
-  root.on(Cut.Mouse.CLICK, function(ev, point) {
+  root.on(Cut.Mouse.CLICK, function(point) {
     bar1.tween().clear().pin("width", Cut.Math.random(20, 100) | 0);
     bar2.tween().clear().pin("width", Cut.Math.random(20, 100) | 0);
     bar3.tween().clear().pin("width", Cut.Math.random(20, 100) | 0);

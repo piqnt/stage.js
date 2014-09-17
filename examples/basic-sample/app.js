@@ -10,7 +10,7 @@ Cut(function(root, container) {
   // Create an image node, append it to root and align it to center
   Cut.image("sample:box").appendTo(root).pin("align", 0.5)
     // On mouse click...
-    .on(Cut.Mouse.CLICK, function(ev, point) {
+    .on(Cut.Mouse.CLICK, function(point) {
       // Tween scale values of this node
       this.tween().clear().ease("bounce").pin({
         scaleX : Math.random() + 0.5,

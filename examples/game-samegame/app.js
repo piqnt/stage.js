@@ -193,7 +193,7 @@ Cut(function(root, container) {
         offsetX : block.i * 2 + 1,
         offsetY : block.j * 2 + 1,
         handle : 0.5
-      }).on(Cut.Mouse.CLICK, function(ev, point) {
+      }).on(Cut.Mouse.CLICK, function(point) {
         game.click(block);
       });
     }).update(function(block) {
