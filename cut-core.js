@@ -597,22 +597,29 @@ Cut.Tween = function(cut) {
 
     if (!head.start) {
       head.start = {};
+      head.keys = {};
       for ( var key in head.end) {
-        var start = cut.pin(key);
-        if (typeof start === 'number' /* && start != head.end[key] */) {
+        if (typeof (start = cut.pin(key)) === 'number') {
           head.start[key] = start;
+          head.keys[key] = key;
+        } else if (typeof (startX = cut.pin(key + 'X')) === 'number'
+            && typeof (startY = cut.pin(key + 'Y')) === 'number') {
+          head.start[key + 'X'] = startX;
+          head.keys[key + 'X'] = key;
+          head.start[key + 'Y'] = startY;
+          head.keys[key + 'Y'] = key;
         }
       }
     }
 
-    var prog = (head.time - head.delay) / head.duration;
-    var over = prog >= 1;
-    prog = prog > 1 ? 1 : prog;
-    prog = typeof head.easing == 'function' ? head.easing(prog) : prog;
+    var p = (head.time - head.delay) / head.duration;
+    var over = p >= 1;
+    p = p > 1 ? 1 : p;
+    p = typeof head.easing == 'function' ? head.easing(p) : p;
+    var q = 1 - p;
 
-    for ( var key in head.start) {
-      var start = head.start[key], end = head.end[key];
-      cut.pin(key, start + (end - start) * prog);
+    for ( var key in head.keys) {
+      cut.pin(key, head.start[key] * q + head.end[head.keys[key]] * p);
     }
 
     if (over) {

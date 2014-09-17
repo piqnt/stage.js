@@ -12,7 +12,7 @@ Cut(function(root, container) {
     // On mouse click...
     .on(Cut.Mouse.CLICK, function(ev, point) {
       // Tween scale values of this node
-      this.tween().clear().pin({
+      this.tween().clear().ease("bounce").pin({
         scaleX : Math.random() + 0.5,
         scaleY : Math.random() + 0.5
       });

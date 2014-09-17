@@ -150,9 +150,9 @@ Cut.Mouse.subscribe = function(root, elem, move) {
         return;
       }
       cut.matrix().reverse().map(abs, rel);
-      var spy = cut.attr('spy');
-      if (cut !== root && !spy && rel.x < 0 && rel.x > cut._pin._width
-          && rel.y < 0 && rel.y > cut._pin._height) {
+      if (cut === root || cut.attr('spy')) {
+      } else if (rel.x < 0 || rel.x > cut._pin._width || rel.y < 0
+          || rel.y > cut._pin._height) {
         return;
       }
       for (var l = 0; l < listeners.length; l++) {

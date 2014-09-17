@@ -1,4 +1,5 @@
 #### v0.2
+* support pinning shorthands for tweening
 * replaced `spy(true)` with `attr('spy', true)`
 * replaced `Cut.addTexture(...)` with `Cut(...)`
 * using deep listeners count instead of `spy` to optimized mouse event distribution
