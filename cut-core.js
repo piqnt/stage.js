@@ -2587,6 +2587,11 @@ Cut.Easing.add({
   }
 });
 
-if (typeof module !== 'undefined') {
+if (typeof define === "function" && define.amd) { // AMD
+  define('Cut', [], function() {
+    return Cut;
+  });
+
+} else if (typeof module !== 'undefined') { // CommonJS
   module.exports = Cut;
 }

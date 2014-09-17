@@ -1,6 +1,6 @@
 {
   "name": "cutjs",
-  "version": "0.1.49",
+  "version": "0.2.0-rc.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/piqnt/cutjs.git"

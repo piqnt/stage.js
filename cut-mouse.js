@@ -5,7 +5,7 @@
  * @license
  */
 
-DEBUG = true || (typeof DEBUG === 'undefined' || DEBUG) && console;
+DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
 
 Cut.Mouse = function() {
   Cut.Mouse.subscribe.apply(Cut.Mouse, arguments);
