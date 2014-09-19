@@ -1336,16 +1336,15 @@ Cut.Loader = (function() {
         queue.push(arguments);
         return;
       }
+      DEBUG && console.log('Init...');
+      var root = this.init(function(root, canvas) {
+        DEBUG && console.log('Loading app...');
+        app(root, canvas);
+      }, configs);
+      roots.push(root);
       DEBUG && console.log('Loading images...');
-      var self = this;
       loadImages(this.loadImage, function() {
         DEBUG && console.log('Images loaded.');
-        DEBUG && console.log('Initing...');
-        var root = self.init(function(root, canvas) {
-          DEBUG && console.log('Loading app...');
-          app(root, canvas);
-        }, configs);
-        roots.push(root);
         DEBUG && console.log('Start playing...');
         root.start();
       });
