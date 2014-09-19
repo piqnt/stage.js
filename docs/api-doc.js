@@ -163,7 +163,7 @@ bar.pin({
 // Usually are set automatically depending on node type.
 bar.pin({
   height : height,
-  width : width,
+  width : width
 });
 
 // Positioning
@@ -181,7 +181,7 @@ bar.pin({
   handleY : 0,
   // Distance from parent align to self handle in pixel.
   offsetX : 0,
-  offsetY : 0,
+  offsetY : 0
 });
 
 // Scale to new width/height.
@@ -189,7 +189,7 @@ bar.pin({
 bar.pin({
   scaleMode : mode,
   scaleWidth : width,
-  scaleHeight : height,
+  scaleHeight : height
 });
 
 // Scale to new width/height and then resize to fill width/height.
@@ -197,7 +197,7 @@ bar.pin({
 bar.pin({
   resizeMode : mode,
   resizeWidth : width,
-  resizeHeight : height,
+  resizeHeight : height
 });
 
 //
@@ -213,11 +213,11 @@ tween.clear(jumpToEnd = false);
 // Set pinning values and start tweening.
 tween.pin(pinning);
 
-// Set easing for tweening, `easing` can be either a function or an identifier
-// as "name[-mode][(params)]", for example "quad" or "poly-in-out(3)".
+// Set easing for tweening, it can be either a function or an identifier as
+// "name[-mode][(params)]", for example "quad" or "poly-in-out(3)".
 // Available names are: linear, quad, cubic, quart, quint, poly(p),
 // sin/sine, exp, circle/circ, bounce, elastic(a, p), back(s)
-// Available modes are: in, out,in-out, out-in.
+// Available modes are: in, out, in-out, out-in
 tween.ease(easing);
 
 // Callback when tweening is over.
@@ -242,8 +242,8 @@ image.setImage(cutout);
 image.cropX(w, x = 0);
 image.cropY(h, y = 0);
 
-// Tile/Stretch image to resize to pinning width and height. To define border
-// use top, bottom, left and right with cutout definition.
+// Tile/Stretch image when pinning width and/or height are changed. To define
+// borders use top, bottom, left and right with cutout definition.
 image.tile();
 image.stretch();
 
@@ -397,7 +397,7 @@ Cut({
 }, etc);
 
 //
-// ### Mouse(Touch)
+// ### Mouse
 // Mouse class is used to capture and process mouse and touch events.
 
 // Subscribe root to Mouse events.
