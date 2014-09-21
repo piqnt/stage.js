@@ -773,7 +773,10 @@ Cut.Root.prototype.resize = function(width, height, ratio) {
   data.ratio = ratio;
   this.visit({
     start : function(cut) {
-      return !cut.publish('viewport', [ data ]);
+      if (!cut._listens('viewport')) {
+        return true;
+      }
+      cut.publish('viewport', [ data ]);
     }
   });
   return this;
