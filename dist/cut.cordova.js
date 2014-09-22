@@ -1,5 +1,5 @@
 /*
- * CutJS 0.2.0-rc.1
+ * CutJS 0.2.0-2
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -699,7 +699,10 @@ Cut.Root.prototype.resize = function(width, height, ratio) {
     data.ratio = ratio;
     this.visit({
         start: function(cut) {
-            return !cut.publish("viewport", [ data ]);
+            if (!cut._listens("viewport")) {
+                return true;
+            }
+            cut.publish("viewport", [ data ]);
         }
     });
     return this;
@@ -1183,16 +1186,15 @@ Cut.Loader = function() {
                 queue.push(arguments);
                 return;
             }
+            DEBUG && console.log("Init...");
+            var root = this.init(function(root, canvas) {
+                DEBUG && console.log("Loading app...");
+                app(root, canvas);
+            }, configs);
+            roots.push(root);
             DEBUG && console.log("Loading images...");
-            var self = this;
             loadImages(this.loadImage, function() {
                 DEBUG && console.log("Images loaded.");
-                DEBUG && console.log("Initing...");
-                var root = self.init(function(root, canvas) {
-                    DEBUG && console.log("Loading app...");
-                    app(root, canvas);
-                }, configs);
-                roots.push(root);
                 DEBUG && console.log("Start playing...");
                 root.start();
             });
@@ -2292,15 +2294,11 @@ Cut.Easing.add({
     }
 });
 
-if (typeof define === "function" && define.amd) {
-    // AMD
-    define("Cut", [], function() {
-        return Cut;
-    });
-} else if (typeof module !== "undefined") {
-    // CommonJS
+if (typeof module !== "undefined") {
     module.exports = Cut;
 }
+
+if (typeof Cut === "undefined" && typeof require === "function") Cut = require("./cut-core");
 
 DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
 
@@ -2374,6 +2372,8 @@ Cut.Loader.loadImage = function(src, handleComplete, handleError) {
     image.src = src;
     return image;
 };
+
+if (typeof Cut === "undefined" && typeof require === "function") Cut = require("./cut-core");
 
 DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
 
@@ -2510,8 +2510,9 @@ Cut.Mouse.subscribe = function(root, elem, move) {
             if (cut === root || cut.attr("spy")) {} else if (rel.x < 0 || rel.x > cut._pin._width || rel.y < 0 || rel.y > cut._pin._height) {
                 return;
             }
+            rel.raw = abs.event;
             for (var l = 0; l < listeners.length; l++) {
-                if (listeners[l].call(cut, abs.event, rel)) {
+                if (listeners[l].call(cut, rel)) {
                     return;
                 }
             }
@@ -2558,3 +2559,9 @@ Cut.Mouse.subscribe = function(root, elem, move) {
         abs.y *= root._ratio || 1;
     }
 };
+
+if (typeof define === 'function' && define.amd) { // AMD
+  define('Cut', [], function() {
+    return Cut;
+  });
+}

@@ -1,5 +1,5 @@
 var should = require('should');
-var Cut = require('../cut-core.js');
+var Cut = require('../cut-core');
 
 describe('Deep', function() {
   it('Count', function(done) {
