@@ -1,0 +1,10 @@
+[ {
+  "src" : "base.svg",
+  "dest" : "../www/media/base.png 32:32 8x"
+}, {
+  "src" : "digit.svg",
+  "dest" : "../www/media/digit.png 128:8 8x"
+}, {
+  "src" : "bg.svg",
+  "dest" : "../www/media/bg.png 20% 256:256 4x"
+} ]

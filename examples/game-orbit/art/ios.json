@@ -1,0 +1,31 @@
+[ {
+  "src" : "icon.svg",
+  "dest" : [
+    "../platforms/ios/Orbit/Resources/icons/icon-40.png       16:16 40:40",
+    "../platforms/ios/Orbit/Resources/icons/icon-40.png       16:16 40:40",
+    "../platforms/ios/Orbit/Resources/icons/icon-40@2x.png    16:16 80:80",
+    "../platforms/ios/Orbit/Resources/icons/icon-50.png       16:16 50:50",
+    "../platforms/ios/Orbit/Resources/icons/icon-50@2x.png    16:16 100:100",
+    "../platforms/ios/Orbit/Resources/icons/icon-60.png       16:16 60:60",
+    "../platforms/ios/Orbit/Resources/icons/icon-60@2x.png    16:16 120:120",
+    "../platforms/ios/Orbit/Resources/icons/icon-72.png       16:16 72:72",
+    "../platforms/ios/Orbit/Resources/icons/icon-72@2x.png    16:16 144:144",
+    "../platforms/ios/Orbit/Resources/icons/icon-76.png       16:16 76:76",
+    "../platforms/ios/Orbit/Resources/icons/icon-76@2x.png    16:16 152:152",
+    "../platforms/ios/Orbit/Resources/icons/icon-small.png    16:16 29:29",
+    "../platforms/ios/Orbit/Resources/icons/icon-small@2x.png 16:16 58:58",
+    "../platforms/ios/Orbit/Resources/icons/icon.png          16:16 57:57",
+    "../platforms/ios/Orbit/Resources/icons/icon@2x.png       16:16 114:114"
+    ]
+} , {
+  "src" : "splash.svg",
+  "dest" : [ 
+    "../platforms/ios/Orbit/Resources/splash/Default-Landscape@2x~ipad.png 128:128 1496:2048",
+    "../platforms/ios/Orbit/Resources/splash/Default-Landscape~ipad.png    128:128 748:1024",
+    "../platforms/ios/Orbit/Resources/splash/Default-Portrait@2x~ipad.png  128:128 1536:2008",
+    "../platforms/ios/Orbit/Resources/splash/Default-Portrait~ipad.png     128:128 768:1004",
+    "../platforms/ios/Orbit/Resources/splash/Default-568h@2x~iphone.png    128:128 640:1136",
+    "../platforms/ios/Orbit/Resources/splash/Default@2x~iphone.png         128:128 640:960",
+    "../platforms/ios/Orbit/Resources/splash/Default~iphone.png            128:128 320:480"
+  ]
+} ]

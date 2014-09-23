@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="org.cutjs.orbit" version="0.1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <name>Orbit</name>
+  <description>Orbit</description>
+  <author email="hello@cutjs.org" href="http://cutjs.org/">CutJS</author>
+  <content src="index.html" />
+  <access origin="*" />
+  <preference name="Orientation" value="landscape" />
+  <preference name="Fullscreen" value="true" />
+</widget>
