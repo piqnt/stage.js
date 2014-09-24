@@ -34,6 +34,12 @@ body {
 	bottom: 0.5em;
 }
 
+.loading {
+	margin: 10% 10%;
+	font-size: xx-large;
+	position: absolute;
+}
+
 a {
 	text-decoration: none;
 	color: blue;
@@ -45,8 +51,17 @@ a:hover {
 
 .dark {
 	color: #ccc;
+	background: #222;
 }
 
 .dark a {
 	color: #fff;
+}
+
+canvas {
+	background: #fff;
+}
+
+.dark canvas {
+	background: #222;
 }
