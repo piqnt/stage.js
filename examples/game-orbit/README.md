@@ -18,13 +18,13 @@ To prepare the project for Cordova few more files are also needed:
 
 For other platforms do similar to iOS.
 
-Now all you need is to build you project.  But before that make sure you have installed Cordova 3 CLI and NPM (yes, you need to google them).
+Now all you need is to build your project.  But before that make sure you have installed Cordova 3 CLI and NPM (yes, you need to google them).
 
 You don't need to create a new Cordova project, but if you like just copy above files after creating it.
 
 #### iOS
 
-First, add iOS platform to you Cordova project:
+First, add iOS platform to your Cordova project:
 ```
 cordova platform add ios
 ```
@@ -40,7 +40,7 @@ For other platforms you can follow similar steps.
 
 #### Android
 
-Android is also similar but requires an additional step. First, add Android platform to you Cordova project:
+Android is also similar but requires an additional step. First, add Android platform to your Cordova project:
 ```
 cordova platform add android
 ```
@@ -52,7 +52,7 @@ cordova plugin add https://github.com/piqnt/phonegap-plugin-fast-canvas
 ```
 Note that FastCanvas takes up entire screen and covers the HTML page.
 
-Then, prepare you Android project:
+Then, prepare your Android project:
 ```
 cordova prepare android
 ```
