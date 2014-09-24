@@ -1,8 +1,8 @@
-# Orbit
+# [Orbit](http://play.cutjs.org/examples/game-orbit/)
 
 Orbit is a cross-platform demo game for [CutJS](http://cutjs.org/)—the best HTML5 engine for cross-platform game development!  To package this game for mobile devices [Cordova 3](http://cordova.apache.org/) is used.
 
-You can [play it here](http://play.cutjs.org/examples/game-orbit/).
+[Play it here](http://play.cutjs.org/examples/game-orbit/)
 
 Basically the game consists of following files:
 - `www/index.html` the page viewing the game
