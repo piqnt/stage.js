@@ -887,7 +887,7 @@ Cut(function(root, elem) {
 
     // var lastMouse = null;
 
-    field.on([ Mouse.MOVE, Mouse.START ], function(ev, point) {
+    field.on([ Mouse.MOVE, Mouse.START ], function(point) {
       // if (lastMouse) {
       // var x = lastMouse.x - point.x + game.dist - lastMouse.dist;
       // var y = lastMouse.y - point.y;
