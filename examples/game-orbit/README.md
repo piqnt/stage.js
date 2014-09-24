@@ -29,7 +29,7 @@ First, add iOS platform to you Cordova project:
 cordova platform add ios
 ```
 
-Then, use Cordova `prepare` command to prepare you iOS project, it using `www` and `merges` folders and Cordova config files:
+Then, use Cordova `prepare` command to prepare your iOS project using `www` and `merges` folders and Cordova `config.xml` file:
 ```
 cordova prepare ios
 ```
@@ -45,7 +45,7 @@ Android is also similar but requires an additional step. First, add Android plat
 cordova platform add android
 ```
 
-HTML5 Canvas usually doesn't preform well on Android, but there is a Corova plugin called [FastCanvas](https://github.com/phonegap/phonegap-plugin-fast-canvas) which we can use to shim it with a native GLSurface.
+HTML5 Canvas usually doesn't perform well on Android, but there is a Corova plugin called [FastCanvas](https://github.com/phonegap/phonegap-plugin-fast-canvas) which we can use to shim it with a native GLSurface.
 Install [this edition](https://github.com/piqnt/phonegap-plugin-fast-canvas) of FastCanvas which is updated and optimized for CutJS:
 ```
 cordova plugin add https://github.com/piqnt/phonegap-plugin-fast-canvas
