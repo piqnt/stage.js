@@ -18,7 +18,10 @@ To prepare the project for Cordova few more files are also needed:
 
 For other platforms do similar to iOS.
 
-Now all you need is to build your project.  But before that make sure you have installed Cordova 3 CLI and NPM (yes, you need to google them).
+Now all you need is to build your project.  But first make sure you have [installed NPM](https://www.google.com/search?q=install+node.js+npm) and then install Cordova 3 CLI:
+```
+npm install -g cordova
+```
 
 You don't need to create a new Cordova project, but if you like just copy above files after creating it.
 
