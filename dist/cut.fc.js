@@ -1,5 +1,5 @@
 /*
- * CutJS 0.2.0
+ * CutJS 0.2.1
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -710,7 +710,7 @@ Cut.Root.prototype.resize = function(width, height, ratio) {
 
 Cut.image = function(cutout) {
     var image = new Cut.Image();
-    cutout && image.setImage(cutout);
+    cutout && image.image(cutout);
     return image;
 };
 
@@ -724,7 +724,14 @@ Cut.Image.prototype._super = Cut;
 
 Cut.Image.prototype.constructor = Cut.Image;
 
-Cut.Image.prototype.setImage = function(cutout) {
+/**
+ * @deprecated Use image
+ */
+Cut.Image.prototype.setImage = function() {
+    this.image.apply(this, arguments);
+};
+
+Cut.Image.prototype.image = function(cutout) {
     this._cutouts[0] = Cut.Out.select(cutout);
     this._cutouts.length = 1;
     this.pin({
@@ -736,11 +743,11 @@ Cut.Image.prototype.setImage = function(cutout) {
 };
 
 Cut.Image.prototype.cropX = function(w, x) {
-    return this.setImage(this._cutouts[0].cropX(w, x));
+    return this.image(this._cutouts[0].cropX(w, x));
 };
 
 Cut.Image.prototype.cropY = function(h, y) {
-    return this.setImage(this._cutouts[0].cropY(h, y));
+    return this.image(this._cutouts[0].cropY(h, y));
 };
 
 Cut.Image.prototype._slice = function(i) {
@@ -875,7 +882,7 @@ Cut.Image.prototype.stretch = function(inner) {
 };
 
 Cut.anim = function(frames, fps) {
-    var anim = new Cut.Anim().setFrames(frames).gotoFrame(0);
+    var anim = new Cut.Anim().frames(frames).gotoFrame(0);
     fps && anim.fps(fps);
     return anim;
 };
@@ -922,7 +929,14 @@ Cut.Anim.prototype.fps = function(fps) {
     return this;
 };
 
-Cut.Anim.prototype.setFrames = function(frames) {
+/**
+ * @deprecated Use frames
+ */
+Cut.Anim.prototype.setFrames = function() {
+    this.frames.apply(this, arguments);
+};
+
+Cut.Anim.prototype.frames = function(frames) {
     this._time = this._time || 0;
     this._frame = 0;
     this._frames = [];
@@ -991,8 +1005,8 @@ Cut.Anim.prototype.stop = function(frame) {
     return this;
 };
 
-Cut.string = function(font) {
-    return new Cut.String().setFont(font);
+Cut.string = function(frames) {
+    return new Cut.String().frames(frames);
 };
 
 Cut.String = function() {
@@ -1006,28 +1020,42 @@ Cut.String.prototype._super = Cut;
 
 Cut.String.prototype.constructor = Cut.String;
 
-Cut.String.prototype.setFont = function(font) {
-    if (typeof font == "string") {
-        this._font = function(value) {
-            return font + value;
+/**
+ * @deprecated Use frames
+ */
+Cut.String.prototype.setFont = function() {
+    this.frames.apply(this, arguments);
+};
+
+Cut.String.prototype.frames = function(frames) {
+    if (typeof frames == "string") {
+        this._frames = function(value) {
+            return frames + value;
         };
-    } else if (Cut._isFunc(font)) {
-        this._font = font;
+    } else if (Cut._isFunc(frames)) {
+        this._frames = frames;
     }
     return this;
 };
 
-Cut.String.prototype.setValue = function(value) {
-    if (this.value === value) return this;
-    this.value = value;
+/**
+ * @deprecated Use value
+ */
+Cut.String.prototype.setValue = function() {
+    this.value.apply(this, arguments);
+};
+
+Cut.String.prototype.value = function(value) {
+    if (this._value === value) return this;
+    this._value = value;
     if (typeof value !== "string" && !Cut._isArray(value)) {
         value = value + "";
     }
     var child = this._first;
     for (var i = 0; i < value.length; i++) {
-        var selector = this._font(value[i]);
+        var selector = this._frames(value[i]);
         if (child) {
-            child.setImage(selector).show();
+            child.image(selector).show();
         } else {
             child = Cut.image(selector).appendTo(this);
         }

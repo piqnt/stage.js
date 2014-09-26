@@ -693,12 +693,12 @@ Cut(function(root, elem) {
             alignX : 0.45,
             handle : 0.5,
             scale : 0.8,
-          }).setValue(value);
+          }).value(value);
           continue;
         }
         var price = game.price("flags");
         if (i == game.data.upgrades.flags + 1) {
-          Cut.string("base:d_").setValue(Format.coin(price)).pin({
+          Cut.string("base:d_").value(Format.coin(price)).pin({
             alignY : 0.5,
             alignX : 0.4,
             handle : 0.5,
@@ -719,7 +719,7 @@ Cut(function(root, elem) {
         offsetY : -6,
         alpha : 0.6,
         scale : 0.8
-      }).setValue(0 + "-" + Format.k(game.data.stats.dist));
+      }).value(0 + "-" + Format.k(game.data.stats.dist));
 
       Cut.string("base:d_").appendTo(tombstone).pin({
         alignX : 0.5,
@@ -728,7 +728,7 @@ Cut(function(root, elem) {
         offsetY : 10.5,
         alpha : 0.5,
         scale : 0.7
-      }).setValue(Format.coin(game.data.stats.coins));
+      }).value(Format.coin(game.data.stats.coins));
 
       for (var i = 0; i < Conf.ups.length; i++) {
         var name = Conf.ups[i];
@@ -738,7 +738,7 @@ Cut(function(root, elem) {
         // image
         Cut.image("base:up_" + name).pin("align", 0.5).appendTo(button);
         // price
-        Cut.string("base:d_").setValue(Format.coin(price)).pin({
+        Cut.string("base:d_").value(Format.coin(price)).pin({
           align : 1,
           offsetX : -1.6,
           offsetY : -1.4,
@@ -869,7 +869,7 @@ Cut(function(root, elem) {
     function setLastCoin(value, scale) {
       lastCoin.first().gotoLabel("coin_" + value + "_")
           .pin("scale", scale || 1);
-      lastCoin.last().setValue(Format.coin(value)).visible(value > 100);
+      lastCoin.last().value(Format.coin(value)).visible(value > 100);
 
       lastCoin.show();
       clearTimeout(lastCoinTimeout);
@@ -956,7 +956,7 @@ Cut(function(root, elem) {
     };
 
     game.setDist = function(d) {
-      dist.setValue(Format.k(d));
+      dist.value(Format.k(d));
     };
 
     game.uiEnergy = function(e) {
@@ -964,7 +964,7 @@ Cut(function(root, elem) {
     };
 
     game.uiCoins = function(n) {
-      coins.setValue(Format.coin(n));
+      coins.value(Format.coin(n));
     };
 
     game.uiNewPlayer = function(obj) {
@@ -979,7 +979,7 @@ Cut(function(root, elem) {
         this.freeze = !!freeze;
         !this.freeze && Sound.play("start");
         // cursor.show();
-        this.ui.setFrames("base:" + this.name + "_").show();
+        this.ui.frames("base:" + this.name + "_").show();
         !this.freeze && this.ui.play();
         callback && callback();
       };
@@ -988,7 +988,7 @@ Cut(function(root, elem) {
         if (anim) {
           !this.freeze && Sound.play("die");
           cursor.hide();
-          this.ui.setFrames("base:die").play().repeat(1, callback);
+          this.ui.frames("base:die").play().repeat(1, callback);
         } else {
           callback && callback();
         }
@@ -1042,16 +1042,16 @@ Cut(function(root, elem) {
       };
       obj.uiMode = function(weak) {
         if (weak == 0) {
-          this.ui.setFrames("base:" + this.name + "_").play();
+          this.ui.frames("base:" + this.name + "_").play();
         } else if (weak == -1) {
-          this.ui.setFrames("base:un" + this.name).gotoFrame(0).pin({
+          this.ui.frames("base:un" + this.name).gotoFrame(0).pin({
             "alpha" : 0.8,
             "rotation" : 0
           });
         } else if (weak == 1) {
-          this.ui.setFrames("base:" + this.name + "z_").play();
+          this.ui.frames("base:" + this.name + "z_").play();
         } else {
-          this.ui.setFrames("base:" + this.name + "").play();
+          this.ui.frames("base:" + this.name + "").play();
         }
       };
       obj.uiXY = function() {

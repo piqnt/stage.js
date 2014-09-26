@@ -364,7 +364,7 @@
       offset : 0.1
     }).appendTo(root);
 
-    ui.gameover = Cut.string("font:_").setValue("Game Over!").pin({
+    ui.gameover = Cut.string("font:_").value("Game Over!").pin({
       handle : 0.5,
       scale : 1.6
     }).appendTo(root);
@@ -390,7 +390,7 @@
   }
 
   function uiStatus() {
-    ui.status.setValue("Level: " + level + " Lives: " + lives)
+    ui.status.value("Level: " + level + " Lives: " + lives)
   }
 
 })();

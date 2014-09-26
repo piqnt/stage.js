@@ -17,7 +17,7 @@ Cut(function(root, container) {
 
   function draw() {
     p = (p + 1 - 3) % 3 + 3;
-    image.setImage(Cut.Out.drawing(width, height, 4, function(ctx, ratio) {
+    image.image(Cut.Out.drawing(width, height, 4, function(ctx, ratio) {
       ctx.scale(ratio, ratio);
 
       // draw star

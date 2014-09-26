@@ -236,7 +236,7 @@ var nextTween = tween.tween(duration = 400, delay = 0);
 var image = Cut.image(cutout);
 
 // Change image.
-image.setImage(cutout);
+image.image(cutout);
 
 // Crop image.
 image.cropX(w, x = 0);
@@ -259,10 +259,10 @@ anim.fps();
 anim.fps(fps);
 
 // Set anim frames as cutout prefix. See Cutout section for more.
-anim.setFrames(cutouts);
+anim.frames(cutouts);
 
 // Set anim frames as cutout array. See Cutout section for more.
-anim.setFrames(array);
+anim.frames(array);
 
 // Go to n-th frame.
 anim.gotoFrame(n);
@@ -310,22 +310,22 @@ box.padding(pad);
 
 //
 // ### String
-// String is a row of images, but images are dynamically assigned using font and
-// value.
+// String is a row of images, but images are dynamically assigned using frames
+// and value.
 
 // Create a new string instance.
 var string = Cut.string(cutouts);
 
 // Value is a string or array, each char/item is used to create an image using
-// font.
-string.setValue(value);
+// frames.
+string.value(value);
 
-// Set string font as cutout prefix. See Cutout section for more.
-string.setFont(cutouts);
+// Set string frames as cutout prefix. See Cutout section for more.
+string.frames(cutouts);
 
-// Set string font. 'factory' func takes a char/item and return a cutout.
-string.setFont(function(charOrItem) {
-  return aCutout;
+// Set string frames. 'factory' func takes a char/item and return a cutout.
+string.frames(function(charOrItem) {
+  return cutout;
 });
 
 //

@@ -220,8 +220,8 @@ Cut(function(root, container) {
 
     planet.tick(t, time);
 
-    scorenum.setValue(score);
-    lifenum.setValue(life);
+    scorenum.value(score);
+    lifenum.value(life);
 
     if (life == 0) {
       gameover();
