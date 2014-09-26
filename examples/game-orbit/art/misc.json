@@ -1,8 +1,8 @@
 [ {
-  "src" : "icon.svg",
-  "dest" : [
-    "exported/icon1024.png 16:16 1024:1024",
-    "exported/icon512.png  16:16 512:512",
-    "exported/icon114.png  16:16 114:114"
+  "input" : "icon.svg 16:16",
+  "output" : [
+    "exported/icon1024.png 1024:1024",
+    "exported/icon512.png 512:512",
+    "exported/icon114.png 114:114"
   ]
 } ]

@@ -1,10 +1,10 @@
 [ {
-  "src" : "base.svg",
-  "dest" : "../www/media/base.png 32:32 8x"
+  "input" : "base.svg 32:32",
+  "output" : "../www/media/base.png 8x"
 }, {
-  "src" : "digit.svg",
-  "dest" : "../www/media/digit.png 128:8 8x"
+  "input" : "digit.svg 128:8",
+  "output" : "../www/media/digit.png 8x"
 }, {
-  "src" : "bg.svg",
-  "dest" : "../www/media/bg.png 20% 256:256 4x"
+  "input" : "bg.svg 256:256",
+  "output" : "../www/media/bg.png 20% 4x"
 } ]

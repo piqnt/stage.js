@@ -1,11 +1,11 @@
 [ {
-  "src" : "icon.svg",
-  "dest" : [
-    "../platforms/android/res/drawable-ldpi/icon.png 16:16 36:36",
-    "../platforms/android/res/drawable-mdpi/icon.png 16:16 48:48",
-    "../platforms/android/res/drawable-hdpi/icon.png 16:16 72:72",
-    "../platforms/android/res/drawable-xhdpi/icon.png 16:16 96:96",
-    "../platforms/android/res/drawable/icon.png 16:16 96:96",
-    "../platforms/android/res/drawable/icon.png 16:16 96:96"
+  "input" : "icon.svg 16:16",
+  "output" : [
+    "../platforms/android/res/drawable-ldpi/icon.png 36:36",
+    "../platforms/android/res/drawable-mdpi/icon.png 48:48",
+    "../platforms/android/res/drawable-hdpi/icon.png 72:72",
+    "../platforms/android/res/drawable-xhdpi/icon.png 96:96",
+    "../platforms/android/res/drawable/icon.png 96:96",
+    "../platforms/android/res/drawable/icon.png 96:96"
   ]
 } ]
