@@ -1,5 +1,5 @@
 [ {
-  "input" : "icon.svg 16:16",
+  "input" : "icon.svg",
   "output" : [
     "exported/icon1024.png 1024:1024",
     "exported/icon512.png 512:512",

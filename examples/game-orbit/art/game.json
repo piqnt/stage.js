@@ -1,10 +1,10 @@
 [ {
-  "input" : "base.svg 32:32",
+  "input" : "base.svg",
   "output" : "../www/media/base.png 8x"
 }, {
-  "input" : "digit.svg 128:8",
+  "input" : "digit.svg",
   "output" : "../www/media/digit.png 8x"
 }, {
-  "input" : "bg.svg 256:256",
+  "input" : "bg.svg",
   "output" : "../www/media/bg.png 20% 4x"
 } ]

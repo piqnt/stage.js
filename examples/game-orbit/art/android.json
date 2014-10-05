@@ -1,5 +1,5 @@
 [ {
-  "input" : "icon.svg 16:16",
+  "input" : "icon.svg",
   "output" : [
     "../platforms/android/res/drawable-ldpi/icon.png 36:36",
     "../platforms/android/res/drawable-mdpi/icon.png 48:48",

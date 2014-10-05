@@ -1,5 +1,5 @@
 [ {
-  "input" : "icon.svg 16:16",
+  "input" : "icon.svg",
   "output" : [
     "../platforms/ios/Orbit/Resources/icons/icon-40.png       40:40",
     "../platforms/ios/Orbit/Resources/icons/icon-40.png       40:40",
@@ -18,7 +18,7 @@
     "../platforms/ios/Orbit/Resources/icons/icon@2x.png       114:114"
     ]
 } , {
-  "input" : "splash.svg 128:128",
+  "input" : "splash.svg",
   "output" : [ 
     "../platforms/ios/Orbit/Resources/splash/Default-Landscape@2x~ipad.png 1496:2048",
     "../platforms/ios/Orbit/Resources/splash/Default-Landscape~ipad.png    748:1024",
