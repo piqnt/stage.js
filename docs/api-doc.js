@@ -330,7 +330,7 @@ string.frames(function(charOrItem) {
 
 //
 // ### Cutout
-// Image cutouts are used to refrence graphics to be painted.
+// Image cutouts are used to reference graphics to be painted.
 
 // Cutouts are usually added to an app by adding textures.
 Cut({
