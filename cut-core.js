@@ -800,7 +800,7 @@ Cut.Image.prototype.constructor = Cut.Image;
  * @deprecated Use image
  */
 Cut.Image.prototype.setImage = function() {
-  this.image.apply(this, arguments);
+  return this.image.apply(this, arguments);
 };
 
 Cut.Image.prototype.image = function(cutout) {
@@ -1054,7 +1054,7 @@ Cut.Anim.prototype.fps = function(fps) {
  * @deprecated Use frames
  */
 Cut.Anim.prototype.setFrames = function() {
-  this.frames.apply(this, arguments);
+  return this.frames.apply(this, arguments);
 };
 
 Cut.Anim.prototype.frames = function(frames) {
@@ -1145,7 +1145,7 @@ Cut.String.prototype.constructor = Cut.String;
  * @deprecated Use frames
  */
 Cut.String.prototype.setFont = function() {
-  this.frames.apply(this, arguments);
+  return this.frames.apply(this, arguments);
 };
 
 Cut.String.prototype.frames = function(frames) {
@@ -1163,7 +1163,7 @@ Cut.String.prototype.frames = function(frames) {
  * @deprecated Use value
  */
 Cut.String.prototype.setValue = function() {
-  this.value.apply(this, arguments);
+  return this.value.apply(this, arguments);
 };
 
 Cut.String.prototype.value = function(value) {
