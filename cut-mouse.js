@@ -161,7 +161,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
       rel.raw = abs.event;
       for (var l = 0; l < listeners.length; l++) {
         if (listeners[l].call(cut, rel)) {
-          return;
+          return true;
         }
       }
     }
