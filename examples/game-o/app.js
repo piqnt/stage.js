@@ -269,7 +269,7 @@ Cut(function(root, elem) {
       while (lastDot + Conf.dotSpace <= this.dist) {
         lastDot += Conf.dotSpace;
         if (--nextPattern < 0) {
-          if (obj = randomPattern.test().random(this)) {
+          if (obj = randomPattern.test()(this)) {
             nextPattern = obj(this, lastDot + Conf.width);
             nextPattern += M.random(this.dist) / 7500;
           }
@@ -278,7 +278,7 @@ Cut(function(root, elem) {
 
       while (lastItem + Conf.itemSpace <= this.dist) {
         lastItem += Conf.itemSpace;
-        obj = randomEnemy.test().random(this) || randomCoin.test().random(this);
+        obj = randomEnemy.test()(this) || randomCoin.test()(this);
         if (obj) {
           x = lastItem + Conf.width;
           y = M.random(Conf.min, Conf.max);
@@ -390,7 +390,7 @@ Cut(function(root, elem) {
 
     this.insert = function(obj, dot) {
       inserted.push(obj);
-      if (dot && (obj = randomPower.test().random(this))) {
+      if (dot && (obj = randomPower.test()(this))) {
         obj(this, dot.x, dot.y);
       }
     };
@@ -960,7 +960,7 @@ Cut(function(root, elem) {
     };
 
     game.uiEnergy = function(e) {
-      energy.pin("width", Math.max(0, e) * 40);
+      energy.pin("width", (Math.max(0, e) * 100 | 0) / 100 * 40);
     };
 
     game.uiCoins = function(n) {
@@ -1096,7 +1096,7 @@ Cut(function(root, elem) {
 
   // randomize
 
-  var randomEnemy = new Randomize().spacing(function(game) {
+  var randomEnemy = new Randomize().spacing(function() {
     return M.random(5, 50) / Conf.itemSpace * 10;
   });
 
@@ -1112,7 +1112,7 @@ Cut(function(root, elem) {
     return game.newEnemy("tri", x + 400 * game.speed, y - 400 * vy, 0, vy);
   });
 
-  var randomCoin = new Randomize().spacing(function(game) {
+  var randomCoin = new Randomize().spacing(function() {
     return M.random(20, 100) / Conf.itemSpace * 10;
   });
 
@@ -1170,7 +1170,7 @@ Cut(function(root, elem) {
     return (game.dist > 100000) ? game.dist / 100000 : 0;
   });
 
-  var randomPower = new Randomize().spacing(function(game) {
+  var randomPower = new Randomize().spacing(function() {
     return M.random(100, 400);
   });
 
@@ -1178,7 +1178,7 @@ Cut(function(root, elem) {
     return game.newPower(x, y);
   });
 
-  var randomPattern = new Randomize().spacing(function(game) {
+  var randomPattern = new Randomize().spacing(function() {
     return M.random(20, 40) / Conf.itemSpace * 10;
   });
 
