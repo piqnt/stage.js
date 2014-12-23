@@ -415,15 +415,3 @@ Cut.Mouse.CLICK = "click";
 Cut.Mouse.START = "touchstart mousedown";
 Cut.Mouse.MOVE = "touchmove mousemove";
 Cut.Mouse.END = "touchend mouseup";
-
-//
-// ### Creating new node classes.
-//
-
-function View() {
-  View.prototype._super.apply(this, arguments);
-  // ...
-}
-View.prototype = Object.create(Cut.prototype);
-View.prototype._super = Cut;
-View.prototype.constructor = View;
