@@ -3,8 +3,6 @@ Cut(function(root, elem) {
   var M = Cut.Math, Mouse = Cut.Mouse;
   Cut.Anim.FPS = 11;
 
-  Mouse(root, elem, true);
-
   var Conf = {};
 
   Conf.width = 240;
@@ -148,7 +146,6 @@ Cut(function(root, elem) {
     var time = 0;
     var lastItem = 0;
     var lastDot = 0;
-    var nextPattern = 0;
 
     this.player = null;
 
@@ -268,21 +265,18 @@ Cut(function(root, elem) {
 
       while (lastDot + Conf.dotSpace <= this.dist) {
         lastDot += Conf.dotSpace;
-        if (--nextPattern < 0) {
-          if (obj = randomPattern.test()(this)) {
-            nextPattern = obj(this, lastDot + Conf.width);
-            nextPattern += M.random(this.dist) / 7500;
-          }
+        if (obj = randomPattern.test() && randomPattern.random(this)) {
+          var added = obj(this, lastDot + Conf.width);
+          randomPattern
+              .test(-added * this.dist * 0.00005 * M.random(0.8, 1.25));
         }
       }
 
       while (lastItem + Conf.itemSpace <= this.dist) {
         lastItem += Conf.itemSpace;
-        obj = randomEnemy.test()(this) || randomCoin.test()(this);
-        if (obj) {
-          x = lastItem + Conf.width;
-          y = M.random(Conf.min, Conf.max);
-          obj(this, x, y);
+        if (obj = randomEnemy.test() && randomEnemy.random(this)
+            || randomCoin.test() && randomCoin.random(this)) {
+          obj(this, lastItem + Conf.width, M.random(Conf.min, Conf.max));
         }
       }
 
@@ -320,7 +314,6 @@ Cut(function(root, elem) {
       time = 0;
       lastItem = this.dist;
       lastDot = this.dist;
-      nextPattern = 0;
 
       randomPattern.reset();
       randomPower.reset();
@@ -390,7 +383,8 @@ Cut(function(root, elem) {
 
     this.insert = function(obj, dot) {
       inserted.push(obj);
-      if (dot && (obj = randomPower.test()(this))) {
+      if (dot && randomPower.test()) {
+        obj = randomPower.random(this);
         obj(this, dot.x, dot.y);
       }
     };
@@ -569,38 +563,348 @@ Cut(function(root, elem) {
     this.uiRemove();
   };
 
-  function App() {
-    App.prototype._super.apply(this, arguments);
+  // randomize
 
-    this.game = new Game();
+  var randomEnemy = new Randomize().spacing(function() {
+    return M.random(5, 50) / Conf.itemSpace * 10;
+  });
 
-    this.home = new Home(this).appendTo(this).hide().pin({
-      align : 0.5
-    });
-    this.play = new Play(this).appendTo(this).hide().pin({
-      align : 0.5
-    });
+  randomEnemy.add(function(game, x) {
+    var y = M.random(-1, 1) * (Conf.height / 2 - 10);
+    return game.newEnemy("box", x, y);
+  });
 
-    this.open("home");
+  randomEnemy.add(function(game, x) {
+    var d = M.random() >= 0.5 ? 1 : -1;
+    var y = d * Conf.height / 2;
+    var vy = -d * game.speed / 2 * M.random(0.7, 1.4);
+    return game.newEnemy("tri", x + 400 * game.speed, y - 400 * vy, 0, vy);
+  });
 
-    this.on("viewport", function(viewport) {
-      this.pin({
-        width : Conf.width,
-        height : Conf.height * 1.2,
-        resizeMode : "in",
-        resizeWidth : viewport.width,
-        resizeHeight : viewport.height - TOP,
-        offsetY : TOP
-      });
-    });
+  var randomCoin = new Randomize().spacing(function() {
+    return M.random(20, 100) / Conf.itemSpace * 10;
+  });
 
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(1, x, y);
+  }, function(game) {
+    return 1;
+  });
+
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(2, x, y);
+  }, function(game) {
+    return (game.dist > 2000) ? 1 : 0;
+  });
+
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(5, x, y);
+  }, function(game) {
+    return (game.dist > 5000) ? 2 : 0;
+  });
+
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(10, x, y);
+  }, function(game) {
+    return (game.dist > 10000) ? 4 : 0;
+  });
+
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(20, x, y);
+  }, function(game) {
+    return (game.dist > 20000) ? 8 : 0;
+  });
+
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(50, x, y);
+  }, function(game) {
+    return (game.dist > 50000) ? 16 : 0;
+  });
+
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(100, x, y);
+  }, function(game) {
+    return (game.dist > 100000) ? 32 : 0;
+  });
+
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(1000, x, y);
+  }, function(game) {
+    return (game.dist > 100000) ? 4 * game.dist / 100000 : 0;
+  });
+
+  randomCoin.add(function(game, x, y) {
+    return game.newCoin(10000, x, y);
+  }, function(game) {
+    return (game.dist > 100000) ? game.dist / 100000 : 0;
+  });
+
+  var randomPower = new Randomize().spacing(function() {
+    return M.random(100, 400);
+  });
+
+  randomPower.add(function(game, x, y) {
+    return game.newPower(x, y);
+  });
+
+  var randomPattern = new Randomize().spacing(function() {
+    return 1;
+  });
+
+  randomPattern.range = function(min, max) {
+    var h = M.random(min, max) * (Conf.max - Conf.min);
+    var c = M.random(Conf.min + h / 2, Conf.max - h / 2);
+    h *= (Math.random() >= 0.5 ? 1 : -1);
+    var a = c - h / 2, b = c + h / 2;
+    return {
+      a : a,
+      b : b,
+      h : h,
+      c : c
+    };
+  };
+
+  // straight
+  randomPattern.add(function(game, x) {
+    var n = M.random(40, 50);
+    var y = M.random(Conf.min, Conf.max);
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace, y);
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return 1;
+  });
+
+  // step
+  randomPattern.add(function(game, x) {
+    var n = M.random(20, 40) | 0;
+    var ab = randomPattern.range(0.2, 0.7);
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace, ab.a + i * ab.h / n);
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 1000 ? 0 : 1;
+  });
+
+  // stairs
+  randomPattern.add(function(game, x) {
+    var p = M.random(3, 6) | 0;
+    var q = M.random(5, 15) | 0;
+    var n = p * q;
+    var ab = randomPattern.range(0.3, 0.7);
+
+    var m = ab.h / p;
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace, ab.a + ((i * ab.h / n) / m | 0) * m);
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 5000 ? 0 : 1;
+  });
+
+  // saw
+  randomPattern.add(function(game, x) {
+    var p = M.random(2, 6) | 0;
+    var q = M.random(7, 13) | 0;
+    var n = p * q;
+    var ab = randomPattern.range(0.1, 0.6);
+
+    var m = ab.h;
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace, ab.a + ((-i * ab.h / q) / m | 0) * m
+          + i * ab.h / q);
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 20000 ? 0 : 1;
+  });
+
+  // wave
+  randomPattern.add(function(game, x) {
+    var n = M.random(40, 60);
+    var a = Conf.dotSpace / M.random(10, 30), b = M.random(10, 30);
+    var y = M.random(Conf.min + b, Conf.max - b);
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace, y + b * Math.sin(i * a));
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 10000 ? 0 : 2;
+  });
+
+  // wave xy
+  randomPattern.add(function(game, x) {
+    var n = M.random(40, 60);
+    var a = Conf.dotSpace / M.random(10, 40), b = M.random(10, 30);
+    var c = Conf.dotSpace / M.random(10, 40), d = M.random(10, 30);
+    var y = M.random(Conf.min + b, Conf.max - b);
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace + d * Math.cos(i * c), y + b
+          * Math.sin(i * a));
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 25000 ? 0 : game.dist < 15000 ? 1 : 2;
+  });
+
+  // zigzag
+  randomPattern.add(function(game, x) {
+    var n = M.random(40, 60);
+    var a = Conf.dotSpace / M.random(10, 40), b = M.random(10, 30);
+    var y = M.random(Conf.min + b, Conf.max - b);
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace, y + b * zigzag(i * a));
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 15000 ? 0 : 2;
+  });
+
+  // zigzag xy
+  randomPattern.add(function(game, x) {
+    var n = M.random(40, 60);
+    var a = Conf.dotSpace / M.random(10, 40), b = M.random(10, 30);
+    var c = Conf.dotSpace / M.random(10, 40), d = M.random(10, 30);
+    var y = M.random(Conf.min + b, Conf.max - b);
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace + d * zagzig(i * c), y + b
+          * zigzag(i * a));
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 30000 ? 0 : game.dist < 17500 ? 1 : 2;
+  });
+
+  // rect
+  randomPattern.add(function(game, x) {
+    var n = M.random(3, 8), m = n;
+    var y = M.random(Conf.min, Conf.max - m * Conf.dotSpace);
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < m; j++) {
+        added++;
+        game.newDot(x + i * Conf.dotSpace, y + j * Conf.dotSpace);
+      }
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 70000 ? 0 : 1;
+  });
+
+  // spray
+  randomPattern.add(function(game, x) {
+    var n = M.random(40, 60);
+    var max = Math.min(1, game.dist / 100000);
+    var min = Math.min(1, game.dist / 200000);
+    var ab = randomPattern.range(min * 0.5, max * 0.7);
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + i * Conf.dotSpace, M.random(ab.a, ab.b));
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 50000 ? 0 : game.dist < 75000 ? 1 : 2;
+  });
+
+  // flower
+  randomPattern.add(function(game, x) {
+    var n = M.random(40, 60);
+    var f = M.random(0.2, 0.9) * Math.PI;
+    var c = 5;
+
+    var added = 0;
+    for (var i = 0; i < n; i++) {
+      added++;
+      game.newDot(x + c * Math.sqrt(i + 1) * Math.sin(i * f), c
+          * Math.sqrt(i + 1) * Math.cos(i * f));
+    }
+    return this.__lastadded = added;
+
+  }, function(game) {
+    return game.dist < 100000 ? 0 : 1;
+  });
+
+  function zigzag(t) {
+    t = Cut.Math.rotate(t, -Math.PI, Math.PI) / Math.PI * 2;
+    if (t > 1) {
+      t = 2 - t;
+    } else if (t < -1) {
+      t = -2 - t;
+    }
+    return t;
   }
 
-  App.prototype = Object.create(Cut.prototype);
-  App.prototype._super = Cut;
-  App.prototype.constructor = App;
+  function zagzig(t) {
+    return zigzag(t + Math.PI / 2);
+  }
 
-  App.prototype.open = function(open) {
+  // ------------------- UI -------------------
+
+  Cut.prototype.xy = (function() {
+    var pin = {};
+    return function(x, y) {
+      pin.offsetX = x, pin.offsetY = y;
+      this.pin(pin);
+      return this;
+    };
+  })();
+
+  Mouse(root, elem, true);
+
+  var app = Cut.create().appendTo(root);
+  var game = new Game();
+
+  app.on("viewport", function(viewport) {
+    this.pin({
+      width : Conf.width,
+      height : Conf.height * 1.2,
+      resizeMode : "in",
+      resizeWidth : viewport.width,
+      resizeHeight : viewport.height - TOP,
+      offsetY : TOP
+    });
+  });
+
+  app.open = function(open) {
     if (typeof open == "string") {
       open = this[open];
     }
@@ -611,12 +915,12 @@ Cut(function(root, elem) {
     this.opened = open.trigger("open");
   };
 
-  function Home(app) {
-    Home.prototype._super.apply(this, arguments);
+  (function() {// home screen
+    var home = app.home = Cut.create().appendTo(app).hide().pin({
+      align : 0.5
+    });
 
-    var game = app.game;
-
-    this.on("viewport", function() {
+    home.on("viewport", function() {
       this.pin({
         width : this.parent().pin("width"),
         height : this.parent().pin("height")
@@ -633,20 +937,20 @@ Cut(function(root, elem) {
       refresh();
     };
 
-    this.on("open", function() {
+    home.on("open", function() {
       refresh();
       this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
     });
 
-    this.on("close", function() {
+    home.on("close", function() {
       this.tween(200).pin('alpha', 0).then(function() {
         this.hide();
       });
     });
 
-    var bg = Cut.image("base:homebg").appendTo(this).pin("align", 0.5);
+    var bg = Cut.image("base:homebg").appendTo(home).pin("align", 0.5);
 
-    var menu = Cut.column(0).appendTo(this).pin("align", 0.5).spacing(4);
+    var menu = Cut.column(0).appendTo(home).pin("align", 0.5).spacing(4);
 
     var tombstone = Cut.image("base:tombstone").appendTo(menu);
 
@@ -762,18 +1066,14 @@ Cut(function(root, elem) {
         }
       }
     }
-  }
+  })();
 
-  Home.prototype = Object.create(Cut.prototype);
-  Home.prototype._super = Cut;
-  Home.prototype.constructor = Home;
+  (function() { // play screen
+    var play = app.play = Cut.create().appendTo(app).hide().pin({
+      align : 0.5
+    });
 
-  function Play(app) {
-    Play.prototype._super.apply(this, arguments);
-
-    var game = app.game;
-
-    this.on("viewport", function() {
+    play.on("viewport", function() {
       this.pin({
         width : this.parent().pin("width"),
         height : this.parent().pin("height")
@@ -793,13 +1093,13 @@ Cut(function(root, elem) {
       });
     });
 
-    this.on("open", function() {
+    play.on("open", function() {
       elem.style && (elem.style.cursor = "none");
       game.start();
       this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
     });
 
-    this.on("close", function() {
+    play.on("close", function() {
       elem.style && (elem.style.cursor = "");
       game.end();
       this.tween(200).pin('alpha', 0).then(function() {
@@ -807,27 +1107,27 @@ Cut(function(root, elem) {
       });
     });
 
-    this.tick(function(t) {
+    play.tick(function(t) {
       game.tick(t);
     }, true);
 
-    var bg = Cut.image("base:playbg").appendTo(this).pin("align", 0.5);
+    var bg = Cut.image("base:playbg").appendTo(play).pin("align", 0.5);
     var bgcolor = Cut.anim("base:c_").appendTo(bg).pin({
       alpha : 0.6,
       align : 0.5,
       scale : 3
     });
 
-    var border = Cut.image("base:border").stretch().appendTo(this).pin({
+    var border = Cut.image("base:border").stretch().appendTo(play).pin({
       width : Conf.width,
       height : Conf.height,
       align : 0.5,
       alpha : 0.5
     });
 
-    var top = Cut.image("base:shadow").stretch().appendTo(this);
+    var top = Cut.image("base:shadow").stretch().appendTo(play);
 
-    var field = Cut.create().appendTo(this).attr('spy', true).pin({
+    var field = Cut.create().appendTo(play).attr('spy', true).pin({
       width : Conf.width,
       height : Conf.height,
       alignX : 0.5,
@@ -835,28 +1135,28 @@ Cut(function(root, elem) {
       handleY : 0
     });
 
-    var energy = Cut.image("base:energy").stretch().appendTo(this).pin({
+    var energy = Cut.image("base:energy").stretch().appendTo(play).pin({
       alignX : 0,
       alignY : 0,
       offsetX : 3,
       offsetY : 2
     });
 
-    var dist = Cut.string("base:d_").appendTo(this).pin({
+    var dist = Cut.string("base:d_").appendTo(play).pin({
       alignX : 0,
       alignY : 0,
       offsetX : 3,
       offsetY : 9
     });
 
-    var coins = Cut.string("base:d_").appendTo(this).pin({
+    var coins = Cut.string("base:d_").appendTo(play).pin({
       alignX : 1,
       alignY : 0,
       offsetX : -3,
       offsetY : 3
     });
 
-    var lastCoin = Cut.column(0.5).appendTo(this).pin({
+    var lastCoin = Cut.column(0.5).appendTo(play).pin({
       alignX : 0.5,
       alignY : 0,
       offsetX : 10,
@@ -1088,332 +1388,8 @@ Cut(function(root, elem) {
         Sound.play("coin");
       };
     };
-  }
+  })();
 
-  Play.prototype = Object.create(Cut.prototype);
-  Play.prototype._super = Cut;
-  Play.prototype.constructor = Play;
+  app.open("home");
 
-  // randomize
-
-  var randomEnemy = new Randomize().spacing(function() {
-    return M.random(5, 50) / Conf.itemSpace * 10;
-  });
-
-  randomEnemy.add(function(game, x) {
-    var y = M.random(-1, 1) * (Conf.height / 2 - 10);
-    return game.newEnemy("box", x, y);
-  });
-
-  randomEnemy.add(function(game, x) {
-    var d = M.random() >= 0.5 ? 1 : -1;
-    var y = d * Conf.height / 2;
-    var vy = -d * game.speed / 2 * M.random(0.7, 1.4);
-    return game.newEnemy("tri", x + 400 * game.speed, y - 400 * vy, 0, vy);
-  });
-
-  var randomCoin = new Randomize().spacing(function() {
-    return M.random(20, 100) / Conf.itemSpace * 10;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(1, x, y);
-  }, function(game) {
-    return 1;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(2, x, y);
-  }, function(game) {
-    return (game.dist > 2000) ? 1 : 0;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(5, x, y);
-  }, function(game) {
-    return (game.dist > 5000) ? 2 : 0;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(10, x, y);
-  }, function(game) {
-    return (game.dist > 10000) ? 4 : 0;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(20, x, y);
-  }, function(game) {
-    return (game.dist > 20000) ? 8 : 0;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(50, x, y);
-  }, function(game) {
-    return (game.dist > 50000) ? 16 : 0;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(100, x, y);
-  }, function(game) {
-    return (game.dist > 100000) ? 32 : 0;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(1000, x, y);
-  }, function(game) {
-    return (game.dist > 100000) ? 4 * game.dist / 100000 : 0;
-  });
-
-  randomCoin.add(function(game, x, y) {
-    return game.newCoin(10000, x, y);
-  }, function(game) {
-    return (game.dist > 100000) ? game.dist / 100000 : 0;
-  });
-
-  var randomPower = new Randomize().spacing(function() {
-    return M.random(100, 400);
-  });
-
-  randomPower.add(function(game, x, y) {
-    return game.newPower(x, y);
-  });
-
-  var randomPattern = new Randomize().spacing(function() {
-    return M.random(20, 40) / Conf.itemSpace * 10;
-  });
-
-  randomPattern.range = function(min, max) {
-    var h = M.random(min, max) * (Conf.max - Conf.min);
-    var c = M.random(Conf.min + h / 2, Conf.max - h / 2);
-    h *= (Math.random() >= 0.5 ? 1 : -1);
-    var a = c - h / 2, b = c + h / 2;
-    return {
-      a : a,
-      b : b,
-      h : h,
-      c : c
-    };
-  };
-
-  // straight
-  randomPattern.add(function(game, x) {
-    var n = M.random(40, 50);
-    var y = M.random(Conf.min, Conf.max);
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace, y);
-    }
-    return added;
-
-  }, function(game) {
-    return 1;
-  });
-
-  // step
-  randomPattern.add(function(game, x) {
-    var n = M.random(20, 40) | 0;
-    var ab = randomPattern.range(0.2, 0.7);
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace, ab.a + i * ab.h / n);
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 1000 ? 0 : 1;
-  });
-
-  // stairs
-  randomPattern.add(function(game, x) {
-    var p = M.random(3, 6) | 0;
-    var q = M.random(5, 15) | 0;
-    var n = p * q;
-    var ab = randomPattern.range(0.3, 0.7);
-
-    var m = ab.h / p;
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace, ab.a + ((i * ab.h / n) / m | 0) * m);
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 5000 ? 0 : 1;
-  });
-
-  // saw
-  randomPattern.add(function(game, x) {
-    var p = M.random(2, 6) | 0;
-    var q = M.random(7, 13) | 0;
-    var n = p * q;
-    var ab = randomPattern.range(0.1, 0.6);
-
-    var m = ab.h;
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace, ab.a + ((-i * ab.h / q) / m | 0) * m
-          + i * ab.h / q);
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 20000 ? 0 : 1;
-  });
-
-  // wave
-  randomPattern.add(function(game, x) {
-    var n = M.random(40, 60);
-    var a = Conf.dotSpace / M.random(10, 30), b = M.random(10, 30);
-    var y = M.random(Conf.min + b, Conf.max - b);
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace, y + b * Math.sin(i * a));
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 10000 ? 0 : 2;
-  });
-
-  // wave xy
-  randomPattern.add(function(game, x) {
-    var n = M.random(40, 60);
-    var a = Conf.dotSpace / M.random(10, 40), b = M.random(10, 30);
-    var c = Conf.dotSpace / M.random(10, 40), d = M.random(10, 30);
-    var y = M.random(Conf.min + b, Conf.max - b);
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace + d * Math.cos(i * c), y + b
-          * Math.sin(i * a));
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 25000 ? 0 : game.dist < 15000 ? 1 : 2;
-  });
-
-  // zigzag
-  randomPattern.add(function(game, x) {
-    var n = M.random(40, 60);
-    var a = Conf.dotSpace / M.random(10, 40), b = M.random(10, 30);
-    var y = M.random(Conf.min + b, Conf.max - b);
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace, y + b * M.zigzag(i * a));
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 15000 ? 0 : 2;
-  });
-
-  // zigzag xy
-  randomPattern.add(function(game, x) {
-    var n = M.random(40, 60);
-    var a = Conf.dotSpace / M.random(10, 40), b = M.random(10, 30);
-    var c = Conf.dotSpace / M.random(10, 40), d = M.random(10, 30);
-    var y = M.random(Conf.min + b, Conf.max - b);
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace + d * M.zagzig(i * c), y + b
-          * M.zigzag(i * a));
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 30000 ? 0 : game.dist < 17500 ? 1 : 2;
-  });
-
-  // rect
-  randomPattern.add(function(game, x) {
-    var n = M.random(3, 8), m = n;
-    var y = M.random(Conf.min, Conf.max - m * Conf.dotSpace);
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      for (var j = 0; j < m; j++) {
-        added++;
-        game.newDot(x + i * Conf.dotSpace, y + j * Conf.dotSpace);
-      }
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 70000 ? 0 : 1;
-  });
-
-  // spray
-  randomPattern.add(function(game, x) {
-    var n = M.random(40, 60);
-    var max = Math.min(1, game.dist / 100000);
-    var min = Math.min(1, game.dist / 200000);
-    var ab = randomPattern.range(min * 0.5, max * 0.7);
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + i * Conf.dotSpace, M.random(ab.a, ab.b));
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 50000 ? 0 : game.dist < 75000 ? 1 : 2;
-  });
-
-  // flower
-  randomPattern.add(function(game, x) {
-    var n = M.random(40, 60);
-    var f = M.random(0.2, 0.9) * Math.PI;
-    var c = 5;
-
-    var added = 0;
-    for (var i = 0; i < n; i++) {
-      added++;
-      game.newDot(x + c * Math.sqrt(i + 1) * Math.sin(i * f), c
-          * Math.sqrt(i + 1) * Math.cos(i * f));
-    }
-    return added;
-
-  }, function(game) {
-    return game.dist < 100000 ? 0 : 1;
-  });
-
-  Cut.Math.zigzag = function(t) {
-    t = Cut.Math.rotate(t, -Math.PI, Math.PI) / Math.PI * 2;
-    if (t > 1) {
-      t = 2 - t;
-    } else if (t < -1) {
-      t = -2 - t;
-    }
-    return t;
-  };
-
-  Cut.Math.zagzig = function(t) {
-    return Cut.Math.zigzag(t + Math.PI / 2);
-  };
-
-  var PINXY = {};
-  Cut.prototype.xy = function(x, y) {
-    PINXY.offsetX = x, PINXY.offsetY = y;
-    this.pin(PINXY);
-    return this;
-  };
-
-  new App().appendTo(root);
 });

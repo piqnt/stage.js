@@ -7,14 +7,6 @@
 
 function Randomize() {
   this._options = [];
-
-  var self = this;
-  this._true = function() {
-    return self.random.apply(self, arguments);
-  };
-  this._false = function() {
-    return self._nope;
-  };
 }
 
 /**
@@ -25,9 +17,10 @@ Randomize.prototype.lock = function(option) {
 };
 
 Randomize.prototype.add = function(option, weight) {
+  weight = Randomize._fnum(weight, 1);
   this._options.push({
     value : option,
-    weight : Randomize._numbor(weight, 1)
+    weight : weight
   });
   return this;
 };
@@ -36,7 +29,7 @@ Randomize.prototype.select = function(select) {
   return this._options[select][0];
 };
 
-Randomize.prototype.random = function() {
+Randomize.prototype.random = function(data) {
   if (this._lock) {
     return this._lock;
   }
@@ -44,7 +37,7 @@ Randomize.prototype.random = function() {
   var sum = 0;
   for (var i = 0; i < this._options.length; i++) {
     var option = this._options[i];
-    sum += (option.xweight = option.weight.apply(null, arguments));
+    sum += option.xweight = option.weight(data);
   }
 
   var rand = Math.random() * sum;
@@ -59,67 +52,55 @@ Randomize.prototype.random = function() {
   return selected;
 };
 
-Randomize.prototype.condition = function(condition, reset) {
-  this._condition = condition;
-  this._reset = reset;
-  this._nope = null;
-  return this;
-};
-
-Randomize.prototype.nope = function(nope) {
-  if (!arguments.length) {
-    return this._nope;
-  }
-  this._nope = nope;
-  return this;
-};
-
 Randomize.prototype.reset = function() {
-  this._reset && this._reset();
   return this;
 };
 
 Randomize.prototype.test = function() {
-  if (!this._condition || this._condition.apply(null, arguments)) {
-    return this._true;
-  } else {
-    return this._false;
-  }
+  return true;
 };
 
-Randomize.prototype.spacing = function(spacing) {
-  spacing = Randomize._numbor(spacing, 1);
-  var space = spacing();
-  this.condition(function(t) {
+Randomize.prototype.spacing = function(space) {
+  space = Randomize._fnum(space, 1);
+  var next = 0;
+  this.test = function(t, data) {
     t = typeof t === 'number' ? t : 1;
-    if ((space -= t) < 0) {
-      space = spacing();
+    if (next == 0) {
+      next = space(data);
+      return false;
+    }
+    if ((next -= t) <= 0) {
+      next = space(data);
       return true;
     }
     return false;
-  }, function() {
-    space = spacing();
-  });
+  };
+  this.reset = function() {
+    next = 0;
+    return this;
+  };
   return this;
 };
 
 Randomize.prototype.prob = function(prob) {
-  prob = Randomize._numbor(prob, 1);
-  this.condition(function() {
-    return Math.random() < prob();
-  });
+  prob = Randomize._fnum(prob, 1);
+  this.test = function(data) {
+    return Math.random() < prob(data) ? true : false;
+  };
   return this;
 };
 
-Randomize._numbor = function(value, fallback) {
-  if (typeof value == "function") {
+Randomize._fnum = function(value, fallback) {
+  if (typeof value === 'function') {
     return value;
   }
-  if (typeof value !== "number") {
-    value = fallback;
+  if (typeof value === 'number') {
+    return function() {
+      return value;
+    };
   }
   return function() {
-    return value;
+    return fallback;
   };
 };
 
