@@ -21,6 +21,13 @@
   "devDependencies": {
     "uglify-js": "*",
     "darwin": "*",
+     "minimist": "*",
+    "gulp": "*",
+    "gulp-uglify": "*",
+    "gulp-concat": "*",
+    "gulp-wrap": "*",
+    "gulp-bump": "*",
+    "gulp-mocha": "*",
     "should": "*"
   }
 }
