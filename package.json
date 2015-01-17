@@ -1,6 +1,6 @@
 {
   "name": "cutjs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Lightweight, fast, interactable 2D HTML5 rendering engine for cross-platform game development.",
   "homepage": "http://cutjs.org/",
   "keywords": [
@@ -19,13 +19,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "should": "*",
-    "minimist": "*",
-    "gulp": "*",
-    "gulp-uglify": "*",
-    "gulp-concat": "*",
-    "gulp-wrap": "*",
-    "gulp-bump": "*",
-    "gulp-mocha": "*"
+    "uglify-js": "*",
+    "darwin": "*",
+    "should": "*"
   }
 }

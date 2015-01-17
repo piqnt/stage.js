@@ -96,9 +96,7 @@ Cut.prototype._tick = function(elapsed) {
   var length = this._tickBefore.length;
   for (var i = 0; i < length; i++) {
     Cut._stats.tick++;
-    this.__fn = this._tickBefore[i];
-    this.__fn(elapsed);
-    delete this.__fn;
+    this._tickBefore[i].call(this, elapsed);
   }
 
   var child, next = this._first;
@@ -110,9 +108,7 @@ Cut.prototype._tick = function(elapsed) {
   var length = this._tickAfter.length;
   for (var i = 0; i < length; i++) {
     Cut._stats.tick++;
-    this.__fn = this._tickAfter[i];
-    this.__fn(elapsed);
-    delete this.__fn;
+    this._tickAfter[i].call(this, elapsed);
   }
 };
 
@@ -772,11 +768,9 @@ Cut.Root.prototype.pause = function() {
   return this;
 };
 
-Cut.Root.prototype._touch = Cut.prototype.touch;
-
 Cut.Root.prototype.touch = function() {
   this.resume();
-  return this._touch();
+  return Cut.prototype.touch.call(this);
 };
 
 Cut.Root.prototype.resize = function(width, height, ratio) {
