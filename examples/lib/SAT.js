@@ -149,7 +149,7 @@
     return this;
   };
   
-  // Scale this vector. An independant scaling factor can be provided
+  // Scale this vector. An independent scaling factor can be provided
   // for each axis, or a single scaling factor that will scale both `x` and `y`.
   /**
    * @param {number} x The scaling factor in the x direction.
