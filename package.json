@@ -19,15 +19,14 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "uglify-js": "*",
-    "darwin": "*",
-     "minimist": "*",
+    "expect.js": "*",
     "gulp": "*",
-    "gulp-uglify": "*",
-    "gulp-concat": "*",
-    "gulp-wrap": "*",
     "gulp-bump": "*",
+    "gulp-concat": "*",
     "gulp-mocha": "*",
-    "should": "*"
+    "gulp-uglify": "*",
+    "gulp-wrap": "*",
+    "minimist": "*",
+    "sinon": "*"
   }
 }

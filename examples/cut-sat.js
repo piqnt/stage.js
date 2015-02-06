@@ -7,12 +7,22 @@ Cut.SAT = function(world, options) {
   var self = this;
   this.world = world;
 
-  this.options = Cut._options({
+  this.options = Cut._extend({
     lineWidth : 2,
     lineColor : '#000000',
     fillColor : Cut.SAT.randomColor,
-    ratio : 2
-  }).mixin(options);
+    ratio : 2,
+    get : function(key) {
+      var value = this[key];
+      if (typeof value === 'function') {
+        return value();
+      } else {
+        return value;
+      }
+    }
+  }, options);
+
+  console.log(this.options);
 
   world.onAddBody = function(e) {
     self.addRenderable(e.body);
@@ -104,7 +114,7 @@ Cut.SAT.prototype.removeRenderable = function(obj) {
 };
 
 Cut.SAT.prototype.drawCircle = function(radius, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -127,7 +137,7 @@ Cut.SAT.prototype.drawCircle = function(radius, options) {
 };
 
 Cut.SAT.prototype.drawConvex = function(verts, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 

@@ -7,7 +7,7 @@ Cut.P2 = function(world, options) {
   var self = this;
   this.world = world;
 
-  this.options = Cut._options({
+  this.options = Cut._extend({
     maxSubSteps : 3,
     timeStep : 1 / 60,
     debug : false,
@@ -15,8 +15,16 @@ Cut.P2 = function(world, options) {
     lineWidth : 0.025,
     lineColor : '#000000',
     fillColor : Cut.P2.randomColor,
-    ratio : 128
-  }).mixin(options);
+    ratio : 128,
+    get : function(key) {
+      var value = this[key];
+      if (typeof value === 'function') {
+        return value();
+      } else {
+        return value;
+      }
+    }
+  }, options);
 
   world.on("addBody", function(e) {
     self.addRenderable(e.body);
@@ -178,7 +186,7 @@ Cut.P2.prototype.removeRenderable = function(obj) {
 };
 
 Cut.P2.prototype.drawLine = function(length, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -199,7 +207,7 @@ Cut.P2.prototype.drawLine = function(length, options) {
 };
 
 Cut.P2.prototype.drawRectangle = function(w, h, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -221,7 +229,7 @@ Cut.P2.prototype.drawRectangle = function(w, h, options) {
 };
 
 Cut.P2.prototype.drawCircle = function(radius, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -249,7 +257,7 @@ Cut.P2.prototype.drawCircle = function(radius, options) {
 };
 
 Cut.P2.prototype.drawCapsule = function(len, radius, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -279,7 +287,7 @@ Cut.P2.prototype.drawCapsule = function(len, radius, options) {
 };
 
 Cut.P2.prototype.drawSpring = function(length, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -316,7 +324,7 @@ Cut.P2.prototype.drawSpring = function(length, options) {
 };
 
 Cut.P2.prototype.drawPlane = function(x0, x1, max, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -347,7 +355,7 @@ Cut.P2.prototype.drawPlane = function(x0, x1, max, options) {
 };
 
 Cut.P2.prototype.drawConvex = function(verts, options) {
-  options = this.options.extend(options);
+  options = Cut._extend(this.options, options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -359,7 +367,7 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
   for (var i = 0; i < verts.length; i++) {
     var v = verts[i], x = v[0], y = -v[1];
     width = Math.max(Math.abs(x), width);
-    height = Math.max(Math.abs(y), height)
+    height = Math.max(Math.abs(y), height);
   }
 
   var cutout = Cut.Out.drawing(2 * width + 2 * lineWidth, 2 * height + 2

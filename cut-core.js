@@ -34,6 +34,10 @@ function Cut() {
   this._tickAfter = [];
 
   this._alpha = 1;
+
+  this._attrs = null;
+  this._listeners = null;
+  this._flags = null;
 };
 
 Cut._create = (function() {
@@ -56,6 +60,8 @@ Cut._create = (function() {
     };
   }
 })();
+
+Cut._TS = 0;
 
 Cut._stats = {
   create : 0,
@@ -176,27 +182,55 @@ Cut.prototype.id = function(id) {
 
 Cut.prototype.attr = function(name, value) {
   if (typeof value === 'undefined') {
-    return this._attrs ? this._attrs[name] : undefined;
+    return this._attrs !== null ? this._attrs[name] : undefined;
   }
-  (this._attrs ? this._attrs : this._attrs = {})[name] = value;
+  (this._attrs !== null ? this._attrs : this._attrs = {})[name] = value;
   return this;
 };
 
 Cut.prototype.on = Cut.prototype.listen = function(types, listener) {
-  if (typeof listener !== 'function') {
-    return this;
-  }
-  types = (Cut._isArray(types) ? types.join(' ') : types).split(/\s+/);
-  for (var i = 0; i < types.length; i++) {
-    var type = types[i];
-    if (type) {
-      this._listeners = this._listeners || {};
+  if (types = this._onoff(types, listener, true)) {
+    for (var i = 0; i < types.length; i++) {
+      var type = types[i];
       this._listeners[type] = this._listeners[type] || [];
       this._listeners[type].push(listener);
-      this._listenOn(type);
+      this._flag(type, true);
     }
   }
   return this;
+};
+
+Cut.prototype.off = function(types, listener) {
+  if (types = this._onoff(types, listener, false)) {
+    for (var i = 0; i < types.length; i++) {
+      var type = types[i], all = this._listeners[type], index;
+      if (all && (index = all.indexOf(listener)) >= 0) {
+        all.splice(index, 1);
+        if (!all.length) {
+          delete this._listeners[type];
+        }
+        this._flag(type, false);
+      }
+    }
+  }
+  return this;
+};
+
+Cut.prototype._onoff = function(types, listener, create) {
+  if (!types || !types.length || typeof listener !== 'function') {
+    return false;
+  }
+  if (!(types = (Cut._isArray(types) ? types.join(' ') : types).match(/\S+/g))) {
+    return false;
+  }
+  if (this._listeners === null) {
+    if (create) {
+      this._listeners = {};
+    } else {
+      return false;
+    }
+  }
+  return types;
 };
 
 Cut.prototype.listeners = function(type) {
@@ -219,20 +253,20 @@ Cut.prototype.trigger = function(name, args) {
   return this;
 };
 
-Cut.prototype.visit = function(visitor) {
+Cut.prototype.visit = function(visitor, data) {
   var reverse = visitor.reverse;
   var visible = visitor.visible;
-  if (visitor.start && visitor.start(this)) {
+  if (visitor.start && visitor.start(this, data)) {
     return;
   }
   var child, next = reverse ? this.last(visible) : this.first(visible);
   while (child = next) {
     next = reverse ? child.prev(visible) : child.next(visible);
-    if (child.visit(visitor, reverse)) {
+    if (child.visit(visitor, data)) {
       return true;
     }
   }
-  return visitor.end && visitor.end(this);
+  return visitor.end && visitor.end(this, data);
 };
 
 Cut.prototype.visible = function(visible) {
@@ -333,7 +367,7 @@ Cut.prototype.appendTo = function(parent) {
     parent._first = this;
   }
 
-  this._parent._listenOn(this);
+  this._parent._flag(this, true);
 
   this._ts_parent = Cut._TS++;
   parent._ts_children = Cut._TS++;
@@ -363,7 +397,7 @@ Cut.prototype.prependTo = function(parent) {
     parent._last = this;
   }
 
-  this._parent._listenOn(this);
+  this._parent._flag(this, true);
 
   this._ts_parent = Cut._TS++;
   parent._ts_children = Cut._TS++;
@@ -415,7 +449,7 @@ Cut.prototype.insertBefore = function(next) {
   this._prev = prev;
   this._next = next;
 
-  this._parent._listenOn(this);
+  this._parent._flag(this, true);
 
   this._ts_parent = Cut._TS++;
   this.touch();
@@ -442,7 +476,7 @@ Cut.prototype.insertAfter = function(prev) {
   this._prev = prev;
   this._next = next;
 
-  this._parent._listenOn(this);
+  this._parent._flag(this, true);
 
   this._ts_parent = Cut._TS++;
   this.touch();
@@ -475,7 +509,7 @@ Cut.prototype.remove = function() {
       this._parent._last = this._prev;
     }
 
-    this._parent._listenOff(this);
+    this._parent._flag(this, false);
 
     this._parent._ts_children = Cut._TS++;
     this._parent.touch();
@@ -494,7 +528,7 @@ Cut.prototype.empty = function() {
     next = child._next;
     child._prev = child._next = child._parent = null;
 
-    this._listenOff(child);
+    this._flag(child, false);
   }
 
   this._first = this._last = null;
@@ -504,46 +538,36 @@ Cut.prototype.empty = function() {
   return this;
 };
 
-Cut.prototype._listenOn = function(obj) {
+// Deep flags used for optimizing event distribution.
+Cut.prototype._flag = function(obj, on) {
+  if (typeof on === 'undefined') {
+    return this._flags !== null && this._flags[obj] || 0;
+  }
   if (typeof obj === 'string') {
-    this._listenersCount = this._listenersCount || {};
-    if (!this._listenersCount[obj] && this._parent) {
-      this._parent._listenOn(obj);
+    if (on) {
+      this._flags = this._flags || {};
+      if (!this._flags[obj] && this._parent) {
+        this._parent._flag(obj, true);
+      }
+      this._flags[obj] = (this._flags[obj] || 0) + 1;
+
+    } else if (this._flags && this._flags[obj] > 0) {
+      if (this._flags[obj] == 1 && this._parent) {
+        this._parent._flag(obj, false);
+      }
+      this._flags[obj] = this._flags[obj] - 1;
     }
-    this._listenersCount[obj] = (this._listenersCount[obj] || 0) + 1;
-  } else if (typeof obj === 'object') {
-    if (obj._listenersCount) {
-      for ( var type in obj._listenersCount) {
-        if (obj._listenersCount[type] > 0) {
-          this._listenOn(type);
+  }
+  if (typeof obj === 'object') {
+    if (obj._flags) {
+      for ( var type in obj._flags) {
+        if (obj._flags[type] > 0) {
+          this._flag(type, on);
         }
       }
     }
   }
-};
-
-Cut.prototype._listenOff = function(obj) {
-  if (typeof obj === 'string') {
-    this._listenersCount = this._listenersCount || {};
-    if (this._listenersCount[obj] == 1 && this._parent) {
-      this._parent._listenOff(obj);
-    }
-    this._listenersCount[obj] = Math.max((this._listenersCount[obj] || 0) - 1,
-        0);
-
-  } else if (typeof obj === 'object') {
-    if (obj._listenersCount) {
-      for ( var type in obj._listenersCount) {
-        if (obj._listenersCount[type] > 0) {
-          this._listenOff(type);
-        }
-      }
-    }
-  }
-};
-
-Cut.prototype._listens = function(type) {
-  return (this._listenersCount && this._listenersCount[type]) || 0;
+  return this;
 };
 
 Cut.prototype.touch = function() {
@@ -649,17 +673,19 @@ Cut.Tween.prototype.tween = function(duration, delay) {
   return this;
 };
 
-Cut.Tween.prototype.pin = function(pin) {
+Cut.Tween.prototype.pin = function(a, b) {
   if (this._next !== this._queue[this._queue.length - 1]) {
     this._owner.touch();
     this._queue.push(this._next);
   }
 
   var end = this._next.end;
-  if (arguments.length === 1) {
-    Cut._extend(end, arguments[0]);
-  } else if (arguments.length === 2) {
-    end[arguments[0]] = arguments[1];
+  if (typeof a === 'object') {
+    for ( var attr in a) {
+      end[attr] = a[attr];
+    }
+  } else if (typeof b !== 'undefined') {
+    end[a] = b;
   }
   return this;
 };
@@ -781,7 +807,7 @@ Cut.Root.prototype.resize = function(width, height, ratio) {
   data.ratio = ratio;
   this.visit({
     start : function(cut) {
-      if (!cut._listens('viewport')) {
+      if (!cut._flag('viewport')) {
         return true;
       }
       cut.publish('viewport', [ data ]);
@@ -2435,8 +2461,6 @@ Cut.Math.length = function(x, y) {
   return Math.sqrt(x * x + y * y);
 };
 
-Cut._TS = 0;
-
 Cut._isCut = function(obj) {
   return obj instanceof Cut;
 };
@@ -2453,15 +2477,12 @@ Cut._isArray = ('isArray' in Array) ? Array.isArray : function(value) {
   return Object.prototype.toString.call(value) === '[object Array]';
 };
 
-Cut._extend = function(base, extension, attribs) {
-  if (attribs) {
-    for (var i = 0; i < attribs.length; i++) {
-      var attr = attribs[i];
-      base[attr] = extension[attr];
-    }
-  } else {
-    for ( var attr in extension) {
-      base[attr] = extension[attr];
+Cut._extend = function() {
+  var base = {};
+  for (var i = 0; i < arguments.length; i++) {
+    var obj = arguments[i];
+    for ( var name in obj) {
+      base[name] = obj[name];
     }
   }
   return base;
@@ -2485,43 +2506,6 @@ Cut._function = function(value) {
   return typeof value === 'function' ? value : function() {
     return value;
   };
-};
-
-Cut._options = function(options) {
-  options.get = function(name) {
-    return typeof this[name] == 'function' ? this[name]() : this[name];
-  };
-  options.extend = function(obj) {
-    obj = typeof obj === 'object' ? obj : {};
-    for ( var name in this) {
-      obj[name] = name in obj ? obj[name] : this[name];
-    }
-    return obj;
-  };
-  options.mixin = function(obj) {
-    if (typeof obj === 'object') {
-      for ( var name in obj) {
-        this[name] = obj[name];
-      }
-    }
-    return this;
-  };
-  return options;
-};
-
-Cut._status = function(msg) {
-  if (!(Cut._statusbox)) {
-    var statusbox = Cut._statusbox = document.createElement('div');
-    statusbox.style.position = 'absolute';
-    statusbox.style.color = 'black';
-    statusbox.style.background = 'white';
-    statusbox.style.zIndex = 999;
-    statusbox.style.top = '5px';
-    statusbox.style.right = '5px';
-    statusbox.style.padding = '1px 5px';
-    document.body.appendChild(statusbox);
-  }
-  Cut._statusbox.innerHTML = msg;
 };
 
 Cut.Easing = (function() {
