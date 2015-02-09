@@ -18,36 +18,142 @@ Cut.Mouse.CLICK = 'click';
 Cut.Mouse.START = 'touchstart mousedown';
 Cut.Mouse.MOVE = 'touchmove mousemove';
 Cut.Mouse.END = 'touchend mouseup';
+Cut.Mouse.CANCEL = 'touchcancel';
 
 Cut.Mouse.subscribe = function(root, elem, move) {
+  var visitor = null, data = {}, abs = null, rel = null, clicked = [];
+
   elem = elem || document;
 
-  elem.addEventListener('click', mouseClick);
+  // click events are synthesized from start/end events on same nodes
+  // elem.addEventListener('click', handleClick);
 
-  // TODO: with 'if' mouse doesn't work on touch screen, without 'if' two events
-  // on Android
+  // TODO: with 'if' mouse doesn't work on touch screen, without 'if' two
+  // events on Android
   if ('ontouchstart' in window) {
     elem.addEventListener('touchstart', function(event) {
-      mouseStart(event, 'touchmove');
+      handleStart(event, 'touchmove');
     });
     elem.addEventListener('touchend', function(event) {
-      mouseEnd(event, 'touchmove');
+      handleEnd(event, 'touchmove');
     });
-    move && elem.addEventListener('touchmove', mouseMove);
+    move && elem.addEventListener('touchmove', handleMove);
+    elem.addEventListener('touchcancel', handleCancel);
 
   } else {
     elem.addEventListener('mousedown', function(event) {
-      mouseStart(event, 'mousemove');
+      handleStart(event, 'mousemove');
     });
     elem.addEventListener('mouseup', function(event) {
-      mouseEnd(event, 'mousemove');
+      handleEnd(event, 'mousemove');
     });
-    move && elem.addEventListener('mousemove', mouseMove);
+    move && elem.addEventListener('mousemove', handleMove);
   }
 
-  var visitor = null;
+  function handleStart(event, moveName) {
+    Cut.Mouse._xy(root, elem, event, abs);
+    DEBUG && console.log('Mouse Start: ' + event.type + ' ' + abs);
+    !move && elem.addEventListener(moveName, handleMove);
+    event.preventDefault();
+    publish(event.type, event);
 
-  var abs = {
+    findClicks();
+  }
+
+  function handleEnd(event, moveName) {
+    // New xy is not valid/available, last xy is used instead.
+    DEBUG && console.log('Mouse End: ' + event.type + ' ' + abs);
+    !move && elem.removeEventListener(moveName, handleMove);
+    event.preventDefault();
+    publish(event.type, event);
+
+    if (clicked.length) {
+      DEBUG && console.log('Mouse Click: ' + clicked.length);
+      fireClicks(event);
+    }
+  }
+
+  function handleCancel(event) {
+    DEBUG && console.log('Mouse Cancel: ' + event.type);
+    !move && elem.removeEventListener(moveName, handleMove);
+    event.preventDefault();
+    publish(event.type, event);
+  }
+
+  function handleMove(event) {
+    Cut.Mouse._xy(root, elem, event, abs);
+    // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
+    // abs);
+    event.preventDefault();
+    publish(event.type, event);
+  }
+
+  function findClicks() {
+    while (clicked.length) {
+      clicked.pop();
+    }
+    publish('click', null, clicked);
+  }
+
+  function fireClicks(event) {
+    data.event = event;
+    data.type = 'click';
+    data.root = root;
+    data.collect = false;
+
+    var cancel = false;
+    while (clicked.length) {
+      var cut = clicked.shift();
+      if (cancel) {
+        continue;
+      }
+      cancel = visitor.end(cut, data) ? true : cancel;
+    }
+  }
+
+  function publish(type, event, collect) {
+    rel.x = abs.x;
+    rel.y = abs.y;
+
+    data.event = event;
+    data.type = type;
+    data.root = /* root._capture || */root;
+    data.collect = collect;
+
+    data.root.visit(visitor, data);
+  }
+
+  visitor = {
+    reverse : true,
+    visible : true,
+    start : function(cut, data) {
+      return !cut._flag(data.type);
+    },
+    end : function(cut, data) {
+      // data: event, type, root, collect
+      rel.raw = data.event;
+      rel.type = data.type;
+      var listeners = cut.listeners(data.type);
+      if (!listeners) {
+        return;
+      }
+      cut.matrix().reverse().map(abs, rel);
+      if (!(cut === data.root || cut.attr('spy') || Cut.Mouse._isInside(cut, rel))) {
+        return;
+      }
+      if (data.collect) {
+        data.collect.push(cut);
+        return;
+      }
+      var cancel = false;
+      for (var l = 0; l < listeners.length; l++) {
+        cancel = listeners[l].call(cut, rel) ? true : cancel;
+      }
+      return cancel;
+    }
+  };
+
+  abs = {
     x : 0,
     y : 0,
     toString : function() {
@@ -55,7 +161,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
     }
   };
 
-  var rel = {
+  rel = {
     x : 0,
     y : 0,
     toString : function() {
@@ -63,157 +169,55 @@ Cut.Mouse.subscribe = function(root, elem, move) {
     }
   };
 
-  var clicked = {
-    x : 0,
-    y : 0,
-    state : 0
-  };
+};
 
-  function mouseStart(event, moveName) {
-    update(event, elem);
-    DEBUG && console.log('Mouse Start: ' + event.type + ' ' + abs);
-    !move && elem.addEventListener(moveName, mouseMove);
-    event.preventDefault();
-    publish(event.type, event);
+Cut.Mouse._isInside = function(cut, point) {
+  return point.x >= 0 && point.x <= cut._pin._width && point.y >= 0
+      && point.y <= cut._pin._height;
+};
 
-    clicked.x = abs.x;
-    clicked.y = abs.y;
-    clicked.state = 1;
-  }
+Cut.Mouse._xy = function(root, elem, event, point) {
 
-  function mouseEnd(event, moveName) {
-    try {
-      // New xy is not valid/available, last xy is used instead.
-      DEBUG && console.log('Mouse End: ' + event.type + ' ' + abs);
-      !move && elem.removeEventListener(moveName, mouseMove);
-      event.preventDefault();
-      publish(event.type, event);
+  var isTouch = false;
 
-      if (clicked.state == 1 && clicked.x == abs.x && clicked.y == abs.y) {
-        DEBUG && console.log('Mouse Click [+]');
-        publish('click', event);
-        clicked.state = 2;
-      } else {
-        clicked.state = 0;
-      }
-    } catch (e) {
-      console && console.log(e);
-    }
-  }
-
-  function mouseMove(event) {
-    try {
-      update(event, elem);
-      // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
-      // abs);
-      event.preventDefault();
-      publish(event.type, event);
-    } catch (e) {
-      console && console.log(e);
-    }
-  }
-
-  function mouseClick(event) {
-    try {
-      update(event, elem);
-      DEBUG && console.log('Mouse Click: ' + event.type + ' ' + abs);
-      event.preventDefault();
-      if (clicked.state != 2) {
-        publish(event.type, event);
-      } else {
-        DEBUG && console.log('Mouse Click [-]');
-      }
-    } catch (e) {
-      console && console.log(e);
-    }
-  }
-
-  function publish(type, event) {
-    abs.type = type;
-    abs.event = event;
-    rel.x = abs.x;
-    rel.y = abs.y;
-    // visitor.count = 0;
-    root.visit(visitor);
-    // console.log(visitor.count);
-  }
-
-  visitor = {
-    reverse : true,
-    visible : true,
-    start : function(cut) {
-      if (!cut._listens(abs.type)) {
-        return true;
-      }
-    },
-    end : function(cut) {
-      // visitor.count++;
-      var listeners = cut.listeners(abs.type);
-      if (!listeners) {
-        return;
-      }
-      cut.matrix().reverse().map(abs, rel);
-      if (cut === root || cut.attr('spy')) {
-      } else if (rel.x < 0 || rel.x > cut._pin._width || rel.y < 0
-          || rel.y > cut._pin._height) {
-        return;
-      }
-      rel.raw = abs.event;
-      for (var l = 0; l < listeners.length; l++) {
-        if (listeners[l].call(cut, rel)) {
-          return true;
-        }
-      }
-    }
-  };
-
-  function update(event, elem) {
-
-    var isTouch = false;
-
-    // touch screen events
-    if (event.touches) {
-      if (event.touches.length) {
-        isTouch = true;
-        abs.x = event.touches[0].pageX;
-        abs.y = event.touches[0].pageY;
-      } else {
-        return;
-      }
+  // touch screen events
+  if (event.touches) {
+    if (event.touches.length) {
+      isTouch = true;
+      point.x = event.touches[0].pageX;
+      point.y = event.touches[0].pageY;
     } else {
-      // mouse events
-      abs.x = event.clientX;
-      abs.y = event.clientY;
-      // See http://goo.gl/JuVnF2
-      if (document.body.scrollLeft || document.body.scrollTop) {
-        // body is added as offsetParent
-      } else if (document.documentElement) {
-        abs.x += document.documentElement.scrollLeft;
-        abs.y += document.documentElement.scrollTop;
-      }
+      return;
+    }
+  } else {
+    // mouse events
+    point.x = event.clientX;
+    point.y = event.clientY;
+    // See http://goo.gl/JuVnF2
+    if (document.body.scrollLeft || document.body.scrollTop) {
+      // body is added as offsetParent
+    } else if (document.documentElement) {
+      point.x += document.documentElement.scrollLeft;
+      point.y += document.documentElement.scrollTop;
+    }
+  }
+
+  // accounts for border
+  point.x -= elem.clientLeft || 0;
+  point.y -= elem.clientTop || 0;
+
+  var par = elem;
+  while (par) {
+    point.x -= par.offsetLeft || 0;
+    point.y -= par.offsetTop || 0;
+    if (!isTouch) {
+      // touch events offset scrolling with pageX/Y
+      // so scroll offset not needed for them
+      point.x += par.scrollLeft || 0;
+      point.y += par.scrollTop || 0;
     }
 
-    // accounts for border
-    abs.x -= elem.clientLeft || 0;
-    abs.y -= elem.clientTop || 0;
-
-    var par = elem;
-    while (par) {
-      abs.x -= par.offsetLeft || 0;
-      abs.y -= par.offsetTop || 0;
-      if (!isTouch) {
-        // touch events offset scrolling with pageX/Y
-        // so scroll offset not needed for them
-        abs.x += par.scrollLeft || 0;
-        abs.y += par.scrollTop || 0;
-      }
-
-      par = par.offsetParent;
-    }
-
-    // see loader
-    abs.x *= root._ratio || 1;
-    abs.y *= root._ratio || 1;
+    par = par.offsetParent;
   }
 
 };
