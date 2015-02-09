@@ -1187,7 +1187,7 @@ Cut.String.prototype.frames = function(frames) {
     this._frames = function(value) {
       return frames + value;
     };
-  } else if (Cut._isFunc(frames)) {
+  } else if (typeof frames === 'function') {
     this._frames = frames;
   }
   return this;
@@ -2432,21 +2432,19 @@ Cut.Matrix.prototype.mapY = function(x, y) {
 Cut.Math = {};
 
 Cut.Math.random = function(min, max) {
-  if (arguments.length == 0) {
+  if (typeof min === 'undefined') {
     max = 1, min = 0;
-  } else if (arguments.length == 1) {
+  } else if (typeof max === 'undefined') {
     max = min, min = 0;
   }
-  if (min == max) {
-    return min;
-  }
-  return Math.random() * (max - min) + min;
+  return min == max ? min : Math.random() * (max - min) + min;
 };
 
 Cut.Math.rotate = function(num, min, max) {
-  if (arguments.length < 3) {
-    max = min || 0;
-    min = 0;
+  if (typeof min === 'undefined') {
+    max = 1, min = 0;
+  } else if (typeof max === 'undefined') {
+    max = min, min = 0;
   }
   if (max > min) {
     num = (num - min) % (max - min);
@@ -2469,10 +2467,6 @@ Cut._isNum = function(x) {
   return typeof x === 'number';
 };
 
-Cut._isFunc = function(x) {
-  return typeof x === 'function';
-};
-
 Cut._isArray = ('isArray' in Array) ? Array.isArray : function(value) {
   return Object.prototype.toString.call(value) === '[object Array]';
 };
@@ -2482,7 +2476,9 @@ Cut._extend = function() {
   for (var i = 0; i < arguments.length; i++) {
     var obj = arguments[i];
     for ( var name in obj) {
-      base[name] = obj[name];
+      if (obj.hasOwnProperty(name)) {
+        base[name] = obj[name];
+      }
     }
   }
   return base;
@@ -2501,12 +2497,6 @@ if (typeof performance !== 'undefined' && performance.now) {
     return +new Date();
   };
 }
-
-Cut._function = function(value) {
-  return typeof value === 'function' ? value : function() {
-    return value;
-  };
-};
 
 Cut.Easing = (function() {
 
@@ -2687,6 +2677,6 @@ Cut.Easing.add({
   }
 });
 
-if (typeof module !== 'undefined') {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports = Cut;
 }

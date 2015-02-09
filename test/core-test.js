@@ -1,5 +1,8 @@
+var expect = require('./expect');
+var rewire = require("rewire");
 var sinon = require('sinon');
-var expect = require('expect.js');
+var sandbox = require('./sandbox');
+
 var Cut = require('../cut-core');
 
 it('Attribute', function() {
@@ -12,7 +15,7 @@ it('Attribute', function() {
 });
 
 it('Visit', function() {
-  var cuts = Sandbox(function(id) {
+  var cuts = sandbox(function(id) {
     return Cut.create().id(id);
   });
   function tostr(obj) {
@@ -127,53 +130,3 @@ it('Flag', function() {
   foo.empty();
   expect(foo._flag('knock')).equal(0);
 });
-
-expect.Assertion.prototype.list = function(obj, fn) {
-  fn = typeof fn === 'function' ? fn : function(obj) {
-    return expect.stringify(obj, false, 1);
-  };
-  var match = true;
-  if (obj.length === this.obj.length) {
-    var n = this.obj.length;
-    for (var i = 0; match && i < n; i++) {
-      match = this.obj[i] === obj[i] ? match : false;
-    }
-  } else {
-    match = false;
-  }
-  this.assert(match, function() {
-    return 'expected ' + this.obj.map(fn) + ' to list ' + obj.map(fn);
-  }, function() {
-    return 'expected ' + this.obj.map(fn) + ' to not list ' + obj.map(fn);
-  });
-  return this;
-};
-
-Array.prototype.select = function(key) {
-  return this.map(function(obj) {
-    return obj[key];
-  });
-};
-
-function Sandbox(create) {
-  var map = {};
-  function fn(query) {
-    if (Array.isArray(query)) {
-      return fn.list(query);
-    } else {
-      return fn.get(query) || fn.neo(query);
-    }
-  }
-  fn.neo = function(id) {
-    return map[id] = create(id);
-  };
-  fn.get = function(id) {
-    return map[id];
-  };
-  fn.list = function(ids) {
-    return ids.map(function(id) {
-      return map[id];
-    });
-  };
-  return fn;
-}

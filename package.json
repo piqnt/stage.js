@@ -27,6 +27,12 @@
     "gulp-uglify": "*",
     "gulp-wrap": "*",
     "minimist": "*",
+    "proxyquire": "*",
+    "rewire": "*",
     "sinon": "*"
+  },
+  "scripts": {
+    "test": "mocha",
+    "build": "gulp"
   }
 }

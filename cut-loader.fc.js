@@ -136,13 +136,13 @@ Cut.Loader.loadImage = function(src, handleComplete, handleError) {
   return image;
 };
 
-!function() {
-  // FastCanvas workaround
-  var nop = function() {
-  };
-  document.addEventListener('touchstart', nop);
-  document.addEventListener('mousedown', nop);
-  document.addEventListener('touchend', nop);
-  document.addEventListener('mouseup', nop);
+// FastCanvas workaround
+(function(nop) {
   document.addEventListener('click', nop);
-}();
+  document.addEventListener('mousedown', nop);
+  document.addEventListener('mouseup', nop);
+  document.addEventListener('touchstart', nop);
+  document.addEventListener('touchend', nop);
+  document.addEventListener('touchcancel', nop);
+})(function() {
+});

@@ -14,15 +14,9 @@ Cut.SAT = function(world, options) {
     ratio : 2,
     get : function(key) {
       var value = this[key];
-      if (typeof value === 'function') {
-        return value();
-      } else {
-        return value;
-      }
+      return typeof value === 'function' ? value() : value;
     }
   }, options);
-
-  console.log(this.options);
 
   world.onAddBody = function(e) {
     self.addRenderable(e.body);

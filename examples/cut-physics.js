@@ -14,11 +14,7 @@ Cut.PJS = function(world, options) {
     ratio : 1,
     get : function(key) {
       var value = this[key];
-      if (typeof value === 'function') {
-        return value();
-      } else {
-        return value;
-      }
+      return typeof value === 'function' ? value() : value;
     }
   }, options);
 
