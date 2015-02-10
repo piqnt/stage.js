@@ -17,17 +17,6 @@
   }
 }();
 
-eval(load('../../cut-core.js'));
-eval(load('../../cut-mouse.js'));
-eval(load('../../cut-loader.web.js'));
-
-function load(path) {
-  var xhrObj = new XMLHttpRequest();
-  xhrObj.open('GET', path, false);
-  xhrObj.send();
-  return xhrObj.responseText;
-}
-
 var status = (function() {
   var el = null;
   return function(msg) {

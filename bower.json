@@ -1,13 +1,8 @@
 {
   "name": "cutjs",
-  "version": "0.2.2",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/piqnt/cutjs.git"
-  },
-  "homepage": "http://cutjs.org/",
+  "version": "0.2.3",
   "description": "Lightweight, fast, interactable 2D HTML5 rendering engine for cross-platform game development.",
-  "license": "MIT",
+  "homepage": "http://cutjs.org/",
   "keywords": [
     "html5",
     "game",
@@ -16,5 +11,10 @@
     "2d",
     "canvas",
     "mobile"
-  ]
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/piqnt/cutjs.git"
+  }
 }

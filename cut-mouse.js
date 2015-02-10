@@ -5,22 +5,19 @@
  * @license
  */
 
-if (typeof Cut === 'undefined' && typeof require === 'function')
-  Cut = require('./cut-core');
+DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 
-DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
-
-Cut.Mouse = function() {
-  Cut.Mouse.subscribe.apply(Cut.Mouse, arguments);
+function Mouse() {
+  Mouse.subscribe.apply(Mouse, arguments);
 };
 
-Cut.Mouse.CLICK = 'click';
-Cut.Mouse.START = 'touchstart mousedown';
-Cut.Mouse.MOVE = 'touchmove mousemove';
-Cut.Mouse.END = 'touchend mouseup';
-Cut.Mouse.CANCEL = 'touchcancel';
+Mouse.CLICK = 'click';
+Mouse.START = 'touchstart mousedown';
+Mouse.MOVE = 'touchmove mousemove';
+Mouse.END = 'touchend mouseup';
+Mouse.CANCEL = 'touchcancel';
 
-Cut.Mouse.subscribe = function(root, elem, move) {
+Mouse.subscribe = function(root, elem, move) {
   var visitor = null, data = {}, abs = null, rel = null, clicked = [];
 
   elem = elem || document;
@@ -51,7 +48,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
   }
 
   function handleStart(event, moveName) {
-    Cut.Mouse._xy(root, elem, event, abs);
+    Mouse._xy(root, elem, event, abs);
     DEBUG && console.log('Mouse Start: ' + event.type + ' ' + abs);
     !move && elem.addEventListener(moveName, handleMove);
     event.preventDefault();
@@ -81,7 +78,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
   }
 
   function handleMove(event) {
-    Cut.Mouse._xy(root, elem, event, abs);
+    Mouse._xy(root, elem, event, abs);
     // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
     // abs);
     event.preventDefault();
@@ -138,7 +135,7 @@ Cut.Mouse.subscribe = function(root, elem, move) {
         return;
       }
       cut.matrix().reverse().map(abs, rel);
-      if (!(cut === data.root || cut.attr('spy') || Cut.Mouse._isInside(cut, rel))) {
+      if (!(cut === data.root || cut.attr('spy') || Mouse._isInside(cut, rel))) {
         return;
       }
       if (data.collect) {
@@ -171,12 +168,12 @@ Cut.Mouse.subscribe = function(root, elem, move) {
 
 };
 
-Cut.Mouse._isInside = function(cut, point) {
+Mouse._isInside = function(cut, point) {
   return point.x >= 0 && point.x <= cut._pin._width && point.y >= 0
       && point.y <= cut._pin._height;
 };
 
-Cut.Mouse._xy = function(root, elem, event, point) {
+Mouse._xy = function(root, elem, event, point) {
 
   var isTouch = false;
 
@@ -219,5 +216,8 @@ Cut.Mouse._xy = function(root, elem, event, point) {
 
     par = par.offsetParent;
   }
-
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Mouse;
+}

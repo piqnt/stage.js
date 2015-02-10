@@ -6,9 +6,9 @@
  */
 
 if (typeof Cut === 'undefined' && typeof require === 'function')
-  Cut = require('./cut-core');
+  var Cut = require('./cut-core');
 
-DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
+DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 
 /**
  * Cordova/PhoneGap FastCanvas plugin loader.

@@ -5,7 +5,7 @@
  * @license
  */
 
-DEBUG = (typeof DEBUG === 'undefined' || DEBUG) && console;
+DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 
 function Cut() {
   if (!(this instanceof Cut)) {
@@ -38,7 +38,7 @@ function Cut() {
   this._attrs = null;
   this._listeners = null;
   this._flags = null;
-};
+}
 
 Cut._create = (function() {
   if (typeof Object.create == 'function') {

@@ -1,11 +1,18 @@
 /*
- * CutJS 0.2.1
+ * CutJS 0.2.3
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
  */
 
-DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Cut=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+module.exports = require("../cut-core");
+
+module.exports.Mouse = require("../cut-mouse");
+
+require("../cut-loader.cordova");
+},{"../cut-core":2,"../cut-loader.cordova":3,"../cut-mouse":4}],2:[function(require,module,exports){
+DEBUG = typeof DEBUG === "undefined" || DEBUG;
 
 function Cut() {
     if (!(this instanceof Cut)) {
@@ -28,6 +35,9 @@ function Cut() {
     this._tickBefore = [];
     this._tickAfter = [];
     this._alpha = 1;
+    this._attrs = null;
+    this._listeners = null;
+    this._flags = null;
 }
 
 Cut._create = function() {
@@ -49,6 +59,8 @@ Cut._create = function() {
         };
     }
 }();
+
+Cut._TS = 0;
 
 Cut._stats = {
     create: 0,
@@ -155,27 +167,55 @@ Cut.prototype.id = function(id) {
 
 Cut.prototype.attr = function(name, value) {
     if (typeof value === "undefined") {
-        return this._attrs ? this._attrs[name] : undefined;
+        return this._attrs !== null ? this._attrs[name] : undefined;
     }
-    (this._attrs ? this._attrs : this._attrs = {})[name] = value;
+    (this._attrs !== null ? this._attrs : this._attrs = {})[name] = value;
     return this;
 };
 
 Cut.prototype.on = Cut.prototype.listen = function(types, listener) {
-    if (typeof listener !== "function") {
-        return this;
-    }
-    types = (Cut._isArray(types) ? types.join(" ") : types).split(/\s+/);
-    for (var i = 0; i < types.length; i++) {
-        var type = types[i];
-        if (type) {
-            this._listeners = this._listeners || {};
+    if (types = this._onoff(types, listener, true)) {
+        for (var i = 0; i < types.length; i++) {
+            var type = types[i];
             this._listeners[type] = this._listeners[type] || [];
             this._listeners[type].push(listener);
-            this._listenOn(type);
+            this._flag(type, true);
         }
     }
     return this;
+};
+
+Cut.prototype.off = function(types, listener) {
+    if (types = this._onoff(types, listener, false)) {
+        for (var i = 0; i < types.length; i++) {
+            var type = types[i], all = this._listeners[type], index;
+            if (all && (index = all.indexOf(listener)) >= 0) {
+                all.splice(index, 1);
+                if (!all.length) {
+                    delete this._listeners[type];
+                }
+                this._flag(type, false);
+            }
+        }
+    }
+    return this;
+};
+
+Cut.prototype._onoff = function(types, listener, create) {
+    if (!types || !types.length || typeof listener !== "function") {
+        return false;
+    }
+    if (!(types = (Cut._isArray(types) ? types.join(" ") : types).match(/\S+/g))) {
+        return false;
+    }
+    if (this._listeners === null) {
+        if (create) {
+            this._listeners = {};
+        } else {
+            return false;
+        }
+    }
+    return types;
 };
 
 Cut.prototype.listeners = function(type) {
@@ -198,20 +238,20 @@ Cut.prototype.trigger = function(name, args) {
     return this;
 };
 
-Cut.prototype.visit = function(visitor) {
+Cut.prototype.visit = function(visitor, data) {
     var reverse = visitor.reverse;
     var visible = visitor.visible;
-    if (visitor.start && visitor.start(this)) {
+    if (visitor.start && visitor.start(this, data)) {
         return;
     }
     var child, next = reverse ? this.last(visible) : this.first(visible);
     while (child = next) {
         next = reverse ? child.prev(visible) : child.next(visible);
-        if (child.visit(visitor, reverse)) {
+        if (child.visit(visitor, data)) {
             return true;
         }
     }
-    return visitor.end && visitor.end(this);
+    return visitor.end && visitor.end(this, data);
 };
 
 Cut.prototype.visible = function(visible) {
@@ -306,7 +346,7 @@ Cut.prototype.appendTo = function(parent) {
     if (!parent._first) {
         parent._first = this;
     }
-    this._parent._listenOn(this);
+    this._parent._flag(this, true);
     this._ts_parent = Cut._TS++;
     parent._ts_children = Cut._TS++;
     parent.touch();
@@ -330,7 +370,7 @@ Cut.prototype.prependTo = function(parent) {
     if (!parent._last) {
         parent._last = this;
     }
-    this._parent._listenOn(this);
+    this._parent._flag(this, true);
     this._ts_parent = Cut._TS++;
     parent._ts_children = Cut._TS++;
     parent.touch();
@@ -376,7 +416,7 @@ Cut.prototype.insertBefore = function(next) {
     this._parent = parent;
     this._prev = prev;
     this._next = next;
-    this._parent._listenOn(this);
+    this._parent._flag(this, true);
     this._ts_parent = Cut._TS++;
     this.touch();
     return this;
@@ -397,7 +437,7 @@ Cut.prototype.insertAfter = function(prev) {
     this._parent = parent;
     this._prev = prev;
     this._next = next;
-    this._parent._listenOn(this);
+    this._parent._flag(this, true);
     this._ts_parent = Cut._TS++;
     this.touch();
     return this;
@@ -426,7 +466,7 @@ Cut.prototype.remove = function() {
         if (this._parent._last === this) {
             this._parent._last = this._prev;
         }
-        this._parent._listenOff(this);
+        this._parent._flag(this, false);
         this._parent._ts_children = Cut._TS++;
         this._parent.touch();
     }
@@ -441,7 +481,7 @@ Cut.prototype.empty = function() {
     while (child = next) {
         next = child._next;
         child._prev = child._next = child._parent = null;
-        this._listenOff(child);
+        this._flag(child, false);
     }
     this._first = this._last = null;
     this._ts_children = Cut._TS++;
@@ -449,44 +489,35 @@ Cut.prototype.empty = function() {
     return this;
 };
 
-Cut.prototype._listenOn = function(obj) {
+// Deep flags used for optimizing event distribution.
+Cut.prototype._flag = function(obj, on) {
+    if (typeof on === "undefined") {
+        return this._flags !== null && this._flags[obj] || 0;
+    }
     if (typeof obj === "string") {
-        this._listenersCount = this._listenersCount || {};
-        if (!this._listenersCount[obj] && this._parent) {
-            this._parent._listenOn(obj);
+        if (on) {
+            this._flags = this._flags || {};
+            if (!this._flags[obj] && this._parent) {
+                this._parent._flag(obj, true);
+            }
+            this._flags[obj] = (this._flags[obj] || 0) + 1;
+        } else if (this._flags && this._flags[obj] > 0) {
+            if (this._flags[obj] == 1 && this._parent) {
+                this._parent._flag(obj, false);
+            }
+            this._flags[obj] = this._flags[obj] - 1;
         }
-        this._listenersCount[obj] = (this._listenersCount[obj] || 0) + 1;
-    } else if (typeof obj === "object") {
-        if (obj._listenersCount) {
-            for (var type in obj._listenersCount) {
-                if (obj._listenersCount[type] > 0) {
-                    this._listenOn(type);
+    }
+    if (typeof obj === "object") {
+        if (obj._flags) {
+            for (var type in obj._flags) {
+                if (obj._flags[type] > 0) {
+                    this._flag(type, on);
                 }
             }
         }
     }
-};
-
-Cut.prototype._listenOff = function(obj) {
-    if (typeof obj === "string") {
-        this._listenersCount = this._listenersCount || {};
-        if (this._listenersCount[obj] == 1 && this._parent) {
-            this._parent._listenOff(obj);
-        }
-        this._listenersCount[obj] = Math.max((this._listenersCount[obj] || 0) - 1, 0);
-    } else if (typeof obj === "object") {
-        if (obj._listenersCount) {
-            for (var type in obj._listenersCount) {
-                if (obj._listenersCount[type] > 0) {
-                    this._listenOff(type);
-                }
-            }
-        }
-    }
-};
-
-Cut.prototype._listens = function(type) {
-    return this._listenersCount && this._listenersCount[type] || 0;
+    return this;
 };
 
 Cut.prototype.touch = function() {
@@ -578,16 +609,18 @@ Cut.Tween.prototype.tween = function(duration, delay) {
     return this;
 };
 
-Cut.Tween.prototype.pin = function(pin) {
+Cut.Tween.prototype.pin = function(a, b) {
     if (this._next !== this._queue[this._queue.length - 1]) {
         this._owner.touch();
         this._queue.push(this._next);
     }
     var end = this._next.end;
-    if (arguments.length === 1) {
-        Cut._extend(end, arguments[0]);
-    } else if (arguments.length === 2) {
-        end[arguments[0]] = arguments[1];
+    if (typeof a === "object") {
+        for (var attr in a) {
+            end[attr] = a[attr];
+        }
+    } else if (typeof b !== "undefined") {
+        end[a] = b;
     }
     return this;
 };
@@ -706,7 +739,7 @@ Cut.Root.prototype.resize = function(width, height, ratio) {
     data.ratio = ratio;
     this.visit({
         start: function(cut) {
-            if (!cut._listens("viewport")) {
+            if (!cut._flag("viewport")) {
                 return true;
             }
             cut.publish("viewport", [ data ]);
@@ -1039,7 +1072,7 @@ Cut.String.prototype.frames = function(frames) {
         this._frames = function(value) {
             return frames + value;
         };
-    } else if (Cut._isFunc(frames)) {
+    } else if (typeof frames === "function") {
         this._frames = frames;
     }
     return this;
@@ -2099,21 +2132,19 @@ Cut.Matrix.prototype.mapY = function(x, y) {
 Cut.Math = {};
 
 Cut.Math.random = function(min, max) {
-    if (arguments.length == 0) {
+    if (typeof min === "undefined") {
         max = 1, min = 0;
-    } else if (arguments.length == 1) {
+    } else if (typeof max === "undefined") {
         max = min, min = 0;
     }
-    if (min == max) {
-        return min;
-    }
-    return Math.random() * (max - min) + min;
+    return min == max ? min : Math.random() * (max - min) + min;
 };
 
 Cut.Math.rotate = function(num, min, max) {
-    if (arguments.length < 3) {
-        max = min || 0;
-        min = 0;
+    if (typeof min === "undefined") {
+        max = 1, min = 0;
+    } else if (typeof max === "undefined") {
+        max = min, min = 0;
     }
     if (max > min) {
         num = (num - min) % (max - min);
@@ -2128,8 +2159,6 @@ Cut.Math.length = function(x, y) {
     return Math.sqrt(x * x + y * y);
 };
 
-Cut._TS = 0;
-
 Cut._isCut = function(obj) {
     return obj instanceof Cut;
 };
@@ -2138,23 +2167,18 @@ Cut._isNum = function(x) {
     return typeof x === "number";
 };
 
-Cut._isFunc = function(x) {
-    return typeof x === "function";
-};
-
 Cut._isArray = "isArray" in Array ? Array.isArray : function(value) {
     return Object.prototype.toString.call(value) === "[object Array]";
 };
 
-Cut._extend = function(base, extension, attribs) {
-    if (attribs) {
-        for (var i = 0; i < attribs.length; i++) {
-            var attr = attribs[i];
-            base[attr] = extension[attr];
-        }
-    } else {
-        for (var attr in extension) {
-            base[attr] = extension[attr];
+Cut._extend = function() {
+    var base = {};
+    for (var i = 0; i < arguments.length; i++) {
+        var obj = arguments[i];
+        for (var name in obj) {
+            if (obj.hasOwnProperty(name)) {
+                base[name] = obj[name];
+            }
         }
     }
     return base;
@@ -2173,49 +2197,6 @@ if (typeof performance !== "undefined" && performance.now) {
         return +new Date();
     };
 }
-
-Cut._function = function(value) {
-    return typeof value === "function" ? value : function() {
-        return value;
-    };
-};
-
-Cut._options = function(options) {
-    options.get = function(name) {
-        return typeof this[name] == "function" ? this[name]() : this[name];
-    };
-    options.extend = function(obj) {
-        obj = typeof obj === "object" ? obj : {};
-        for (var name in this) {
-            obj[name] = name in obj ? obj[name] : this[name];
-        }
-        return obj;
-    };
-    options.mixin = function(obj) {
-        if (typeof obj === "object") {
-            for (var name in obj) {
-                this[name] = obj[name];
-            }
-        }
-        return this;
-    };
-    return options;
-};
-
-Cut._status = function(msg) {
-    if (!Cut._statusbox) {
-        var statusbox = Cut._statusbox = document.createElement("div");
-        statusbox.style.position = "absolute";
-        statusbox.style.color = "black";
-        statusbox.style.background = "white";
-        statusbox.style.zIndex = 999;
-        statusbox.style.top = "5px";
-        statusbox.style.right = "5px";
-        statusbox.style.padding = "1px 5px";
-        document.body.appendChild(statusbox);
-    }
-    Cut._statusbox.innerHTML = msg;
-};
 
 Cut.Easing = function() {
     function identity(t) {
@@ -2385,13 +2366,15 @@ Cut.Easing.add({
     }
 });
 
-if (typeof module !== "undefined") {
+if (typeof module !== "undefined" && module.exports) {
     module.exports = Cut;
 }
 
-if (typeof Cut === "undefined" && typeof require === "function") Cut = require("./cut-core");
 
-DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
+},{}],3:[function(require,module,exports){
+if (typeof Cut === "undefined" && typeof require === "function") var Cut = require("./cut-core");
+
+DEBUG = typeof DEBUG === "undefined" || DEBUG;
 
 /**
  * Cordova/PhoneGap loader.
@@ -2481,195 +2464,201 @@ Cut.Loader.loadImage = function(src, handleComplete, handleError) {
     return image;
 };
 
-if (typeof Cut === "undefined" && typeof require === "function") Cut = require("./cut-core");
 
-DEBUG = (typeof DEBUG === "undefined" || DEBUG) && console;
+},{"./cut-core":2}],4:[function(require,module,exports){
+DEBUG = typeof DEBUG === "undefined" || DEBUG;
 
-Cut.Mouse = function() {
-    Cut.Mouse.subscribe.apply(Cut.Mouse, arguments);
-};
+function Mouse() {
+    Mouse.subscribe.apply(Mouse, arguments);
+}
 
-Cut.Mouse.CLICK = "click";
+Mouse.CLICK = "click";
 
-Cut.Mouse.START = "touchstart mousedown";
+Mouse.START = "touchstart mousedown";
 
-Cut.Mouse.MOVE = "touchmove mousemove";
+Mouse.MOVE = "touchmove mousemove";
 
-Cut.Mouse.END = "touchend mouseup";
+Mouse.END = "touchend mouseup";
 
-Cut.Mouse.subscribe = function(root, elem, move) {
+Mouse.CANCEL = "touchcancel";
+
+Mouse.subscribe = function(root, elem, move) {
+    var visitor = null, data = {}, abs = null, rel = null, clicked = [];
     elem = elem || document;
-    elem.addEventListener("click", mouseClick);
-    // TODO: with 'if' mouse doesn't work on touch screen, without 'if' two events
-    // on Android
+    // click events are synthesized from start/end events on same nodes
+    // elem.addEventListener('click', handleClick);
+    // TODO: with 'if' mouse doesn't work on touch screen, without 'if' two
+    // events on Android
     if ("ontouchstart" in window) {
         elem.addEventListener("touchstart", function(event) {
-            mouseStart(event, "touchmove");
+            handleStart(event, "touchmove");
         });
         elem.addEventListener("touchend", function(event) {
-            mouseEnd(event, "touchmove");
+            handleEnd(event, "touchmove");
         });
-        move && elem.addEventListener("touchmove", mouseMove);
+        move && elem.addEventListener("touchmove", handleMove);
+        elem.addEventListener("touchcancel", handleCancel);
     } else {
         elem.addEventListener("mousedown", function(event) {
-            mouseStart(event, "mousemove");
+            handleStart(event, "mousemove");
         });
         elem.addEventListener("mouseup", function(event) {
-            mouseEnd(event, "mousemove");
+            handleEnd(event, "mousemove");
         });
-        move && elem.addEventListener("mousemove", mouseMove);
+        move && elem.addEventListener("mousemove", handleMove);
     }
-    var visitor = null;
-    var abs = {
+    function handleStart(event, moveName) {
+        Mouse._xy(root, elem, event, abs);
+        DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
+        !move && elem.addEventListener(moveName, handleMove);
+        event.preventDefault();
+        publish(event.type, event);
+        findClicks();
+    }
+    function handleEnd(event, moveName) {
+        // New xy is not valid/available, last xy is used instead.
+        DEBUG && console.log("Mouse End: " + event.type + " " + abs);
+        !move && elem.removeEventListener(moveName, handleMove);
+        event.preventDefault();
+        publish(event.type, event);
+        if (clicked.length) {
+            DEBUG && console.log("Mouse Click: " + clicked.length);
+            fireClicks(event);
+        }
+    }
+    function handleCancel(event) {
+        DEBUG && console.log("Mouse Cancel: " + event.type);
+        !move && elem.removeEventListener(moveName, handleMove);
+        event.preventDefault();
+        publish(event.type, event);
+    }
+    function handleMove(event) {
+        Mouse._xy(root, elem, event, abs);
+        // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
+        // abs);
+        event.preventDefault();
+        publish(event.type, event);
+    }
+    function findClicks() {
+        while (clicked.length) {
+            clicked.pop();
+        }
+        publish("click", null, clicked);
+    }
+    function fireClicks(event) {
+        data.event = event;
+        data.type = "click";
+        data.root = root;
+        data.collect = false;
+        var cancel = false;
+        while (clicked.length) {
+            var cut = clicked.shift();
+            if (cancel) {
+                continue;
+            }
+            cancel = visitor.end(cut, data) ? true : cancel;
+        }
+    }
+    function publish(type, event, collect) {
+        rel.x = abs.x;
+        rel.y = abs.y;
+        data.event = event;
+        data.type = type;
+        data.root = /* root._capture || */ root;
+        data.collect = collect;
+        data.root.visit(visitor, data);
+    }
+    visitor = {
+        reverse: true,
+        visible: true,
+        start: function(cut, data) {
+            return !cut._flag(data.type);
+        },
+        end: function(cut, data) {
+            // data: event, type, root, collect
+            rel.raw = data.event;
+            rel.type = data.type;
+            var listeners = cut.listeners(data.type);
+            if (!listeners) {
+                return;
+            }
+            cut.matrix().reverse().map(abs, rel);
+            if (!(cut === data.root || cut.attr("spy") || Mouse._isInside(cut, rel))) {
+                return;
+            }
+            if (data.collect) {
+                data.collect.push(cut);
+                return;
+            }
+            var cancel = false;
+            for (var l = 0; l < listeners.length; l++) {
+                cancel = listeners[l].call(cut, rel) ? true : cancel;
+            }
+            return cancel;
+        }
+    };
+    abs = {
         x: 0,
         y: 0,
         toString: function() {
             return (this.x | 0) + "x" + (this.y | 0);
         }
     };
-    var rel = {
+    rel = {
         x: 0,
         y: 0,
         toString: function() {
             return abs + " / " + (this.x | 0) + "x" + (this.y | 0);
         }
     };
-    var clicked = {
-        x: 0,
-        y: 0,
-        state: 0
-    };
-    function mouseStart(event, moveName) {
-        update(event, elem);
-        DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
-        !move && elem.addEventListener(moveName, mouseMove);
-        event.preventDefault();
-        publish(event.type, event);
-        clicked.x = abs.x;
-        clicked.y = abs.y;
-        clicked.state = 1;
-    }
-    function mouseEnd(event, moveName) {
-        try {
-            // New xy is not valid/available, last xy is used instead.
-            DEBUG && console.log("Mouse End: " + event.type + " " + abs);
-            !move && elem.removeEventListener(moveName, mouseMove);
-            event.preventDefault();
-            publish(event.type, event);
-            if (clicked.state == 1 && clicked.x == abs.x && clicked.y == abs.y) {
-                DEBUG && console.log("Mouse Click [+]");
-                publish("click", event);
-                clicked.state = 2;
-            } else {
-                clicked.state = 0;
-            }
-        } catch (e) {
-            console && console.log(e);
-        }
-    }
-    function mouseMove(event) {
-        try {
-            update(event, elem);
-            // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
-            // abs);
-            event.preventDefault();
-            publish(event.type, event);
-        } catch (e) {
-            console && console.log(e);
-        }
-    }
-    function mouseClick(event) {
-        try {
-            update(event, elem);
-            DEBUG && console.log("Mouse Click: " + event.type + " " + abs);
-            event.preventDefault();
-            if (clicked.state != 2) {
-                publish(event.type, event);
-            } else {
-                DEBUG && console.log("Mouse Click [-]");
-            }
-        } catch (e) {
-            console && console.log(e);
-        }
-    }
-    function publish(type, event) {
-        abs.type = type;
-        abs.event = event;
-        rel.x = abs.x;
-        rel.y = abs.y;
-        // visitor.count = 0;
-        root.visit(visitor);
-    }
-    visitor = {
-        reverse: true,
-        visible: true,
-        start: function(cut) {
-            if (!cut._listens(abs.type)) {
-                return true;
-            }
-        },
-        end: function(cut) {
-            // visitor.count++;
-            var listeners = cut.listeners(abs.type);
-            if (!listeners) {
-                return;
-            }
-            cut.matrix().reverse().map(abs, rel);
-            if (cut === root || cut.attr("spy")) {} else if (rel.x < 0 || rel.x > cut._pin._width || rel.y < 0 || rel.y > cut._pin._height) {
-                return;
-            }
-            rel.raw = abs.event;
-            for (var l = 0; l < listeners.length; l++) {
-                if (listeners[l].call(cut, rel)) {
-                    return true;
-                }
-            }
-        }
-    };
-    function update(event, elem) {
-        var isTouch = false;
-        // touch screen events
-        if (event.touches) {
-            if (event.touches.length) {
-                isTouch = true;
-                abs.x = event.touches[0].pageX;
-                abs.y = event.touches[0].pageY;
-            } else {
-                return;
-            }
+};
+
+Mouse._isInside = function(cut, point) {
+    return point.x >= 0 && point.x <= cut._pin._width && point.y >= 0 && point.y <= cut._pin._height;
+};
+
+Mouse._xy = function(root, elem, event, point) {
+    var isTouch = false;
+    // touch screen events
+    if (event.touches) {
+        if (event.touches.length) {
+            isTouch = true;
+            point.x = event.touches[0].pageX;
+            point.y = event.touches[0].pageY;
         } else {
-            // mouse events
-            abs.x = event.clientX;
-            abs.y = event.clientY;
-            // See http://goo.gl/JuVnF2
-            if (document.body.scrollLeft || document.body.scrollTop) {} else if (document.documentElement) {
-                abs.x += document.documentElement.scrollLeft;
-                abs.y += document.documentElement.scrollTop;
-            }
+            return;
         }
-        // accounts for border
-        abs.x -= elem.clientLeft || 0;
-        abs.y -= elem.clientTop || 0;
-        var par = elem;
-        while (par) {
-            abs.x -= par.offsetLeft || 0;
-            abs.y -= par.offsetTop || 0;
-            if (!isTouch) {
-                // touch events offset scrolling with pageX/Y
-                // so scroll offset not needed for them
-                abs.x += par.scrollLeft || 0;
-                abs.y += par.scrollTop || 0;
-            }
-            par = par.offsetParent;
+    } else {
+        // mouse events
+        point.x = event.clientX;
+        point.y = event.clientY;
+        // See http://goo.gl/JuVnF2
+        if (document.body.scrollLeft || document.body.scrollTop) {} else if (document.documentElement) {
+            point.x += document.documentElement.scrollLeft;
+            point.y += document.documentElement.scrollTop;
         }
-        // see loader
-        abs.x *= root._ratio || 1;
-        abs.y *= root._ratio || 1;
+    }
+    // accounts for border
+    point.x -= elem.clientLeft || 0;
+    point.y -= elem.clientTop || 0;
+    var par = elem;
+    while (par) {
+        point.x -= par.offsetLeft || 0;
+        point.y -= par.offsetTop || 0;
+        if (!isTouch) {
+            // touch events offset scrolling with pageX/Y
+            // so scroll offset not needed for them
+            point.x += par.scrollLeft || 0;
+            point.y += par.scrollTop || 0;
+        }
+        par = par.offsetParent;
     }
 };
 
-if (typeof define === 'function' && define.amd) { // AMD
-  define('Cut', [], function() {
-    return Cut;
-  });
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = Mouse;
 }
+
+
+},{}]},{},[1])(1)
+});
