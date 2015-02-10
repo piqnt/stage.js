@@ -1,5 +1,9 @@
+#### v0.2.3
+* Browserfiy 
+* Synthetic Mouse.CLICKs instead of browser clicks
+
 #### v0.2.1
-`setImage/Value/Frames/Font` to `image/value/frames`
+* `setImage/Value/Frames/Font` to `image/value/frames`
 
 #### v0.2.0
 * Mouse events signature changed from `(rawEvent, point)` to `(point)` where new `point.raw` is old `rawEvent`

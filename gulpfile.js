@@ -34,7 +34,7 @@ gulp.task('test', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('cut-*', [ 'test', 'build-nomin' ]);
+  gulp.watch('{cut-*.js,temp/*}', [ 'test', 'build-nomin' ]);
 });
 
 function dist(file, nomin) {

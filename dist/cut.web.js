@@ -11,8 +11,6 @@ module.exports = require("../cut-core");
 module.exports.Mouse = require("../cut-mouse");
 
 require("../cut-loader.web");
-
-console.log(Cut.Mouse);
 },{"../cut-core":2,"../cut-loader.web":3,"../cut-mouse":4}],2:[function(require,module,exports){
 DEBUG = typeof DEBUG === "undefined" || DEBUG;
 
