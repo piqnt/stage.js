@@ -24,6 +24,7 @@ Cut({
     { name : "d_8",          x : 8*8,   y : 20, width : 8,  height : 8 },
     { name : "d_9",          x : 9*8,   y : 20, width : 8,  height : 8 },
     
-    { name : "box",          x : 0,     y : 32, width : 16, height : 16, top : 4, bottom : 4, left : 4, right : 4}
+    { name : "box",          x : 0,     y : 32, width : 16, height : 16, top : 4, bottom : 4, left : 4, right : 4},
+    { name : "circle",       x : 16,    y : 32, width : 16, height : 16}
   ]
 });

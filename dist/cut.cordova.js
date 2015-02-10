@@ -2653,6 +2653,8 @@ Mouse._xy = function(root, elem, event, point) {
         }
         par = par.offsetParent;
     }
+    point.x *= root._ratio || 1;
+    point.y *= root._ratio || 1;
 };
 
 if (typeof module !== "undefined" && module.exports) {
