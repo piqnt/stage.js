@@ -1,6 +1,10 @@
-#### v0.2.3
-* Browserfiy 
+#### v0.3.0
+* Browserified
 * Synthetic Mouse.CLICKs instead of browser clicks
+* New `off` method to remove listener
+* New data parameter for `visit` methods
+* `_listens` renamed `_flag`
+* `_isFunc`, `_function`, `_options` and `_status` functions are removed and `_extend`'s signature is changed
 
 #### v0.2.1
 * `setImage/Value/Frames/Font` to `image/value/frames`
