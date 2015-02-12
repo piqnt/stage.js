@@ -42,21 +42,21 @@ function Cut() {
 
 Cut._create = function() {
     if (typeof Object.create == "function") {
-        return function() {
-            return Object.create.apply(null, arguments);
+        return function(proto, props) {
+            return Object.create.call(Object, proto, props);
         };
     } else {
-        var F = function() {};
-        return function(proto) {
-            if (arguments.length > 1) {
+        return function(proto, props) {
+            if (props) {
                 throw Error("Second argument is not supported!");
             }
-            if (proto === null || typeof proto != "object") {
+            if (!proto || typeof proto !== "object") {
                 throw Error("Invalid prototype!");
             }
-            F.prototype = proto;
-            return new F();
+            noop.prototype = proto;
+            return new noop();
         };
+        function noop() {}
     }
 }();
 
@@ -648,7 +648,7 @@ Cut.root = function(request, render) {
 };
 
 Cut.Root = function(request, render) {
-    Cut.Root.prototype._super.apply(this, arguments);
+    Cut.Root._super.call(this);
     this._paused = true;
     this._render = render;
     var self = this;
@@ -674,9 +674,9 @@ Cut.Root = function(request, render) {
     });
 };
 
-Cut.Root.prototype = Cut._create(Cut.prototype);
+Cut.Root._super = Cut;
 
-Cut.Root.prototype._super = Cut;
+Cut.Root.prototype = Cut._create(Cut.Root._super.prototype);
 
 Cut.Root.prototype.constructor = Cut.Root;
 
@@ -755,12 +755,12 @@ Cut.image = function(cutout) {
 };
 
 Cut.Image = function() {
-    Cut.Image.prototype._super.apply(this, arguments);
+    Cut.Image._super.call(this);
 };
 
-Cut.Image.prototype = Cut._create(Cut.prototype);
+Cut.Image._super = Cut;
 
-Cut.Image.prototype._super = Cut;
+Cut.Image.prototype = Cut._create(Cut.Image._super.prototype);
 
 Cut.Image.prototype.constructor = Cut.Image;
 
@@ -928,7 +928,7 @@ Cut.anim = function(frames, fps) {
 };
 
 Cut.Anim = function() {
-    Cut.Anim.prototype._super.apply(this, arguments);
+    Cut.Anim._super.call(this);
     this._fps = Cut.Anim.FPS;
     this._ft = 1e3 / this._fps;
     this._time = 0;
@@ -952,9 +952,9 @@ Cut.Anim = function() {
     }, false);
 };
 
-Cut.Anim.prototype = Cut._create(Cut.prototype);
+Cut.Anim._super = Cut;
 
-Cut.Anim.prototype._super = Cut;
+Cut.Anim.prototype = Cut._create(Cut.Anim._super.prototype);
 
 Cut.Anim.prototype.constructor = Cut.Anim;
 
@@ -1050,13 +1050,13 @@ Cut.string = function(frames) {
 };
 
 Cut.String = function() {
-    Cut.String.prototype._super.apply(this, arguments);
+    Cut.String._super.call(this);
     this.row();
 };
 
-Cut.String.prototype = Cut._create(Cut.prototype);
+Cut.String._super = Cut;
 
-Cut.String.prototype._super = Cut;
+Cut.String.prototype = Cut._create(Cut.String._super.prototype);
 
 Cut.String.prototype.constructor = Cut.String;
 
@@ -1905,7 +1905,7 @@ Cut.Pin._setters = {
         pin._ts_translate = Cut._TS++;
     },
     resizeMode: function(pin, value, set) {
-        if (Cut._isNum(set.resizeWidth) && Cut._isNum(set.resizeHeight)) {
+        if (typeof set.resizeWidth === "number" && typeof set.resizeHeight === "number") {
             this.resizeWidth(pin, set.resizeWidth, set, true);
             this.resizeHeight(pin, set.resizeHeight, set, true);
             if (value == "out") {
@@ -1934,7 +1934,7 @@ Cut.Pin._setters = {
         pin._ts_transform = Cut._TS++;
     },
     scaleMode: function(pin, value, set) {
-        if (Cut._isNum(set.scaleWidth) && Cut._isNum(set.scaleHeight)) {
+        if (typeof set.scaleWidth === "number" && typeof set.scaleHeight === "number") {
             this.scaleWidth(pin, set.scaleWidth, set, true);
             this.scaleHeight(pin, set.scaleHeight, set, true);
             if (value == "out") {
@@ -2163,17 +2163,12 @@ Cut._isCut = function(obj) {
     return obj instanceof Cut;
 };
 
-Cut._isNum = function(x) {
-    return typeof x === "number";
-};
-
-Cut._isArray = "isArray" in Array ? Array.isArray : function(value) {
+Cut._isArray = Array.isArray ? Array.isArray : function(value) {
     return Object.prototype.toString.call(value) === "[object Array]";
 };
 
-Cut._extend = function() {
-    var base = {};
-    for (var i = 0; i < arguments.length; i++) {
+Cut._extend = function(base) {
+    for (var i = 1; i < arguments.length; i++) {
         var obj = arguments[i];
         for (var name in obj) {
             if (obj.hasOwnProperty(name)) {

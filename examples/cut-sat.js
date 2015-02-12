@@ -2,12 +2,12 @@
  * CutJS viewer for SAT.js
  */
 Cut.SAT = function(world, options) {
-  Cut.SAT.prototype._super.apply(this, arguments);
+  Cut.SAT._super.call(this);
 
   var self = this;
   this.world = world;
 
-  this.options = Cut._extend({
+  this.options = {
     lineWidth : 2,
     lineColor : '#000000',
     fillColor : Cut.SAT.randomColor,
@@ -15,8 +15,11 @@ Cut.SAT = function(world, options) {
     get : function(key) {
       var value = this[key];
       return typeof value === 'function' ? value() : value;
+    },
+    extend : function(options) {
+      return Cut._extend({}, this, options);
     }
-  }, options);
+  }.extend(options);
 
   world.onAddBody = function(e) {
     self.addRenderable(e.body);
@@ -64,8 +67,8 @@ Cut.SAT = function(world, options) {
   });
 };
 
-Cut.SAT.prototype = Cut._create(Cut.prototype);
-Cut.SAT.prototype._super = Cut;
+Cut.SAT._super = Cut;
+Cut.SAT.prototype = Cut._create(Cut.SAT._super.prototype);
 Cut.SAT.prototype.constructor = Cut.SAT;
 
 Cut.SAT.prototype.simulate = function(t) {
@@ -108,7 +111,7 @@ Cut.SAT.prototype.removeRenderable = function(obj) {
 };
 
 Cut.SAT.prototype.drawCircle = function(radius, options) {
-  options = Cut._extend(this.options, options);
+  options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -131,7 +134,7 @@ Cut.SAT.prototype.drawCircle = function(radius, options) {
 };
 
 Cut.SAT.prototype.drawConvex = function(verts, options) {
-  options = Cut._extend(this.options, options);
+  options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 

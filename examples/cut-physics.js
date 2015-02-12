@@ -2,12 +2,12 @@
  * CutJS viewer for PhysicsJS
  */
 Cut.PJS = function(world, options) {
-  Cut.PJS.prototype._super.apply(this, arguments);
+  Cut.PJS._super.call(this);
 
   var self = this;
   this.world = world;
 
-  this.options = Cut._extend({
+  this.options = {
     lineWidth : 2,
     lineColor : '#000000',
     fillColor : Cut.PJS.randomColor,
@@ -15,8 +15,11 @@ Cut.PJS = function(world, options) {
     get : function(key) {
       var value = this[key];
       return typeof value === 'function' ? value() : value;
+    },
+    extend : function(options) {
+      return Cut._extend({}, this, options);
     }
-  }, options);
+  }.extend(options);
 
   var subscribe = world.subscribe || world.on;
   subscribe.call(world, 'add:body', function(data) {
@@ -51,8 +54,8 @@ Cut.PJS = function(world, options) {
 
 };
 
-Cut.PJS.prototype = Cut._create(Cut.prototype);
-Cut.PJS.prototype._super = Cut;
+Cut.PJS._super = Cut;
+Cut.PJS.prototype = Cut._create(Cut.PJS._super.prototype);
 Cut.PJS.prototype.constructor = Cut.PJS;
 
 Cut.PJS.prototype.addRenderable = function(obj) {
@@ -81,7 +84,7 @@ Cut.PJS.prototype.removeRenderable = function(obj) {
 };
 
 Cut.PJS.prototype.drawCircle = function(radius, options) {
-  options = Cut._extend(this.options, options);
+  options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
@@ -104,7 +107,7 @@ Cut.PJS.prototype.drawCircle = function(radius, options) {
 };
 
 Cut.PJS.prototype.drawConvex = function(verts, options) {
-  options = Cut._extend(this.options, options);
+  options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
