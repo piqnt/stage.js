@@ -14,41 +14,52 @@ DEBUG = typeof DEBUG === 'undefined' || DEBUG;
  * Cordova/PhoneGap FastCanvas plugin loader.
  */
 
+Cut.config({
+  'app-loader' : AppLoader,
+  'image-loader' : ImageLoader,
+});
+
+if (typeof FastCanvas === 'undefined') {
+  FastCanvas = window.FastCanvas;
+}
+
+FASTCANVAS_FALLBACK = typeof FASTCANVAS_FALLBACK !== 'undefined'
+    && FASTCANVAS_FALLBACK;
+
 window.addEventListener('load', function() {
   DEBUG && console.log('On load.');
   // device ready not called; must be in a browser
   // var readyTimeout = setTimeout(function() {
   // DEBUG && console.log('On deviceready timeout.');
-  // Cut.Loader.start();
+  // Cut.start();
   // }, 2000);
 
   document.addEventListener('deviceready', function() {
     DEBUG && console.log('On deviceready.');
     // clearTimeout(readyTimeout);
-    Cut.Loader.start();
+
+    // So that image loader can be used before app loader.
+    FastCanvas.create(FASTCANVAS_FALLBACK);
+    console.log('FastCanvas: ' + FastCanvas.isFast);
+
+    Cut.start();
   }, false);
 
   document.addEventListener('pause', function() {
-    Cut.Loader.pause();
+    Cut.pause();
   }, false);
 
   document.addEventListener('resume', function() {
-    Cut.Loader.resume();
+    Cut.resume();
   }, false);
 }, false);
 
-Cut.Loader.init = function(app, configs) {
+function AppLoader(app, configs) {
   configs = configs || {};
-  var canvas = configs.canvas, context = null, full = false;
+  var canvas = configs.canvas, context = null, full = true;
   var width = 0, height = 0, ratio = 1;
 
-  if (typeof FastCanvas === 'undefined') {
-    FastCanvas = window.FastCanvas;
-  }
-
-  full = true;
-  canvas = FastCanvas.create(typeof FASTCANVAS_FALLBACK !== 'undefined'
-      && FASTCANVAS_FALLBACK);
+  canvas = FastCanvas.create(FASTCANVAS_FALLBACK);
   console.log('FastCanvas: ' + FastCanvas.isFast);
 
   if (typeof canvas === 'string') {
@@ -125,16 +136,16 @@ Cut.Loader.init = function(app, configs) {
   }
 
   return root;
-};
+}
 
-Cut.Loader.loadImage = function(src, handleComplete, handleError) {
+function ImageLoader(src, handleComplete, handleError) {
   var image = FastCanvas.createImage();
   DEBUG && console.log('Loading image: ' + src + ' #' + image.id);
   image.onload = handleComplete;
   image.onerror = handleError;
   image.src = src;
   return image;
-};
+}
 
 // FastCanvas workaround
 (function(nop) {

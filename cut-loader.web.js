@@ -14,12 +14,17 @@ DEBUG = typeof DEBUG === 'undefined' || DEBUG;
  * Default loader for web.
  */
 
+Cut.config({
+  'app-loader' : AppLoader,
+  'image-loader' : ImageLoader,
+});
+
 window.addEventListener('load', function() {
   DEBUG && console.log('On load.');
-  Cut.Loader.start();
+  Cut.start();
 }, false);
 
-Cut.Loader.init = function(app, configs) {
+function AppLoader(app, configs) {
   configs = configs || {};
   var canvas = configs.canvas, context = null, full = false;
   var width = 0, height = 0, ratio = 1;
@@ -94,13 +99,13 @@ Cut.Loader.init = function(app, configs) {
   }
 
   return root;
-};
+}
 
-Cut.Loader.loadImage = function(src, handleComplete, handleError) {
+function ImageLoader(src, handleComplete, handleError) {
   var image = new Image();
   DEBUG && console.log('Loading image: ' + src);
   image.onload = handleComplete;
   image.onerror = handleError;
   image.src = src;
   return image;
-};
+}

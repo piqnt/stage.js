@@ -1,8 +1,7 @@
 //
-// ### Loader
-// Loaders create and run apps and manage rendering cycles.
+// ### Creating new app
 
-// Load an app with root node and container element.
+// Create an app with root node and container element.
 Cut(function(root, container) {
   // Your apps goes here, add nodes to the root.
   // Container is the actual element displaying rendered graphics.
@@ -24,7 +23,7 @@ Cut(function(root, container) {
 
 //
 // ### Tree Model
-// Every app consists of a tree. Tree root is provided by the Loader.
+// Every app consists of a tree. Tree's root is create by the library.
 
 // Create new plain node instance. No painting is associated with a plain node,
 // it is just a parent for other nodes.

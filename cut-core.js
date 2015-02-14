@@ -10,7 +10,7 @@ DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 function Cut() {
   if (!(this instanceof Cut)) {
     if (typeof arguments[0] === 'function') {
-      return Cut.Loader.load.apply(Cut.Loader, arguments);
+      return Cut.App.add.apply(Cut.App, arguments);
     } else if (typeof arguments[0] === 'object') {
       return Cut.Texture.add.apply(Cut.Texture, arguments);
     }
@@ -728,7 +728,7 @@ Cut.Image.prototype.setImage = function(a, b, c) {
 };
 
 Cut.Image.prototype.image = function(cutout) {
-  this._cutouts[0] = Cut.Out.select(cutout);
+  this._cutouts[0] = Cut.cutout(cutout);
   this._cutouts.length = 1;
   this.pin({
     width : this._cutouts[0] ? this._cutouts[0].dWidth() : 0,
@@ -988,7 +988,7 @@ Cut.Anim.prototype.frames = function(frames) {
   this._frames = [];
   this._labels = {};
 
-  frames = Cut.Out.select(frames, true);
+  frames = Cut.cutout(frames, true);
   if (frames && frames.length) {
     for (var i = 0; i < frames.length; i++) {
       var cutout = frames[i];
@@ -1240,75 +1240,90 @@ Cut.prototype.spacing = function(space) {
   return this;
 };
 
-// TODO use prototype
-Cut.Loader = (function() {
-  var queue = [];
-  var roots = [];
-  var images = {};
-  var started = false;
+Cut._config = {};
 
-  function loadImages(loader, callback) {
-    var loading = 0;
+Cut.config = function() {
+  if (arguments.length === 1 && typeof arguments[0] === 'string') {
+    return Cut._config[arguments[0]];
+  }
+  if (arguments.length === 1 && typeof arguments[0] === 'object') {
+    Cut._extend(Cut._config, arguments[0]);
+  }
+  if (arguments.length === 2 && typeof arguments[0] === 'string') {
+    Cut._config[arguments[0], arguments[1]];
+  }
+};
 
-    var noimage = true;
+Cut.start = function() {
+  DEBUG && console.log('Starting...');
+  // config = Cut._extend({}, Cut._config, config);
+  Cut.Texture.start(function() {
+    Cut.App.start();
+  });
+};
 
-    var textures = Cut.Texture._list;
-    for ( var texture in textures) {
-      if (textures[texture].getImagePath()) {
-        loading++;
-        var src = textures[texture].getImagePath();
-        var image = loader(src, complete, error);
-        Cut.Loader.addImage(image, src);
-        noimage = false;
-      }
-    }
+Cut.pause = function() {
+  Cut.App.pause();
+};
 
-    if (noimage) {
-      DEBUG && console.log('No image to load.');
-      callback && callback();
-    }
+Cut.resume = function() {
+  Cut.App.resume();
+};
 
-    function complete() {
-      DEBUG && console.log('Image loaded.');
-      done();
-    }
+Cut.cutout = function(selector, prefix) {
 
-    function error(msg) {
-      DEBUG && console.log('Error loading image: ' + msg);
-      done();
-    }
-
-    function done() {
-      if (--loading <= 0) {
-        callback && callback();
-      }
-    }
+  if (typeof selector === 'function') {
+    return Cut.cutout(selector(), prefix);
   }
 
+  if (typeof selector !== 'string') {
+    return selector;
+  }
+
+  var i = selector.indexOf(':');
+
+  if (i < 0) {
+    throw 'Invalid selector: \'' + selector + '\'';
+    return null;
+  }
+
+  var split = [ selector.slice(0, i), selector.slice(i + 1) ];
+
+  var texture = Cut.Texture.get(split[0]);
+  if (texture == null) {
+    throw 'Texture not found: \'' + selector + '\'';
+    return !prefix ? null : [];
+  }
+
+  return texture.select(split[1], prefix);
+};
+
+Cut.App = (function() {
+  var queue = [];
+  var roots = [];
+  var started = false;
+
   return {
-    load : function(app, configs) {
+    add : function(app, configs) {
       if (!started) {
         queue.push(arguments);
         return;
       }
-      DEBUG && console.log('Init...');
-      var root = this.init(function(root, canvas) {
+      var loader = Cut.config('app-loader');
+      DEBUG && console.log('Init app...');
+      var root = loader(function(root, canvas) {
         DEBUG && console.log('Loading app...');
         app(root, canvas);
       }, configs);
       roots.push(root);
-      DEBUG && console.log('Loading images...');
-      loadImages(this.loadImage, function() {
-        DEBUG && console.log('Images loaded.');
-        DEBUG && console.log('Start playing...');
-        root.start();
-      });
+      root.start();
     },
-    start : function() {
+    start : function(configs) {
+      DEBUG && console.log('Loading apps...');
       started = true;
       var args;
       while (args = queue.shift()) {
-        this.load.apply(this, args);
+        this.add.apply(this, args);
       }
     },
     pause : function() {
@@ -1320,18 +1335,11 @@ Cut.Loader = (function() {
       for (var i = queue.length - 1; i >= 0; i--) {
         roots[i].resume();
       }
-    },
-    getImage : function(src) {
-      return images[src];
-    },
-    addImage : function(image, src) {
-      images[src] = image;
-      return this;
     }
   };
 })();
 
-// TODO use prototype
+// TODO cleanup and use prototype
 Cut.Texture = function(texture) {
 
   texture.cutouts = texture.cutouts || [];
@@ -1345,7 +1353,7 @@ Cut.Texture = function(texture) {
 
   function image() {
     if (!imageCache) {
-      imageCache = Cut.Loader.getImage(texture.imagePath);
+      imageCache = Cut.Texture._images[texture.imagePath];
     }
     return imageCache;
   }
@@ -1457,11 +1465,59 @@ Cut.Texture.add = function() {
   return this;
 };
 
+Cut.Texture.get = function(name) {
+  return Cut.Texture._list[name];
+};
+
 /**
- * @deprecated Use Cut();
+ * @deprecated Use `Cut(texture)` instead.
  */
 Cut.addTexture = function() {
   return Cut.Texture.add.apply(Cut.Texture, arguments);
+};
+
+Cut.Texture._images = {};
+
+Cut.Texture.start = function(callback) {
+  DEBUG && console.log('Loading images...');
+
+  var loader = Cut.config('image-loader');
+
+  var loading = 0;
+
+  var noimage = true;
+
+  var textures = Cut.Texture._list;
+  for ( var texture in textures) {
+    if (textures[texture].getImagePath()) {
+      loading++;
+      var src = textures[texture].getImagePath();
+      Cut.Texture._images[src] = loader(src, complete, error);
+      noimage = false;
+    }
+  }
+
+  if (noimage) {
+    DEBUG && console.log('No image to load.');
+    callback && callback();
+  }
+
+  function complete() {
+    DEBUG && console.log('Image loaded.');
+    done();
+  }
+
+  function error(msg) {
+    DEBUG && console.log('Error loading image: ' + msg);
+    done();
+  }
+
+  function done() {
+    if (--loading <= 0) {
+      DEBUG && console.log('Images loaded.');
+      callback && callback();
+    }
+  }
 };
 
 Cut.Out = function(def, image, ratio) {
@@ -1578,34 +1634,6 @@ Cut.Out.prototype.toString = function() {
       + 'x' + this._sh + '' + this._dx + 'x' + this._dy + '-' + this._dw + 'x'
       + this._dh + ']';
 
-};
-
-Cut.Out.select = function(selector, prefix) {
-
-  if (typeof selector === 'function') {
-    return Cut.Out.select(selector());
-  }
-
-  if (typeof selector !== 'string') {
-    return selector;
-  }
-
-  var i = selector.indexOf(':');
-
-  if (i < 0) {
-    throw 'Invalid selector: \'' + selector + '\'';
-    return null;
-  }
-
-  var split = [ selector.slice(0, i), selector.slice(i + 1) ];
-
-  var texture = Cut.Texture._list[split[0]];
-  if (texture == null) {
-    throw 'Texture not found: \'' + selector + '\'';
-    return !prefix ? null : [];
-  }
-
-  return texture.select(split[1], prefix);
 };
 
 Cut.drawing = function() {

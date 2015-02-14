@@ -50,7 +50,7 @@ it('Mouse', function() {
     removeEventListener : remove = sinon.stub()
   });
 
-  expect(add.args.pluck(0)).list([ 'mousedown', 'mouseup' ]);
+  expect(add.args.pluck(0)).list([ 'mousedown', 'mouseup', 'mousemove' ]);
   expect(add.alwaysCalledOn(elem)).ok();
 
   var down = add.args[0][1], up = add.args[1][1], move;

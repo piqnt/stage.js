@@ -11,35 +11,38 @@ if (typeof Cut === 'undefined' && typeof require === 'function')
 DEBUG = typeof DEBUG === 'undefined' || DEBUG;
 
 /**
- * Cordova/PhoneGap loader.
- * 
- * (Use FastCanvas loader for Android.)
+ * Cordova/PhoneGap loader. Use FastCanvas loader for Android.
  */
+
+Cut.config({
+  'app-loader' : AppLoader,
+  'image-loader' : ImageLoader,
+});
 
 window.addEventListener('load', function() {
   DEBUG && console.log('On load.');
   // device ready not called; must be in a browser
   // var readyTimeout = setTimeout(function() {
   // DEBUG && console.log('On deviceready timeout.');
-  // Cut.Loader.start();
+  // Cut.start();
   // }, 2000);
 
   document.addEventListener('deviceready', function() {
     DEBUG && console.log('On deviceready.');
     // clearTimeout(readyTimeout);
-    Cut.Loader.start();
+    Cut.start();
   }, false);
 
   document.addEventListener('pause', function() {
-    Cut.Loader.pause();
+    Cut.pause();
   }, false);
 
   document.addEventListener('resume', function() {
-    Cut.Loader.resume();
+    Cut.resume();
   }, false);
 }, false);
 
-Cut.Loader.init = function(app, configs) {
+function AppLoader(app, configs) {
   configs = configs || {};
   var canvas = configs.canvas, context = null, full = false;
   var width = 0, height = 0, ratio = 1;
@@ -114,13 +117,13 @@ Cut.Loader.init = function(app, configs) {
   }
 
   return root;
-};
+}
 
-Cut.Loader.loadImage = function(src, handleComplete, handleError) {
+function ImageLoader(src, handleComplete, handleError) {
   var image = new Image();
   DEBUG && console.log('Loading image: ' + src);
   image.onload = handleComplete;
   image.onerror = handleError;
   image.src = src;
   return image;
-};
+}
