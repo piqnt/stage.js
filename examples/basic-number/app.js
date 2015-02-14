@@ -1,6 +1,6 @@
 Cut(function(root, container) {
 
-  Cut.Mouse(root, container, true);
+  Cut.Mouse(root, container);
 
   root.viewbox(300, 200);
 

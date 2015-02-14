@@ -30,7 +30,7 @@ it('Visit', function() {
     start : sinon.stub(),
     end : sinon.stub()
   }, data = {});
-  expect(visitor.start.args.select(0)).list(
+  expect(visitor.start.args.pluck(0)).list(
       cuts.list([ 1, 11, 12, 121, 122, 123, 13 ]), tostr);
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
@@ -40,7 +40,7 @@ it('Visit', function() {
     start : sinon.stub(),
     end : sinon.stub()
   }, data = {});
-  expect(visitor.start.args.select(0)).list(
+  expect(visitor.start.args.pluck(0)).list(
       cuts.list([ 1, 11, 12, 122, 123, 13 ]), tostr);
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
@@ -50,7 +50,7 @@ it('Visit', function() {
     start : sinon.stub(),
     end : sinon.stub()
   }, data = {});
-  expect(visitor.start.args.select(0)).list(
+  expect(visitor.start.args.pluck(0)).list(
       cuts.list([ 1, 13, 12, 123, 122, 121, 11 ]), tostr);
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();

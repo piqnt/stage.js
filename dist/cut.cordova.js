@@ -2214,7 +2214,7 @@ Mouse.END = "touchend mouseup";
 
 Mouse.CANCEL = "touchcancel";
 
-Mouse.subscribe = function(root, elem, move) {
+Mouse.subscribe = function(root, elem) {
     var visitor = null, data = {}, abs = null, rel = null, clicked = [];
     elem = elem || document;
     // click events are synthesized from start/end events on same nodes
@@ -2222,35 +2222,25 @@ Mouse.subscribe = function(root, elem, move) {
     // TODO: with 'if' mouse doesn't work on touch screen, without 'if' two
     // events on Android
     if ("ontouchstart" in window) {
-        elem.addEventListener("touchstart", function(event) {
-            handleStart(event, "touchmove");
-        });
-        elem.addEventListener("touchend", function(event) {
-            handleEnd(event, "touchmove");
-        });
-        move && elem.addEventListener("touchmove", handleMove);
+        elem.addEventListener("touchstart", handleStart);
+        elem.addEventListener("touchend", handleEnd);
+        elem.addEventListener("touchmove", handleMove);
         elem.addEventListener("touchcancel", handleCancel);
     } else {
-        elem.addEventListener("mousedown", function(event) {
-            handleStart(event, "mousemove");
-        });
-        elem.addEventListener("mouseup", function(event) {
-            handleEnd(event, "mousemove");
-        });
-        move && elem.addEventListener("mousemove", handleMove);
+        elem.addEventListener("mousedown", handleStart);
+        elem.addEventListener("mouseup", handleEnd);
+        elem.addEventListener("mousemove", handleMove);
     }
-    function handleStart(event, moveName) {
+    function handleStart(event) {
         Mouse._xy(root, elem, event, abs);
         DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
-        !move && elem.addEventListener(moveName, handleMove);
         event.preventDefault();
         publish(event.type, event);
         findClicks();
     }
-    function handleEnd(event, moveName) {
+    function handleEnd(event) {
         // New xy is not valid/available, last xy is used instead.
         DEBUG && console.log("Mouse End: " + event.type + " " + abs);
-        !move && elem.removeEventListener(moveName, handleMove);
         event.preventDefault();
         publish(event.type, event);
         if (clicked.length) {
@@ -2260,7 +2250,6 @@ Mouse.subscribe = function(root, elem, move) {
     }
     function handleCancel(event) {
         DEBUG && console.log("Mouse Cancel: " + event.type);
-        !move && elem.removeEventListener(moveName, handleMove);
         event.preventDefault();
         publish(event.type, event);
     }
@@ -2268,6 +2257,9 @@ Mouse.subscribe = function(root, elem, move) {
         Mouse._xy(root, elem, event, abs);
         // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
         // abs);
+        if (!root._flag(event.type)) {
+            return;
+        }
         event.preventDefault();
         publish(event.type, event);
     }

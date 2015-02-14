@@ -23,7 +23,7 @@ expect.Assertion.prototype.list = function(obj, fn) {
 
 module.exports = expect;
 
-Array.prototype.select = function(key) {
+Array.prototype.pluck = function(key) {
   return this.map(function(obj) {
     return obj[key];
   });

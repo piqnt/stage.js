@@ -1,5 +1,5 @@
 Cut(function(root, container) {
-  Cut.Mouse(root, container, true);
+  Cut.Mouse(root, container);
 
   var Engine = Matter.Engine, World = Matter.World, Bodies = Matter.Bodies, Body = Matter.Body, Events = Matter.Events;
 

@@ -401,7 +401,7 @@ Cut({
 // Mouse class is used to capture and process mouse and touch events.
 
 // Subscribe root to Mouse events.
-Cut.Mouse(root, container, captureAnyMove = false);
+Cut.Mouse(root, container);
 
 // Add click listener to bar.
 bar.on(Cut.Mouse.CLICK, function(point) {

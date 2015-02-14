@@ -888,7 +888,7 @@ Cut(function(root, elem) {
     };
   })();
 
-  Mouse(root, elem, true);
+  Mouse(root, elem);
 
   var app = Cut.create().appendTo(root);
   var game = new Game();
