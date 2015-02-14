@@ -1,3 +1,7 @@
+#### v0.3.1
+* Remove `Mouse(..., captureAnyMove)` and use flag instead
+* Refactoring easing class and moving tween/ease to another file
+
 #### v0.3.0
 * Browserified
 * Synthetic `Mouse` clicks instead of browser clicks
