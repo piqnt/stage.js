@@ -1271,31 +1271,7 @@ Cut.resume = function() {
 };
 
 Cut.cutout = function(selector, prefix) {
-
-  if (typeof selector === 'function') {
-    return Cut.cutout(selector(), prefix);
-  }
-
-  if (typeof selector !== 'string') {
-    return selector;
-  }
-
-  var i = selector.indexOf(':');
-
-  if (i < 0) {
-    throw 'Invalid selector: \'' + selector + '\'';
-    return null;
-  }
-
-  var split = [ selector.slice(0, i), selector.slice(i + 1) ];
-
-  var texture = Cut.Texture.get(split[0]);
-  if (texture == null) {
-    throw 'Texture not found: \'' + selector + '\'';
-    return !prefix ? null : [];
-  }
-
-  return texture.select(split[1], prefix);
+  return Cut.Texture.select(selector, prefix);
 };
 
 Cut.App = (function() {
@@ -1339,134 +1315,121 @@ Cut.App = (function() {
   };
 })();
 
-// TODO cleanup and use prototype
-Cut.Texture = function(texture) {
+Cut.Texture = function(data) {
+  this.isTexture = true;
+  this._name = data.name;
+  this._imagePath = data.imagePath;
+  this._imageRatio = data.imageRatio || 1;
+  this._cutouts = data.cutouts || [];
+  this._factory = data.factory;
+  this._map = data.filter || data.map;
+  this._ratio = data.ratio || 1;
+  this._trim = data.trim || 0;
+};
 
-  texture.cutouts = texture.cutouts || [];
-
-  var selectionCache = {};
-  var imageCache = null;
-
-  this.getImagePath = function() {
-    return texture.imagePath;
-  };
-
-  function image() {
-    if (!imageCache) {
-      imageCache = Cut.Texture._images[texture.imagePath];
-    }
-    return imageCache;
-  }
-
-  for (var i = 0; i < texture.cutouts.length; i++) {
-    map(texture.cutouts[i]);
-  }
-
-  function map(cutout) {
-    if (!cutout || cutout.isCutout) {
-      return cutout;
-    }
-
-    if (typeof texture.map === 'function') {
-      cutout = texture.map(cutout);
-    } else if (typeof texture.filter === 'function') {
-      cutout = texture.filter(cutout);
-    }
-
-    var ratio = texture.ratio || 1;
-    if (ratio != 1) {
-      cutout.x *= ratio, cutout.y *= ratio;
-      cutout.width *= ratio, cutout.height *= ratio;
-      cutout.top *= ratio, cutout.bottom *= ratio;
-      cutout.left *= ratio, cutout.right *= ratio;
-    }
-
-    var trim = texture.trim || 0;
-    if (trim) {
-      cutout.x += trim, cutout.y += trim;
-      cutout.width -= 2 * trim, cutout.height -= 2 * trim;
-      cutout.top -= trim, cutout.bottom -= trim;
-      cutout.left -= trim, cutout.right -= trim;
-    }
-
+Cut.Texture.prototype._wrap = function(cutout) {
+  if (!cutout || cutout.isCutout) {
     return cutout;
   }
 
-  function wrap(cutout) {
-    if (!cutout.isCutout) {
-      cutout = new Cut.Out(cutout, image, texture.imageRatio);
-    }
-    return cutout;
+  if (typeof this._map === 'function') {
+    cutout = this._map(cutout);
   }
 
-  this.select = function(selector, prefix) {
+  var ratio = this._ratio;
+  if (ratio != 1) {
+    cutout.x *= ratio, cutout.y *= ratio;
+    cutout.width *= ratio, cutout.height *= ratio;
+    cutout.top *= ratio, cutout.bottom *= ratio;
+    cutout.left *= ratio, cutout.right *= ratio;
+  }
 
-    if (!prefix) {// one
+  var trim = this._trim;
+  if (trim) {
+    cutout.x += trim, cutout.y += trim;
+    cutout.width -= 2 * trim, cutout.height -= 2 * trim;
+    cutout.top -= trim, cutout.bottom -= trim;
+    cutout.left -= trim, cutout.right -= trim;
+  }
 
-      var id = selector + '?';
-      var result = selectionCache[id];
-      if (typeof result === 'undefined') {
-        for (var i = 0; i < texture.cutouts.length; i++) {
-          var item = texture.cutouts[i];
-          var name = (item._name || item.name);
-          if (name == selector) {
-            result = item;
-            break;
-          }
-        }
-        if (!result && texture.factory) {
-          result = map(texture.factory(selector));
-        }
-        selectionCache[id] = result;
+  var self = this;
+  cutout = new Cut.Out(cutout, function() {
+    // do not query image until playing
+    return Cut.Texture._images[self._imagePath];
+  }, this._imageRatio);
+
+  return cutout;
+};
+
+Cut.Texture.prototype.select = function(selector, prefix) {
+  if (!prefix) {// one
+    for (var i = 0; i < this._cutouts.length; i++) {
+      var cutout = this._cutouts[i];
+      var name = (cutout._name || cutout.name);
+      if (name == selector) {
+        return this._wrap(cutout);
       }
+    }
+    if (this._factory) {
+      return this._wrap(this._factory(selector));
+    }
+    throw 'Cutout not found: \'' + this._name + ':' + selector + '\'';
 
-      if (!result) {
-        throw 'Cutout not found: \'' + texture.name + ':' + selector + '\'';
+  } else {// many
+    var results = [];
+    var length = selector.length;
+    for (var i = 0; i < this._cutouts.length; i++) {
+      var cutout = this._cutouts[i];
+      var name = (cutout._name || cutout.name);
+      if (name && name.substring(0, length) == selector) {
+        results.push(this._wrap(cutout));
       }
-
-      return wrap(result);
-
-    } else {// many
-
-      var id = selector + '*';
-      var results = selectionCache[id];
-      if (typeof results === 'undefined') {
-        results = [];
-        var length = selector.length;
-        for (var i = 0; i < texture.cutouts.length; i++) {
-          var item = texture.cutouts[i];
-          var name = (item._name || item.name);
-          if (name && name.substring(0, length) == selector) {
-            results.push(texture.cutouts[i]);
-          }
-        }
-        selectionCache[id] = results;
-      }
-
-      if (!results.length) {
-        throw 'Cutouts not found: \'' + texture.name + ':' + selector + '\'';
-      }
-
-      for (var i = 0; i < results.length; i++) {
-        results[i] = wrap(results[i]);
-      }
+    }
+    if (results.length) {
       return results;
     }
-  };
-};
-
-Cut.Texture._list = {};
-
-Cut.Texture.add = function() {
-  for (var i = 0; i < arguments.length; i++) {
-    var texture = arguments[i];
-    Cut.Texture._list[texture.name] = new Cut.Texture(texture);
+    throw 'Cutouts not found: \'' + this._name + ':' + selector + '\'';
   }
-  return this;
 };
 
-Cut.Texture.get = function(name) {
-  return Cut.Texture._list[name];
+// TODO: invalidate cache on new texture, etc.
+Cut.Texture._cache = {
+  one : {},
+  many : {}
+};
+
+Cut.Texture.select = function(selector, prefix) {
+  if (typeof selector === 'function') {
+    return Cut.cutout(selector(), prefix);
+  }
+  if (typeof selector !== 'string') {
+    return selector;
+  }
+
+  var i = selector.indexOf(':');
+
+  if (i < 1) {
+    throw 'Invalid selector: \'' + selector + '\'';
+    return null;
+  }
+
+  var tname = selector.slice(0, i);
+  var cname = selector.slice(i + 1);
+
+  var texture = Cut.Texture._list[tname];
+  if (texture == null) {
+    throw 'Texture not found: \'' + selector + '\'';
+    return !prefix ? null : [];
+  }
+
+  var cache = prefix ? Cut.Texture._cache.many : Cut.Texture._cache.one;
+  var result = cache[selector];
+  if (typeof result === 'undefined') {
+    // TODO: cache empty result and throw exception after
+    result = texture.select(cname, prefix);
+    cache[selector] = result;
+  }
+  return result;
 };
 
 /**
@@ -1474,6 +1437,17 @@ Cut.Texture.get = function(name) {
  */
 Cut.addTexture = function() {
   return Cut.Texture.add.apply(Cut.Texture, arguments);
+};
+
+Cut.Texture._list = {};
+
+Cut.Texture.add = function() {
+  for (var i = 0; i < arguments.length; i++) {
+    var texture = arguments[i];
+    texture = texture.isTexture ? texture : new Cut.Texture(texture);
+    Cut.Texture._list[texture._name] = texture;
+  }
+  return this;
 };
 
 Cut.Texture._images = {};
@@ -1489,10 +1463,10 @@ Cut.Texture.start = function(callback) {
 
   var textures = Cut.Texture._list;
   for ( var texture in textures) {
-    if (textures[texture].getImagePath()) {
+    var path = textures[texture]._imagePath;
+    if (path) {
       loading++;
-      var src = textures[texture].getImagePath();
-      Cut.Texture._images[src] = loader(src, complete, error);
+      Cut.Texture._images[path] = loader(path, complete, error);
       noimage = false;
     }
   }
@@ -1544,8 +1518,6 @@ Cut.Out = function(def, image, ratio) {
   this._right = def.right || 0;
 
   this._reset();
-
-  return this;
 };
 
 Cut.Out.prototype._reset = function() {
