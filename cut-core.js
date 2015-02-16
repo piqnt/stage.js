@@ -983,7 +983,6 @@ Cut.Anim.prototype.setFrames = function(a, b, c) {
 
 Cut.Anim.prototype.frames = function(frames) {
   this._time = this._time || 0;
-
   this._frame = 0;
   this._frames = [];
   this._labels = {};
@@ -1041,6 +1040,7 @@ Cut.Anim.prototype.play = function(frame) {
   } else if (!this._time) {
     this._time = Cut._now();
   }
+  this.touch();
   return this;
 };
 
@@ -1331,6 +1331,8 @@ Cut.Texture.prototype._wrap = function(cutout) {
   if (!cutout || cutout.isCutout) {
     return cutout;
   }
+
+  cutout = Cut._extend({}, cutout);
 
   if (typeof this._map === 'function') {
     cutout = this._map(cutout);

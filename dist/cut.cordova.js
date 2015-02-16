@@ -939,6 +939,7 @@ Cut.Anim.prototype.play = function(frame) {
     } else if (!this._time) {
         this._time = Cut._now();
     }
+    this.touch();
     return this;
 };
 
@@ -1206,6 +1207,7 @@ Cut.Texture.prototype._wrap = function(cutout) {
     if (!cutout || cutout.isCutout) {
         return cutout;
     }
+    cutout = Cut._extend({}, cutout);
     if (typeof this._map === "function") {
         cutout = this._map(cutout);
     }

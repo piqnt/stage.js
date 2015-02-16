@@ -267,8 +267,8 @@ Cut(function(root, elem) {
         lastDot += Conf.dotSpace;
         if (obj = randomPattern.test() && randomPattern.random(this)) {
           var added = obj(this, lastDot + Conf.width);
-          randomPattern
-              .test(-added * this.dist * 0.00005 * M.random(0.8, 1.25));
+          added = added * (1 + this.dist * 0.00002 * M.random(0.8, 1.25));
+          randomPattern.test(-added);
         }
       }
 
