@@ -1254,11 +1254,11 @@ Cut.config = function() {
   }
 };
 
-Cut.start = function() {
+Cut.start = function(config) {
   DEBUG && console.log('Starting...');
-  // config = Cut._extend({}, Cut._config, config);
-  Cut.Texture.start(function() {
-    Cut.App.start();
+  config = Cut._extend({}, Cut._config, config);
+  Cut.Texture.start(config['image-loader'], function() {
+    Cut.App.start(config['app-loader']);
   });
 };
 
@@ -1275,41 +1275,40 @@ Cut.cutout = function(selector, prefix) {
 };
 
 Cut.App = (function() {
-  var queue = [];
-  var roots = [];
-  var started = false;
+  var _queue = [];
+  var _roots = [];
+  var _loader = null;
 
   return {
-    add : function(app, configs) {
-      if (!started) {
-        queue.push(arguments);
+    add : function(app, opts) {
+      if (!_loader) {
+        _queue.push(arguments);
         return;
       }
-      var loader = Cut.config('app-loader');
       DEBUG && console.log('Init app...');
-      var root = loader(function(root, canvas) {
+      var root = _loader(function(root, canvas) {
         DEBUG && console.log('Loading app...');
         app(root, canvas);
-      }, configs);
-      roots.push(root);
+      }, opts);
+      _roots.push(root);
       root.start();
     },
-    start : function(configs) {
+    start : function(loader) {
       DEBUG && console.log('Loading apps...');
-      started = true;
+      _loader = loader;
       var args;
-      while (args = queue.shift()) {
+      while (args = _queue.shift()) {
         this.add.apply(this, args);
       }
     },
     pause : function() {
-      for (var i = queue.length - 1; i >= 0; i--) {
-        roots[i].pause();
+      for (var i = _queue.length - 1; i >= 0; i--) {
+        _roots[i].pause();
       }
     },
     resume : function() {
-      for (var i = queue.length - 1; i >= 0; i--) {
-        roots[i].resume();
+      for (var i = _queue.length - 1; i >= 0; i--) {
+        _roots[i].resume();
       }
     }
   };
@@ -1454,10 +1453,8 @@ Cut.Texture.add = function() {
 
 Cut.Texture._images = {};
 
-Cut.Texture.start = function(callback) {
+Cut.Texture.start = function(loader, callback) {
   DEBUG && console.log('Loading images...');
-
-  var loader = Cut.config('image-loader');
 
   var loading = 0;
 
