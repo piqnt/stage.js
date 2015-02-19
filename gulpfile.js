@@ -14,7 +14,7 @@ var buffer = require('vinyl-buffer');
 
 var pkg = require('./package.json');
 
-gulp.task('default', [ 'build' ]);
+gulp.task('default', [ 'test', 'build' ]);
 
 gulp.task('build', [ 'web', 'cordova', 'fc' ]);
 
@@ -34,7 +34,7 @@ gulp.task('test', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('{cut-*.js,temp/*}', [ 'test', 'build-nomin' ]);
+  gulp.watch('{cut-*.js,temp/*}', [ 'build-nomin' ]);
 });
 
 function dist(file, nomin) {

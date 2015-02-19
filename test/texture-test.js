@@ -29,8 +29,8 @@ it('Visit', function() {
   var dark = texture.select("color_dark");
   var both = texture.select("color_", true);
 
-  console.log(dark);
-  console.log(both);
+  // console.log(dark);
+  // console.log(both);
 
   expect(dark).be.an('object');
   expect(both).be.an('array');
@@ -43,8 +43,8 @@ it('Visit', function() {
   var dark = Cut.Texture.select("base:color_dark");
   var both = Cut.Texture.select("base:color_", true);
 
-  console.log(dark);
-  console.log(both);
+  // console.log(dark);
+  // console.log(both);
 
   expect(dark).be.an('object');
   expect(both).be.an('array');
