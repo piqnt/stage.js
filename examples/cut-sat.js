@@ -10,7 +10,12 @@ Cut.SAT = function(world, options) {
   this.options = {
     lineWidth : 2,
     lineColor : '#000000',
-    fillColor : Cut.SAT.randomColor,
+    fillColor : function() {
+      var red = Cut.Math.random(192, 256) | 0;
+      var green = Cut.Math.random(192, 256) | 0;
+      var blue = Cut.Math.random(192, 256) | 0;
+      return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
+    },
     ratio : 2,
     get : function(key) {
       var value = this[key];
@@ -180,11 +185,4 @@ Cut.SAT.prototype.drawConvex = function(verts, options) {
   });
 
   return cutout;
-};
-
-Cut.SAT.randomColor = function() {
-  var red = Cut.Math.random(192, 256) | 0;
-  var green = Cut.Math.random(192, 256) | 0;
-  var blue = Cut.Math.random(192, 256) | 0;
-  return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
 };

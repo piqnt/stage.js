@@ -14,7 +14,12 @@ Cut.P2 = function(world, options) {
     debugPolygons : false,
     lineWidth : 0.025,
     lineColor : '#000000',
-    fillColor : Cut.P2.randomColor,
+    fillColor : function() {
+      var red = Cut.Math.random(192, 256) | 0;
+      var green = Cut.Math.random(192, 256) | 0;
+      var blue = Cut.Math.random(192, 256) | 0;
+      return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
+    },
     ratio : 128,
     get : function(key) {
       var value = this[key];
@@ -400,11 +405,4 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
   });
 
   return cutout;
-};
-
-Cut.P2.randomColor = function() {
-  var red = Cut.Math.random(192, 256) | 0;
-  var green = Cut.Math.random(192, 256) | 0;
-  var blue = Cut.Math.random(192, 256) | 0;
-  return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
 };
