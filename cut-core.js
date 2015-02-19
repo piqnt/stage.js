@@ -61,6 +61,43 @@ Cut._create = (function() {
   }
 })();
 
+Cut._extend = function(base) {
+  for (var i = 1; i < arguments.length; i++) {
+    var obj = arguments[i];
+    for ( var name in obj) {
+      if (obj.hasOwnProperty(name)) {
+        base[name] = obj[name];
+      }
+    }
+  }
+  return base;
+};
+
+Cut._ensure = function(obj) {
+  if (obj && obj instanceof Cut) {
+    return obj;
+  }
+  throw 'Invalid node: ' + obj;
+};
+
+if (typeof performance !== 'undefined' && performance.now) {
+  Cut._now = function() {
+    return performance.now();
+  };
+} else if (Date.now) {
+  Cut._now = function() {
+    return Date.now();
+  };
+} else {
+  Cut._now = function() {
+    return +new Date();
+  };
+}
+
+Cut._isArray = Array.isArray || function(value) {
+  return Object.prototype.toString.call(value) === '[object Array]';
+};
+
 Cut._TS = 0;
 
 Cut._stats = {
@@ -315,9 +352,7 @@ Cut.prototype.last = function(visible) {
 
 Cut.prototype.append = function() {
   for (var i = 0; i < arguments.length; i++) {
-    if (!Cut._isCut(arguments[i])) {
-      throw 'It is not a Cut node!';
-    }
+    Cut._ensure(arguments[i]);
     arguments[i].appendTo(this);
   }
   return this;
@@ -325,21 +360,14 @@ Cut.prototype.append = function() {
 
 Cut.prototype.prepend = function() {
   for (var i = 0; i < arguments.length; i++) {
-    if (!Cut._isCut(arguments[i])) {
-      throw 'It is not a Cut node!';
-    }
+    Cut._ensure(arguments[i]);
     arguments[i].prependTo(this);
   }
   return this;
 };
 
 Cut.prototype.appendTo = function(parent) {
-  if (!parent) {
-    throw 'Parent is null!';
-  }
-  if (!Cut._isCut(parent)) {
-    throw 'It is not a Cut node!';
-  }
+  Cut._ensure(parent);
 
   this.remove();
 
@@ -364,12 +392,7 @@ Cut.prototype.appendTo = function(parent) {
 };
 
 Cut.prototype.prependTo = function(parent) {
-  if (!parent) {
-    throw 'Parent is null!';
-  }
-  if (!Cut._isCut(parent)) {
-    throw 'It is not a Cut node!';
-  }
+  Cut._ensure(parent);
 
   this.remove();
 
@@ -396,9 +419,7 @@ Cut.prototype.prependTo = function(parent) {
 Cut.prototype.insertNext = function() {
   if (arguments.length) {
     for (var i = 0; i < arguments.length; i++) {
-      if (!Cut._isCut(arguments[i])) {
-        throw 'It is not a Cut node!';
-      }
+      Cut._ensure(arguments[i]);
       arguments[i] && arguments[i].insertAfter(this);
     }
   }
@@ -408,9 +429,7 @@ Cut.prototype.insertNext = function() {
 Cut.prototype.insertPrev = function() {
   if (arguments.length) {
     for (var i = 0; i < arguments.length; i++) {
-      if (!Cut._isCut(arguments[i])) {
-        throw 'It is not a Cut node!';
-      }
+      Cut._ensure(arguments[i]);
       arguments[i] && arguments[i].insertBefore(this);
     }
   }
@@ -418,12 +437,7 @@ Cut.prototype.insertPrev = function() {
 };
 
 Cut.prototype.insertBefore = function(next) {
-  if (!next) {
-    throw 'Next is null!';
-  }
-  if (!Cut._isCut(next)) {
-    throw 'It is not a Cut node!';
-  }
+  Cut._ensure(next);
 
   this.remove();
 
@@ -445,12 +459,7 @@ Cut.prototype.insertBefore = function(next) {
 };
 
 Cut.prototype.insertAfter = function(prev) {
-  if (!prev) {
-    throw 'Prev is null!';
-  }
-  if (!Cut._isCut(prev)) {
-    throw 'It is not a Cut node!';
-  }
+  Cut._ensure(prev);
 
   this.remove();
 
@@ -474,9 +483,7 @@ Cut.prototype.insertAfter = function(prev) {
 Cut.prototype.remove = function() {
   if (arguments.length) {
     for (var i = 0; i < arguments.length; i++) {
-      if (!Cut._isCut(arguments[i])) {
-        throw 'It is not a Cut node!';
-      }
+      Cut._ensure(arguments[i]);
       arguments[i] && arguments[i].remove();
     }
     return this;
@@ -2337,40 +2344,6 @@ Cut.Math.rotate = function(num, min, max) {
 Cut.Math.length = function(x, y) {
   return Math.sqrt(x * x + y * y);
 };
-
-Cut._isCut = function(obj) {
-  return obj instanceof Cut;
-};
-
-Cut._isArray = Array.isArray ? Array.isArray : function(value) {
-  return Object.prototype.toString.call(value) === '[object Array]';
-};
-
-Cut._extend = function(base) {
-  for (var i = 1; i < arguments.length; i++) {
-    var obj = arguments[i];
-    for ( var name in obj) {
-      if (obj.hasOwnProperty(name)) {
-        base[name] = obj[name];
-      }
-    }
-  }
-  return base;
-};
-
-if (typeof performance !== 'undefined' && performance.now) {
-  Cut._now = function() {
-    return performance.now();
-  };
-} else if (Date.now) {
-  Cut._now = function() {
-    return Date.now();
-  };
-} else {
-  Cut._now = function() {
-    return +new Date();
-  };
-}
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Cut;
