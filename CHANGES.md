@@ -6,7 +6,9 @@
 * `_isCut` replaced with `Cut._ensure`
 * `Cut.Out.select` replace with `Cut.cutout`
 * `Texture` is reorganized
-* rename `Root`'s `resize` to `viewport`
+* `Root`'s `resize` renamed to `viewport`
+* Source files moved to `lib` and package files to root
+* Assumed CommonJS by default
 
 #### v0.3.1
 * Remove `Mouse(..., captureAnyMove)` and use flag instead

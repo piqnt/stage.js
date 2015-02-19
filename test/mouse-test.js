@@ -6,10 +6,10 @@ var sandbox = require('./sandbox');
 // defined them globally, then rewire them
 window = document = null;
 
-var Cut = require('../cut-core');
+var Cut = require('../lib/core');
 
 it('Mouse', function() {
-  var Mouse = rewire('../cut-mouse');
+  var Mouse = rewire('../lib/mouse');
 
   var document = {
     body : {}
@@ -89,7 +89,7 @@ function Event(type, x, y) {
 }
 
 it('Touch', function() {
-  var Mouse = rewire('../cut-mouse');
+  var Mouse = rewire('../lib/mouse');
   Mouse.__set__('window', {
     ontouchstart : true
   });

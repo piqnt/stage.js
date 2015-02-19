@@ -34,13 +34,13 @@ gulp.task('test', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('{cut-*.js,temp/*}', [ 'build-nomin' ]);
+  gulp.watch('{lib/*.js,./*.js}', [ 'build-nomin' ]);
 });
 
 function dist(file, nomin) {
   return function() {
     var task = browserify({
-      entries : [ './temp/' + file ],
+      entries : [ './' + file ],
       standalone : 'Cut'
     });
     task = task.transform({
@@ -55,7 +55,7 @@ function dist(file, nomin) {
     task = task.bundle();
     task = task.pipe(source(file + '.js')).pipe(buffer()); // vinylify
     task = task.pipe(wrap({
-      src : './temp/dist.js'
+      src : './dist.js'
     }, {
       version : pkg.version
     }));
