@@ -95,7 +95,7 @@ function AppLoader(app, configs) {
       };
 
   DEBUG && console.log('Creating root...');
-  var root = Cut.root(requestAnimationFrame, function() {
+  var root = new Cut.Root(requestAnimationFrame, function() {
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.clearRect(0, 0, width, height);
     this.render(context);

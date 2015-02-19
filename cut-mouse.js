@@ -209,8 +209,8 @@ Mouse._xy = function(root, elem, event, point) {
     par = par.offsetParent;
   }
 
-  point.x *= root._ratio || 1;
-  point.y *= root._ratio || 1;
+  point.x *= root._viewport.ratio || 1;
+  point.y *= root._viewport.ratio || 1;
 };
 
 if (typeof module !== 'undefined' && module.exports) {

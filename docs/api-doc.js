@@ -17,7 +17,7 @@ Cut(function(root, container) {
 
   // Listen to view port resize events.
   root.on("viewport", function(viewport) {
-    // `viewport` attributes are `width` and `height`.
+    // `viewport` attributes are `width`, `height` and `ratio`.
   });
 });
 

@@ -19,7 +19,7 @@ DEBUG = typeof DEBUG === "undefined" || DEBUG;
 function Cut() {
     if (!(this instanceof Cut)) {
         if (typeof arguments[0] === "function") {
-            return Cut.App.add.apply(Cut.App, arguments);
+            return Cut.Root.add.apply(Cut.Root, arguments);
         } else if (typeof arguments[0] === "object") {
             return Cut.Texture.add.apply(Cut.Texture, arguments);
         }
@@ -73,16 +73,6 @@ Cut._stats = {
 
 Cut.create = function() {
     return new Cut();
-};
-
-Cut.prototype.render = function(context) {
-    Cut._stats.tick = Cut._stats.paint = Cut._stats.paste = 0;
-    var now = Cut._now();
-    var elapsed = this._lastTime ? now - this._lastTime : 0;
-    this._lastTime = now;
-    this._tick(elapsed);
-    this._paint(context);
-    Cut._stats.fps = 1e3 / (Cut._now() - now);
 };
 
 Cut.prototype.MAX_ELAPSE = Infinity;
@@ -546,111 +536,6 @@ Cut.prototype.pin = function(a, b) {
 
 Cut.prototype.matrix = function() {
     return this._pin.absoluteMatrix(this, this._parent ? this._parent._pin : null);
-};
-
-Cut.root = function(request, render) {
-    return new Cut.Root(request, render);
-};
-
-Cut.Root = function(request, render) {
-    Cut.Root._super.call(this);
-    this._paused = true;
-    this._render = render;
-    var self = this;
-    var requestCallback = function() {
-        if (self._paused === true) {
-            return;
-        }
-        self._mo_touch = self._ts_touch;
-        self._render();
-        self.request();
-        self._mo_touch == self._ts_touch && self.pause();
-    };
-    this.request = function() {
-        request(requestCallback);
-    };
-    this.on("viewport", function(viewport) {
-        this._size = {
-            width: viewport.width,
-            height: viewport.height
-        };
-        this._updateViewbox();
-        return true;
-    });
-};
-
-Cut.Root._super = Cut;
-
-Cut.Root.prototype = Cut._create(Cut.Root._super.prototype);
-
-Cut.Root.prototype.constructor = Cut.Root;
-
-Cut.Root.prototype.viewbox = function(width, height, mode) {
-    this._viewbox = {
-        width: width,
-        height: height,
-        mode: /^(in|out)$/.test(mode) ? mode : "in"
-    };
-    this._updateViewbox();
-    return this;
-};
-
-Cut.Root.prototype._updateViewbox = function() {
-    var viewbox = this._viewbox;
-    var size = this._size;
-    if (!size) {} else if (viewbox) {
-        this.pin({
-            width: viewbox.width,
-            height: viewbox.height,
-            resizeMode: viewbox.mode,
-            resizeWidth: size.width,
-            resizeHeight: size.height
-        });
-    } else {
-        this.pin({
-            width: size.width,
-            height: size.height
-        });
-    }
-};
-
-Cut.Root.prototype.start = function() {
-    return this.resume();
-};
-
-Cut.Root.prototype.resume = function(force) {
-    if (this._paused || force) {
-        this._paused = false;
-        this.request();
-    }
-    return this;
-};
-
-Cut.Root.prototype.pause = function() {
-    this._paused = true;
-    return this;
-};
-
-Cut.Root.prototype.touch = function() {
-    this.resume();
-    return Cut.prototype.touch.call(this);
-};
-
-Cut.Root.prototype.resize = function(width, height, ratio) {
-    this._ratio = ratio || 1;
-    var data = {};
-    data.width = width;
-    data.height = height;
-    data.ratio = ratio;
-    this.visit({
-        start: function(cut) {
-            if (!cut._flag("viewport")) {
-                return true;
-            }
-            cut.publish("viewport", [ data ]);
-        }
-    });
-    return this;
 };
 
 Cut.image = function(cutout) {
@@ -1135,60 +1020,168 @@ Cut.start = function(config) {
     DEBUG && console.log("Starting...");
     config = Cut._extend({}, Cut._config, config);
     Cut.Texture.start(config["image-loader"], function() {
-        Cut.App.start(config["app-loader"]);
+        Cut.Root.start(config["app-loader"]);
     });
 };
 
 Cut.pause = function() {
-    Cut.App.pause();
+    Cut.Root.pause();
 };
 
 Cut.resume = function() {
-    Cut.App.resume();
+    Cut.Root.resume();
 };
 
 Cut.cutout = function(selector, prefix) {
     return Cut.Texture.select(selector, prefix);
 };
 
-Cut.App = function() {
-    var _queue = [];
-    var _roots = [];
-    var _loader = null;
-    return {
-        add: function(app, opts) {
-            if (!_loader) {
-                _queue.push(arguments);
-                return;
-            }
-            DEBUG && console.log("Init app...");
-            var root = _loader(function(root, canvas) {
-                DEBUG && console.log("Loading app...");
-                app(root, canvas);
-            }, opts);
-            _roots.push(root);
-            root.start();
-        },
-        start: function(loader) {
-            DEBUG && console.log("Loading apps...");
-            _loader = loader;
-            var args;
-            while (args = _queue.shift()) {
-                this.add.apply(this, args);
-            }
-        },
-        pause: function() {
-            for (var i = _queue.length - 1; i >= 0; i--) {
-                _roots[i].pause();
-            }
-        },
-        resume: function() {
-            for (var i = _queue.length - 1; i >= 0; i--) {
-                _roots[i].resume();
-            }
+Cut.Root = function(request, render) {
+    Cut.Root._super.call(this);
+    this._paused = true;
+    this._render = render;
+    var self = this;
+    var requestCallback = function() {
+        if (self._paused === true) {
+            return;
         }
+        self._mo_touch = self._ts_touch;
+        self._render();
+        self.request();
+        self._mo_touch == self._ts_touch && self.pause();
     };
-}();
+    this.request = function() {
+        request(requestCallback);
+    };
+};
+
+Cut.Root._super = Cut;
+
+Cut.Root.prototype = Cut._create(Cut.Root._super.prototype);
+
+Cut.Root.prototype.constructor = Cut.Root;
+
+Cut.Root.prototype.start = function() {
+    return this.resume();
+};
+
+Cut.Root.prototype.resume = function(force) {
+    if (this._paused || force) {
+        this._paused = false;
+        this.request();
+    }
+    return this;
+};
+
+Cut.Root.prototype.pause = function() {
+    this._paused = true;
+    return this;
+};
+
+Cut.Root.prototype.touch = function() {
+    this.resume();
+    return Cut.Root._super.prototype.touch.call(this);
+};
+
+Cut.Root.prototype.render = function(context) {
+    Cut._stats.tick = Cut._stats.paint = Cut._stats.paste = 0;
+    var now = Cut._now();
+    var elapsed = this._lastTime ? now - this._lastTime : 0;
+    this._lastTime = now;
+    this._tick(elapsed);
+    this._paint(context);
+    Cut._stats.fps = 1e3 / (Cut._now() - now);
+};
+
+Cut.Root.prototype.resize = function(width, height, ratio) {
+    this._viewport = {
+        width: width,
+        height: height,
+        ratio: ratio || 1
+    };
+    this._updateViewbox();
+    var data = Cut._extend({}, this._viewport);
+    this.visit({
+        start: function(cut) {
+            if (!cut._flag("viewport")) {
+                return true;
+            }
+            cut.publish("viewport", [ data ]);
+        }
+    });
+    return this;
+};
+
+Cut.Root.prototype.viewbox = function(width, height, mode) {
+    this._viewbox = {
+        width: width,
+        height: height,
+        mode: /^(in|out)$/.test(mode) ? mode : "in"
+    };
+    this._updateViewbox();
+    return this;
+};
+
+Cut.Root.prototype._updateViewbox = function() {
+    var box = this._viewbox;
+    var size = this._viewport;
+    if (size && box) {
+        this.pin({
+            width: box.width,
+            height: box.height
+        }).pin({
+            resizeMode: box.mode,
+            resizeWidth: size.width,
+            resizeHeight: size.height
+        });
+    } else if (size) {
+        this.pin({
+            width: size.width,
+            height: size.height
+        });
+    }
+};
+
+Cut.Root._queue = [];
+
+Cut.Root._roots = [];
+
+Cut.Root._loader = null;
+
+Cut.Root.add = function(app, opts) {
+    if (!this._loader) {
+        this._queue.push(arguments);
+        return;
+    }
+    DEBUG && console.log("Init app...");
+    var root = this._loader(function(root, canvas) {
+        DEBUG && console.log("Loading app...");
+        app(root, canvas);
+    }, opts);
+    this._roots.push(root);
+    root.start();
+};
+
+Cut.Root.start = function(loader) {
+    DEBUG && console.log("Loading apps...");
+    this._loader = loader;
+    var args;
+    while (args = this._queue.shift()) {
+        this.add.apply(this, args);
+    }
+};
+
+Cut.Root.pause = function() {
+    for (var i = this._queue.length - 1; i >= 0; i--) {
+        this._roots[i].pause();
+    }
+};
+
+Cut.Root.resume = function() {
+    for (var i = this._queue.length - 1; i >= 0; i--) {
+        this._roots[i].resume();
+    }
+};
 
 Cut.Texture = function(data) {
     this.isTexture = true;
@@ -2178,7 +2171,7 @@ function AppLoader(app, configs) {
         return window.setTimeout(callback, 1e3 / 60);
     };
     DEBUG && console.log("Creating root...");
-    var root = Cut.root(requestAnimationFrame, function() {
+    var root = new Cut.Root(requestAnimationFrame, function() {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, width, height);
         this.render(context);
@@ -2396,8 +2389,8 @@ Mouse._xy = function(root, elem, event, point) {
         }
         par = par.offsetParent;
     }
-    point.x *= root._ratio || 1;
-    point.y *= root._ratio || 1;
+    point.x *= root._viewport.ratio || 1;
+    point.y *= root._viewport.ratio || 1;
 };
 
 if (typeof module !== "undefined" && module.exports) {
