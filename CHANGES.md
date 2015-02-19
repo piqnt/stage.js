@@ -1,3 +1,12 @@
+#### v0.4.0
+* `Cut.config` and `Cut.start(configs)` added
+* `Cut.init` and `Loader.loadImage` replaced with `"app-loader"` and `"image-loader"` configs
+* `Loader` merged with `Root`, `Loader.start/pause/resume` replaced with `Cut.start/pause/resume`
+* `root._ratio` replace with `root._viewport.ratio`
+* `_isCut` replaced with `Cut._ensure`
+* `Cut.Out.select` replace with `Cut.cutout`
+* `Texture` is reorganized
+
 #### v0.3.1
 * Remove `Mouse(..., captureAnyMove)` and use flag instead
 * Refactoring easing class and moving tween/ease to another file
