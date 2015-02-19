@@ -1100,7 +1100,10 @@ Cut.Root.prototype.render = function(context) {
     Cut._stats.fps = 1e3 / (Cut._now() - now);
 };
 
-Cut.Root.prototype.resize = function(width, height, ratio) {
+Cut.Root.prototype.viewport = function(width, height, ratio) {
+    if (typeof width === "undefined") {
+        return Cut._extend({}, this._viewport);
+    }
     this._viewport = {
         width: width,
         height: height,
@@ -2167,7 +2170,7 @@ function AppLoader(app, configs) {
         canvas.width = width;
         canvas.height = height;
         DEBUG && console.log("Resize: " + width + " x " + height + " / " + ratio);
-        root.resize(width, height, ratio);
+        root.viewport(width, height, ratio);
     }
     return root;
 }
@@ -2362,8 +2365,8 @@ Mouse._xy = function(root, elem, event, point) {
         }
         par = par.offsetParent;
     }
-    point.x *= root._viewport.ratio || 1;
-    point.y *= root._viewport.ratio || 1;
+    point.x *= root.viewport().ratio || 1;
+    point.y *= root.viewport().ratio || 1;
 };
 
 if (typeof module !== "undefined" && module.exports) {

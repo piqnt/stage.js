@@ -95,7 +95,7 @@ function AppLoader(app, configs) {
 
     DEBUG && console.log('Resize: ' + width + ' x ' + height + ' / ' + ratio);
 
-    root.resize(width, height, ratio);
+    root.viewport(width, height, ratio);
   }
 
   return root;

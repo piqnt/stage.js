@@ -1221,7 +1221,10 @@ Cut.Root.prototype.render = function(context) {
   Cut._stats.fps = 1000 / (Cut._now() - now);
 };
 
-Cut.Root.prototype.resize = function(width, height, ratio) {
+Cut.Root.prototype.viewport = function(width, height, ratio) {
+  if (typeof width === 'undefined') {
+    return Cut._extend({}, this._viewport);
+  }
   this._viewport = {
     width : width,
     height : height,
