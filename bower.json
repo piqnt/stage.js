@@ -16,5 +16,6 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/piqnt/cutjs.git"
-  }
+  },
+  "ignore": [ "examples/", "template/", "test/" ]
 }

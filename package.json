@@ -18,6 +18,7 @@
     "url": "git://github.com/piqnt/cutjs.git"
   },
   "main": "lib/main.js",
+  "files": [ "dist/", "doc/", "ext/", "lib/", "platform/", "test/" ],
   "dependencies": {},
   "devDependencies": {
     "browserify": "^8.1.3",
