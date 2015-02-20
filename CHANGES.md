@@ -7,8 +7,10 @@
 * `Cut.Out.select` replace with `Cut.cutout`
 * `Texture` is reorganized
 * `Root`'s `resize` renamed to `viewport`
-* Source files moved to `lib` and package files to root
+* Source files moved to `lib` and platform files to `platform`
 * Assumed CommonJS by default
+* `lib/main` is set as npm `main`
+* extension files moved to ext 
 
 #### v0.3.1
 * Remove `Mouse(..., captureAnyMove)` and use flag instead

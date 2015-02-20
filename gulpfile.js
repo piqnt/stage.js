@@ -18,13 +18,13 @@ gulp.task('default', [ 'test', 'build' ]);
 
 gulp.task('build', [ 'web', 'cordova', 'fc' ]);
 
-gulp.task('web', dist('cut.web'));
-gulp.task('cordova', dist('cut.cordova'));
-gulp.task('fc', dist('cut.fc'));
+gulp.task('web', dist('web'));
+gulp.task('cordova', dist('cordova'));
+gulp.task('fc', dist('fc'));
 
-gulp.task('web-nomin', dist('cut.web', true));
-gulp.task('cordova-nomin', dist('cut.cordova', true));
-gulp.task('fc-nomin', dist('cut.fc', true));
+gulp.task('web-nomin', dist('web', true));
+gulp.task('cordova-nomin', dist('cordova', true));
+gulp.task('fc-nomin', dist('fc', true));
 gulp.task('build-nomin', [ 'web-nomin', 'cordova-nomin', 'fc-nomin' ]);
 
 gulp.task('test', function() {
@@ -34,13 +34,13 @@ gulp.task('test', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('{lib/*.js,./*.js}', [ 'build-nomin' ]);
+  gulp.watch('{lib/*.js,platform/*.js}', [ 'build-nomin' ]);
 });
 
 function dist(file, nomin) {
   return function() {
     var task = browserify({
-      entries : [ './' + file ],
+      entries : [ './platform/' + file ],
       standalone : 'Cut'
     });
     task = task.transform({
@@ -53,7 +53,7 @@ function dist(file, nomin) {
       }
     }, 'uglifyify');
     task = task.bundle();
-    task = task.pipe(source(file + '.js')).pipe(buffer()); // vinylify
+    task = task.pipe(source('cut.' + file + '.js')).pipe(buffer()); // vinylify
     task = task.pipe(wrap({
       src : './dist.js'
     }, {
@@ -61,7 +61,7 @@ function dist(file, nomin) {
     }));
     task = task.pipe(gulp.dest('dist'));
     if (!nomin) {
-      task = task.pipe(rename(file + '.min.js'));
+      task = task.pipe(rename('cut.' + file + '.min.js'));
       task = task.pipe(uglify({
         output : {
           comments : /@license/i
