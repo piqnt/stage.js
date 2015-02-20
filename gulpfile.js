@@ -55,7 +55,7 @@ function dist(file, nomin) {
     task = task.bundle();
     task = task.pipe(source('cut.' + file + '.js')).pipe(buffer()); // vinylify
     task = task.pipe(wrap({
-      src : './dist.js'
+      src : 'template/dist.js'
     }, {
       version : pkg.version
     }));
