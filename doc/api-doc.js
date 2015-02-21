@@ -295,8 +295,8 @@ row.spacing(space);
 
 //
 // ### Box
-// A box resizes to wrap its children. Can be used with image tile/stretch
-// to create variable size components like windows, button, etc.
+// A box resizes to wrap its children. It can be applied to tiled/stretched
+// images to create variable size components such as windows and buttons.
 
 // Create a new box.
 var box = Cut.box();
