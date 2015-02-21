@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.0-beta.0
+ * CutJS 0.4.0-beta.1
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -927,6 +927,8 @@ Cut.sequence = function(type, align) {
 };
 
 Cut.prototype.sequence = function(type, align) {
+    this._padding = this._padding || 0;
+    this._spacing = this._spacing || 0;
     this.untick(this._layoutTicker);
     this._layoutTicker = function() {
         if (this._mo_seq == this._ts_touch) {
@@ -944,13 +946,13 @@ Cut.prototype.sequence = function(type, align) {
             var w = child._pin._boxWidth;
             var h = child._pin._boxHeight;
             if (type == "column") {
-                !first && (height += this._spacing || 0);
+                !first && (height += this._spacing);
                 child.pin("offsetY") != height && child.pin("offsetY", height);
                 width = Math.max(width, w);
                 height = height + h;
                 alignChildren && child.pin("alignX", align);
             } else if (type == "row") {
-                !first && (width += this._spacing || 0);
+                !first && (width += this._spacing);
                 child.pin("offsetX") != width && child.pin("offsetX", width);
                 width = width + w;
                 height = Math.max(height, h);
@@ -958,8 +960,8 @@ Cut.prototype.sequence = function(type, align) {
             }
             first = false;
         }
-        width += 2 * this._padding || 0;
-        height += 2 * this._padding || 0;
+        width += 2 * this._padding;
+        height += 2 * this._padding;
         this.pin("width") != width && this.pin("width", width);
         this.pin("height") != height && this.pin("height", height);
     };
@@ -973,6 +975,7 @@ Cut.box = function() {
 
 Cut.prototype.box = function() {
     if (this._boxTicker) return this;
+    this._padding = this._padding || 0;
     this._boxTicker = function() {
         if (this._mo_box == this._ts_touch) {
             return;
@@ -988,8 +991,8 @@ Cut.prototype.box = function() {
             width = Math.max(width, w);
             height = Math.max(height, h);
         }
-        width += 2 * this._padding || 0;
-        height += 2 * this._padding || 0;
+        width += 2 * this._padding;
+        height += 2 * this._padding;
         this.pin("width") != width && this.pin("width", width);
         this.pin("height") != height && this.pin("height", height);
     };
@@ -1246,7 +1249,6 @@ Cut.Texture.prototype.select = function(selector, prefix) {
         if (this._factory) {
             return this._wrap(this._factory(selector));
         }
-        throw "Cutout not found: '" + this._name + ":" + selector + "'";
     } else {
         // many
         var results = [];
@@ -1261,7 +1263,6 @@ Cut.Texture.prototype.select = function(selector, prefix) {
         if (results.length) {
             return results;
         }
-        throw "Cutouts not found: '" + this._name + ":" + selector + "'";
     }
 };
 
@@ -1279,25 +1280,40 @@ Cut.Texture.select = function(selector, prefix) {
         return selector;
     }
     var i = selector.indexOf(":");
-    if (i < 1) {
-        throw "Invalid selector: '" + selector + "'";
-        return null;
-    }
-    var tname = selector.slice(0, i);
-    var cname = selector.slice(i + 1);
-    var texture = Cut.Texture._list[tname];
-    if (texture == null) {
-        throw "Texture not found: '" + selector + "'";
-        return !prefix ? null : [];
-    }
+    var tname = i < 1 ? null : selector.slice(0, i);
+    var cname = i < 0 ? selector : selector.slice(i + 1);
     var cache = prefix ? Cut.Texture._cache.many : Cut.Texture._cache.one;
     var result = cache[selector];
-    if (typeof result === "undefined") {
-        // TODO: cache empty result and throw exception after
-        result = texture.select(cname, prefix);
-        cache[selector] = result;
+    if (result) {
+        return result;
+    } else if (result === null) {
+        throw "Cutout not found: '" + selector + "'";
     }
-    return result;
+    if (tname) {
+        var texture = Cut.Texture._list[tname];
+        if (texture) {
+            result = texture.select(cname, prefix);
+        } else {
+            throw "Texture not found: '" + selector + "'";
+        }
+    } else {
+        var list = Cut.Texture._list;
+        for (tname in list) {
+            if (list.hasOwnProperty(tname)) {
+                result = list[tname].select(cname, prefix);
+            }
+            if (result) {
+                break;
+            }
+        }
+    }
+    if (result) {
+        cache[selector] = result;
+        return result;
+    } else {
+        cache[selector] = null;
+        throw "Cutout not found: '" + selector + "'";
+    }
 };
 
 /**
