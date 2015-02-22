@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.0-beta.1
+ * CutJS 0.4.0-beta.2
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -112,7 +112,7 @@ Cut.create = function() {
 
 Cut.prototype.MAX_ELAPSE = Infinity;
 
-Cut.prototype._tick = function(elapsed) {
+Cut.prototype._tick = function(elapsed, now, last) {
     if (!this._visible) {
         return;
     }
@@ -123,17 +123,17 @@ Cut.prototype._tick = function(elapsed) {
     var length = this._tickBefore.length;
     for (var i = 0; i < length; i++) {
         Cut._stats.tick++;
-        this._tickBefore[i].call(this, elapsed);
+        this._tickBefore[i].call(this, elapsed, now, last);
     }
     var child, next = this._first;
     while (child = next) {
         next = child._next;
-        child._tick(elapsed);
+        child._tick(elapsed, now, last);
     }
     var length = this._tickAfter.length;
     for (var i = 0; i < length; i++) {
         Cut._stats.tick++;
-        this._tickAfter[i].call(this, elapsed);
+        this._tickAfter[i].call(this, elapsed, now, last);
     }
 };
 
@@ -726,23 +726,33 @@ Cut.Anim = function() {
     Cut.Anim._super.call(this);
     this._fps = Cut.Anim.FPS;
     this._ft = 1e3 / this._fps;
-    this._time = 0;
+    this._time = -1;
+    this._repeat = 0;
     this._frame = 0;
     this._frames = [];
     this._labels = {};
-    this.tick(function() {
-        if (this._time && this._frames.length > 1) {
-            var t = Cut._now() - this._time;
-            if (t >= this._ft) {
-                var n = t < 2 * this._ft ? 1 : Math.floor(t / this._ft);
-                this._time += n * this._ft;
-                this.moveFrame(n);
-                if (this._repeat && (this._repeat -= n) <= 0) {
-                    this.stop();
-                    this._callback && this._callback();
-                }
-            }
-            this.touch();
+    var lastTime = 0;
+    this.tick(function(t, now, last) {
+        if (this._time < 0 || this._frames.length <= 1) {
+            return;
+        }
+        // ignore old elapsed
+        var ignore = lastTime != last;
+        lastTime = now;
+        this.touch();
+        if (ignore) {
+            return;
+        }
+        this._time += t;
+        if (this._time < this._ft) {
+            return;
+        }
+        var n = this._time / this._ft | 0;
+        this._time -= n * this._ft;
+        this.moveFrame(n);
+        if (this._repeat > 0 && (this._repeat -= n) <= 0) {
+            this.stop();
+            this._callback && this._callback();
         }
     }, false);
 };
@@ -772,7 +782,6 @@ Cut.Anim.prototype.setFrames = function(a, b, c) {
 };
 
 Cut.Anim.prototype.frames = function(frames) {
-    this._time = this._time || 0;
     this._frame = 0;
     this._frames = [];
     this._labels = {};
@@ -797,6 +806,7 @@ Cut.Anim.prototype.gotoFrame = function(frame, resize) {
     resize = resize || !this._cutouts[0];
     this._cutouts[0] = this._frames[this._frame];
     if (resize) {
+        // TODO: don't create object
         this.pin({
             width: this._cutouts[0].dWidth(),
             height: this._cutouts[0].dHeight()
@@ -825,16 +835,16 @@ Cut.Anim.prototype.repeat = function(repeat, callback) {
 Cut.Anim.prototype.play = function(frame) {
     if (typeof frame !== "undefined") {
         this.gotoFrame(frame);
-        this._time = Cut._now();
-    } else if (!this._time) {
-        this._time = Cut._now();
+        this._time = 0;
+    } else if (this._time < 0) {
+        this._time = 0;
     }
     this.touch();
     return this;
 };
 
 Cut.Anim.prototype.stop = function(frame) {
-    this._time = null;
+    this._time = -1;
     if (typeof frame !== "undefined") {
         this.gotoFrame(frame);
     }
@@ -1094,9 +1104,10 @@ Cut.Root.prototype.touch = function() {
 Cut.Root.prototype.render = function(context) {
     Cut._stats.tick = Cut._stats.paint = Cut._stats.paste = 0;
     var now = Cut._now();
-    var elapsed = this._lastTime ? now - this._lastTime : 0;
+    var last = this._lastTime || now;
+    var elapsed = now - last;
     this._lastTime = now;
-    this._tick(elapsed);
+    this._tick(elapsed, now, last);
     this._paint(context);
     Cut._stats.fps = 1e3 / (Cut._now() - now);
 };
@@ -2583,16 +2594,24 @@ module.exports = Mouse;
 },{}],7:[function(require,module,exports){
 DEBUG = typeof DEBUG === "undefined" || DEBUG;
 
+// TODO: reuse head.start/keys/end
 function Tween(cut) {
     var tween = this;
     this._owner = cut;
     this._queue = [];
     this._next = null;
-    cut.tick(function(elapsed) {
+    var lastTime = 0;
+    cut.tick(function(elapsed, now, last) {
         if (!tween._queue.length) {
             return;
         }
+        // ignore old elapsed
+        var ignore = lastTime != last;
+        lastTime = now;
         this.touch();
+        if (ignore) {
+            return;
+        }
         var head = tween._queue[0];
         if (!head.time) {
             head.time = 1;
