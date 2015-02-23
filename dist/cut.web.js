@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.0-beta.2
+ * CutJS 0.4.0-beta.3
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -2426,18 +2426,18 @@ Mouse.subscribe = function(root, elem) {
     elem = elem || document;
     // click events are synthesized from start/end events on same nodes
     // elem.addEventListener('click', handleClick);
-    // TODO: with 'if' mouse doesn't work on touch screen, without 'if' two
-    // events on Android
-    if ("ontouchstart" in window) {
-        elem.addEventListener("touchstart", handleStart);
-        elem.addEventListener("touchend", handleEnd);
-        elem.addEventListener("touchmove", handleMove);
-        elem.addEventListener("touchcancel", handleCancel);
-    } else {
-        elem.addEventListener("mousedown", handleStart);
-        elem.addEventListener("mouseup", handleEnd);
-        elem.addEventListener("mousemove", handleMove);
-    }
+    // with 'if' mouse doesn't work on touch screen
+    // without 'if' two events on Android?
+    // if ('ontouchstart' in window) {
+    elem.addEventListener("touchstart", handleStart);
+    elem.addEventListener("touchend", handleEnd);
+    elem.addEventListener("touchmove", handleMove);
+    elem.addEventListener("touchcancel", handleCancel);
+    // } else {
+    elem.addEventListener("mousedown", handleStart);
+    elem.addEventListener("mouseup", handleEnd);
+    elem.addEventListener("mousemove", handleMove);
+    // }
     function handleStart(event) {
         Mouse._xy(root, elem, event, abs);
         DEBUG && console.log("Mouse Start: " + event.type + " " + abs);

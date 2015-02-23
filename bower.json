@@ -1,6 +1,6 @@
 {
   "name": "cutjs",
-  "version": "0.4.0-beta.2",
+  "version": "0.4.0-beta.3",
   "description": "Lightweight, fast, interactable 2D HTML5 rendering engine for cross-platform game development.",
   "homepage": "http://cutjs.org/",
   "keywords": [
