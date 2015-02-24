@@ -2355,7 +2355,7 @@ function AppLoader(app, configs) {
         fastcontext: true
     });
     full = context.isFast ? true : full;
-    console.log("FastContext: " + context.isFast);
+    DEBUG && console.log("FastContext: " + context.isFast);
     var devicePixelRatio = window.devicePixelRatio || 1;
     var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
     ratio = devicePixelRatio / backingStoreRatio;
@@ -2404,16 +2404,6 @@ function ImageLoader(src, handleComplete, handleError) {
         return image;
     }
 }
-
-// FastContext workaround
-(function(nop) {
-    document.addEventListener("click", nop);
-    document.addEventListener("mousedown", nop);
-    document.addEventListener("mouseup", nop);
-    document.addEventListener("touchstart", nop);
-    document.addEventListener("touchend", nop);
-    document.addEventListener("touchcancel", nop);
-})(function() {});
 
 
 },{"./core":2}],5:[function(require,module,exports){
