@@ -12,6 +12,7 @@
 * `lib/main` is set as npm `main`
 * extension files moved to ext
 * In cutout selector, texture name is made optional: `"[texture:]cutout"`
+* Cordova loader with FastContext support instead of FastCanvas
 
 #### v0.3.1
 * Remove `Mouse(..., captureAnyMove)` and use flag instead

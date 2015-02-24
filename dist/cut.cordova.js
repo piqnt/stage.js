@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.0-beta.3
+ * CutJS 0.4.0-beta.4
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -2304,8 +2304,12 @@ var Cut = require("./core");
 DEBUG = typeof DEBUG === "undefined" || DEBUG;
 
 /**
- * Cordova/PhoneGap loader. Use FastCanvas loader for Android.
+ * Cordova/PhoneGap loader with FastContext support.
  */
+if (typeof FastContext === "undefined") {
+    FastContext = window.FastContext;
+}
+
 window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
     // device ready not called; must be in a browser
@@ -2347,7 +2351,11 @@ function AppLoader(app, configs) {
         var body = document.body;
         body.insertBefore(canvas, body.firstChild);
     }
-    context = canvas.getContext("2d");
+    context = canvas.getContext("2d", {
+        fastcontext: true
+    });
+    full = context.isFast ? true : full;
+    console.log("FastContext: " + context.isFast);
     var devicePixelRatio = window.devicePixelRatio || 1;
     var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
     ratio = devicePixelRatio / backingStoreRatio;
@@ -2359,6 +2367,7 @@ function AppLoader(app, configs) {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, width, height);
         this.render(context);
+        "flush" in context && context.flush();
     });
     app(root, canvas);
     resize();
@@ -2384,13 +2393,27 @@ function AppLoader(app, configs) {
 }
 
 function ImageLoader(src, handleComplete, handleError) {
-    var image = new Image();
     DEBUG && console.log("Loading image: " + src);
-    image.onload = handleComplete;
-    image.onerror = handleError;
-    image.src = src;
-    return image;
+    if (FastContext) {
+        return FastContext.createImage(src, handleComplete, handleError);
+    } else {
+        var image = new Image();
+        image.onload = handleComplete;
+        image.onerror = handleError;
+        image.src = src;
+        return image;
+    }
 }
+
+// FastContext workaround
+(function(nop) {
+    document.addEventListener("click", nop);
+    document.addEventListener("mousedown", nop);
+    document.addEventListener("mouseup", nop);
+    document.addEventListener("touchstart", nop);
+    document.addEventListener("touchend", nop);
+    document.addEventListener("touchcancel", nop);
+})(function() {});
 
 
 },{"./core":2}],5:[function(require,module,exports){

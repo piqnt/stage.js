@@ -16,16 +16,15 @@ var pkg = require('./package.json');
 
 gulp.task('default', [ 'test', 'build' ]);
 
-gulp.task('build', [ 'web', 'cordova', 'fc' ]);
+gulp.task('build', [ 'web', 'cordova' ]);
 
 gulp.task('web', dist('web'));
 gulp.task('cordova', dist('cordova'));
-gulp.task('fc', dist('fc'));
+
+gulp.task('build-nomin', [ 'web-nomin', 'cordova-nomin' ]);
 
 gulp.task('web-nomin', dist('web', true));
 gulp.task('cordova-nomin', dist('cordova', true));
-gulp.task('fc-nomin', dist('fc', true));
-gulp.task('build-nomin', [ 'web-nomin', 'cordova-nomin', 'fc-nomin' ]);
 
 gulp.task('test', function() {
   return gulp.src('test/*.js', {
