@@ -333,7 +333,7 @@ string.frames(function(charOrItem) {
 
 // Cutouts are usually added to an app by adding textures.
 Cut({
-  name : textureName,
+  name : textureName, // optional
   imagePath : textureImagePath,
   imageRatio : 1,
   cutouts : [ { // list of cutoutDefs or cutouts
@@ -360,12 +360,15 @@ Cut({
   }
 }, etc);
 
-// Then texture cutouts can be referenced through the app.
+// Then texture cutouts can be referenced in your app.
+// Note that `textureName:` is optional.
+
 // Single selection:
 Cut.image("textureName:cutoutName");
 // Multiple selection:
 Cut.anim("textureName:cutoutPrefix");
 Cut.string("textureName:cutoutPrefix");
+
 
 //
 // ### Drawing
@@ -414,3 +417,4 @@ Cut.Mouse.CLICK = "click";
 Cut.Mouse.START = "touchstart mousedown";
 Cut.Mouse.MOVE = "touchmove mousemove";
 Cut.Mouse.END = "touchend mouseup";
+Cut.Mouse.CANCEL = "touchcancel";
