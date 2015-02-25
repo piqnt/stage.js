@@ -6,7 +6,7 @@ function Game() {
   };
 
   this.init = function() {
-    console.log("Game.init");
+    console.log('Game.init');
     cells = [];
     for (var i = -1; i <= 1; i++) {
       cells[i] = [];
@@ -21,7 +21,7 @@ function Game() {
   };
 
   this.start = function() {
-    console.log("Game.start");
+    console.log('Game.start');
     if (cells.length == 0) {
       this.init();
     }
@@ -35,11 +35,11 @@ function Game() {
   };
 
   this.click = function(cell) {
-    console.log("Game.click");
+    console.log('Game.click');
     if (!ready || cell.sign) {
       return;
     }
-    cell.sign = (turn++ % 2 == 0) ? "o" : "x";
+    cell.sign = (turn++ % 2 == 0) ? 'o' : 'x';
     this.uiUpdateCell(cell);
     var row = test(cell.i, cell.j, cell.sign);
     if (row) {
@@ -52,7 +52,7 @@ function Game() {
   };
 
   function test(i, j, sign) {
-    console.log("Game.test");
+    console.log('Game.test');
     if (cells[-1][j].sign == sign && cells[0][j].sign == sign
         && cells[+1][j].sign == sign)
       return [ cells[-1][j], cells[0][j], cells[+1][j] ];
@@ -71,19 +71,19 @@ function Game() {
 
 Cut(function(root, container) {
   Cut.Mouse(root, container);
-  root.viewbox(50, 50).pin("handle", -0.5);
+  root.viewbox(50, 50).pin('handle', -0.5);
 
-  Cut.image("base:bg").pin("handle", 0.5).appendTo(root);
+  Cut.image('bg').pin('handle', 0.5).appendTo(root);
 
   var game = new Game();
 
   game.uiNewCell = function(cell) {
-    console.log("Game.uiNewCell");
-    cell.ui = Cut.image("base:x").appendTo(root).pin({
+    console.log('Game.uiNewCell');
+    cell.ui = Cut.image('x').appendTo(root).pin({
       offsetX : cell.i * 10,
       offsetY : cell.j * 10,
       handle : 0.5
-    }).on("click", function() {
+    }).on('click', function() {
       if (game.ready()) {
         game.click(cell);
       } else {
@@ -93,8 +93,8 @@ Cut(function(root, container) {
   };
 
   game.uiUpdateCell = function(cell) {
-    console.log("Box.uiUpdateCell");
-    cell.ui.image("base:" + (cell.sign || "-"));
+    console.log('Box.uiUpdateCell');
+    cell.ui.image(cell.sign || '-');
     cell.ui.pin({
       alpha : 0.8,
       scale : 1
@@ -102,7 +102,7 @@ Cut(function(root, container) {
   };
 
   game.uiWin = function name(row, sign) {
-    console.log("Game.uiWin");
+    console.log('Game.uiWin');
     for (var i = 0; i < row.length; i++) {
       var tween = row[i].ui.tween(200).pin({
         alpha : 1,
@@ -113,7 +113,7 @@ Cut(function(root, container) {
   };
 
   game.uiDraw = function() {
-    console.log("Game.uiDraw");
+    console.log('Game.uiDraw');
   };
 
   game.start();

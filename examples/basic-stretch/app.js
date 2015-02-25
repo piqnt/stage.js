@@ -4,7 +4,7 @@ Cut(function(root, container) {
 
   root.viewbox(200, 200);
 
-  Cut.image("base:box").stretch().appendTo(root).pin({
+  Cut.image('box').stretch().appendTo(root).pin({
     width : 64,
     height : 64,
     align : 0.5

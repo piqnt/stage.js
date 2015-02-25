@@ -161,9 +161,9 @@ Cut(function(root, canvas) {
     y : 0
   };
 
-  world.ui = root.viewbox(300, 300).on("viewport", function() {
-    world.resize(this.pin("width"), this.pin("height"));
-  }).pin("handle", -0.5);
+  world.ui = root.viewbox(300, 300).on('viewport', function() {
+    world.resize(this.pin('width'), this.pin('height'));
+  }).pin('handle', -0.5);
 
   root.tick(function() {
     world.animate();
@@ -256,14 +256,14 @@ Cut(function(root, canvas) {
 
   var a0 = null, b0 = null, g0 = null, a = null, b = null, g = null, o = null, update = 0;
 
-  // $status.bind("mousedown touchstart", function(e) {
+  // $status.bind('mousedown touchstart', function(e) {
   // a0 = a;
   // b0 = b;
   // g0 = g;
   // return false;
   // });
 
-  // window.addEventListener("deviceorientation", function(event) {
+  // window.addEventListener('deviceorientation', function(event) {
   // var now = +new Date;
   // if (update < now - 300) {
   // update = now;
@@ -272,8 +272,8 @@ Cut(function(root, canvas) {
   // g = event.gamma;
   // o = window.orientation;
   // if (_.isNumber(a) && _.isNumber(a) && _.isNumber(g)) {
-  // $status.text(Math.round(a) + ", " + Math.round(b) + ", "
-  // + Math.round(g) + " (" + (o || 0) + ")");
+  // $status.text(Math.round(a) + ', ' + Math.round(b) + ', '
+  // + Math.round(g) + ' (' + (o || 0) + ')');
   // }
   // }
   // }, true);
@@ -284,16 +284,16 @@ Cut(function(root, canvas) {
   // var o = window.orientation;
   // DEBUG && console.log(o, w, h);
   // if (o) {
-  // var transform = "translate(" + (-h / 2) + "px," + (-w / 2)
-  // + "px) rotate(" + -o + "deg) translate(" + (-h / 2 * o / 90)
-  // + "px," + (w / 2 * o / 90) + "px) ";
+  // var transform = 'translate(' + (-h / 2) + 'px,' + (-w / 2)
+  // + 'px) rotate(' + -o + 'deg) translate(' + (-h / 2 * o / 90)
+  // + 'px,' + (w / 2 * o / 90) + 'px) ';
   // $world.css({
   // transform : transform
   // });
   // world.resize(h, w);
   // } else {
   // $world.css({
-  // transform : "",
+  // transform : '',
   // });
   // world.resize(w, h);
   // }
@@ -305,9 +305,9 @@ Cut(function(root, canvas) {
 
 Drone.prototype.uiCreate = function(world) {
   this.world = world;
-  this.ui = (this.ui || Cut.image("base:drone").pin("handle", 0.5))
+  this.ui = (this.ui || Cut.image('drone').pin('handle', 0.5))
       .appendTo(world.ui);
-  this.ui2 = (this.ui2 || Cut.image("base:drone").pin("handle", 0.5).pin({
+  this.ui2 = (this.ui2 || Cut.image('drone').pin('handle', 0.5).pin({
     alpha : 0.2
   })).appendTo(world.ui);
   this.uiUpdate();
@@ -362,16 +362,16 @@ Cut.prototype.xy = function(x, y) {
 
 Cut.prototype.x = function(x) {
   if (!arguments.length) {
-    return this.pin("offsetX");
+    return this.pin('offsetX');
   }
-  this.pin("offsetX", x);
+  this.pin('offsetX', x);
   return this;
 };
 
 Cut.prototype.y = function(y) {
   if (!arguments.length) {
-    return this.pin("offsetY");
+    return this.pin('offsetY');
   }
-  this.pin("offsetY", y);
+  this.pin('offsetY', y);
   return this;
 };

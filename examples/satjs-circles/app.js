@@ -4,7 +4,7 @@ var V = function(x, y) {
 
 Cut(function(root, container) {
   Cut.Mouse(root, container);
-  root.viewbox(640, 640).pin("handle", -0.5);
+  root.viewbox(640, 640).pin('handle', -0.5);
 
   var world = new SAT.World({
     loopCount : 5

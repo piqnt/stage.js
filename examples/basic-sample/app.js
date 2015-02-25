@@ -8,11 +8,11 @@ Cut(function(root, container) {
   root.viewbox(300, 200);
 
   // Create an image node, append it to root and align it to center
-  Cut.image("box").appendTo(root).pin("align", 0.5)
+  Cut.image('box').appendTo(root).pin('align', 0.5)
     // On mouse click...
-    .on(Cut.Mouse.CLICK, function(point) {
+    .on('click', function(point) {
       // Tween scale values of this node
-      this.tween().clear().ease("bounce").pin({
+      this.tween().clear().ease('bounce').pin({
         scaleX : Math.random() + 0.5,
         scaleY : Math.random() + 0.5
       });
@@ -22,8 +22,8 @@ Cut(function(root, container) {
 
 // Register an image texture
 Cut({
-  imagePath : "sample.png",
+  imagePath : 'sample.png',
   cutouts : [
-    { name : "box", x : 0, y : 0, width : 30, height : 30 }
+    { name : 'box', x : 0, y : 0, width : 30, height : 30 }
   ]
 });

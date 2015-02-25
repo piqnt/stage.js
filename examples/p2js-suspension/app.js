@@ -99,7 +99,7 @@ world.addSpring(new p2.Spring(chassisBody, wheelBody2, {
 
 // Apply current engine torque after each step
 var torque = 0;
-world.on("postStep", function(evt) {
+world.on('postStep', function(evt) {
   var max = 100;
   if (wheelBody1.angularVelocity * torque < max)
     wheelBody1.angularForce += torque;
@@ -107,7 +107,7 @@ world.on("postStep", function(evt) {
     wheelBody2.angularForce += torque;
 });
 
-world.on("addBody", function(evt) {
+world.on('addBody', function(evt) {
   evt.body.setDensity(1);
 });
 
@@ -129,6 +129,6 @@ window.onkeyup = function() {
 
 Cut(function(root, container) {
   Cut.Mouse(root, container);
-  root.viewbox(8, 6).pin("handle", -0.5);
+  root.viewbox(8, 6).pin('handle', -0.5);
   new Cut.P2(world).appendTo(root);
 });

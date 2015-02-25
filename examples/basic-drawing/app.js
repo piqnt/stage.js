@@ -6,7 +6,7 @@ Cut(function(root, container) {
 
   var width = 50, height = 50, r1 = 10, r2 = 20;
 
-  var image = Cut.image().appendTo(root).pin("align", 0.5);
+  var image = Cut.image().appendTo(root).pin('align', 0.5);
 
   root.on(Cut.Mouse.CLICK, function() {
     draw();
@@ -33,10 +33,10 @@ Cut(function(root, container) {
       }
 
       // fill & stroke
-      ctx.fillStyle = "#eee";
+      ctx.fillStyle = '#eee';
       ctx.fill();
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "black";
+      ctx.strokeStyle = 'black';
       ctx.stroke();
     }));
   }

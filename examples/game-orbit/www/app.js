@@ -71,7 +71,7 @@ Cut(function(root, container) {
   });
 
   // start button
-  var startbtn = Cut.image("base:play").appendTo(homeview).pin('align', 0.5);
+  var startbtn = Cut.image('play').appendTo(homeview).pin('align', 0.5);
   startbtn.on(Mouse.CLICK, function() {
     play();
   });
@@ -232,7 +232,7 @@ Cut(function(root, container) {
     this.x = 0;
     this.y = 0;
 
-    var img = Cut.image('base:planet').pin('handle', 0.5);
+    var img = Cut.image('planet').pin('handle', 0.5);
 
     this.add = function(parent) {
       img.appendTo(parent);
@@ -253,9 +253,8 @@ Cut(function(root, container) {
     this.x = 0;
     this.y = 0;
 
-    var img = Cut.image('base:ship').pin('handle', 0.5);
-    var readyimg = Cut.image('base:next').pin('align', 0.5).appendTo(img)
-        .hide();
+    var img = Cut.image('ship').pin('handle', 0.5);
+    var readyimg = Cut.image('next').pin('align', 0.5).appendTo(img).hide();
 
     var ready = RELOAD; // time to reload and ready
 
@@ -300,7 +299,7 @@ Cut(function(root, container) {
     // calculate velocity
     var v = Util.unitvect(Util.diff(from, planet), speed);
 
-    var img = Cut.image('base:asteroid').pin('handle', 0.5);
+    var img = Cut.image('asteroid').pin('handle', 0.5);
 
     this.add = function(parent) {
       img.appendTo(parent);
@@ -340,7 +339,7 @@ Cut(function(root, container) {
       y : to.y
     };
 
-    var img = Cut.image('base:bullet').pin('handle', 0.5);
+    var img = Cut.image('bullet').pin('handle', 0.5);
 
     this.add = function(parent) {
       img.appendTo(parent);
@@ -367,7 +366,7 @@ Cut(function(root, container) {
   }
 
   function explode(bullet) {
-    Cut.image('base:explosion').pin('handle', 0.5).pin({
+    Cut.image('explosion').pin('handle', 0.5).pin({
       offsetX : bullet.x,
       offsetY : bullet.y
     }).appendTo(spacepanel).pin('scale', 0.1).tween(50).pin({

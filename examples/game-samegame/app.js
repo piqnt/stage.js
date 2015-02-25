@@ -162,7 +162,7 @@ Cut(function(root, container) {
     align : 0.5
   });
 
-  Cut.image('base:easy').appendTo(ui.board).pin({
+  Cut.image('easy').appendTo(ui.board).pin({
     alignX : 1,
     alignY : 1,
     handleY : 0,
@@ -172,7 +172,7 @@ Cut(function(root, container) {
     game.restart(4);
   });
 
-  Cut.image('base:hard').appendTo(ui.board).pin({
+  Cut.image('hard').appendTo(ui.board).pin({
     alignX : 1,
     alignY : 1,
     handleY : 0,
@@ -182,13 +182,13 @@ Cut(function(root, container) {
     game.restart(5);
   });
 
-  delta.blocks = new Delta("id");
+  delta.blocks = new Delta('id');
 
   var game = new Game(width, height);
 
   game.uiUpdate = function() {
     delta.blocks.data(game.blocks()).enter(function(block) {
-      block.ui = Cut.image('base:block-' + block.color).appendTo(ui.board);
+      block.ui = Cut.image('block-' + block.color).appendTo(ui.board);
       block.ui.pin({
         offsetX : block.i * 2 + 1,
         offsetY : block.j * 2 + 1,

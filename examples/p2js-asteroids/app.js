@@ -32,11 +32,11 @@
   var level, lives, lastShootTime = 0, gameover;
 
   var key = {}, keyName = {
-    32 : "shoot",
-    37 : "left",
-    38 : "up",
-    39 : "right",
-    40 : "down"
+    32 : 'shoot',
+    37 : 'left',
+    38 : 'up',
+    39 : 'right',
+    40 : 'down'
   };
 
   document.onkeydown = function(evt) {
@@ -76,7 +76,7 @@
     // Catch impacts in the world
     // Todo: check if several bullets hit the same asteroid in the same time
     // step
-    world.on("impact", function(evt) {
+    world.on('impact', function(evt) {
       var bodyA = evt.bodyA, bodyB = evt.bodyB;
 
       if ((bodyA.id == shipBody.id || bodyB.id == shipBody.id)) {
@@ -351,20 +351,20 @@
 
   Cut(function(root, container) {
     Cut.Mouse(root, container);
-    root.viewbox(spaceWidth, spaceHeight).pin("handle", -0.5);
+    root.viewbox(spaceWidth, spaceHeight).pin('handle', -0.5);
     ui.p2 = new Cut.P2(world, {
-      lineColor : "#fff",
-      fillColor : ""
+      lineColor : '#fff',
+      fillColor : ''
     }).appendTo(root);
     root.tick(tick);
 
-    ui.status = Cut.string("font:_").pin({
+    ui.status = Cut.string('font:_').pin({
       align : -0.5,
       handle : 0,
       offset : 0.1
     }).appendTo(root);
 
-    ui.gameover = Cut.string("font:_").value("Game Over!").pin({
+    ui.gameover = Cut.string('font:_').value('Game Over!').pin({
       handle : 0.5,
       scale : 1.6
     }).appendTo(root);
@@ -390,7 +390,7 @@
   }
 
   function uiStatus() {
-    ui.status.value("Level: " + level + " Lives: " + lives)
+    ui.status.value('Level: ' + level + ' Lives: ' + lives)
   }
 
 })();
@@ -398,18 +398,18 @@
 var PPU = 64;
 
 Cut({
-  name : "font",
+  name : 'font',
   factory : function(name) {
-    var prefix = "_";
+    var prefix = '_';
     if (name.substring(0, prefix.length) === prefix) {
       var d = name.substr(prefix.length, 1);
       return Cut.Out.drawing(prefix + d, 32 / PPU, 18 / PPU, 128, function(ctx,
           ratio) {
         ctx.scale(ratio / PPU, ratio / PPU);
-        ctx.font = "bold 16px monospace";
-        ctx.fillStyle = "#eee";
+        ctx.font = 'bold 16px monospace';
+        ctx.fillStyle = '#eee';
         ctx.measureText && this.cropX((ctx.measureText(d).width) / PPU);
-        ctx.textBaseline = "top";
+        ctx.textBaseline = 'top';
         ctx.fillText(d, 0, 1);
       });
     }
