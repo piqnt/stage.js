@@ -1,17 +1,22 @@
 **[Learn More & Browse Examples](http://cutjs.org/)**
 
-Project Contents:
+Standalone builds:
 
-- `dist` Standalone builds
-  - `cut.web[.min].js`
-  - `cut.cordova[.min].js`
+    dist/cut.web[.min].js
+    dist/cut.cordova[.min].js
 
-- `platform` CommonJS modules for different platforms
-  - `web.js`
-  - `cordova.js`
+CommonJS modules for different platforms:
 
-- `ext` Extensions for other libraries
-  - `cut-matter.js` Matter.js
-  - `cut-p2.js` P2.js
-  - `cut-physics.js` Physics.js
-  - `cut-sat.js` SAT.js
+    platform/web.js
+    platform/cordova.js
+
+Extensions for other libraries:
+
+    ext/cut-matter.js
+    ext/cut-p2.js
+    ext/cut-physics.js
+    ext/cut-sat.js
+
+Documents:
+
+    doc/api.md
