@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.0-beta.4
+ * CutJS 0.4.0
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
