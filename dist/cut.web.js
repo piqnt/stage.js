@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.1
+ * CutJS 0.4.2
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -1471,7 +1471,7 @@ Cut.Out.prototype.paste = function(context) {
         }
     } catch (e) {
         if (!this._failed) {
-            console.log("Unable to paste: " + this, img);
+            console.log("Unable to paste: " + this + " " + this._image);
             this._failed = true;
         }
     }
