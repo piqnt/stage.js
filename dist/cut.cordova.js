@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.0
+ * CutJS 0.4.1
  * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
  * Available under the MIT license
  * @license
@@ -2364,10 +2364,14 @@ function AppLoader(app, configs) {
     };
     DEBUG && console.log("Creating root...");
     var root = new Cut.Root(requestAnimationFrame, function() {
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, width, height);
+        if (context.isFast) {
+            context.clear();
+            context.setTransform(1, 0, 0, 1, 0, 0);
+        } else {
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.clearRect(0, 0, width, height);
+        }
         this.render(context);
-        "flush" in context && context.flush();
     });
     app(root, canvas);
     resize();
