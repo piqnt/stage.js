@@ -31,16 +31,16 @@ Every app consists of a tree, tree's root is create by the library.
 var foo = Cut.create();
 
 // Append/prepend bar, baz, ... to foo's children
-foo.append(bar, baz, etc);
-foo.prepend(bar, baz, etc);
+foo.append(bar, baz, ...);
+foo.prepend(bar, baz, ...);
 
 // Append/prepend bar to foo's children
 bar.appendTo(foo);
 bar.prependTo(foo);
 
 // Insert baz, qux, ... after/before bar
-bar.insertNext(baz, qux, etc);
-bar.insertPrev(baz, qux, etc);
+bar.insertNext(baz, qux, ...);
+bar.insertPrev(baz, qux, ...);
 
 // Insert baz after/before bar
 baz.insertAfter(bar);
@@ -50,7 +50,7 @@ baz.insertBefore(bar);
 bar.remove();
 
 // Remove bar, baz, ... from foo
-foo.remove(bar, baz, etc);
+foo.remove(bar, baz, ...);
 
 // Remove all foo's children
 foo.empty();
@@ -97,11 +97,26 @@ foo.visit({
   visible : onlyVisibleNodes = false
 });
 ```
+
+#### Ticks
+In each rendering cycle and before painting, entire application tree is ticked.
+The application and nodes can be update on ticking.
+If at least one node is touched during ticking, rendering cycles will continue otherwise it will pause until it is touched.
+
+```javascript
+// Register a ticker to be called on ticking
+foo.tick(function(millisecElapsed) {}, beforeChildren = false);
+
+// Rendering pauses unless/until at least one node is touched directly or
+// indirectly
+foo.touch();
+```
+
 #### Events
 
 ```javascript
-// Register a listener to foo. Event `name` can be one or an array of strings or
-// spaced separated strings
+// Register a listener to foo
+// Event `name` can be one or an array of strings or spaced separated strings
 foo.on(name, listener);
 
 // Unregister a listener from foo.
@@ -114,24 +129,32 @@ foo.listeners(name);
 foo.publish(name, args);
 ```
 
-#### Ticks
-Before every painting the tree is ticked, it is when the app and nodes have
-the chance to update. If at least one node is touched during ticking
-rendering cycles will continue otherwise it would pause until it is touched.
+#### Mouse and Touch
+Mouse class is used to capture mouse and touch events.
 
 ```javascript
-// Register a ticker to be called on ticking
-foo.tick(function(millisecElapsed) {
-}, beforeChildren = false);
+// Subscribe root to Mouse events
+Cut.Mouse(root, canvas);
 
-// Rendering pauses unless/until at least one node is touched directly or
-// indirectly
-foo.touch();
+// Add click listener to bar
+bar.on(Cut.Mouse.CLICK, function(point) {
+  // point.x and point.y are relative to this node left and top
+  // point.raw is original event
+  return trueToStopPropagating;
+});
+
+// Mouse events:
+Cut.Mouse.CLICK = 'click';
+Cut.Mouse.START = 'touchstart mousedown';
+Cut.Mouse.MOVE = 'touchmove mousemove';
+Cut.Mouse.END = 'touchend mouseup';
+Cut.Mouse.CANCEL = 'touchcancel';
 ```
 
 #### Pinning
-Pinning is a top level concept, it refers to transforming a node relative
-to its parent
+Pinning is a top level concept, it specifies how a node is transformed relative to its parent.
+
+When `nameX` equals `nameY`, `name` shorthand can be used instead.
 
 ```javascript
 // Get a pinning value
@@ -142,8 +165,6 @@ bar.pin(name, value);
 bar.pin({
   name : value
 });
-
-// When `nameX` equals `nameY`, `name` shorthand can be used instead
 
 // Transformation
 // `rotation` is applied after scale and skew
@@ -162,30 +183,32 @@ bar.pin({
   width : width
 });
 
+// Positioning
+// For values defined as ratio of width/height, 0 is top/left and 1 is bottom/right
+bar.pin({
+  // Pin point on parent used for positioning
+  // Defined as ratio of parent's width/height
+  alignX : 0,
+  alignY : 0,
+  // Pin point on self used for positioning,
+  // Defined as ratio of AABB or base width/height if pivoted
+  // Defaults to align values
+  handleX : 0,
+  handleY : 0,
+  // Distance from align point on parent to handle point on self in pixel
+  offsetX : 0,
+  offsetY : 0,
+  // Relative location on self used as scale/skew/rotation center, see handle
+  pivotX : 0,
+  pivotY : 0
+});
+
 // Transparency
 bar.pin({
   // Transparency applied to self and children
   alpha : 1,
   // Transparency applied only to self textures
   textureAlpha : 1
-});
-
-// Positioning
-// For width/height ratio 0 is top/left and 1 is bottom/right
-bar.pin({
-  // Relative location on self used as scale/skew/rotation center. See handle
-  pivotX : 0,
-  pivotY : 0,
-  // Pin point on parent used for positioning, as ratio of parent width/height
-  alignX : 0,
-  alignY : 0,
-  // Pin point on self used for positioning, defaults to align values,
-  // as ratio of aabb or origin (if pivoted) width/height
-  handleX : 0,
-  handleY : 0,
-  // Distance from parent align to self handle in pixel
-  offsetX : 0,
-  offsetY : 0
 });
 
 // Scale to new width/height, if mode is set scale proportionally
@@ -195,6 +218,7 @@ bar.pin({
   scaleWidth : width,
   scaleHeight : height
 });
+
 ```
 
 #### Tweening
@@ -227,8 +251,53 @@ tween.then(function() {
 var nextTween = tween.tween(duration = 400, delay = 0);
 ```
 
+#### Texture and Cutout
+Application graphics are defined as cutout (sprites) and usually created by adding textures (sprite sheet).
+
+```javascript
+// Adding texture
+Cut({
+  name : textureName, // optional
+  imagePath : textureImagePath,
+  imageRatio : 1,
+  cutouts : [ {
+    name : cutoutName,
+    x : x,
+    y : y,
+    width : width,
+    height : height,
+    top : 0,
+    bottom : 0,
+    left : 0,
+    right : 0
+  }, ... ],
+
+  // `cutouts` are passed through `map`, they can be modifed here
+  map : function(cutout) {
+    return cutout;
+  },
+
+  // `factory` is called when a cutoutName is not found in `cutouts`
+  factory : function(cutoutName) {
+    // Dynamically create a cutout
+    return cutout;
+  }
+}, ...);
+```
+
+After registering a texture, its cutouts can be referenced and used by name. Note that `textureName:` is optional.
+
+```javascript
+// Single selection:
+Cut.image('textureName:cutoutName');
+
+// Multiple selection:
+Cut.anim('textureName:cutoutPrefix');
+Cut.string('textureName:cutoutPrefix');
+```
+
 #### Image
-An image is a node which pastes a cutout.
+An image is a node with one cutout.
 
 ```javascript
 // Create a new image instance
@@ -241,33 +310,33 @@ image.image(cutout);
 image.cropX(w, x = 0);
 image.cropY(h, y = 0);
 
-// Tile/Stretch image when pinning width and/or height are changed. To define
+// Tile/Stretch image when pinning width and/or height. To define
 // borders use top, bottom, left and right with cutout definition
 image.tile();
 image.stretch();
 ```
 
 #### Animation
-An anim is a node which have a set of cutouts as frames.
+An animation (clip) is a node which have a set of cutouts as frames.
 
 ```javascript
 // Create a new anim instance
 var anim = Cut.anim(cutouts, fps = Cut.Anim.FPS);
 
-// Get or set anim fps
+// Get or set frame per second
 anim.fps();
 anim.fps(fps);
 
-// Set anim frames as cutout prefix. See Cutout section for more
-anim.frames(cutouts);
+// Set anim frames as cutout prefix, see Cutout section for more
+anim.frames("[textureName:]cutoutPrefix");
 
-// Set anim frames as cutout array. See Cutout section for more
-anim.frames(array);
+// Set anim frames as cutout array
+anim.frames([cutout, ...]);
 
 // Go to n-th frame
 anim.gotoFrame(n);
 
-// Move n frames
+// Move n frames forward or backward if n is negative
 anim.moveFrame(n);
 
 // Get number of frames
@@ -276,10 +345,10 @@ anim.length();
 // Start playing (from `frame`)
 anim.play(frame = null);
 
-// Stop playing (and go to `frame`)
+// Stop playing (and jump to `frame`)
 anim.stop(frame = null);
 
-// Play `repeat * length` frames and then stop and call callback
+// Play `repeat * length` frames and then stop and call back
 anim.repeat(repeat, callback = null);
 ```
 
@@ -292,8 +361,12 @@ sequence.
 var row = Cut.row(childrenVerticalAlign = 0);
 var column = Cut.column(childrenHorizontalAlign = 0);
 
+// Make foo a row/column
+foo.row(childrenVerticalAlign = 0);
+foo.column(childrenHorizontalAlign = 0);
+
 // Add spacing between row/column cells
-row.spacing(space);
+foo.spacing(space);
 ```
 
 #### String
@@ -332,49 +405,6 @@ foo = foo.box();
 box.padding(pad);
 ```
 
-#### Textures and Cutouts
-Image cutouts are used to refrence graphics to be painted.
-
-```javascript
-// Cutouts are usually added to an app by adding textures
-Cut({
-  name : textureName, // optional
-  imagePath : textureImagePath,
-  imageRatio : 1,
-  cutouts : [ { // list of cutoutDefs or cutouts
-    name : cutoutName,
-    x : x,
-    y : y,
-    width : width,
-    height : height,
-    top : 0,
-    bottom : 0,
-    left : 0,
-    right : 0
-  }, etc ],
-
-  // `cutouts` are passed through `map`, they can be modifed here
-  map : function(cutoutDef) {
-    return cutoutDef;
-  },
-
-  // `factory` is called when a cutoutName is not found in `cutouts`
-  factory : function(cutoutName) {
-    // Dynamically create a cutoutDef or cutout
-    return cutoutDef; // or cutout
-  }
-}, etc);
-
-// Then texture cutouts can be referenced in your app
-// Note that `textureName:` is optional
-
-// Single selection:
-Cut.image('textureName:cutoutName');
-// Multiple selection:
-Cut.anim('textureName:cutoutPrefix');
-Cut.string('textureName:cutoutPrefix');
-```
-
 #### Drawing (experimental)
 
 ```javascript
@@ -395,32 +425,10 @@ Cut.drawing(params);
 Cut({
   name : textureName,
 
-  cutouts : [ Cut.Out.drawing(), etc ],
+  cutouts : [ Cut.Out.drawing(), ... ],
 
   factory : function(cutoutName) {
     return Cut.Out.drawing();
   }
-}, etc);
-```
-
-#### Mouse and Touch
-Mouse class is used to capture mouse and touch events.
-
-```javascript
-// Subscribe root to Mouse events
-Cut.Mouse(root, canvas);
-
-// Add click listener to bar
-bar.on(Cut.Mouse.CLICK, function(point) {
-  // point.x and point.y are relative to this node left and top
-  // point.raw is original event
-  return trueToStopPropagating;
-});
-
-// Mouse events:
-Cut.Mouse.CLICK = 'click';
-Cut.Mouse.START = 'touchstart mousedown';
-Cut.Mouse.MOVE = 'touchmove mousemove';
-Cut.Mouse.END = 'touchend mouseup';
-Cut.Mouse.CANCEL = 'touchcancel';
+}, ...);
 ```
