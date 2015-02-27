@@ -100,15 +100,18 @@ foo.visit({
 #### Events
 
 ```javascript
-// Register a type-listener to bar. `type` can be one or an array of strings or
-// spaced strings
-foo.on(type, listener);
+// Register a listener to foo. Event `name` can be one or an array of strings or
+// spaced separated strings
+foo.on(name, listener);
 
-// Get type-listeners registered to bar
-foo.listeners(type);
+// Unregister a listener from foo.
+foo.off(name, listener);
 
-// Call type-listeners with args, returns this
-foo.trigger(type, args);
+// Get listeners registered to foo
+foo.listeners(name);
+
+// Call listeners with args, returns number of called listeners
+foo.publish(name, args);
 ```
 
 #### Ticks
