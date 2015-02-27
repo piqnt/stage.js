@@ -897,9 +897,9 @@ Cut(function(root, elem) {
     this.pin({
       width : Conf.width,
       height : Conf.height * 1.2,
-      resizeMode : "in",
-      resizeWidth : viewport.width,
-      resizeHeight : viewport.height - TOP,
+      scaleMode : "in-pad",
+      scaleWidth : viewport.width,
+      scaleHeight : viewport.height - TOP,
       offsetY : TOP
     });
   });

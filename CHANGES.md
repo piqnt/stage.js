@@ -1,3 +1,8 @@
+#### v0.4.3
+* pin set/get is refactored
+* resize in/out is replace with scale in-pad/out-crop 
+* default viewbox mode is 'in-pad'
+
 #### v0.4.0
 * `Cut.config` and `Cut.start(configs)` added
 * `Cut.init` and `Loader.loadImage` replaced with `"app-loader"` and `"image-loader"` configs

@@ -12,11 +12,11 @@ Cut(function(root, canvas) {
   // Resume playing
   root.resume();
 
-  // Set view box for root. Valid `mode` values are 'in' and 'out'
-  root.viewbox(width, height, mode = "in");
+  // Set viewbox for root, valid modes are 'in', 'in-pad', 'out' and 'out-crop'
+  root.viewbox(width, height, mode = 'in-pad');
 
   // Listen to view port resize events
-  root.on("viewport", function(viewport) {
+  root.on('viewport', function(viewport) {
     // `viewport` attributes are `width`, `height` and `ratio`
   });
 });
@@ -143,14 +143,6 @@ bar.pin({
   name : value
 });
 
-// Transparency
-bar.pin({
-  // Transparency applied to self and children
-  alpha : 1,
-  // Transparency applied only to self textures
-  textureAlpha : 1
-});
-
 // When `nameX` equals `nameY`, `name` shorthand can be used instead
 
 // Transformation
@@ -164,10 +156,18 @@ bar.pin({
 });
 
 // Size
-// Usually are set automatically depending on node type
+// For some nodes, such as images, it is set automatically
 bar.pin({
   height : height,
   width : width
+});
+
+// Transparency
+bar.pin({
+  // Transparency applied to self and children
+  alpha : 1,
+  // Transparency applied only to self textures
+  textureAlpha : 1
 });
 
 // Positioning
@@ -188,20 +188,12 @@ bar.pin({
   offsetY : 0
 });
 
-// Scale to new width/height
-// Optionally use "in" and "out" as mode to scale proportionally
+// Scale to new width/height, if mode is set scale proportionally
+// Valid modes are 'in', 'in-pad', 'out' and 'out-crop' 
 bar.pin({
   scaleMode : mode,
   scaleWidth : width,
   scaleHeight : height
-});
-
-// Scale to new width/height and then resize to fill width/height
-// Optionally use "in" and "out" as mode to scale proportionally
-bar.pin({
-  resizeMode : mode,
-  resizeWidth : width,
-  resizeHeight : height
 });
 ```
 
@@ -219,7 +211,7 @@ tween.clear(jumpToEnd = false);
 tween.pin(pinning);
 
 // Set easing for tweening, it can be either a function or an identifier as
-// "name[-mode][(params)]", for example "quad" or "poly-in-out(3)".
+// 'name[-mode][(params)]', for example 'quad' or 'poly-in-out(3)'.
 tween.ease(easing);
 
 // Available names are: linear, quad, cubic, quart, quint, poly(p),
@@ -377,10 +369,10 @@ Cut({
 // Note that `textureName:` is optional
 
 // Single selection:
-Cut.image("textureName:cutoutName");
+Cut.image('textureName:cutoutName');
 // Multiple selection:
-Cut.anim("textureName:cutoutPrefix");
-Cut.string("textureName:cutoutPrefix");
+Cut.anim('textureName:cutoutPrefix');
+Cut.string('textureName:cutoutPrefix');
 ```
 
 #### Drawing (experimental)
@@ -426,9 +418,9 @@ bar.on(Cut.Mouse.CLICK, function(point) {
 });
 
 // Mouse events:
-Cut.Mouse.CLICK = "click";
-Cut.Mouse.START = "touchstart mousedown";
-Cut.Mouse.MOVE = "touchmove mousemove";
-Cut.Mouse.END = "touchend mouseup";
-Cut.Mouse.CANCEL = "touchcancel";
+Cut.Mouse.CLICK = 'click';
+Cut.Mouse.START = 'touchstart mousedown';
+Cut.Mouse.MOVE = 'touchmove mousemove';
+Cut.Mouse.END = 'touchend mouseup';
+Cut.Mouse.CANCEL = 'touchcancel';
 ```
