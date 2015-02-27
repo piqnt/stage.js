@@ -5,7 +5,7 @@ Standalone builds:
     dist/cut.web[.min].js
     dist/cut.cordova[.min].js
 
-CommonJS modules for different platforms:
+Platforms CommonJS modules:
 
     platform/web.js
     platform/cordova.js
@@ -20,3 +20,8 @@ Extensions for other libraries:
 Documents:
 
     doc/api.md
+
+Examples highlight:
+
+    examples/game-orbit  Includes a short tutorial about packaging with Cordova for mobile distribution
+    examples/game-o      Spectacular colors and lots of fast moving objects to test performance
