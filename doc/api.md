@@ -73,12 +73,12 @@ bar.visible(visible);
 bar.hide();
 bar.show();
 
-// Iterate over foo's children, `child` can not be remove
+// Iterate over foo's children, `child` can not be removed
 for (var child = foo.first(); child; child = child.next()) {
   // use child
 }
 
-// Iterate over foo's children, `child` can be remove
+// Iterate over foo's children, `child` can be removed
 var child, next = foo.first();
 while (child = next) {
   next = child.next();
@@ -190,7 +190,7 @@ bar.pin({
   // Defined as ratio of parent's width/height
   alignX : 0,
   alignY : 0,
-  // Pin point on self used for positioning,
+  // Pin point on self used for positioning
   // Defined as ratio of AABB or base width/height if pivoted
   // Defaults to align values
   handleX : 0,
@@ -370,8 +370,7 @@ foo.spacing(space);
 ```
 
 #### String
-String is a row of images, but images are dynamically assigned using frames
-and value.
+String is a row of images, but images are dynamically created using `frames` and `value`.
 
 ```javascript
 // Create a new string instance
@@ -381,10 +380,10 @@ var string = Cut.string(cutouts);
 // frames
 string.value(value);
 
-// Set string frames as cutout prefix. See Cutout section for more
+// Set string frames, see Cutout section for more
 string.frames(cutouts);
 
-// Set string frames. 'factory' func takes a char/item and return a cutout
+// Use a function to dynamicly create string frames
 string.frames(function(charOrItem) {
   return cutout;
 });
@@ -414,19 +413,15 @@ cutout = Cut.Out.drawing(width, height, ratio = 1, function(context, ratio) {
   // this === create cutout
 });
 
-// It can be use to create an image for example:
+// A drawing can be use to create an image
 Cut.image(Cut.Out.drawing(params));
 
-// There is also a shorthand for that
+// There is a shorthand for creating images using drawing
 Cut.drawing(params);
 
-// Canvas drawing can also be used in `texture.cutout` and `texture.factory` to
-// creat cutouts instead of using cutoutDef
+// Canvas drawing can also be used in textures
 Cut({
-  name : textureName,
-
   cutouts : [ Cut.Out.drawing(), ... ],
-
   factory : function(cutoutName) {
     return Cut.Out.drawing();
   }
