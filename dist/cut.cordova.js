@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.3
+ * CutJS 0.4.4
  * Copyright (c) 2013-2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -1168,37 +1168,44 @@ Cut.Root._roots = [];
 Cut.Root._loader = null;
 
 Cut.Root.add = function(app, opts) {
-    if (!this._loader) {
-        this._queue.push(arguments);
+    if (!Cut.Root._loader) {
+        Cut.Root._queue.push(arguments);
         return;
     }
-    DEBUG && console.log("Init app...");
-    var root = this._loader(function(root, canvas) {
-        DEBUG && console.log("Loading app...");
+    DEBUG && console.log("Loading app...");
+    this._loader(function(root, canvas) {
+        DEBUG && console.log("Initing app...");
         app(root, canvas);
+        Cut.Root._roots.push(root);
+        DEBUG && console.log("Starting app...");
+        root.start();
     }, opts);
-    this._roots.push(root);
-    root.start();
 };
 
 Cut.Root.start = function(loader) {
     DEBUG && console.log("Loading apps...");
-    this._loader = loader;
+    Cut.Root._loader = loader;
     var args;
-    while (args = this._queue.shift()) {
-        this.add.apply(this, args);
+    while (args = Cut.Root._queue.shift()) {
+        Cut.Root.add.apply(Cut.Root, args);
     }
 };
 
 Cut.Root.pause = function() {
-    for (var i = this._queue.length - 1; i >= 0; i--) {
-        this._roots[i].pause();
+    if (!Cut.Root._pause) {
+        Cut.Root._pause = true;
+        for (var i = Cut.Root._roots.length - 1; i >= 0; i--) {
+            Cut.Root._roots[i].pause();
+        }
     }
 };
 
 Cut.Root.resume = function() {
-    for (var i = this._queue.length - 1; i >= 0; i--) {
-        this._roots[i].resume();
+    if (Cut.Root._pause) {
+        Cut.Root._pause = false;
+        for (var i = Cut.Root._roots.length - 1; i >= 0; i--) {
+            Cut.Root._roots[i].resume();
+        }
     }
 };
 
@@ -2372,7 +2379,8 @@ function AppLoader(app, configs) {
         return window.setTimeout(callback, 1e3 / 60);
     };
     DEBUG && console.log("Creating root...");
-    var root = new Cut.Root(requestAnimationFrame, function() {
+    var root = new Cut.Root(requestAnimationFrame, render);
+    function render() {
         if (context.isFast) {
             context.clear();
             context.setTransform(1, 0, 0, 1, 0, 0);
@@ -2380,11 +2388,12 @@ function AppLoader(app, configs) {
             context.setTransform(1, 0, 0, 1, 0, 0);
             context.clearRect(0, 0, width, height);
         }
-        this.render(context);
-    });
+        root.render(context);
+    }
     app(root, canvas);
     resize();
     window.addEventListener("resize", resize, false);
+    window.addEventListener("orientationchange", resize, false);
     function resize() {
         if (full) {
             width = window.innerWidth > 0 ? window.innerWidth : screen.width;
@@ -2397,12 +2406,15 @@ function AppLoader(app, configs) {
         }
         width *= ratio;
         height *= ratio;
+        if (canvas.width === width && canvas.height === height) {
+            return;
+        }
         canvas.width = width;
         canvas.height = height;
         DEBUG && console.log("Resize: " + width + " x " + height + " / " + ratio);
         root.viewport(width, height, ratio);
+        render();
     }
-    return root;
 }
 
 function ImageLoader(src, handleComplete, handleError) {
