@@ -1,5 +1,4 @@
 Cut({
-  name : 'bg', 
   imagePath : "media/bg.png",
   imageRatio : 2 * ppu,
   ratio : 1 / ppu,
