@@ -8,15 +8,13 @@ Cut(function(root, container) {
   var M = Cut.Math;
   var maxKey = "breakout-v1";
   var width = 20 * p2s, height = 26 * p2s;
-  var ui = {}, shape = {}, mat = {}, rand = {};
-  var score = 0, add = 1, max = 0, playing = false;
+  var ui = {}, shape = {}, mat = {};
+  var score = 0, combo = 1, max = 0, playing = false;
 
   root.viewbox(width * ppu, height * 1.12 * ppu).pin("offsetY",
       -height * 0.04 * ppu).pin("align", -0.5);
 
   root.MAX_ELAPSE = 100;
-
-  var timer = new Timer();
 
   var paddleSpeed = 20 * p2s, dropSpeed = -6 * p2s;
 
@@ -28,15 +26,22 @@ Cut(function(root, container) {
     return 8000 - 20 * score;
   }
 
-  rand.color = new Randomize().add("b").add("r").add("y").add("g").add("p");
-  rand.bricks = new Randomize().add(function(x, y) {
-    var color = rand.color.random();
-    world.addBody(newBrick(color, shape.brick, [ x, y ]));
-  }, function() {
-    return score + 1;
-  }).add(
-      function(x, y) {
-        var color = rand.color.random();
+  function randomColor() {
+    return [ "b", "r", "y", "g", "p" ][Math.random() * 5 | 0];
+  }
+
+  function randomBrick() {
+    if (Math.random() < 0.1) {
+      return;
+    }
+    var color = randomColor();
+    var one = score + 1, four = Math.max(0, score * 1.1 - 60);
+    if (Math.random() < one / (four + one)) {
+      return function(x, y) {
+        world.addBody(newBrick(color, shape.brick, [ x, y ]));
+      };
+    } else {
+      return function(x, y) {
         world.addBody(newBrick(color + "s", shape.smallbrick, [ x + 0.5 * p2s,
             y + 0.5 * p2s ]));
         world.addBody(newBrick(color + "s", shape.smallbrick, [ x - 0.5 * p2s,
@@ -45,10 +50,18 @@ Cut(function(root, container) {
             y - 0.5 * p2s ]));
         world.addBody(newBrick(color + "s", shape.smallbrick, [ x - 0.5 * p2s,
             y - 0.5 * p2s ]));
-      }, function() {
-        return Math.max(0, score * 1.1 - 60);
-      }).prob(0.9);
-  rand.drop = new Randomize().add("+", 0.6).add("-", 0.4).prob(0.1);
+      };
+    }
+  }
+
+  function randomDrop() {
+    var random = Math.random();
+    if (random < 0.06) {
+      return "+";
+    } else if (random < 0.1) {
+      return "-";
+    }
+  }
 
   var world = new p2.World({
     // broadphase : new p2.SAPBroadphase(),
@@ -241,14 +254,12 @@ Cut(function(root, container) {
           newball.velocity[1] = -oldball.velocity[1];
           world.addBody(newball);
         } else {
-          setTimeout(function() {
+          Timeout.set(function() {
             paddle.set(paddle.mini);
           }, 1);
-          timer.once('mini', function() {
-            setTimeout(function() {
-              paddle.set(paddle.full);
-            }, 1);
-          }, 7500);
+          Timeout.set(function() {
+            paddle.set(paddle.full);
+          }, 7500, 'mini');
         }
       }
     }
@@ -267,11 +278,11 @@ Cut(function(root, container) {
       if (ibrick) {
         world.removeBody(ibrick);
         !anyBricks() && addBrick();
-        score += add;
-        // add++;
+        score += combo;
+        // combo++;
         updateScore();
 
-        var drop = rand.drop.test() && rand.drop.random();
+        var drop = randomDrop();
         if (drop) {
           drop = newDrop(drop);
           drop.position[0] = ibrick.position[0];
@@ -281,7 +292,7 @@ Cut(function(root, container) {
         }
 
       } else if (ipaddle) {
-        add = 1;
+        // combo = 1;
       } else if (ibottom) {
         world.removeBody(iball);
         !anyBall() && gameover();
@@ -314,8 +325,6 @@ Cut(function(root, container) {
     ui.max.setValue(max);
   }
 
-  var onclick;
-
   function gameover() {
     playing = false;
     updateStatus();
@@ -330,81 +339,60 @@ Cut(function(root, container) {
       }
     }
     paddle.current.ui.hide();
-    start(true);
+    ui.restart.appendTo(root);
+    ui.p2.tween(100).clear().pin("alpha", 0.5);
+    Timeout.reset();
   }
 
-  function start(over) {
-    score = 0, add = 1;
-    timer.empty('brick');
-    try {
-      max = max || localStorage.getItem(maxKey) || 0;
-    } catch (e) {
-    }
+  root.on(Cut.Mouse.CLICK, function() {
+    playing || start();
+  });
 
-    if (over) {
-      ui.restart.appendTo(root);
-      ui.p2.tween(100).clear().pin("alpha", 0.5);
-      onclick = function() {
-        ui.p2.tween(100).clear().pin("alpha", 1);
-        ui.restart.remove();
-        clear();
-        init();
-        play();
-      };
-    } else {
-      init();
-      onclick = play;
-    }
-
-  }
-
-  function clear() {
-    timer.empty();
+  function setup() {
+    ui.p2.tween(100).clear().pin("alpha", 1);
+    ui.restart.remove();
     for (var i = world.bodies.length - 1; i >= 0; i--) {
-      if (world.bodies[i].isBrick || world.bodies[i].isBall
-          || world.bodies[i].isDrop) {
-        world.removeBody(world.bodies[i]);
+      var body = world.bodies[i];
+      if (body.isBrick || body.isBall || body.isDrop) {
+        world.removeBody(body);
       }
     }
-  }
-
-  function init() {
+    score = 0, combo = 1;
     updateStatus();
     paddle.set(paddle.full);
     paddle.current.ui.show();
     world.addBody(newBall([ 0, -5 * p2s ]));
     addBrick() + addBrick() + addBrick();
+    ready = true;
   }
 
-  function play() {
+  function start() {
+    ready || setup();
+    ready = false;
     var ball = anyBall();
     var a = Math.PI * M.random(-0.2, 0.2);
     ball.velocity = [ ballSpeed() * Math.sin(a), ballSpeed() * Math.cos(a) ];
-    timer.repeat('brick', addBrick, nextRow());
+    Timeout.loop(function() {
+      addBrick();
+      return nextRow();
+    }, nextRow());
     playing = true;
   }
 
-  root.on(Cut.Mouse.CLICK, function() {
-    var fn = onclick;
-    onclick = null;
-    fn && fn();
-  });
-
   root.tick(function(t) {
     if (playing) {
-      var over = true;
+      var noBallInside = true;
       for (var i = world.bodies.length - 1; i >= 0; i--) {
         var body = world.bodies[i];
-        if (Math.abs(body.position[0]) > width / 2
-            || Math.abs(body.position[1]) > height / 2) {
+        var x = body.position[0];
+        var y = body.position[1];
+        if (Math.abs(x) > width / 2 || Math.abs(y) > height / 2) {
           world.removeBody(body);
-          removed = true;
         } else if (body.isBall) {
-          over = false;
+          noBallInside = false;
         }
       }
-      over && gameover();
-      timer.tick(t);
+      noBallInside && gameover();
     }
   });
 
@@ -417,9 +405,8 @@ Cut(function(root, container) {
         over = over || brick.position[1] < -10 * p2s;
       }
     }
-
     for (var i = 0; i < 7; i++) {
-      var bricks = rand.bricks.test() && rand.bricks.random();
+      var bricks = randomBrick();
       bricks && bricks((i - 3) * 2 * p2s, 9 * p2s);
     }
     over && gameover();
@@ -438,10 +425,9 @@ Cut(function(root, container) {
 
   var paddleTo = 0;
 
-  ui.p2.attr('spy', true).on([ Cut.Mouse.START, Cut.Mouse.MOVE ],
-      function(point) {
-        paddleTo = point.x;
-      });
+  ui.p2.on([ Cut.Mouse.START, Cut.Mouse.MOVE ], function(point) {
+    paddleTo = point.x;
+  }).attr('spy', true);
 
   root.tick(function(t) {
     if (paddle.current) {
@@ -475,6 +461,11 @@ Cut(function(root, container) {
     "scale" : ppu
   });
 
-  start();
+  try {
+    max = localStorage.getItem(maxKey) || 0;
+  } catch (e) {
+  }
+
+  setup();
 
 });
