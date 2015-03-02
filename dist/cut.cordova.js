@@ -1,6 +1,6 @@
 /*
- * CutJS 0.4.4
- * Copyright (c) 2013-2015 Ali Shakiba, Piqnt LLC
+ * CutJS 0.4.5
+ * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
  */
@@ -1211,7 +1211,7 @@ Cut.Root.resume = function() {
 
 Cut.Texture = function(data) {
     this.isTexture = true;
-    this._name = data.name;
+    this._name = data.name || ++Cut._TS + "";
     this._imagePath = data.imagePath;
     this._imageRatio = data.imageRatio || 1;
     this._cutouts = data.cutouts || [];
