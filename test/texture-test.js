@@ -71,8 +71,12 @@ describe('Texture', function() {
     expect(both[0]).be.an('object');
     expect(both[1]).be.an('object');
 
-    expect(Texture.select("color_dark")).be(dark);
-    expect(Texture.select("color_", true)).be(both);
+    expect(Texture.select("color_dark")).not.be(dark);
+    expect(Texture.select("color_dark")).eql(dark);
+    expect(Texture.select("color_", true)[0]).not.be(both[0]);
+    expect(Texture.select("color_", true)[1]).not.be(both[1]);
+    expect(Texture.select("color_", true)[0]).eql(both[0]);
+    expect(Texture.select("color_", true)[1]).eql(both[1]);
 
   });
 });

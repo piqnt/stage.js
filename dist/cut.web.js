@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.5
+ * CutJS 0.4.6
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -892,7 +892,12 @@ Cut.String.prototype.setValue = function(a, b, c) {
 };
 
 Cut.String.prototype.value = function(value) {
-    if (this._value === value) return this;
+    if (typeof value === "undefined") {
+        return this._value;
+    }
+    if (this._value === value) {
+        return this;
+    }
     this._value = value;
     if (typeof value !== "string" && !Cut._isArray(value)) {
         value = value + "";
@@ -1300,7 +1305,7 @@ Cut.Texture.select = function(selector, prefix) {
     var cache = prefix ? Cut.Texture._cache.many : Cut.Texture._cache.one;
     var result = cache[selector];
     if (result) {
-        return result;
+        return Cut.Texture._clone(result, prefix);
     } else if (result === null) {
         throw "Cutout not found: '" + selector + "'";
     }
@@ -1324,10 +1329,22 @@ Cut.Texture.select = function(selector, prefix) {
     }
     if (result) {
         cache[selector] = result;
-        return result;
+        return Cut.Texture._clone(result, prefix);
     } else {
         cache[selector] = null;
         throw "Cutout not found: '" + selector + "'";
+    }
+};
+
+Cut.Texture._clone = function(result, prefix) {
+    if (prefix) {
+        var clone = [];
+        for (var i = 0; i < result.length; i++) {
+            clone[i] = result[i].clone();
+        }
+        return clone;
+    } else {
+        return result.clone();
     }
 };
 
