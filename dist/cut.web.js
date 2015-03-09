@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.6
+ * CutJS 0.4.7
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -12,7 +12,7 @@ module.exports.Mouse = require("../lib/mouse");
 
 require("../lib/loader.web");
 },{"../lib/loader.web":4,"../lib/main":5,"../lib/mouse":6}],2:[function(require,module,exports){
-DEBUG = typeof DEBUG === "undefined" || DEBUG;
+if (typeof DEBUG === "undefined") DEBUG = true;
 
 function Cut() {
     if (!(this instanceof Cut)) {
@@ -2145,7 +2145,7 @@ module.exports = Cut;
 
 
 },{}],3:[function(require,module,exports){
-DEBUG = typeof DEBUG === "undefined" || DEBUG;
+if (typeof DEBUG === "undefined") DEBUG = true;
 
 function Easing(token) {
     if (typeof token === "function") {
@@ -2334,7 +2334,7 @@ module.exports = Easing;
 },{}],4:[function(require,module,exports){
 var Cut = require("./core");
 
-DEBUG = typeof DEBUG === "undefined" || DEBUG;
+if (typeof DEBUG === "undefined") DEBUG = true;
 
 /**
  * Default loader for web.
@@ -2443,7 +2443,7 @@ module.exports.Easing = Easing;
 
 
 },{"./core":2,"./easing":3,"./tween":7}],6:[function(require,module,exports){
-DEBUG = typeof DEBUG === "undefined" || DEBUG;
+if (typeof DEBUG === "undefined") DEBUG = true;
 
 function Mouse() {
     Mouse.subscribe.apply(Mouse, arguments);
@@ -2630,7 +2630,7 @@ module.exports = Mouse;
 
 
 },{}],7:[function(require,module,exports){
-DEBUG = typeof DEBUG === "undefined" || DEBUG;
+if (typeof DEBUG === "undefined") DEBUG = true;
 
 // TODO: reuse head.start/keys/end
 function Tween(cut) {
