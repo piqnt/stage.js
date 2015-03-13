@@ -411,7 +411,7 @@ Cutouts can also be created using Canvas API instead of image textures, they can
 
 ```javascript
 // Create a drawing cutout
-var cutout = Cut.Out.drawing(function(context, ratio) {
+var cutout = Cut.Out.drawing(function(context) {
   // this === cutout
 
   // Set available drawing size and initial cutout size
