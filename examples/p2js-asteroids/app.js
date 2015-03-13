@@ -420,10 +420,9 @@ Cut(function(root, container) {
 Cut({
   name : 'text',
   factory : function(d) {
-    d = d + '';
-    return Cut.Out.drawing(function(ctx, ratio) {
-      ratio = 2;
-      this.name(d);
+    d += '';
+    return Cut.Out.drawing(d, function(ctx) {
+      var ratio = 2;
       this.size(16, 24, ratio);
       ctx.scale(ratio, ratio);
       ctx.font = 'bold 24px monospace';
