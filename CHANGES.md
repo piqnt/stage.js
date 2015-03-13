@@ -1,3 +1,6 @@
+#### v0.4.9
+* texture.ratio renamed to texture.ppu
+
 #### v0.4.8
 * new drawing (experimental) and cutout (internal) api
 

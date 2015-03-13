@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.8
+ * CutJS 0.4.9
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -1200,7 +1200,7 @@ Cut.Texture = function(data) {
     this._cutouts = data.cutouts || [];
     this._factory = data.factory;
     this._map = data.filter || data.map;
-    this._ratio = data.ratio || 1;
+    this._ppu = data.ppu || data.ratio || 1;
     this._trim = data.trim || 0;
 };
 
@@ -1212,12 +1212,12 @@ Cut.Texture.prototype._wrap = function(cutout) {
     if (typeof this._map === "function") {
         cutout = this._map(cutout);
     }
-    var ratio = this._ratio;
-    if (ratio != 1) {
-        cutout.x *= ratio, cutout.y *= ratio;
-        cutout.width *= ratio, cutout.height *= ratio;
-        cutout.top *= ratio, cutout.bottom *= ratio;
-        cutout.left *= ratio, cutout.right *= ratio;
+    var ppu = this._ppu;
+    if (ppu != 1) {
+        cutout.x *= ppu, cutout.y *= ppu;
+        cutout.width *= ppu, cutout.height *= ppu;
+        cutout.top *= ppu, cutout.bottom *= ppu;
+        cutout.left *= ppu, cutout.right *= ppu;
     }
     var trim = this._trim;
     if (trim) {

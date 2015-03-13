@@ -1,7 +1,7 @@
 Cut({
   imagePath : "media/bg.png",
   imageRatio : 2 * ppu,
-  ratio : 1 / ppu,
+  ppu : 1 / ppu,
   cutouts : [
     { name : "board", x : 0, y : 0,  width : 320, height : 416 }
   ]
@@ -10,7 +10,7 @@ Cut({
 Cut({
   imagePath : "media/base.png",
   imageRatio : 2 * ppu,
-  ratio : 1 / ppu,
+  ppu : 1 / ppu,
   filter : function(cut) {
     cut.y = 256 - (cut.y + cut.height);
     return cut;

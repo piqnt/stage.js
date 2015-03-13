@@ -2,7 +2,7 @@ Cut({
   name : "base",
   imagePath : "media/base.png",
   imageRatio : 8,
-  ratio : 16,
+  ppu : 16,
   filter : function(cut) {
     cut.y = 8 - (cut.y + cut.height);
     return cut;

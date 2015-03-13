@@ -29,7 +29,7 @@ Cut({
   name : "digit",
   imagePath : MEDIAURL + "/digit.png",
   imageRatio : 8,
-  ratio : 8,
+  ppu : 8,
   cutouts : [
     { name : "0",    x : 0,     y : 0,    width : 0.7,   height : 1 },
     { name : "1",    x : 1,     y : 0,    width : 0.7,   height : 1 },
