@@ -1,6 +1,8 @@
 Cut({
   name : "base",
-  cutouts : [ Cut.Out.drawing("bg", 30, 30, 20, function(ctx, ratio) {
+  cutouts : [ Cut.Out.drawing("bg", function(ctx) {
+    var ratio = 20;
+    this.size(30, 30, ratio);
     ctx.scale(ratio, ratio);
     ctx.moveTo(10, 1);
     ctx.lineTo(10, 29);
@@ -15,7 +17,9 @@ Cut({
     ctx.strokeStyle = "#999";
     ctx.stroke();
 
-  }), Cut.Out.drawing("x", 10, 10, 20, function(ctx, ratio) {
+  }), Cut.Out.drawing("x", function(ctx) {
+    var ratio = 20;
+    this.size(10, 10, ratio);
     ctx.scale(ratio, ratio);
     ctx.moveTo(2, 2);
     ctx.lineTo(8, 8);
@@ -26,14 +30,18 @@ Cut({
     ctx.strokeStyle = "#000";
     ctx.stroke();
 
-  }), Cut.Out.drawing("o", 10, 10, 20, function(ctx, ratio) {
+  }), Cut.Out.drawing("o", function(ctx) {
+    var ratio = 20;
+    this.size(10, 10, ratio);
     ctx.scale(ratio, ratio);
     ctx.arc(5, 5, 2.4, 0, 2 * Math.PI);
     ctx.lineWidth = 0.5;
     ctx.strokeStyle = "#000";
     ctx.stroke();
 
-  }), Cut.Out.drawing("-", 10, 10, 20, function(ctx, ratio) {
+  }), Cut.Out.drawing("-", function(ctx) {
+    var ratio = 20;
+    this.size(10, 10, ratio);
 
   }) ]
 });

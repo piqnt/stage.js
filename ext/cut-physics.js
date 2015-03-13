@@ -95,8 +95,11 @@ Cut.PJS.prototype.drawCircle = function(radius, options) {
 
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
+  var ratio = options.ratio;
 
-  return Cut.Out.drawing(width, height, options.ratio, function(ctx, ratio) {
+  return Cut.Out.drawing(function(ctx) {
+    this.size(width, height, ratio);
+
     ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
@@ -121,16 +124,18 @@ Cut.PJS.prototype.drawConvex = function(verts, options) {
   }
 
   var width = 0, height = 0;
+  var ratio = options.ratio;
+
   for (var i = 0; i < verts.length; i++) {
     var v = verts[i], x = v.x, y = v.y;
     width = Math.max(Math.abs(x), width);
     height = Math.max(Math.abs(y), height);
   }
 
-  var cutout = Cut.Out.drawing(2 * width + 2 * lineWidth, 2 * height + 2
-      * lineWidth, options.ratio, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
+  return Cut.Out.drawing(function(ctx) {
+    this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 
+    ctx.scale(ratio, ratio);
     ctx.beginPath();
     for (var i = 0; i < verts.length; i++) {
       var v = verts[i], x = v.x + width + lineWidth, y = v.y + height
@@ -156,6 +161,4 @@ Cut.PJS.prototype.drawConvex = function(verts, options) {
     ctx.strokeStyle = lineColor;
     ctx.stroke();
   });
-
-  return cutout;
 };

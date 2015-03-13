@@ -78,10 +78,15 @@ Cut.Matter.prototype.updateRenderable = (function() {
 
 Cut.Matter.prototype.drawCircle = function(radius, options) {
   var lineWidth = options.lineWidth;
+
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
+  var ratio = 1;
 
-  return Cut.Out.drawing(width, height, function(ctx, ratio) {
+  return Cut.Out.drawing(function(ctx) {
+
+    this.size(width, height, ratio);
+
     ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
@@ -105,16 +110,19 @@ Cut.Matter.prototype.drawConvex = function(verts, base, options) {
   var x0 = base.x, y0 = base.y;
 
   var width = 0, height = 0;
+  var ratio = 1;
+
   for (var i = 0; i < verts.length; i++) {
     var v = verts[i], x = v.x, y = v.y;
     width = Math.max(Math.abs(x - x0), width);
     height = Math.max(Math.abs(y - y0), height);
   }
 
-  var cutout = Cut.Out.drawing(2 * width + 2 * lineWidth, 2 * height + 2
-      * lineWidth, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
+  return Cut.Out.drawing(function(ctx) {
 
+    this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
+
+    ctx.scale(ratio, ratio);
     ctx.beginPath();
     for (var i = 0; i < verts.length; i++) {
       var v = verts[i], x = v.x - x0 + width + lineWidth, y = v.y - y0 + height
@@ -140,8 +148,6 @@ Cut.Matter.prototype.drawConvex = function(verts, base, options) {
     ctx.strokeStyle = options.strokeStyle;
     ctx.stroke();
   });
-
-  return cutout;
 };
 
 (function() {

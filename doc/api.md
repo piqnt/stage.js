@@ -202,6 +202,8 @@ bar.pin({
   pivotX : 0,
   pivotY : 0
 });
+// To summarize it, child's distance from parent's top-left is:
+// align * parentSize - handle * selfSize + offset
 
 // Transparency
 bar.pin({
@@ -212,7 +214,7 @@ bar.pin({
 });
 
 // Scale to new width/height, if mode is set scale proportionally
-// Valid modes are 'in', 'in-pad', 'out' and 'out-crop' 
+// Valid modes are 'in', 'in-pad', 'out' and 'out-crop'
 bar.pin({
   scaleMode : mode,
   scaleWidth : width,
@@ -405,25 +407,30 @@ box.padding(pad);
 ```
 
 #### Drawing (experimental)
+Cutouts can also be created using Canvas API instead of image textures, they can be used with image and anim nodes.
 
 ```javascript
-// Cutouts can also be created using Canvas drawing
-cutout = Cut.Out.drawing(width, height, ratio = 1, function(context, ratio) {
-  // context is a 2D Canvas context created using width and height
-  // this === create cutout
+// Create a drawing cutout
+var cutout = Cut.Out.drawing(function(context, ratio) {
+  // this === cutout
+
+  // Set available drawing size and initial cutout size
+  // This method sets associate Canvas size and clears it 
+  // Returns the same cutout object
+  this.size(width, height, ratio = 1);
 });
 
-// A drawing can be use to create an image
-Cut.image(Cut.Out.drawing(params));
+// A drawing cutout can be used to create an image node
+var image = Cut.image(cutout);
 
-// There is a shorthand for creating images using drawing
-Cut.drawing(params);
+// There is a shorthand for creating images using drawing cutout
+var image = Cut.drawing(drawingFunction);
 
-// Canvas drawing can also be used in textures
+// A drawing can also be used in textures
 Cut({
   cutouts : [ Cut.Out.drawing(), ... ],
-  factory : function(cutoutName) {
+  factory : function(name) {
     return Cut.Out.drawing();
   }
-}, ...);
+});
 ```

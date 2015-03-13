@@ -1,3 +1,6 @@
+#### v0.4.8
+* new drawing (experimental) and cutout (internal) api
+
 #### v0.4.3
 * pin set/get is refactored
 * resize in/out is replace with scale in-pad/out-crop 

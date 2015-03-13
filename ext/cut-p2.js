@@ -195,19 +195,21 @@ Cut.P2.prototype.drawLine = function(length, options) {
       .get('lineColor'), fillColor = options.get('fillColor');
 
   lineWidth *= 2;
-  return Cut.Out.drawing(length + 2 * lineWidth, lineWidth, options.ratio,
-      function(ctx, ratio) {
-        ctx.scale(ratio, ratio);
+  var ratio = options.ratio;
 
-        ctx.moveTo(lineWidth, lineWidth / 2);
-        ctx.lineTo(lineWidth + length, lineWidth / 2);
+  return Cut.Out.drawing(function(ctx) {
+    this.size(length + 2 * lineWidth, lineWidth, ratio);
 
-        ctx.lineWidth = lineWidth;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = lineColor;
-        ctx.stroke();
-      });
+    ctx.scale(ratio, ratio);
 
+    ctx.moveTo(lineWidth, lineWidth / 2);
+    ctx.lineTo(lineWidth + length, lineWidth / 2);
+
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = lineColor;
+    ctx.stroke();
+  });
 };
 
 Cut.P2.prototype.drawRectangle = function(w, h, options) {
@@ -217,8 +219,11 @@ Cut.P2.prototype.drawRectangle = function(w, h, options) {
 
   var width = w + 2 * lineWidth;
   var height = h + 2 * lineWidth;
+  var ratio = options.ratio;
 
-  return Cut.Out.drawing(width, height, options.ratio, function(ctx, ratio) {
+  return Cut.Out.drawing(function(ctx) {
+    this.size(width, height, ratio);
+
     ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.rect(lineWidth, lineWidth, w, h);
@@ -239,8 +244,11 @@ Cut.P2.prototype.drawCircle = function(radius, options) {
 
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
+  var ratio = options.ratio;
 
-  return Cut.Out.drawing(width, height, options.ratio, function(ctx, ratio) {
+  return Cut.Out.drawing(function(ctx) {
+    this.size(width, height, ratio);
+
     ctx.scale(ratio, ratio);
     ctx.beginPath();
     ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
@@ -267,10 +275,12 @@ Cut.P2.prototype.drawCapsule = function(len, radius, options) {
 
   var width = len + 2 * radius + 2 * lineWidth;
   var height = 2 * radius + 2 * lineWidth;
+  var ratio = options.ratio;
 
-  return Cut.Out.drawing(width, height, options.ratio, function(ctx, ratio) {
+  return Cut.Out.drawing(function(ctx) {
+    this.size(width, height, ratio);
+
     ctx.scale(ratio, ratio);
-
     ctx.beginPath();
     ctx.moveTo(radius + lineWidth, lineWidth);
     ctx.lineTo(len + radius + lineWidth, lineWidth);
@@ -301,9 +311,12 @@ Cut.P2.prototype.drawSpring = function(length, options) {
   var dx = length / N;
   var dy = 0.2 * length;
 
-  return Cut.Out.drawing(length, dy * 2, options.ratio, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
+  var ratio = options.ratio;
 
+  return Cut.Out.drawing(function(ctx) {
+    this.size(length, dy * 2, ratio);
+
+    ctx.scale(ratio, ratio);
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = lineColor;
     ctx.lineJoin = "round";
@@ -332,7 +345,11 @@ Cut.P2.prototype.drawPlane = function(x0, x1, max, options) {
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
-  return Cut.Out.drawing(max * 2, max * 2, options.ratio, function(ctx, ratio) {
+  var ratio = options.ratio;
+
+  return Cut.Out.drawing(function(ctx) {
+    this.size(max * 2, max * 2, ratio);
+
     ctx.scale(ratio, ratio);
 
     if (fillColor) {
@@ -368,16 +385,18 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
   }
 
   var width = 0, height = 0;
+  var ratio = options.ratio;
+
   for (var i = 0; i < verts.length; i++) {
     var v = verts[i], x = v[0], y = -v[1];
     width = Math.max(Math.abs(x), width);
     height = Math.max(Math.abs(y), height);
   }
 
-  var cutout = Cut.Out.drawing(2 * width + 2 * lineWidth, 2 * height + 2
-      * lineWidth, options.ratio, function(ctx, ratio) {
-    ctx.scale(ratio, ratio);
+  return Cut.Out.drawing(function(ctx) {
+    this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 
+    ctx.scale(ratio, ratio);
     ctx.beginPath();
     for (var i = 0; i < verts.length; i++) {
       var v = verts[i], x = v[0] + width + lineWidth, y = -v[1] + height
@@ -403,6 +422,4 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
     ctx.strokeStyle = lineColor;
     ctx.stroke();
   });
-
-  return cutout;
 };

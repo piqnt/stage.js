@@ -1,4 +1,4 @@
-(function() {
+Cut(function(root, container) {
 
   var SHIP = Math.pow(2, 1);
   var BULLET = Math.pow(2, 2);
@@ -104,13 +104,18 @@
   }
 
   function start() {
+    gameover = false;
     level = 1;
     lives = 3;
-    // Update the text boxes
     uiStatus();
     play(true);
     addAsteroids();
     uiStart();
+  }
+
+  function end() {
+    gameover = true;
+    uiEnd();
   }
 
   function play(position) {
@@ -277,7 +282,7 @@
       hideShip = true;
 
       if (lives <= 0) {
-        uiEnd();
+        end();
         return;
       }
       setTimeout(function() {
@@ -347,71 +352,84 @@
     return (Math.random() - 0.5) * (value || 1);
   }
 
-  var ui = {};
-
-  Cut(function(root, container) {
-    Cut.Mouse(root, container);
-    root.viewbox(spaceWidth, spaceHeight).pin('handle', -0.5);
-    ui.p2 = new Cut.P2(world, {
-      lineColor : '#fff',
-      fillColor : ''
-    }).appendTo(root);
-    root.tick(tick);
-
-    ui.status = Cut.string('font:_').pin({
-      align : -0.5,
-      handle : 0,
-      offset : 0.1
-    }).appendTo(root);
-
-    ui.gameover = Cut.string('font:_').value('Game Over!').pin({
-      handle : 0.5,
-      scale : 1.6
-    }).appendTo(root);
-
-    start();
-  });
-
   p2.Body.prototype.noDamping = function() {
     this.damping = this.angularDamping = 0;
     return this;
   };
 
+  var ui = {};
+
+  Cut.Mouse(root, container);
+
+  root.on('viewport', function(size) {
+    ui.meta.pin({
+      scaleMode : 'in-pad',
+      scaleWidth : size.width,
+      scaleHeight : size.height
+    });
+    ui.p2.pin({
+      scaleMode : 'in-pad',
+      scaleWidth : size.width,
+      scaleHeight : size.height
+    });
+  });
+
   init();
 
+  ui.p2 = new Cut.P2(world, {
+    lineColor : '#fff',
+    fillColor : ''
+  }).pin({
+    handle : -0.5,
+    width : spaceWidth,
+    height : spaceHeight
+  }).appendTo(root);
+
+  root.tick(tick);
+
+  ui.meta = Cut.create().pin({
+    width : 1000,
+    height : 1000
+  }).appendTo(root);
+
+  ui.status = Cut.string('text:').pin({
+    align : 0,
+    offset : 20
+  }).appendTo(ui.meta);
+
+  ui.gameover = Cut.string('text:').value('Game Over!').pin({
+    align : 0.5,
+    scale : 1.6
+  }).appendTo(ui.meta);
+
   function uiStart() {
-    gameover = false;
     ui.gameover.hide();
   }
 
   function uiEnd() {
-    gameover = true;
     ui.gameover.show();
   }
 
   function uiStatus() {
-    ui.status.value('Level: ' + level + ' Lives: ' + lives)
+    ui.status.value('Level: ' + level + ' Lives: ' + lives);
   }
 
-})();
-
-var PPU = 64;
+  start();
+});
 
 Cut({
-  name : 'font',
-  factory : function(name) {
-    var prefix = '_';
-    if (name.substring(0, prefix.length) === prefix) {
-      var d = name.substr(prefix.length, 1);
-      return Cut.Out.drawing(prefix + d, 32 / PPU, 18 / PPU, 128, function(ctx,
-          ratio) {
-        ctx.scale(ratio / PPU, ratio / PPU);
-        ctx.font = 'bold 16px monospace';
-        ctx.fillStyle = '#eee';
-        ctx.measureText && this.cropX((ctx.measureText(d).width) / PPU);
-        ctx.textBaseline = 'top';
-        ctx.fillText(d, 0, 1);
-      });
-    }
+  name : 'text',
+  factory : function(d) {
+    d = d + '';
+    return Cut.Out.drawing(function(ctx, ratio) {
+      ratio = 2;
+      this.name(d);
+      this.size(16, 24, ratio);
+      ctx.scale(ratio, ratio);
+      ctx.font = 'bold 24px monospace';
+      ctx.fillStyle = '#ddd';
+      ctx.textBaseline = 'top';
+      ctx.fillText(d, 0, 1);
+    });
   }
 });
