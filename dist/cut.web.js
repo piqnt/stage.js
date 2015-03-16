@@ -102,8 +102,8 @@ Cut._TS = 0;
 Cut._stats = {
     create: 0,
     tick: 0,
-    paint: 0,
-    paste: 0
+    node: 0,
+    cutout: 0
 };
 
 Cut.create = function() {
@@ -120,21 +120,23 @@ Cut.prototype._tick = function(elapsed, now, last) {
         elapsed = this.MAX_ELAPSE;
     }
     this._pin.tick();
+    var ticked = false;
     var length = this._tickBefore.length;
     for (var i = 0; i < length; i++) {
         Cut._stats.tick++;
-        this._tickBefore[i].call(this, elapsed, now, last);
+        ticked = this._tickBefore[i].call(this, elapsed, now, last) === true ? true : ticked;
     }
     var child, next = this._first;
     while (child = next) {
         next = child._next;
-        child._tick(elapsed, now, last);
+        ticked = child._tick(elapsed, now, last) === true ? true : ticked;
     }
     var length = this._tickAfter.length;
     for (var i = 0; i < length; i++) {
         Cut._stats.tick++;
-        this._tickAfter[i].call(this, elapsed, now, last);
+        ticked = this._tickAfter[i].call(this, elapsed, now, last) === true ? true : ticked;
     }
+    return ticked;
 };
 
 Cut.prototype.tick = function(ticker, before) {
@@ -154,11 +156,11 @@ Cut.prototype.untick = function(ticker) {
     }
 };
 
-Cut.prototype._paint = function(context) {
+Cut.prototype.render = function(context) {
     if (!this._visible) {
         return;
     }
-    Cut._stats.paint++;
+    Cut._stats.node++;
     var m = this._pin.absoluteMatrix();
     context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
     this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
@@ -168,7 +170,7 @@ Cut.prototype._paint = function(context) {
     }
     var length = this._cutouts.length;
     for (var i = 0; i < length; i++) {
-        this._cutouts[i].paste(context);
+        this._cutouts[i].render(context);
     }
     if (context.globalAlpha != this._alpha) {
         context.globalAlpha = this._alpha;
@@ -176,7 +178,7 @@ Cut.prototype._paint = function(context) {
     var child, next = this._first;
     while (child = next) {
         next = child._next;
-        child._paint(context);
+        child.render(context);
     }
 };
 
@@ -720,13 +722,13 @@ Cut.Anim = function() {
         // ignore old elapsed
         var ignore = lastTime != last;
         lastTime = now;
-        this.touch();
+        // this.touch();
         if (ignore) {
-            return;
+            return true;
         }
         this._time += t;
         if (this._time < this._ft) {
-            return;
+            return true;
         }
         var n = this._time / this._ft | 0;
         this._time -= n * this._ft;
@@ -734,7 +736,9 @@ Cut.Anim = function() {
         if (this._repeat > 0 && (this._repeat -= n) <= 0) {
             this.stop();
             this._callback && this._callback();
+            return false;
         }
+        return true;
     }, false);
 };
 
@@ -774,6 +778,7 @@ Cut.Anim.prototype.frames = function(frames) {
             this._labels[cutout._name] = i;
         }
     }
+    this.touch();
     return this;
 };
 
@@ -1040,19 +1045,30 @@ Cut.cutout = function(selector, prefix) {
 Cut.Root = function(request, render) {
     Cut.Root._super.call(this);
     this._paused = true;
-    this._render = render;
     var self = this;
-    var requestCallback = function() {
+    var loop = function() {
         if (self._paused === true) {
             return;
         }
-        self._mo_touch = self._ts_touch;
-        self._render();
-        self.request();
-        self._mo_touch == self._ts_touch && self.pause();
+        Cut._stats.tick = Cut._stats.node = Cut._stats.cutout = 0;
+        var now = Cut._now();
+        var last = self._lastTime || now;
+        var elapsed = now - last;
+        self._lastTime = now;
+        var ticked = self._tick(elapsed, now, last);
+        if (self._mo_touch != self._ts_touch) {
+            self._mo_touch = self._ts_touch;
+            render.call(self);
+            self.request();
+        } else if (ticked) {
+            self.request();
+        } else {
+            self.pause();
+        }
+        Cut._stats.fps = 1e3 / (Cut._now() - now);
     };
     this.request = function() {
-        request(requestCallback);
+        request(loop);
     };
 };
 
@@ -1082,17 +1098,6 @@ Cut.Root.prototype.pause = function() {
 Cut.Root.prototype.touch = function() {
     this.resume();
     return Cut.Root._super.prototype.touch.call(this);
-};
-
-Cut.Root.prototype.render = function(context) {
-    Cut._stats.tick = Cut._stats.paint = Cut._stats.paste = 0;
-    var now = Cut._now();
-    var last = this._lastTime || now;
-    var elapsed = now - last;
-    this._lastTime = now;
-    this._tick(elapsed, now, last);
-    this._paint(context);
-    Cut._stats.fps = 1e3 / (Cut._now() - now);
 };
 
 Cut.Root.prototype.viewport = function(width, height, ratio) {
@@ -1531,8 +1536,8 @@ Cut.Out.prototype.dHeight = function(height) {
     return this;
 };
 
-Cut.Out.prototype.paste = function(context) {
-    Cut._stats.paste++;
+Cut.Out.prototype.render = function(context) {
+    Cut._stats.cutout++;
     if (!this._image && this._imagefn) {
         this._image = this._imagefn();
     }
@@ -1548,7 +1553,7 @@ Cut.Out.prototype.paste = function(context) {
         this._dx, this._dy, this._dw, this._dh);
     } catch (e) {
         if (!this._failed) {
-            console.log("Unable to paste: " + this + " " + this._image);
+            console.log("Unable to render cutout: " + this + " " + this._image);
             this._failed = true;
         }
     }
