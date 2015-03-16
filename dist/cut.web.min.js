@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.9
+ * CutJS 0.4.10
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
