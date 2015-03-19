@@ -99,16 +99,23 @@ foo.visit({
 ```
 
 #### Ticks
-In each rendering cycle and before painting, entire application tree is ticked.
-The application and nodes can be update on ticking.
-If at least one node is touched during ticking, rendering cycles will continue otherwise it will pause until it is touched.
+In each rendering cycle, before rendering, entire application tree is ticked.
+The application and its nodes can be updated on ticking.
+
+If at least one node is touched during ticking the application tree will be rendered and game loop will continue,
+else if at least one ticking function returns true only game loop will continue,
+otherwise the application will pause until it is touched directly or indirectly.
+
+Nodes are usually touched indirectly by other actions such as pinning, 
+tree manipulation or other changes, but they can also be touched directly.
 
 ```javascript
-// Register a ticker to be called on ticking
-foo.tick(function(millisecElapsed) {}, beforeChildren = false);
+// Register a function to be called on ticking
+foo.tick(function(millisecElapsed) {
+  return continueGameLoop;
+}, beforeChildren = false);
 
-// Rendering pauses unless/until at least one node is touched directly or
-// indirectly
+// Touch foo
 foo.touch();
 ```
 
