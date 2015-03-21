@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.10
+ * CutJS 0.4.11
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -32,9 +32,9 @@ function Cut() {
     this._last = null;
     this._pin = new Cut.Pin(this);
     this._cutouts = [];
-    this._tickBefore = [];
-    this._tickAfter = [];
     this._alpha = 1;
+    this._tickBefore = null;
+    this._tickAfter = null;
     this._attrs = null;
     this._listeners = null;
     this._flags = null;
@@ -121,37 +121,52 @@ Cut.prototype._tick = function(elapsed, now, last) {
     }
     this._pin.tick();
     var ticked = false;
-    var length = this._tickBefore.length;
-    for (var i = 0; i < length; i++) {
-        Cut._stats.tick++;
-        ticked = this._tickBefore[i].call(this, elapsed, now, last) === true ? true : ticked;
+    if (this._tickBefore !== null) {
+        for (var i = 0, n = this._tickBefore.length; i < n; i++) {
+            Cut._stats.tick++;
+            ticked = this._tickBefore[i].call(this, elapsed, now, last) === true || ticked;
+        }
     }
     var child, next = this._first;
     while (child = next) {
         next = child._next;
         ticked = child._tick(elapsed, now, last) === true ? true : ticked;
     }
-    var length = this._tickAfter.length;
-    for (var i = 0; i < length; i++) {
-        Cut._stats.tick++;
-        ticked = this._tickAfter[i].call(this, elapsed, now, last) === true ? true : ticked;
+    if (this._tickAfter !== null) {
+        for (var i = 0, n = this._tickAfter.length; i < n; i++) {
+            Cut._stats.tick++;
+            ticked = this._tickAfter[i].call(this, elapsed, now, last) === true || ticked;
+        }
     }
     return ticked;
 };
 
 Cut.prototype.tick = function(ticker, before) {
+    if (typeof ticker !== "function") {
+        return;
+    }
     if (before) {
+        if (this._tickBefore === null) {
+            this._tickBefore = [];
+        }
         this._tickBefore.push(ticker);
     } else {
+        if (this._tickAfter === null) {
+            this._tickAfter = [];
+        }
         this._tickAfter.push(ticker);
     }
 };
 
 Cut.prototype.untick = function(ticker) {
+    if (typeof ticker !== "function") {
+        return;
+    }
     var i;
-    if (!ticker) {} else if ((i = this._tickBefore.indexOf(ticker)) >= 0) {
+    if (this._tickBefore !== null && (i = this._tickBefore.indexOf(ticker)) >= 0) {
         this._tickBefore.splice(i, 1);
-    } else if ((i = this._tickAfter.indexOf(ticker)) >= 0) {
+    }
+    if (this._tickAfter !== null && (i = this._tickAfter.indexOf(ticker)) >= 0) {
         this._tickAfter.splice(i, 1);
     }
 };
