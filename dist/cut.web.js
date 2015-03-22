@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.11
+ * CutJS 0.4.12
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -1113,6 +1113,11 @@ Cut.Root.prototype.pause = function() {
 Cut.Root.prototype.touch = function() {
     this.resume();
     return Cut.Root._super.prototype.touch.call(this);
+};
+
+Cut.Root.prototype.background = function(color) {
+    // to be implemented by loaders
+    return this;
 };
 
 Cut.Root.prototype.viewport = function(width, height, ratio) {
@@ -2475,6 +2480,10 @@ function AppLoader(app, configs) {
         context.clearRect(0, 0, width, height);
         root.render(context);
     }
+    root.background = function(color) {
+        canvas.style.backgroundColor = color;
+        return this;
+    };
     app(root, canvas);
     resize();
     window.addEventListener("resize", resize, false);

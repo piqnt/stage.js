@@ -1,3 +1,6 @@
+#### v0.4.12
+* root.background method added
+
 #### v0.4.10
 * game loop continues if any tick returns true, but only renders if touched
 
