@@ -1,56 +1,58 @@
 function Game(width, height) {
-  var ID = 0;
-  var _map = {}, _blocks = [];
+  var _map = {}, _tiles = [];
 
-  this.blocks = function() {
-    return _blocks;
-  };
-
-  this.restart = function(colors) {
+  this.start = function(colors) {
     colors = colors || 4;
-    _map = {}, _blocks = [];
+    _map = {}, _tiles = [];
     for (var i = 0; i < width; i++) {
       for (var j = 0; j < height; j++) {
-        new Block((Math.random() * colors + 1 | 0)).insert(i, j);
+        new Tile((Math.random() * colors + 1 | 0)).insert(i, j);
       }
     }
-    this.uiUpdate();
   };
 
-  this.click = function(block) {
-    if (remove(block)) {
+  this.click = function(tile) {
+    if (remove(tile)) {
       collapseDown();
-      this.uiUpdate();
       setTimeout(function() {
         collapseLeft();
-        this.uiUpdate();
-      }.bind(this), 200);
+      }, 200);
     }
   };
 
-  function remove(block) {
+  function updateTiles() {
+    for (var i = 0, n = _tiles.length; i < n; i++) {
+      var tile = _tiles[i];
+      if (tile.dirty) {
+        tile.uiUpdate();
+        tile.dirty = false;
+      }
+    }
+  }
+
+  function remove(tile) {
     var matched = [];
-    block.match(matched);
+    tile.match(matched);
     if (matched.length <= 1) {
       return false;
     }
-    for (var b = 0; b < matched.length; b++) {
-      matched[b].remove();
+    for (var i = 0; i < matched.length; i++) {
+      matched[i].remove();
     }
     return true;
   }
 
   function collapseDown() {
-
     do { // collapse down
       moved = false;
-      for (var b = 0; b < _blocks.length; b++) {
-        var block = _blocks[b];
-        if (block.j + 1 < height && block.move(block.i, block.j + 1)) {
+      for (var i = 0; i < _tiles.length; i++) {
+        var tile = _tiles[i];
+        if (tile.j + 1 < height && tile.move(tile.i, tile.j + 1)) {
           moved = true;
         }
       }
     } while (moved);
+    updateTiles();
   }
 
   function collapseLeft() {
@@ -59,93 +61,95 @@ function Game(width, height) {
       for (var i = 0; i < width - 1; i++) {
         var empty = true;
         for (var j = 0; j < height && empty; j++) {
-          empty = !Block.get(i, j);
+          empty = !getTile(i, j);
         }
         if (!empty) {
           continue;
         }
         for (var j = 0; j < height; j++) {
-          var block = Block.get(i + 1, j);
-          if (block) {
-            block.move(i, j);
+          var tile = getTile(i + 1, j);
+          if (tile) {
+            tile.move(i, j);
             moved = true;
           }
         }
       }
     } while (moved);
-
+    updateTiles();
   }
 
-  function Block(color) {
-    this.id = ID++;
-    this.color = color;
-
-    this.match = function(list, search, color) {
-      search = search || +new Date();
-      if (search == this.search) {
-        return;
-      }
-      this.search = search;
-      color = color || this.color;
-      if (color != this.color) {
-        return;
-      }
-      list.push(this);
-      if (next = Block.get(this.i + 1, this.j)) {
-        next.match(list, search, color);
-      }
-      if (next = Block.get(this.i - 1, this.j)) {
-        next.match(list, search, color);
-      }
-      if (next = Block.get(this.i, this.j + 1)) {
-        next.match(list, search, color);
-      }
-      if (next = Block.get(this.i, this.j - 1)) {
-        next.match(list, search, color);
-      }
-    };
-
-    this.insert = function(i, j) {
-      Block.set(i, j, this);
-      this.i = i;
-      this.j = j;
-      _blocks.push(this);
-    };
-
-    this.move = function(i, j) {
-      if (Block.get(i, j)) {
-        return false;
-      }
-      Block.unset(this.i, this.j, this);
-      Block.set(this.i = i, this.j = j, this);
-      this.dirty = true;
-      return true;
-    };
-
-    this.remove = function() {
-      Block.unset(this.i, this.j, this);
-      _blocks.splice(_blocks.indexOf(this), 1);
-    };
-  }
-
-  Block.get = function(i, j) {
+  function getTile(i, j) {
     return _map[i + ':' + j];
-  };
+  }
 
-  Block.set = function(i, j, block) {
+  function setTile(i, j, tile) {
     if (_map[i + ':' + j]) {
       throw 'Location unavailable: ' + i + ':' + j;
     }
-    _map[i + ':' + j] = block;
-  };
+    _map[i + ':' + j] = tile;
+  }
 
-  Block.unset = function(i, j, block) {
-    if (_map[i + ':' + j] !== block) {
+  function unsetTile(i, j, tile) {
+    if (_map[i + ':' + j] !== tile) {
       throw 'Invalid location: ' + i + ':' + j;
     }
     delete _map[i + ':' + j];
+  }
+
+  function Tile(color) {
+    this.color = color;
+  }
+
+  Tile.prototype.match = function(list, search, color) {
+    search = search || +new Date();
+    if (search == this.search) {
+      return;
+    }
+    this.search = search;
+    color = color || this.color;
+    if (color != this.color) {
+      return;
+    }
+    list.push(this);
+    if (next = getTile(this.i + 1, this.j)) {
+      next.match(list, search, color);
+    }
+    if (next = getTile(this.i - 1, this.j)) {
+      next.match(list, search, color);
+    }
+    if (next = getTile(this.i, this.j + 1)) {
+      next.match(list, search, color);
+    }
+    if (next = getTile(this.i, this.j - 1)) {
+      next.match(list, search, color);
+    }
   };
 
+  Tile.prototype.insert = function(i, j) {
+    setTile(i, j, this);
+    this.i = i;
+    this.j = j;
+    _tiles.push(this);
+    this.uiInsert();
+  };
+
+  Tile.prototype.move = function(i, j) {
+    if (getTile(i, j)) {
+      return false;
+    }
+    unsetTile(this.i, this.j, this);
+    setTile(this.i = i, this.j = j, this);
+    this.dirty = true;
+    return true;
+  };
+
+  Tile.prototype.remove = function() {
+    unsetTile(this.i, this.j, this);
+    _tiles.splice(_tiles.indexOf(this), 1);
+    this.uiRemove();
+  };
+
+  this.Tile = Tile;
 }
 
 Cut(function(root, container) {
@@ -154,7 +158,7 @@ Cut(function(root, container) {
 
   var width = 8, height = 8;
 
-  var ui = {}, delta = {};
+  var ui = {};
 
   ui.board = Cut.create().appendTo(root).pin({
     width : width * 2,
@@ -169,7 +173,7 @@ Cut(function(root, container) {
     offsetX : -2,
     offsetY : 0.5
   }).on(Cut.Mouse.CLICK, function() {
-    game.restart(4);
+    game.start(4);
   });
 
   Cut.image('hard').appendTo(ui.board).pin({
@@ -179,40 +183,37 @@ Cut(function(root, container) {
     offsetX : 0.1,
     offsetY : 0.5
   }).on(Cut.Mouse.CLICK, function() {
-    game.restart(5);
+    game.start(5);
   });
-
-  delta.blocks = new Delta('id');
 
   var game = new Game(width, height);
 
-  game.uiUpdate = function() {
-    delta.blocks.data(game.blocks()).enter(function(block) {
-      block.ui = Cut.image('block-' + block.color).appendTo(ui.board);
-      block.ui.pin({
-        offsetX : block.i * 2 + 1,
-        offsetY : block.j * 2 + 1,
-        handle : 0.5
-      }).on(Cut.Mouse.CLICK, function(point) {
-        game.click(block);
-      });
-    }).update(function(block) {
-      if (block.dirty) {
-        block.ui.tween(200).ease('quad-out').clear().pin({
-          offsetX : block.i * 2 + 1,
-          offsetY : block.j * 2 + 1
-        });
-        block.dirty = false;
-      }
-    }).exit(function(block) {
-      block.ui.tween(150).clear().pin({
-        alpha : 0
-      }).then(function() {
-        this.remove();
-      });
+  game.Tile.prototype.uiInsert = function() {
+    var self = this;
+    this.ui = Cut.image('tile-' + this.color).appendTo(ui.board);
+    this.ui.pin({
+      offsetX : this.i * 2 + 1,
+      offsetY : this.j * 2 + 1,
+      handle : 0.5
+    }).on(Cut.Mouse.CLICK, function(point) {
+      game.click(self);
     });
   };
 
-  game.restart();
+  game.Tile.prototype.uiUpdate = function() {
+    this.ui.tween(200).ease('quad-out').clear().pin({
+      offsetX : this.i * 2 + 1,
+      offsetY : this.j * 2 + 1
+    });
+  };
 
+  game.Tile.prototype.uiRemove = function() {
+    this.ui.tween(150).clear().pin({
+      alpha : 0
+    }).then(function() {
+      this.remove();
+    });
+  };
+
+  game.start();
 });

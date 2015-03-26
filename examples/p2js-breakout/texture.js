@@ -1,5 +1,5 @@
 Cut({
-  imagePath : "media/bg.png",
+  imagePath : "bg.png",
   imageRatio : 2 * ppu,
   ppu : 1 / ppu,
   cutouts : [
@@ -8,7 +8,7 @@ Cut({
 });
 
 Cut({
-  imagePath : "media/base.png",
+  imagePath : "base.png",
   imageRatio : 2 * ppu,
   ppu : 1 / ppu,
   filter : function(cut) {

@@ -9,14 +9,9 @@ var Timeout = (function() {
   var map = {};
   var list = [];
   function set(fn, delay, name) {
-    // console.log('Timeout.set', name);
-    // console.log('Timeout.set+', list);
     var id = setTimeout(function() {
-      // console.log('Timeout.done', id);
-      // console.log('Timeout.done+', list);
       var i = list.indexOf(id);
       i >= 0 && list.splice(i, 1);
-      // console.log('Timeout.done-', list);
       fn();
     }, delay);
     list.push(id);
@@ -24,11 +19,9 @@ var Timeout = (function() {
       clearTimeout(map[name]);
       map[name] = id;
     }
-    // console.log('Timeout.set-', list);
     return id;
   }
   function unset(name) {
-    // console.log('Timeout.unset', name);
     clearTimeout(map[name]);
     clearTimeout(name);
     var i = list.indexOf(id);
@@ -41,11 +34,9 @@ var Timeout = (function() {
     }, delay, name);
   }
   function reset() {
-    // console.log('Timeout.reset+', list);
     while (list.length) {
       clearTimeout(list.shift());
     }
-    // console.log('Timeout.reset-', list);
   }
   return {
     set : set,

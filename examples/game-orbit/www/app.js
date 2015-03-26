@@ -40,7 +40,7 @@ Cut(function(root, container) {
   // enable mouse
   Mouse(root, container);
 
-  // set viewbox and put its zero point on center
+  // set viewbox
   root.viewbox(150, 150);
 
   // add the background
@@ -53,7 +53,7 @@ Cut(function(root, container) {
     });
   }).appendTo(root);
 
-  // keep track of active view
+  // ref to active view
   var openview = null;
 
   // open a view
@@ -102,7 +102,7 @@ Cut(function(root, container) {
     handle : 0
   }).appendTo(root).append(scorenum, lifenum);
 
-  // some static values
+  // some constant values
   var PLANET_R = 6; // planet collision radius
   var EXPLODE_R = 6; // explode radius
   var RELOAD = 1000; // reload time
