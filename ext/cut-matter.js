@@ -4,7 +4,29 @@
 Cut.Matter = function(engine) {
   Cut.Matter._super.call(this);
 
-  var Engine = Matter.Engine, Composite = Matter.Composite, Events = Matter.Events;
+  var Engine = Matter.Engine;
+  var Composite = Matter.Composite;
+  var Events = Matter.Events;
+  var Runner = Matter.Runner || Engine;
+
+  engine.render = {
+    controller : {
+      create : function(options) {
+        return options;
+      },
+      clear : function() {
+      },
+      world : function(engine) {
+      },
+      setBackground : function() {
+      }
+    }
+  };
+  engine.input = {
+    mouse : {
+      sourceEvents : {}
+    }
+  };
 
   var self = this;
   var world = this.world = engine.world;
@@ -20,7 +42,9 @@ Cut.Matter = function(engine) {
   Events.on(engine, 'afterTick', function(ev) {
     var bodies = Composite.allBodies(world);
     for (var i = 0; i < bodies.length; i++) {
-      self.updateRenderable(bodies[i]);
+      if (!bodies[i].isSleeping) {
+        self.updateRenderable(bodies[i]);
+      }
     }
   });
 
@@ -29,14 +53,13 @@ Cut.Matter = function(engine) {
     self.addRenderable(bodies[i]);
   }
 
-  var runner = Engine.runner(engine);
+  var runner = Runner.runner(engine);
   var time = 0;
   this.tick(function(t) {
     time += t;
     runner(time);
-    this.touch();
+    return true;
   });
-
 };
 
 Cut.Matter._super = Cut;

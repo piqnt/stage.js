@@ -2912,7 +2912,7 @@ var Engine = {};
         engine.world = World.create(engine.world);
         engine.pairs = Pairs.create();
         engine.metrics = engine.metrics || Metrics.create();
-        // engine.input.mouse = engine.input.mouse || Mouse.create(engine.render.canvas);
+        engine.input.mouse = engine.input.mouse || Mouse.create(engine.render.canvas);
 
         engine.broadphase = engine.broadphase || {
             current: 'grid',
@@ -2938,11 +2938,11 @@ var Engine = {};
      * @param {engine} engine
      */
     Engine.run = function(engine) {
-      var runner = Engine.runner(engine);
-      (function callback(time){
-        runner(time);
-        _requestAnimationFrame(callback);
-      })();
+        var runner = Engine.runner(engine);
+        (function callback(time){
+            runner(time);
+            _requestAnimationFrame(callback);
+        })();
     };
     
     Engine.runner = function(engine) {
@@ -3020,7 +3020,7 @@ var Engine = {};
 
             // trigger events that may have occured during the step
             _triggerCollisionEvents(engine);
-            // _triggerMouseEvents(engine);
+            _triggerMouseEvents(engine);
 
             // render
             Engine.render(engine);
@@ -5144,7 +5144,6 @@ var Render = {};
      * @param {string} background
      */
     Render.setBackground = function(render, background) {
-      return;
         if (render.currentBackground !== background) {
             var cssBackground = background;
 
