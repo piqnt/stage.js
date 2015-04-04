@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.12
+ * CutJS 0.4.13
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -1594,7 +1594,7 @@ Cut.Out.prototype.toString = function() {
 
 Cut.drawing = function() {
     var drawing = Cut.Out.drawing.apply(null, arguments);
-    var image = new Cut.image();
+    var image = new Cut.image(drawing);
     image.drawing = function(fn) {
         return image.image(drawing.drawing(fn));
     };
