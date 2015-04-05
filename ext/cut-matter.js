@@ -111,12 +111,12 @@ Cut.Matter.prototype.drawCircle = function(radius, options) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
-    ctx.beginPath();
     ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
     if (options.fillStyle) {
       ctx.fillStyle = options.fillStyle;
       ctx.fill();
     }
+    ctx.lineTo(width/2, height/2);
     ctx.lineWidth = options.lineWidth;
     ctx.strokeStyle = options.strokeStyle;
     ctx.stroke();
