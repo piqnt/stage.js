@@ -1,5 +1,5 @@
 /*
- * CutJS 0.4.13
+ * CutJS 0.4.14
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -1061,15 +1061,15 @@ Cut.Root = function(request, render) {
     Cut.Root._super.call(this);
     this._paused = true;
     var self = this;
-    var loop = function() {
+    var lastTime = 0;
+    var loop = function(now) {
         if (self._paused === true) {
             return;
         }
         Cut._stats.tick = Cut._stats.node = Cut._stats.cutout = 0;
-        var now = Cut._now();
-        var last = self._lastTime || now;
+        var last = lastTime || now;
         var elapsed = now - last;
-        self._lastTime = now;
+        lastTime = now;
         var ticked = self._tick(elapsed, now, last);
         if (self._mo_touch != self._ts_touch) {
             self._mo_touch = self._ts_touch;
@@ -1080,7 +1080,7 @@ Cut.Root = function(request, render) {
         } else {
             self.pause();
         }
-        Cut._stats.fps = 1e3 / (Cut._now() - now);
+        Cut._stats.fps = elapsed ? 1e3 / elapsed : 0;
     };
     this.request = function() {
         request(loop);
