@@ -3,6 +3,9 @@ function Game(width, height) {
 
   this.start = function(colors) {
     colors = colors || 4;
+    while (_tiles.length) {
+      _tiles[0].remove();
+    }
     _map = {}, _tiles = [];
     for (var i = 0; i < width; i++) {
       for (var j = 0; j < height; j++) {
@@ -208,6 +211,7 @@ Cut(function(root, container) {
   };
 
   game.Tile.prototype.uiRemove = function() {
+    console.log('rm');
     this.ui.tween(150).clear().pin({
       alpha : 0
     }).then(function() {

@@ -23,7 +23,7 @@ Cut(function(root, container) {
   });
 });
 
-// Register an image texture
+// Adding an image texture
 Cut({
   imagePath : 'sample.png',
   cutouts : [
