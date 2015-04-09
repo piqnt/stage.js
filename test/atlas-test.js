@@ -1,14 +1,15 @@
-var expect = require('./expect');
+var expect = require('./util/expect');
 var rewire = require("rewire");
 var sinon = require('sinon');
-var sandbox = require('./sandbox');
+var sandbox = require('./util/sandbox');
 
 var Cut = require('../lib/core');
-var Texture = Cut.Texture;
+var Texture = require('../lib/texture');
+var Atlas = require('../lib/atlas');
 
-describe('Texture', function() {
+describe('Atlas', function() {
 
-  var texture = new Texture({
+  var atlas = new Atlas({
     name : "base",
     imagePath : "texture.png",
     imageRatio : 4,
@@ -28,10 +29,10 @@ describe('Texture', function() {
     } ]
   });
 
-  it('Instance', function() {
+  it('class', function() {
 
-    var dark = texture.select("color_dark");
-    var both = texture.select("color_", true);
+    var dark = atlas.select("color_dark");
+    var both = atlas.select("color_", true);
 
     // console.log(dark);
     // console.log(both);
@@ -42,16 +43,16 @@ describe('Texture', function() {
     expect(both[0]).be.an('object');
     expect(both[1]).be.an('object');
 
-    expect(texture.select("missing")).be.an('undefined');
-    expect(texture.select("missing", true)).be.an('undefined');
+    expect(atlas.select("missing")).be.an('undefined');
+    expect(atlas.select("missing", true)).be.an('undefined');
 
   });
 
-  it('Class', function() {
-    Texture.add(texture);
+  it('texture', function() {
+    Cut.atlas(atlas);
 
-    var dark = Texture.select("base:color_dark");
-    var both = Texture.select("base:color_", true);
+    var dark = Cut.texture("base:color_dark");
+    var both = Cut.texture("base:color_", true);
 
     // console.log(dark);
     // console.log(both);
@@ -62,8 +63,8 @@ describe('Texture', function() {
     expect(both[0]).be.an('object');
     expect(both[1]).be.an('object');
 
-    var dark = Texture.select("color_dark");
-    var both = Texture.select("color_", true);
+    var dark = Cut.texture("color_dark");
+    var both = Cut.texture("color_", true);
 
     expect(dark).be.an('object');
     expect(both).be.an('array');
@@ -71,12 +72,9 @@ describe('Texture', function() {
     expect(both[0]).be.an('object');
     expect(both[1]).be.an('object');
 
-    expect(Texture.select("color_dark")).not.be(dark);
-    expect(Texture.select("color_dark")).eql(dark);
-    expect(Texture.select("color_", true)[0]).not.be(both[0]);
-    expect(Texture.select("color_", true)[1]).not.be(both[1]);
-    expect(Texture.select("color_", true)[0]).eql(both[0]);
-    expect(Texture.select("color_", true)[1]).eql(both[1]);
+    expect(Cut.texture("color_dark")).be(dark);
+    expect(Cut.texture("color_", true)[0]).be(both[0]);
+    expect(Cut.texture("color_", true)[1]).be(both[1]);
 
   });
 });

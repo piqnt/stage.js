@@ -197,7 +197,7 @@ Cut.P2.prototype.drawLine = function(length, options) {
   lineWidth *= 2;
   var ratio = options.ratio;
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
     this.size(length + 2 * lineWidth, lineWidth, ratio);
 
     ctx.scale(ratio, ratio);
@@ -221,7 +221,7 @@ Cut.P2.prototype.drawRectangle = function(w, h, options) {
   var height = h + 2 * lineWidth;
   var ratio = options.ratio;
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -246,7 +246,7 @@ Cut.P2.prototype.drawCircle = function(radius, options) {
   var height = radius * 2 + lineWidth * 2;
   var ratio = options.ratio;
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -277,7 +277,7 @@ Cut.P2.prototype.drawCapsule = function(len, radius, options) {
   var height = 2 * radius + 2 * lineWidth;
   var ratio = options.ratio;
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -313,7 +313,7 @@ Cut.P2.prototype.drawSpring = function(length, options) {
 
   var ratio = options.ratio;
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
     this.size(length, dy * 2, ratio);
 
     ctx.scale(ratio, ratio);
@@ -347,7 +347,7 @@ Cut.P2.prototype.drawPlane = function(x0, x1, max, options) {
 
   var ratio = options.ratio;
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
     this.size(max * 2, max * 2, ratio);
 
     ctx.scale(ratio, ratio);
@@ -393,7 +393,7 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
     height = Math.max(Math.abs(y), height);
   }
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
     this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 
     ctx.scale(ratio, ratio);

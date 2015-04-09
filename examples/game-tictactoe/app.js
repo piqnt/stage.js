@@ -120,7 +120,7 @@ Cut(function(root, container) {
 });
 
 Cut({
-  cutouts : [ Cut.Out.drawing('bg', function(ctx) {
+  cutouts : [ Cut.drawing('bg', function(ctx) {
     var ratio = 20;
     this.size(30, 30, ratio);
     ctx.scale(ratio, ratio);
@@ -137,7 +137,7 @@ Cut({
     ctx.strokeStyle = '#999';
     ctx.stroke();
 
-  }), Cut.Out.drawing('x', function(ctx) {
+  }), Cut.drawing('x', function(ctx) {
     var ratio = 20;
     this.size(10, 10, ratio);
     ctx.scale(ratio, ratio);
@@ -150,7 +150,7 @@ Cut({
     ctx.strokeStyle = '#000';
     ctx.stroke();
 
-  }), Cut.Out.drawing('o', function(ctx) {
+  }), Cut.drawing('o', function(ctx) {
     var ratio = 20;
     this.size(10, 10, ratio);
     ctx.scale(ratio, ratio);
@@ -159,7 +159,7 @@ Cut({
     ctx.strokeStyle = '#000';
     ctx.stroke();
 
-  }), Cut.Out.drawing('-', function(ctx) {
+  }), Cut.drawing('-', function(ctx) {
     var ratio = 20;
     this.size(10, 10, ratio);
 

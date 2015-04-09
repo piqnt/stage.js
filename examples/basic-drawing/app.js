@@ -14,7 +14,7 @@ Cut(function(root, container) {
   draw();
 
   function draw() {
-    image.image(Cut.Out.drawing(function(ctx) {
+    image.image(Cut.drawing(function(ctx) {
       p = (p + 1 - 3) % 3 + 3;
 
       this.size(width, height, 4);

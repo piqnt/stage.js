@@ -421,7 +421,7 @@ Cut({
   name : 'text',
   factory : function(d) {
     d += '';
-    return Cut.Out.drawing(d, function(ctx) {
+    return Cut.drawing(d, function(ctx) {
       var ratio = 2;
       this.size(16, 24, ratio);
       ctx.scale(ratio, ratio);

@@ -1,7 +1,7 @@
-var expect = require('./expect');
+var expect = require('./util/expect');
 var rewire = require("rewire");
 var sinon = require('sinon');
-var sandbox = require('./sandbox');
+var sandbox = require('./util/sandbox');
 
 // defined them globally, then rewire them
 window = document = null;
@@ -97,7 +97,3 @@ it('Touch', function() {
   });
   // Mouse.debug();
 });
-
-function tostr(obj) {
-  return obj.id();
-}

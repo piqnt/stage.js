@@ -1,10 +1,11 @@
-var expect = require('./expect');
+var expect = require('./util/expect');
 var rewire = require("rewire");
 var sinon = require('sinon');
-var sandbox = require('./sandbox');
+var sandbox = require('./util/sandbox');
 
 var Cut = require('../lib/core');
-var Pin = Cut.Pin;
+var Pin = require('../lib/pin');
+require('../lib/main');
 
 describe('Pin', function() {
 

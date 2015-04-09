@@ -1,9 +1,19 @@
 var expect = require('expect.js');
 
 expect.Assertion.prototype.list = function(obj, fn) {
-  fn = typeof fn === 'function' ? fn : function(obj) {
-    return expect.stringify(obj, false, 1);
-  };
+  if (typeof fn === 'function') {
+  } else if (typeof fn === 'string') {
+    fn = (function(id) {
+      return function(obj) {
+        var value = obj[id];
+        return typeof value === 'function' ? value.call(obj) : value;
+      };
+    })(fn);
+  } else {
+    fn = function(obj) {
+      return expect.stringify(obj, false, 1);
+    };
+  }
   var match = true;
   if (obj.length === this.obj.length) {
     var n = this.obj.length;

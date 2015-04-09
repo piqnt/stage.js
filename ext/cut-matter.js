@@ -106,7 +106,7 @@ Cut.Matter.prototype.drawCircle = function(radius, options) {
   var height = radius * 2 + lineWidth * 2;
   var ratio = 1;
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
 
     this.size(width, height, ratio);
 
@@ -141,7 +141,7 @@ Cut.Matter.prototype.drawConvex = function(verts, base, options) {
     height = Math.max(Math.abs(y - y0), height);
   }
 
-  return Cut.Out.drawing(function(ctx) {
+  return Cut.drawing(function(ctx) {
 
     this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 
