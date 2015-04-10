@@ -3,9 +3,8 @@ var rewire = require("rewire");
 var sinon = require('sinon');
 var sandbox = require('./util/sandbox');
 
-var Cut = require('../lib/core');
+var Cut = require('../lib/node');
 var Pin = require('../lib/pin');
-require('../lib/main');
 
 describe('Pin', function() {
 
@@ -27,7 +26,8 @@ describe('Pin', function() {
   });
 
   it('.pin()', function() {
-    var foo = Cut.create(), pin = foo.pin();
+    var foo = Cut.create();
+    var pin = foo.pin();
     foo.pin('scale', 2);
     expect(foo.pin('scaleX')).be(2);
     expect(foo.pin('scaleY')).be(2);
@@ -40,7 +40,8 @@ describe('Pin', function() {
   });
 
   it('.scaleTo()', function() {
-    var foo = Cut.create(), pin = foo.pin();
+    var foo = Cut.create();
+    var pin = foo.pin();
     foo.pin({
       width : 100,
       height : 100

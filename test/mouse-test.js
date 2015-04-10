@@ -6,7 +6,7 @@ var sandbox = require('./util/sandbox');
 // defined them globally, then rewire them
 window = document = null;
 
-var Cut = require('../lib/core');
+var Cut = require('../lib/node');
 
 it('Mouse', function() {
   var Mouse = rewire('../lib/mouse');

@@ -3,7 +3,7 @@ var rewire = require("rewire");
 var sinon = require('sinon');
 var sandbox = require('./util/sandbox');
 
-var Cut = require('../lib/core');
+var Cut = require('../lib/node');
 
 it('attr', function() {
   var foo = Cut.create();

@@ -3,7 +3,7 @@ var rewire = require("rewire");
 var sinon = require('sinon');
 var sandbox = require('./util/sandbox');
 
-var Cut = require('../lib/core');
+var Cut = require('../lib/node');
 require('../lib/event');
 
 it('event on/off', function() {
@@ -35,4 +35,3 @@ it('event on/off', function() {
   expect(door.listeners('knock')).not.ok();
   expect(door.listeners('ring')).not.ok();
 });
-
