@@ -1,5 +1,5 @@
 Cut({
-  imagePath : "base.png",
+  imagePath : "main.png",
   imageRatio : 32,
   cutouts : [
     { name : "easy",    x : 0,     y : 0,    width : 2,    height : 2 },

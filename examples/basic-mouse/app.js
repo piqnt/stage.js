@@ -6,15 +6,15 @@ Cut(function(root, container) {
 
   var row = Cut.row().appendTo(root).pin('align', 0.5).spacing(1).id('row');
 
-  Cut.anim('color_').appendTo(row).on(Cut.Mouse.CLICK, function(point) {
+  Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.CLICK, function(point) {
     this.moveFrame(1);
   }).id('click');
 
-  Cut.anim('color_').appendTo(row).on(Cut.Mouse.START, function(point) {
+  Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.START, function(point) {
     this.moveFrame(1);
   }).id('start');
 
-  Cut.anim('color_').appendTo(row).on(Cut.Mouse.END, function(point) {
+  Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.END, function(point) {
     this.moveFrame(1);
   }).id('end');
 

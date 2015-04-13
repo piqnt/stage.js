@@ -1,7 +1,6 @@
 var expect = require('./util/expect');
-var rewire = require("rewire");
 var sinon = require('sinon');
-var sandbox = require('./util/sandbox');
+var memo = require('./util/memo');
 
 var Cut = require('../lib/node');
 
@@ -15,20 +14,19 @@ it('attr', function() {
 });
 
 it('visit', function() {
-  var cuts = sandbox(function(id) {
+  var cuts = memo(function(id) {
     return Cut.create().id(id);
   });
   var visitor, data;
-  var root = cuts.neo(1).append(cuts.neo(11),
-      cuts.neo(12).append(cuts.neo(121).hide(), cuts.neo(122), cuts.neo(123)),
-      cuts.neo(13));
+  var root = cuts(1).append(cuts(11),
+      cuts(12).append(cuts(121).hide(), cuts(122), cuts(123)), cuts(13));
 
   root.visit(visitor = {
     start : sinon.stub(),
     end : sinon.stub()
   }, data = {});
   expect(visitor.start.args.pluck(0)).list(
-      cuts.list([ 1, 11, 12, 121, 122, 123, 13 ]), 'id');
+      cuts([ 1, 11, 12, 121, 122, 123, 13 ]), 'id');
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 
@@ -38,7 +36,7 @@ it('visit', function() {
     end : sinon.stub()
   }, data = {});
   expect(visitor.start.args.pluck(0)).list(
-      cuts.list([ 1, 11, 12, 122, 123, 13 ]), 'id');
+      cuts([ 1, 11, 12, 122, 123, 13 ]), 'id');
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 
@@ -48,7 +46,7 @@ it('visit', function() {
     end : sinon.stub()
   }, data = {});
   expect(visitor.start.args.pluck(0)).list(
-      cuts.list([ 1, 13, 12, 123, 122, 121, 11 ]), 'id');
+      cuts([ 1, 13, 12, 123, 122, 121, 11 ]), 'id');
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 });

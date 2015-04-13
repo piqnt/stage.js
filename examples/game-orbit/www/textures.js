@@ -11,8 +11,8 @@ Cut({
 });
 
 Cut({
-  name : "base",
-  imagePath : MEDIAURL + "/base.png",
+  name : "main",
+  imagePath : MEDIAURL + "/main.png",
   imageRatio : 8,
   cutouts : [
     { name : "planet",    x : 0,     y : 0,    width : 12,   height : 12 },

@@ -9,9 +9,8 @@ Cut(function(root, container) {
 
   var row = Cut.row().appendTo(root).pin('align', 0.5).spacing(1);
   for (var i = 0; i < colors.length; i++) {
-
-    Cut.image('color_' + colors[i]).appendTo(row).pin('pivot', 0.5).on(
-        Cut.Mouse.MOVE, function(point) {
+    Cut.image(colors[i]).appendTo(row).pin('pivot', 0.5).on(Cut.Mouse.MOVE,
+        function(point) {
           if (this != last) {
             last = this;
             this.tween().clear().pin({

@@ -25,12 +25,15 @@ Cut(function(root, container) {
 });
 
 Cut({
-  imagePath : 'pinwheel.png',
-  cutouts : [ {
-    name : 'pinwheel',
-    x : 0,
-    y : 0,
-    width : 200,
-    height : 200
-  } ]
+  image : {
+    url : 'pinwheel.png'
+  },
+  textures : {
+    pinwheel : {
+      x : 0,
+      y : 0,
+      width : 200,
+      height : 200
+    }
+  }
 });

@@ -3,7 +3,7 @@ O! is a minimalistic game and a demo game for [CutJS](http://cutjs.org/). You ca
 After downloading the game source code, open `index.html` with your browser, the game should start, if not check errors with your browser debugging utility.
 
 #### Graphics/Textures
-The game graphics are packed in `media/base.png` texture (sprite-sheet) and image cutouts (sprites) are defined in `textures.js`.
+The game graphics are packed in `media/main.png` texture (sprite-sheet) and image cutouts (sprites) are defined in `textures.js`.
 
 #### Architecture
 The game consists of two main layers: model and view. Model consists of game logics and objects. View consists of CutJS component which compose and render graphics. View layer communicates with model by keeping a reference to it and extending its uiXXX methods.

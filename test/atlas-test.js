@@ -1,17 +1,133 @@
 var expect = require('./util/expect');
-var rewire = require("rewire");
+var sandboxed = require('sandboxed-module');
 var sinon = require('sinon');
-var sandbox = require('./util/sandbox');
 
 var Cut = require('../lib/node');
 var Texture = require('../lib/texture');
 var Atlas = require('../lib/atlas');
 
-describe('Atlas', function() {
+var mario = {
+  x : 1,
+  y : 2,
+  width : 3,
+  height : 4
+};
+
+function bemario(obj) {
+
+  expect(obj.draw).be.a('function');
+
+  expect(obj.width).be(mario.width);
+  expect(obj.height).be(mario.height);
+
+  expect(obj.sx).be(mario.x);
+  expect(obj.sy).be(mario.y);
+  expect(obj.sw).be(mario.width);
+  expect(obj.sh).be(mario.height);
+
+  expect(obj.dx).be(0);
+  expect(obj.dy).be(0);
+  expect(obj.dw).be(mario.width);
+  expect(obj.dh).be(mario.height);
+}
+
+it('Atlas', function() {
+  var selected;
+
+  selected = new Atlas({
+    textures : {
+      mario : mario
+    }
+  }).select('mario');
+
+  bemario(selected);
+
+  selected = new Atlas({
+    textures : {
+      walk : [ mario, mario, mario ]
+    }
+  }).select('walk');
+  expect(selected.length).be(3);
+  bemario(selected[0]);
+
+  selected = new Atlas({
+    textures : {
+      mario : function() {
+        return mario;
+      }
+    }
+  }).select('mario');
+  bemario(selected);
+
+  selected = new Atlas({
+    textures : {
+      mario : mario,
+      him : function() {
+        return 'mario';
+      }
+    }
+  }).select('mario');
+  bemario(selected);
+
+  selected = new Atlas({
+    textures : {
+      mario : mario,
+      walk : [ 'mario', 'mario', 'mario' ]
+    }
+  }).select('walk');
+  expect(selected.length).be(3);
+  bemario(selected[0]);
+
+  selected = new Atlas({
+    textures : {
+      char : {
+        mario : mario
+      }
+    }
+  }).select('char', 'mario');
+  bemario(selected);
+
+});
+
+it('.atlas()/.texture()', function() {
+  var Cut, atlas, obj, selected;
+
+  Cut = sandboxed.require('../lib/');
+  atlas = Cut.atlas({
+    name : 'name',
+    textures : {
+      'mario' : mario,
+      'walk' : [ 'mario', 'mario', 'mario' ]
+    }
+  });
+
+  selected = Cut.texture('name:mario');
+  bemario(selected);
+
+  selected = Cut.texture('mario');
+  bemario(selected);
+
+  selected = Cut.texture('mario', obj = []);
+  expect(selected).be(obj);
+  expect(selected.length).be(1);
+  bemario(selected[0]);
+
+  selected = Cut.texture('walk', obj = []);
+  expect(selected).be(obj);
+  expect(selected.length).be(3);
+  bemario(selected[0]);
+
+  selected = Cut.texture('walk');
+  bemario(selected);
+});
+
+describe('Cut.cutouts', function() {
+  // TODO: test cutouts
+  return;
 
   var atlas = new Atlas({
-    name : "base",
-    imagePath : "texture.png",
+    name : "main",
+    imagePath : "main.png",
     imageRatio : 4,
     trim : 0.1,
     cutouts : [ {

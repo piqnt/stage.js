@@ -6,7 +6,7 @@ Cut(function(root, container) {
 
   var turn = false;
 
-  Cut.image('color_dark').appendTo(root).pin('align', 0.5).on(Cut.Mouse.CLICK,
+  Cut.image('dark').appendTo(root).pin('align', 0.5).on(Cut.Mouse.CLICK,
       function(point) {
         turn = !turn;
         this.tween(500, 500).clear().pin({

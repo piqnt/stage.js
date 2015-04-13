@@ -7,7 +7,7 @@ Cut(function(root, container) {
   var popup = Cut.image('box').box().stretch().pin('align', 0.5).id('bg')
       .padding(10).appendTo(root);
 
-  var number = Cut.string('d_').value('0123456789').pin('align', 0.5).id('str')
+  var number = Cut.string('digit').value('0123456789').pin('align', 0.5).id('str')
       .appendTo(popup);
 
   root.on(Cut.Mouse.CLICK,
@@ -24,13 +24,13 @@ Cut(function(root, container) {
 
     for (var i = 0; i < string.length; i++) {
       var str = string[i];
-      Cut.string('d_').value(str).appendTo(column);
+      Cut.string('digit').value(str).appendTo(column);
     }
 
     var row = Cut.row().appendTo(column).spacing(25);
 
-    var yes = Cut.string('d_').value('012345').pin('align', 0.5);
-    var no = Cut.string('d_').value('6789').pin('align', 0.5);
+    var yes = Cut.string('digit').value('012345').pin('align', 0.5);
+    var no = Cut.string('digit').value('6789').pin('align', 0.5);
 
     Cut.image('box').box().stretch().appendTo(row).append(yes).on(
         Cut.Mouse.CLICK, function() {

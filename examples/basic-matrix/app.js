@@ -12,12 +12,15 @@ Cut(function(root, container) {
 });
 
 Cut({
-  imagePath : 'box.png',
-  cutouts : [ {
-    name : 'box',
-    x : 0,
-    y : 0,
-    width : 200,
-    height : 200
-  } ]
+  image : {
+    url : 'box.png'
+  },
+  textures : {
+    box : {
+      x : 0,
+      y : 0,
+      width : 200,
+      height : 200
+    }
+  }
 });

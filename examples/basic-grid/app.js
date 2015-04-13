@@ -12,7 +12,7 @@ Cut(function(root, container) {
     var row = Cut.row().appendTo(column).spacing(1);
     for (i = 0; i < 9; i++) {
       // colors as frames
-      var cell = Cut.anim('color_').appendTo(row).pin('pivot', 0.5);
+      var cell = Cut.anim('rainbow').appendTo(row).pin('pivot', 0.5);
       cell.on(Cut.Mouse.MOVE, function(point) {
         if (this != last) {
           last = this;

@@ -1,6 +1,6 @@
 [ {
-  "input" : "base.svg",
-  "output" : "../www/media/base.png 8x"
+  "input" : "main.svg",
+  "output" : "../www/media/main.png 8x"
 }, {
   "input" : "digit.svg",
   "output" : "../www/media/digit.png 8x"

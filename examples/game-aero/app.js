@@ -128,6 +128,21 @@ Drone.prototype.animate = function(t) {
   this.uiUpdate();
 };
 
+Cut({
+  image : {
+    url : "main.png",
+    ratio : 4
+  },
+  textures : {
+    drone : {
+      x : 0,
+      y : 0,
+      width : 16,
+      height : 16
+    }
+  }
+});
+
 Cut(function(root, canvas) {
 
   Cut.Mouse(root, canvas);

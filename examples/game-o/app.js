@@ -955,16 +955,16 @@ Cut(function(root, elem) {
       });
     });
 
-    var bg = Cut.image("base:homebg").appendTo(home).pin("align", 0.5);
+    var bg = Cut.image("main:homebg").appendTo(home).pin("align", 0.5);
 
     var menu = Cut.column(0).appendTo(home).pin("align", 0.5).spacing(4);
 
-    var tombstone = Cut.image("base:tombstone").appendTo(menu);
+    var tombstone = Cut.image("main:tombstone").appendTo(menu);
 
     var row = Cut.row().appendTo(menu).spacing(4);
     var flags = [];
     for (var i = 0; i < 6; i++) {
-      var flag = Cut.image("base:play").appendTo(row).on(Mouse.CLICK,
+      var flag = Cut.image("main:play").appendTo(row).on(Mouse.CLICK,
           startFrom(i - 1));
       flags.push(flag);
     }
@@ -987,7 +987,7 @@ Cut(function(root, elem) {
 
     for (var i = 0; i < Conf.ups.length; i++) {
       var name = Conf.ups[i];
-      upgrades[name] = Cut.image("base:option").appendTo(row)
+      upgrades[name] = Cut.image("main:option").appendTo(row)
           .attr("name", name).on(Mouse.CLICK, function() {
             game.upgrade(this.attr("name"));
           });
@@ -999,7 +999,7 @@ Cut(function(root, elem) {
         if (i <= game.data.upgrades.flags) {
           var value = Format.k(game.data.flags[i - 1]);
           value = i > 0 ? (value || "-") : 0;
-          Cut.string("base:d_").appendTo(button).pin({
+          Cut.string("main:d_").appendTo(button).pin({
             alignY : 0.5,
             alignX : 0.45,
             handle : 0.5,
@@ -1009,7 +1009,7 @@ Cut(function(root, elem) {
         }
         var price = game.price("flags");
         if (i == game.data.upgrades.flags + 1) {
-          Cut.string("base:d_").value(Format.coin(price)).pin({
+          Cut.string("main:d_").value(Format.coin(price)).pin({
             alignY : 0.5,
             alignX : 0.4,
             handle : 0.5,
@@ -1023,7 +1023,7 @@ Cut(function(root, elem) {
       }
 
       tombstone.empty();
-      Cut.string("base:d_").appendTo(tombstone).pin({
+      Cut.string("main:d_").appendTo(tombstone).pin({
         alignX : 0.5,
         alignY : 1,
         offsetX : -2,
@@ -1032,7 +1032,7 @@ Cut(function(root, elem) {
         scale : 0.8
       }).value(0 + "-" + Format.k(game.data.stats.dist));
 
-      Cut.string("base:d_").appendTo(tombstone).pin({
+      Cut.string("main:d_").appendTo(tombstone).pin({
         alignX : 0.5,
         alignY : 0,
         offsetX : -4,
@@ -1047,9 +1047,9 @@ Cut(function(root, elem) {
         var level = game.data.upgrades[name] || 0;
         var button = upgrades[name].empty().pin("alpha", 0.9);
         // image
-        Cut.image("base:up_" + name).pin("align", 0.5).appendTo(button);
+        Cut.image("main:up_" + name).pin("align", 0.5).appendTo(button);
         // price
-        Cut.string("base:d_").value(Format.coin(price)).pin({
+        Cut.string("main:d_").value(Format.coin(price)).pin({
           align : 1,
           offsetX : -1.6,
           offsetY : -1.4,
@@ -1058,7 +1058,7 @@ Cut(function(root, elem) {
         }).appendTo(button);
         // level
         if (level <= 6) {
-          Cut.image("base:up_" + level).pin({
+          Cut.image("main:up_" + level).pin({
             alignX : 0,
             alignY : 0,
             offsetX : 1.6,
@@ -1118,21 +1118,21 @@ Cut(function(root, elem) {
       game.tick(t);
     }, true);
 
-    var bg = Cut.image("base:playbg").appendTo(play).pin("align", 0.5);
-    var bgcolor = Cut.anim("base:c_").appendTo(bg).pin({
+    var bg = Cut.image("main:playbg").appendTo(play).pin("align", 0.5);
+    var bgcolor = Cut.anim("main:c_").appendTo(bg).pin({
       alpha : 0.6,
       align : 0.5,
       scale : 3
     });
 
-    var border = Cut.image("base:border").stretch().appendTo(play).pin({
+    var border = Cut.image("main:border").stretch().appendTo(play).pin({
       width : Conf.width,
       height : Conf.height,
       align : 0.5,
       alpha : 0.5
     });
 
-    var top = Cut.image("base:shadow").stretch().appendTo(play);
+    var top = Cut.image("main:shadow").stretch().appendTo(play);
 
     var field = Cut.create().appendTo(play).attr('spy', true).pin({
       width : Conf.width,
@@ -1142,21 +1142,21 @@ Cut(function(root, elem) {
       handleY : 0
     });
 
-    var energy = Cut.image("base:energy").stretch().appendTo(play).pin({
+    var energy = Cut.image("main:energy").stretch().appendTo(play).pin({
       alignX : 0,
       alignY : 0,
       offsetX : 3,
       offsetY : 2
     });
 
-    var dist = Cut.string("base:d_").appendTo(play).pin({
+    var dist = Cut.string("main:d_").appendTo(play).pin({
       alignX : 0,
       alignY : 0,
       offsetX : 3,
       offsetY : 9
     });
 
-    var coins = Cut.string("base:d_").appendTo(play).pin({
+    var coins = Cut.string("main:d_").appendTo(play).pin({
       alignX : 1,
       alignY : 0,
       offsetX : -3,
@@ -1168,7 +1168,7 @@ Cut(function(root, elem) {
       alignY : 0,
       offsetX : 10,
       offsetY : 2
-    }).append(Cut.anim("base:coin_"), Cut.string("base:d_").pin("scale", 0.8))
+    }).append(Cut.anim("main:coin_"), Cut.string("main:d_").pin("scale", 0.8))
         .hide();
 
     var lastCoinTimeout = null;
@@ -1185,7 +1185,7 @@ Cut(function(root, elem) {
       }, 1000);
     }
 
-    var cursor = Cut.image("base:cursor").pin("handle", 0.5).appendTo(field)
+    var cursor = Cut.image("main:cursor").pin("handle", 0.5).appendTo(field)
         .hide();
 
     var l1 = Cut.create().appendTo(field);
@@ -1255,7 +1255,7 @@ Cut(function(root, elem) {
 
     game.uiNewPlayer = function(obj) {
       DEBUG && console.log("player create");
-      obj.ui = Cut.anim("base:" + obj.name + "_").pin("handle", 0.5).appendTo(
+      obj.ui = Cut.anim("main:" + obj.name + "_").pin("handle", 0.5).appendTo(
           l3);
       obj.uiXY = function() {
         this.ui.xy(this.x, this.y);
@@ -1265,7 +1265,7 @@ Cut(function(root, elem) {
         this.freeze = !!freeze;
         !this.freeze && Sound.play("start");
         // cursor.show();
-        this.ui.frames("base:" + this.name + "_").show();
+        this.ui.frames("main:" + this.name + "_").show();
         !this.freeze && this.ui.play();
         callback && callback();
       };
@@ -1274,7 +1274,7 @@ Cut(function(root, elem) {
         if (anim) {
           !this.freeze && Sound.play("die");
           cursor.hide();
-          this.ui.frames("base:die").play().repeat(1, callback);
+          this.ui.frames("main:die").play().repeat(1, callback);
         } else {
           callback && callback();
         }
@@ -1282,7 +1282,7 @@ Cut(function(root, elem) {
     };
 
     game.uiNewDot = function(obj) {
-      obj.ui = Cut.image("base:dot").pin("handle", 0.5).appendTo(l1).hide();
+      obj.ui = Cut.image("main:dot").pin("handle", 0.5).appendTo(l1).hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
@@ -1304,7 +1304,7 @@ Cut(function(root, elem) {
     };
 
     game.uiNewPower = function(obj) {
-      obj.ui = Cut.image("base:power").pin("handle", 0.5).appendTo(l2).hide();
+      obj.ui = Cut.image("main:power").pin("handle", 0.5).appendTo(l2).hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
@@ -1321,23 +1321,23 @@ Cut(function(root, elem) {
     };
 
     game.uiNewEnemy = function(obj) {
-      obj.ui = Cut.anim("base:" + obj.name).pin("handle", 0.5).appendTo(l2)
+      obj.ui = Cut.anim("main:" + obj.name).pin("handle", 0.5).appendTo(l2)
           .hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
       obj.uiMode = function(weak) {
         if (weak == 0) {
-          this.ui.frames("base:" + this.name + "_").play();
+          this.ui.frames("main:" + this.name + "_").play();
         } else if (weak == -1) {
-          this.ui.frames("base:un" + this.name).gotoFrame(0).pin({
+          this.ui.frames("main:un" + this.name).gotoFrame(0).pin({
             "alpha" : 0.8,
             "rotation" : 0
           });
         } else if (weak == 1) {
-          this.ui.frames("base:" + this.name + "z_").play();
+          this.ui.frames("main:" + this.name + "z_").play();
         } else {
-          this.ui.frames("base:" + this.name + "").play();
+          this.ui.frames("main:" + this.name + "").play();
         }
       };
       obj.uiXY = function() {
@@ -1357,7 +1357,7 @@ Cut(function(root, elem) {
 
     game.uiNewCoin = function(obj) {
       obj.scale = Conf.coinsScale["c" + obj.value] || 1;
-      obj.ui = Cut.anim("base:coin_" + obj.value + "_").pin("handle", 0.5)
+      obj.ui = Cut.anim("main:coin_" + obj.value + "_").pin("handle", 0.5)
           .appendTo(l2).pin("scale", obj.scale).hide();
       obj.uiEnter = function() {
         this.ui.show();

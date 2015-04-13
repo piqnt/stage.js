@@ -1,6 +1,6 @@
 Cut({
-  name : "base",
-  imagePath : "media/base.png",
+  name : "main",
+  imagePath : "media/main.png",
   imageRatio : 8,
   ppu : 16,
   filter : function(cut) {

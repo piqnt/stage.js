@@ -8,7 +8,7 @@ Cut({
 });
 
 Cut({
-  imagePath : "base.png",
+  imagePath : "main.png",
   imageRatio : 2 * ppu,
   ppu : 1 / ppu,
   filter : function(cut) {

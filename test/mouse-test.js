@@ -1,23 +1,23 @@
 var expect = require('./util/expect');
-var rewire = require("rewire");
 var sinon = require('sinon');
-var sandbox = require('./util/sandbox');
-
-// defined them globally, then rewire them
-window = document = null;
+var sandboxed = require('sandboxed-module');
+var memo = require('./util/memo');
 
 var Cut = require('../lib/node');
 
 it('Mouse', function() {
-  var Mouse = rewire('../lib/mouse');
-
   var document = {
     body : {}
   }, window = {
     document : document
   };
-  Mouse.__set__('window', window);
-  Mouse.__set__('document', document);
+
+  var Mouse = sandboxed.require('../lib/mouse', {
+    locals : {
+      window : window,
+      document : document
+    }
+  });
 
   var elem, add, remove, event;
 
@@ -28,13 +28,13 @@ it('Mouse', function() {
     point.y = ev.y;
   });
 
-  var cuts = sandbox(function(id) {
+  var cuts = memo(function(id) {
     return Cut.create().id(id).pin({
       width : 400,
       height : 300
     });
   });
-  var listener = sandbox(function(id) {
+  var listener = memo(function(id) {
     return sinon.spy();
   });
   var root = cuts(1).append(cuts(11),
@@ -89,11 +89,3 @@ function Event(type, x, y) {
     preventDefault : sinon.stub()
   };
 }
-
-it('Touch', function() {
-  var Mouse = rewire('../lib/mouse');
-  Mouse.__set__('window', {
-    ontouchstart : true
-  });
-  // Mouse.debug();
-});

@@ -1,9 +1,7 @@
 var expect = require('./util/expect');
-var rewire = require("rewire");
 var sinon = require('sinon');
-var sandbox = require('./util/sandbox');
 
-var Cut = require('../lib/main');
+var Cut = require('../lib/');
 
 it('static methods', function() {
   expect(Cut.config).be.a('function');
