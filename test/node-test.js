@@ -15,7 +15,7 @@ it('attr', function() {
 
 it('visit', function() {
   var cuts = memo(function(id) {
-    return Cut.create().id(id);
+    return Cut.create().label(id);
   });
   var visitor, data;
   var root = cuts(1).append(cuts(11),

@@ -15,41 +15,41 @@ Cut(function(root, container) {
     bar8.tween().clear().pin('height', Cut.Math.random(20, 100) | 0);
   });
 
-  var bar1 = Cut.image('box').stretch().id('bar1');
-  var bar2 = Cut.image('box').stretch().id('bar2');
-  var bar3 = Cut.image('box').stretch().id('bar3');
-  var bar4 = Cut.image('box').stretch().id('bar4');
-  var bar5 = Cut.image('box').stretch().id('bar1');
-  var bar6 = Cut.image('box').stretch().id('bar2');
-  var bar7 = Cut.image('box').stretch().id('bar3');
-  var bar8 = Cut.image('box').stretch().id('bar4');
+  var bar1 = Cut.image('box').stretch();
+  var bar2 = Cut.image('box').stretch();
+  var bar3 = Cut.image('box').stretch();
+  var bar4 = Cut.image('box').stretch();
+  var bar5 = Cut.image('box').stretch();
+  var bar6 = Cut.image('box').stretch();
+  var bar7 = Cut.image('box').stretch();
+  var bar8 = Cut.image('box').stretch();
 
   Cut.column(1).append(bar1, bar2).appendTo(root).pin({
     alignX : 1,
     alignY : 0,
     offsetX : -10,
     offsetY : 10
-  }).id('topleft');
+  }).label('topleft');
 
   Cut.column(0).append(bar3, bar4).appendTo(root).pin({
     alignX : 0,
     alignY : 1,
     offsetX : 10,
     offsetY : -10
-  }).id('bottomright');
+  }).label('bottomright');
 
   Cut.row(0).append(bar5, bar6).appendTo(root).pin({
     alignX : 0,
     alignY : 0,
     offsetX : 10,
     offsetY : 10
-  }).id('topleft');
+  }).label('topleft');
 
   Cut.row(1).append(bar7, bar8).appendTo(root).pin({
     alignX : 1,
     alignY : 1,
     offsetX : -10,
     offsetY : -10
-  }).id('bottomleft');
+  }).label('bottomleft');
 
 });

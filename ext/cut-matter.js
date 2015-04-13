@@ -68,14 +68,14 @@ Cut.Matter.prototype.constructor = Cut.Matter;
 
 Cut.Matter.prototype.addRenderable = function(body) {
   if (!body.ui) {
-    var cutout = null;
+    var texture = null;
     if (body.circleRadius) {
-      cutout = this.drawCircle(body.circleRadius, body.render);
+      texture = this.drawCircle(body.circleRadius, body.render);
     } else if (body.vertices) {
-      cutout = this.drawConvex(body.vertices, body.position, body.render);
+      texture = this.drawConvex(body.vertices, body.position, body.render);
     }
-    if (cutout) {
-      body.ui = Cut.image(cutout).pin('handle', 0.5).appendTo(this);
+    if (texture) {
+      body.ui = Cut.image(texture).pin('handle', 0.5).appendTo(this);
     }
     this.updateRenderable(body);
   }

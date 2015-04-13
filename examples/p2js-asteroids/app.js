@@ -392,12 +392,12 @@ Cut(function(root, container) {
     height : 1000
   }).appendTo(root);
 
-  ui.status = Cut.string('text:').pin({
+  ui.status = Cut.string('text').pin({
     align : 0,
     offset : 20
   }).appendTo(ui.meta);
 
-  ui.gameover = Cut.string('text:').value('Game Over!').pin({
+  ui.gameover = Cut.string('text').value('Game Over!').pin({
     align : 0.5,
     scale : 1.6
   }).appendTo(ui.meta);
@@ -418,17 +418,18 @@ Cut(function(root, container) {
 });
 
 Cut({
-  name : 'text',
-  factory : function(d) {
-    d += '';
-    return Cut.drawing(d, function(ctx) {
-      var ratio = 2;
-      this.size(16, 24, ratio);
-      ctx.scale(ratio, ratio);
-      ctx.font = 'bold 24px monospace';
-      ctx.fillStyle = '#ddd';
-      ctx.textBaseline = 'top';
-      ctx.fillText(d, 0, 1);
-    });
+  textures : {
+    text : function(d) {
+      d += '';
+      return Cut.drawing(function(ctx) {
+        var ratio = 2;
+        this.size(16, 24, ratio);
+        ctx.scale(ratio, ratio);
+        ctx.font = 'bold 24px monospace';
+        ctx.fillStyle = '#ddd';
+        ctx.textBaseline = 'top';
+        ctx.fillText(d, 0, 1);
+      });
+    }
   }
 });

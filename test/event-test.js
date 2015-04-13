@@ -1,7 +1,5 @@
 var expect = require('./util/expect');
-var rewire = require("rewire");
 var sinon = require('sinon');
-var sandbox = require('./util/sandbox');
 
 var Cut = require('../lib/node');
 require('../lib/event');

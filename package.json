@@ -17,9 +17,17 @@
     "type": "git",
     "url": "git://github.com/piqnt/cutjs.git"
   },
-  "main": "lib/main.js",
-  "files": [ "dist/", "doc/", "ext/", "lib/", "platform/", "test/" ],
-  "dependencies": {},
+  "main": "lib/index.js",
+  "files": [
+    "doc/",
+    "ext/",
+    "lib/",
+    "platform/",
+    "test/"
+  ],
+  "dependencies": {
+    "sandboxed-module": "^2.0.0"
+  },
   "devDependencies": {
     "browserify": "^8.1.3",
     "expect.js": "*",
@@ -32,8 +40,6 @@
     "gulp-uglify": "*",
     "gulp-wrap": "*",
     "minimist": "*",
-    "proxyquire": "*",
-    "rewire": "*",
     "sinon": "*",
     "uglifyify": "^3.0.1",
     "vinyl-buffer": "^1.0.0",

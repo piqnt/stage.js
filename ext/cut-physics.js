@@ -64,26 +64,24 @@ Cut.PJS.prototype = Cut._create(Cut.PJS._super.prototype);
 Cut.PJS.prototype.constructor = Cut.PJS;
 
 Cut.PJS.prototype.addRenderable = function(obj) {
-  console.log('add');
   if (obj.ui || !obj.geometry) {
     return;
   }
   var geometry = obj.geometry;
-  var cutout = null;
+  var texture = null;
   if ('circle' == geometry.name) {
-    cutout = this.drawCircle(geometry.radius);
+    texture = this.drawCircle(geometry.radius);
     // } else {
     // if (shape.points.length) {
-    // cutout = this.drawConvex(shape.points);
+    // texture = this.drawConvex(shape.points);
     // }
   }
-  obj.ui = Cut.create().append(Cut.image(cutout).pin({
+  obj.ui = Cut.create().append(Cut.image(texture).pin({
     handle : 0.5
   })).appendTo(this);
 };
 
 Cut.PJS.prototype.removeRenderable = function(obj) {
-  console.log('remove');
   obj.ui && obj.ui.remove();
   return this;
 };

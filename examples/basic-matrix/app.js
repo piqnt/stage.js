@@ -12,9 +12,7 @@ Cut(function(root, container) {
 });
 
 Cut({
-  image : {
-    url : 'box.png'
-  },
+  image : 'box.png',
   textures : {
     box : {
       x : 0,

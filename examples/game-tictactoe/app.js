@@ -163,7 +163,6 @@ Cut({
     '-' : Cut.drawing(function(ctx) {
       var ratio = 20;
       this.size(10, 10, ratio);
-
     })
   }
 });

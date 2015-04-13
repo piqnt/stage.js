@@ -1,3 +1,16 @@
+#### v0.5.0
+* atlas spec changed
+* Cut#id renamed to Cut#label
+* Cut.addTexture() removed
+* Image#cropY/cropY removed
+* Anim#gotoLabel removed
+* drawing() signature changed
+* Cut.preload() added
+* Texture renamed to Atlas
+* New Texture class replaced Cut.Out
+* Cut#_cutouts and Cut.cutout() renamed to Cut#_textures and Cut.texture()
+* image-loader spec changed
+
 #### v0.4.12
 * root.background method added
 

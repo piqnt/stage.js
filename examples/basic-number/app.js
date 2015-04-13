@@ -4,10 +4,10 @@ Cut(function(root, container) {
 
   root.viewbox(300, 200);
 
-  var popup = Cut.image('box').box().stretch().pin('align', 0.5).id('bg')
+  var popup = Cut.image('box').box().stretch().pin('align', 0.5).label('bg')
       .padding(10).appendTo(root);
 
-  var number = Cut.string('digit').value('0123456789').pin('align', 0.5).id('str')
+  var number = Cut.string('digit').value('0123456789').pin('align', 0.5).label('str')
       .appendTo(popup);
 
   root.on(Cut.Mouse.CLICK,

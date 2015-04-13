@@ -23,10 +23,10 @@ Cut(function(root, container) {
   });
 });
 
-// Adding an image texture
+// Adding a texture
 Cut({
-  imagePath : 'sample.png',
-  cutouts : [
-    { name : 'box', x : 0, y : 0, width : 30, height : 30 }
-  ]
+  image : 'sample.png',
+  textures : {
+    box : { x : 0, y : 0, width : 30, height : 30 }
+  }
 });

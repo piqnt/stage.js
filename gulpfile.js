@@ -16,25 +16,27 @@ var pkg = require('./package.json');
 
 gulp.task('default', [ 'test', 'build' ]);
 
-gulp.task('build', [ 'web', 'cordova' ]);
-
-gulp.task('web', dist('web'));
-gulp.task('cordova', dist('cordova'));
-
-gulp.task('build-nomin', [ 'web-nomin', 'cordova-nomin' ]);
-
-gulp.task('web-nomin', dist('web', true));
-gulp.task('cordova-nomin', dist('cordova', true));
-
 gulp.task('test', function() {
   return gulp.src('test/*.js', {
     read : false
   }).pipe(mocha({}));
 });
 
-gulp.task('watch', function() {
-  gulp.watch('{lib/*.js,platform/*.js}', [ 'build-nomin' ]);
+gulp.task('build', [ 'web', 'cordova' ]);
+
+gulp.task('web', dist('web'));
+gulp.task('cordova', dist('cordova'));
+
+gulp.task('dev', [ 'web-nomin', 'watch-dev' ]);
+
+gulp.task('watch-dev', function() {
+  gulp.watch('{lib/*.js,platform/*.js}', [ 'web-nomin' ]);
 });
+
+gulp.task('build-nomin', [ 'web-nomin', 'cordova-nomin' ]);
+
+gulp.task('web-nomin', dist('web', true));
+gulp.task('cordova-nomin', dist('cordova', true));
 
 function dist(file, nomin) {
   return function() {

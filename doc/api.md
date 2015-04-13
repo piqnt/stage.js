@@ -1,10 +1,10 @@
 #### Application
 
 ```javascript
-// Create an app with root node and canvas element
-Cut(function(root, canvas) {
-  // Your apps goes here, add nodes to the `root`
-  // `canvas` is the actual element displaying rendered graphics
+// Create and start an app
+Cut(function(root, element) {
+  // `root` is root node of the application tree
+  // `element` is the actual element displaying rendered graphics
 
   // Pause playing
   root.pause();
@@ -85,7 +85,7 @@ while (child = next) {
   // use child
 }
 
-// Visit foo's sub-tree
+// Visit foo's sub-tree including foo
 foo.visit({
   start : function(node) {
     return skipChildren;
@@ -98,16 +98,16 @@ foo.visit({
 });
 ```
 
-#### Ticks
-In each rendering cycle, before rendering, entire application tree is ticked.
+#### Game Loop
+Each rendering cycle consist of ticking and drawing application tree.
 The application and its nodes can be updated on ticking.
 
-If at least one node is touched during ticking the application tree will be rendered and game loop will continue,
-else if at least one ticking function returns true only game loop will continue,
-otherwise the application will pause until it is touched directly or indirectly.
+If at least one node is touched during ticking the application tree will be redrawn and game loop will continue
+If no node is touched but at least one ticking function returns `true` game loop will continue but previous drawing will be retained.
+Otherwise the application will pause until it is touched directly or indirectly.
 
-Nodes are usually touched indirectly by other actions such as pinning, 
-tree manipulation or other changes, but they can also be touched directly.
+Nodes are usually touched indirectly by other actions such as pinning or tree manipulation,
+but they can also be touched directly.
 
 ```javascript
 // Register a function to be called on ticking
@@ -117,45 +117,6 @@ foo.tick(function(millisecElapsed) {
 
 // Touch foo
 foo.touch();
-```
-
-#### Events
-
-```javascript
-// Register a listener to foo
-// Event `name` can be one or an array of strings or spaced separated strings
-foo.on(name, listener);
-
-// Unregister a listener from foo.
-foo.off(name, listener);
-
-// Get listeners registered to foo
-foo.listeners(name);
-
-// Call listeners with args, returns number of called listeners
-foo.publish(name, args);
-```
-
-#### Mouse and Touch
-Mouse class is used to capture mouse and touch events.
-
-```javascript
-// Subscribe root to Mouse events
-Cut.Mouse(root, canvas);
-
-// Add click listener to bar
-bar.on(Cut.Mouse.CLICK, function(point) {
-  // point.x and point.y are relative to this node left and top
-  // point.raw is original event
-  return trueToStopPropagating;
-});
-
-// Mouse events:
-Cut.Mouse.CLICK = 'click';
-Cut.Mouse.START = 'touchstart mousedown';
-Cut.Mouse.MOVE = 'touchmove mousemove';
-Cut.Mouse.END = 'touchend mouseup';
-Cut.Mouse.CANCEL = 'touchcancel';
 ```
 
 #### Pinning
@@ -227,120 +188,107 @@ bar.pin({
   scaleWidth : width,
   scaleHeight : height
 });
-
 ```
 
-#### Tweening
-Tweening can only be applied to pinning values.
+#### Events
 
 ```javascript
-// Create a tweening entry
-var tween = foo.tween(duration = 400, delay = 0);
+// Register a listener to foo
+// Event `name` can be one or an array of strings or spaced separated strings
+foo.on(name, listener);
 
-// Stop and clear tweening queue
-tween.clear(jumpToEnd = false);
+// Unregister a listener from foo.
+foo.off(name, listener);
 
-// Set pinning values and start tweening
-tween.pin(pinning);
+// Get listeners registered to foo
+foo.listeners(name);
 
-// Set easing for tweening, it can be either a function or an identifier as
-// 'name[-mode][(params)]', for example 'quad' or 'poly-in-out(3)'.
-tween.ease(easing);
+// Call listeners with args, returns number of called listeners
+foo.publish(name, args);
+```
 
-// Available names are: linear, quad, cubic, quart, quint, poly(p),
-// sin/sine, exp, circle/circ, bounce, elastic(a, p), back(s)
-// Available modes are: in, out, in-out, out-in
+#### Mouse and Touch
+Mouse class is used to capture mouse and touch events.
 
-// Callback when tweening is over
-tween.then(function() {
-  // this === foo
+```javascript
+// Subscribe root to Mouse events
+Cut.Mouse(root, element);
+
+// Add click listener to bar
+bar.on(Cut.Mouse.CLICK, function(point) {
+  // point.x and point.y are relative to this node left and top
+  // point.raw is original event
+  return trueToStopPropagating;
 });
 
-// Add another tweening to queue
-var nextTween = tween.tween(duration = 400, delay = 0);
+// Mouse events:
+Cut.Mouse.CLICK = 'click';
+Cut.Mouse.START = 'touchstart mousedown';
+Cut.Mouse.MOVE = 'touchmove mousemove';
+Cut.Mouse.END = 'touchend mouseup';
+Cut.Mouse.CANCEL = 'touchcancel';
 ```
 
-#### Texture and Cutout
-Application graphics are defined as cutout (sprites) and usually created by adding textures (sprite sheet).
+#### Texture
+A texture is an object which is used by tree nodes to draw graphics on the Canvas surface.
+
+#### Texture Atlas
+A texture atlas (sprite sheet) consists of a set of named textures which are referenced by name in the application.
+
+Atlases are usually created using static image files. Images referenced in atlases are automatically preloaded.
 
 ```javascript
-// Adding texture
+// Adding texture atlas
 Cut({
-  name : textureName, // optional
-  imagePath : textureImagePath,
-  imageRatio : 1,
-  cutouts : [ {
-    name : cutoutName,
-    x : x,
-    y : y,
-    width : width,
-    height : height,
-    top : 0,
-    bottom : 0,
-    left : 0,
-    right : 0
-  }, ... ],
-
-  // `cutouts` are passed through `map`, they can be modifed here
-  map : function(cutout) {
-    return cutout;
-  },
-
-  // `factory` is called when a cutoutName is not found in `cutouts`
-  factory : function(cutoutName) {
-    // Dynamically create a cutout
-    return cutout;
+  name : 'mario', // optional
+  image : {
+    src : 'mario.png',
+    ratio : 1, // optional, for high res images
   }
-}, ...);
-```
+  textures : {
+    stand : { x : x, y : y, width : width, height : height },
+    walk : [
+      { x : x, y : y, width : width, height : height },
+      { x : x, y : y, width : width, height : height },
+      { x : x, y : y, width : width, height : height }
+    ]
+  }
+});
 
-After registering a texture, its cutouts can be referenced and used by name. Note that `textureName:` is optional.
+Cut.image('mario:stand');
 
-```javascript
-// Single selection:
-Cut.image('textureName:cutoutName');
-
-// Multiple selection:
-Cut.anim('textureName:cutoutPrefix');
-Cut.string('textureName:cutoutPrefix');
+Cut.anim('mario:walk');
 ```
 
 #### Image
-An image is a node with one cutout.
+An image is a node with one texture.
 
 ```javascript
 // Create a new image instance
-var image = Cut.image(cutout);
+var image = Cut.image(texture);
 
 // Change image
-image.image(cutout);
+image.image(texture);
 
-// Crop image
-image.cropX(w, x = 0);
-image.cropY(h, y = 0);
-
-// Tile/Stretch image when pinning width and/or height. To define
-// borders use top, bottom, left and right with cutout definition
+// Tile/Stretch image when pinning width and/or height
+// To define borders add top, bottom, left and right to texture
 image.tile();
 image.stretch();
 ```
 
 #### Animation
-An animation (clip) is a node which have a set of cutouts as frames.
+An animation is a node with an array of textures as frames.
 
 ```javascript
 // Create a new anim instance
-var anim = Cut.anim(cutouts, fps = Cut.Anim.FPS);
+var anim = Cut.anim(textures, fps = Cut.Anim.FPS);
 
-// Get or set frame per second
+// Get or set animation frame per second
 anim.fps();
 anim.fps(fps);
 
-// Set anim frames as cutout prefix, see Cutout section for more
-anim.frames("[textureName:]cutoutPrefix");
-
-// Set anim frames as cutout array
-anim.frames([cutout, ...]);
+// Set anim frames, `textures` can be array or a selector
+anim.frames(textures);
 
 // Go to n-th frame
 anim.gotoFrame(n);
@@ -357,13 +305,12 @@ anim.play(frame = null);
 // Stop playing (and jump to `frame`)
 anim.stop(frame = null);
 
-// Play `repeat * length` frames and then stop and call back
+// Play `repeat * length` frames and then stop and call `callback`
 anim.repeat(repeat, callback = null);
 ```
 
 #### Row and Column
-A row/column is a node which organizes its children as a horizontal/vertical
-sequence.
+A row/column is a node which organizes its children as a horizontal/vertical sequence.
 
 ```javascript
 // Create a new row/column
@@ -383,18 +330,18 @@ String is a row of images, but images are dynamically created using `frames` and
 
 ```javascript
 // Create a new string instance
-var string = Cut.string(cutouts);
+var string = Cut.string(textures);
 
 // Value is a string or array, each char/item is used to create an image using
 // frames
 string.value(value);
 
-// Set string frames, see Cutout section for more
-string.frames(cutouts);
+// Set an array of named textures as frames
+string.frames([texture, ...]);
 
 // Use a function to dynamicly create string frames
 string.frames(function(charOrItem) {
-  return cutout;
+  return texture;
 });
 ```
 
@@ -408,36 +355,64 @@ var box = Cut.box();
 
 // Make foo a box
 foo = foo.box();
-
-// Add padding around box
-box.padding(pad);
 ```
 
-#### Drawing (experimental)
-Cutouts can also be created using Canvas API instead of image textures, they can be used with image and anim nodes.
+#### Tweening
+Tweening can only be applied to pinning values.
 
 ```javascript
-// Create a drawing cutout
-var cutout = Cut.Out.drawing(function(context) {
-  // this === cutout
+// Create a tweening entry
+var tween = foo.tween(duration = 400, delay = 0);
 
-  // Set available drawing size and initial cutout size
-  // This method sets associate Canvas size and clears it 
-  // Returns the same cutout object
-  this.size(width, height, ratio = 1);
+// Stop and clear tweening queue
+tween.clear(jumpToEnd = false);
+
+// Set pinning values and start tweening
+tween.pin(pinning);
+
+// Set easing for tweening, it can be either a function or an identifier
+// defined as 'name[-mode][(params)]', for example 'quad' or 'poly-in-out(3)'
+tween.ease(easing);
+
+// Available easing names are: linear, quad, cubic, quart, quint, poly(p),
+// sin/sine, exp, circle/circ, bounce, elastic(a, p), back(s)
+// Available easing modes are: in, out, in-out, out-in
+
+// Callback when tweening is over
+tween.then(function() {
+  // this === foo
 });
 
-// A drawing cutout can be used to create an image node
-var image = Cut.image(cutout);
+// Add another tweening to the queue
+var nextTween = tween.tween(duration = 400, delay = 0);
+```
 
-// There is a shorthand for creating images using drawing cutout
-var image = Cut.drawing(drawingFunction);
+#### Global Methods
+```javascript
 
-// A drawing can also be used in textures
-Cut({
-  cutouts : [ Cut.Out.drawing(), ... ],
-  factory : function(name) {
-    return Cut.Out.drawing();
-  }
+// Create a new app
+Cut(function(root, element) { });
+
+// Create and preload a texture atlas
+Cut({ });
+
+// A function to be called before starting any app
+// Can be used for preloading application assets
+Cut.preload(function(done) {
+  // Call `done` when loaded or failed
+  done(error = undefined);
 });
+
+// Start loading and playing all applications
+// Called inernally by a platform loader
+Cut.start(config);
+
+// Pause playing all applications
+// Called inernally by a platform loader
+Cut.pause();
+
+// Resume playing all applications
+// Called inernally by a platform loader
+Cut.resume();
+
 ```

@@ -29,7 +29,7 @@ it('Mouse', function() {
   });
 
   var cuts = memo(function(id) {
-    return Cut.create().id(id).pin({
+    return Cut.create().label(id).pin({
       width : 400,
       height : 300
     });

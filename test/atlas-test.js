@@ -20,15 +20,15 @@ function bemario(obj) {
   expect(obj.width).be(mario.width);
   expect(obj.height).be(mario.height);
 
-  expect(obj.sx).be(mario.x);
-  expect(obj.sy).be(mario.y);
-  expect(obj.sw).be(mario.width);
-  expect(obj.sh).be(mario.height);
+  expect(obj._sx).be(mario.x);
+  expect(obj._sy).be(mario.y);
+  expect(obj._sw).be(mario.width);
+  expect(obj._sh).be(mario.height);
 
-  expect(obj.dx).be(0);
-  expect(obj.dy).be(0);
-  expect(obj.dw).be(mario.width);
-  expect(obj.dh).be(mario.height);
+  expect(obj._dx).be(0);
+  expect(obj._dy).be(0);
+  expect(obj._dw).be(mario.width);
+  expect(obj._dh).be(mario.height);
 }
 
 it('Atlas', function() {

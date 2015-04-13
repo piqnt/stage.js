@@ -128,8 +128,8 @@ Cut.P2.prototype.addRenderable = function(obj) {
 
   if (obj instanceof p2.Body && obj.shapes.length) {
     if (obj.concavePath && !this.options.debugPolygons) {
-      var cutout = this.drawConvex(obj.concavePath);
-      Cut.image(cutout).appendTo(obj.ui).pin({
+      var texture = this.drawConvex(obj.concavePath);
+      Cut.image(texture).appendTo(obj.ui).pin({
         handle : 0.5,
         offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
         offsetY : -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
@@ -140,34 +140,34 @@ Cut.P2.prototype.addRenderable = function(obj) {
       for (var i = 0; i < obj.shapes.length; i++) {
         var shape = obj.shapes[i];
 
-        var cutout = null;
+        var texture = null;
         if (shape instanceof p2.Circle) {
-          cutout = this.drawCircle(shape.radius);
+          texture = this.drawCircle(shape.radius);
 
         } else if (shape instanceof p2.Particle) {
-          cutout = this.drawCircle(2 * this.options.get('lineWidth'), {
+          texture = this.drawCircle(2 * this.options.get('lineWidth'), {
             lineColor : "",
             fillColor : this.options.lineColor
           });
 
         } else if (shape instanceof p2.Plane) {
-          cutout = this.drawPlane(-10, 10, 10);
+          texture = this.drawPlane(-10, 10, 10);
 
         } else if (shape instanceof p2.Line) {
-          cutout = this.drawLine(shape.length);
+          texture = this.drawLine(shape.length);
 
         } else if (shape instanceof p2.Rectangle) {
-          cutout = this.drawRectangle(shape.width, shape.height);
+          texture = this.drawRectangle(shape.width, shape.height);
 
         } else if (shape instanceof p2.Capsule) {
-          cutout = this.drawCapsule(shape.length, shape.radius);
+          texture = this.drawCapsule(shape.length, shape.radius);
 
         } else if (shape instanceof p2.Convex) {
           if (shape.vertices.length) {
-            cutout = this.drawConvex(shape.vertices);
+            texture = this.drawConvex(shape.vertices);
           }
         }
-        Cut.image(cutout).appendTo(obj.ui).pin({
+        Cut.image(texture).appendTo(obj.ui).pin({
           handle : 0.5,
           offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
           offsetY : -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
@@ -177,8 +177,8 @@ Cut.P2.prototype.addRenderable = function(obj) {
     }
 
   } else if (obj instanceof p2.Spring) {
-    var cutout = this.drawSpring(obj.restLength);
-    Cut.image(cutout).appendTo(obj.ui).pin({
+    var texture = this.drawSpring(obj.restLength);
+    Cut.image(texture).appendTo(obj.ui).pin({
       handle : 0.5
     });
   }

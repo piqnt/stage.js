@@ -25,9 +25,7 @@ Cut(function(root, container) {
 });
 
 Cut({
-  image : {
-    url : 'pinwheel.png'
-  },
+  image : 'pinwheel.png',
   textures : {
     pinwheel : {
       x : 0,

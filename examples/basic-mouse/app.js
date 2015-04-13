@@ -2,21 +2,21 @@ Cut(function(root, container) {
 
   Cut.Mouse(root, container);
 
-  root.viewbox(300, 100).id('root');
+  root.viewbox(300, 100);
 
-  var row = Cut.row().appendTo(root).pin('align', 0.5).spacing(1).id('row');
+  var row = Cut.row().appendTo(root).pin('align', 0.5).spacing(1);
 
   Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.CLICK, function(point) {
     this.moveFrame(1);
-  }).id('click');
+  }).label('click');
 
   Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.START, function(point) {
     this.moveFrame(1);
-  }).id('start');
+  }).label('start');
 
   Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.END, function(point) {
     this.moveFrame(1);
-  }).id('end');
+  }).label('end');
 
   var cursor = Cut.image('circle').pin({
     handle : 0.5

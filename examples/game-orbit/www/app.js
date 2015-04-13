@@ -44,7 +44,7 @@ Cut(function(root, container) {
   root.viewbox(150, 150);
 
   // add the background
-  Cut.image('bg:black').pin('align', 0.5).on('viewport', function() {
+  Cut.image('background').pin('align', 0.5).on('viewport', function() {
     // on viewport change scale it to fill root
     this.pin({
       scaleMode : 'out',
@@ -92,9 +92,9 @@ Cut(function(root, container) {
   var spacepanel = Cut.create().appendTo(playview).pin('align', 0.5);
 
   // score number
-  var scorenum = Cut.string('digit:').pin('scale', 0.8);
+  var scorenum = Cut.string('digit').pin('scale', 0.8);
   // life number
-  var lifenum = Cut.string('digit:').pin('scale', 0.8).hide();
+  var lifenum = Cut.string('digit').pin('scale', 0.8).hide();
   // align score and life number on a row and place it on top-left
   Cut.row().spacing(2).pin({
     offset : 2,

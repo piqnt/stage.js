@@ -93,19 +93,19 @@ Cut.SAT.prototype.addRenderable = function(obj) {
 
   obj.ui = Cut.create().appendTo(this);
 
-  var cutout = null;
+  var texture = null;
   var shape = obj.shape;
 
   if (shape instanceof SAT.Circle) {
-    cutout = this.drawCircle(shape.r);
+    texture = this.drawCircle(shape.r);
 
   } else {
     if (shape.points.length) {
-      cutout = this.drawConvex(shape.points);
+      texture = this.drawConvex(shape.points);
     }
   }
 
-  Cut.image(cutout).appendTo(obj.ui).pin({
+  Cut.image(texture).appendTo(obj.ui).pin({
     handle : 0.5
   });
 
