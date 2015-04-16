@@ -1,5 +1,5 @@
 /*
- * CutJS 0.5.0-beta.1
+ * CutJS 0.5.0-beta.2
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -217,7 +217,7 @@ Cut.texture = function(query, qualifier) {
     // cache[query] = result || null;
     // }
     if (!result) {
-        throw "Texture not found: '" + query + "'";
+        throw "Texture not found: '" + query + (sub ? "+" + sub : "") + "'";
     }
     var reqisarr = is.array(qualifier);
     var resisarr = is.array(result);
@@ -1467,7 +1467,7 @@ Cut._init(function() {
 });
 
 Cut.prototype.matrix = function() {
-    return this._pin.absoluteMatrix(this, this._parent ? this._parent._pin : null);
+    return this._pin.absoluteMatrix();
 };
 
 Cut.prototype.pin = function(a, b) {
@@ -1531,8 +1531,9 @@ Pin.prototype.reset = function() {
     this._ts_matrix = ++iid;
 };
 
-Pin.prototype.tick = function() {
+Pin.prototype._update = function() {
     this._parent = this._owner._parent && this._owner._parent._pin;
+    // if handled and transformed then be translated
     if (this._handled && this._mo_handle != this._ts_transform) {
         this._mo_handle = this._ts_transform;
         this._ts_translate = ++iid;
@@ -1548,7 +1549,9 @@ Pin.prototype.toString = function() {
     return this._owner + " (" + (this._parent ? this._parent._owner : null) + ")";
 };
 
+// TODO: ts fields require refactoring
 Pin.prototype.absoluteMatrix = function() {
+    this._update();
     var ts = Math.max(this._ts_transform, this._ts_translate, this._parent ? this._parent._ts_matrix : 0);
     if (this._mo_abs == ts) {
         return this._absoluteMatrix;
@@ -1562,6 +1565,7 @@ Pin.prototype.absoluteMatrix = function() {
 };
 
 Pin.prototype.relativeMatrix = function() {
+    this._update();
     var ts = Math.max(this._ts_transform, this._ts_translate, this._parent ? this._parent._ts_transform : 0);
     if (this._mo_rel == ts) {
         return this._relativeMatrix;
@@ -1578,19 +1582,20 @@ Pin.prototype.relativeMatrix = function() {
     if (this._pivoted) {
         rel.translate(this._pivotX * this._width, this._pivotY * this._height);
     }
+    // calculate effective box
     if (this._pivoted) {
-        // set handle on origin
+        // origin
         this._boxX = 0;
         this._boxY = 0;
         this._boxWidth = this._width;
         this._boxHeight = this._height;
     } else {
-        // set handle on aabb
-        var p, q, m = rel;
-        if (m.a > 0 && m.c > 0 || m.a < 0 && m.c < 0) {
-            p = 0, q = m.a * this._width + m.c * this._height;
+        // aabb
+        var p, q;
+        if (rel.a > 0 && rel.c > 0 || rel.a < 0 && rel.c < 0) {
+            p = 0, q = rel.a * this._width + rel.c * this._height;
         } else {
-            p = m.a * this._width, q = m.c * this._height;
+            p = rel.a * this._width, q = rel.c * this._height;
         }
         if (p > q) {
             this._boxX = q;
@@ -1599,10 +1604,10 @@ Pin.prototype.relativeMatrix = function() {
             this._boxX = p;
             this._boxWidth = q - p;
         }
-        if (m.b > 0 && m.d > 0 || m.b < 0 && m.d < 0) {
-            p = 0, q = m.b * this._width + m.d * this._height;
+        if (rel.b > 0 && rel.d > 0 || rel.b < 0 && rel.d < 0) {
+            p = 0, q = rel.b * this._width + rel.d * this._height;
         } else {
-            p = m.b * this._width, q = m.d * this._height;
+            p = rel.b * this._width, q = rel.d * this._height;
         }
         if (p > q) {
             this._boxY = q;
@@ -2150,6 +2155,34 @@ Cut.prototype._tickAfter = null;
 
 Cut.prototype._alpha = 1;
 
+Cut.prototype.render = function(context) {
+    if (!this._visible) {
+        return;
+    }
+    stats.node++;
+    var m = this.matrix();
+    context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
+    // move this elsewhere!
+    this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
+    var alpha = this._pin._textureAlpha * this._alpha;
+    if (context.globalAlpha != alpha) {
+        context.globalAlpha = alpha;
+    }
+    if (this._textures !== null) {
+        for (var i = 0, n = this._textures.length; i < n; i++) {
+            this._textures[i].draw(context);
+        }
+    }
+    if (context.globalAlpha != this._alpha) {
+        context.globalAlpha = this._alpha;
+    }
+    var child, next = this._first;
+    while (child = next) {
+        next = child._next;
+        child.render(context);
+    }
+};
+
 Cut.prototype.MAX_ELAPSE = Infinity;
 
 Cut.prototype._tick = function(elapsed, now, last) {
@@ -2159,7 +2192,6 @@ Cut.prototype._tick = function(elapsed, now, last) {
     if (elapsed > this.MAX_ELAPSE) {
         elapsed = this.MAX_ELAPSE;
     }
-    this._pin.tick();
     var ticked = false;
     if (this._tickBefore !== null) {
         for (var i = 0, n = this._tickBefore.length; i < n; i++) {
@@ -2170,7 +2202,9 @@ Cut.prototype._tick = function(elapsed, now, last) {
     var child, next = this._first;
     while (child = next) {
         next = child._next;
-        ticked = child._tick(elapsed, now, last) === true ? true : ticked;
+        if (child._flag("_tick")) {
+            ticked = child._tick(elapsed, now, last) === true ? true : ticked;
+        }
     }
     if (this._tickAfter !== null) {
         for (var i = 0, n = this._tickAfter.length; i < n; i++) {
@@ -2196,6 +2230,7 @@ Cut.prototype.tick = function(ticker, before) {
         }
         this._tickAfter.push(ticker);
     }
+    this._flag("_tick", this._tickAfter !== null && this._tickAfter.length > 0 || this._tickBefore !== null && this._tickBefore.length > 0);
 };
 
 Cut.prototype.untick = function(ticker) {
@@ -2211,33 +2246,6 @@ Cut.prototype.untick = function(ticker) {
     }
 };
 
-Cut.prototype.render = function(context) {
-    if (!this._visible) {
-        return;
-    }
-    stats.node++;
-    var m = this._pin.absoluteMatrix();
-    context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
-    this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
-    var alpha = this._pin._textureAlpha * this._alpha;
-    if (context.globalAlpha != alpha) {
-        context.globalAlpha = alpha;
-    }
-    if (this._textures !== null) {
-        for (var i = 0, n = this._textures.length; i < n; i++) {
-            this._textures[i].draw(context);
-        }
-    }
-    if (context.globalAlpha != this._alpha) {
-        context.globalAlpha = this._alpha;
-    }
-    var child, next = this._first;
-    while (child = next) {
-        next = child._next;
-        child.render(context);
-    }
-};
-
 Root._super = Cut;
 
 Root.prototype = create(Root._super.prototype);
@@ -2248,6 +2256,7 @@ Cut.root = function(request, render) {
 
 function Root(request, render) {
     Root._super.call(this);
+    this.label("Root");
     this._paused = true;
     var self = this;
     var lastTime = 0;
@@ -2365,6 +2374,7 @@ Image.prototype = create(Image._super.prototype);
 
 function Image() {
     Image._super.call(this);
+    this.label("Image");
     this._textures = [];
     this._image = null;
 }
@@ -2429,6 +2439,7 @@ Anim.FPS = 12;
 
 function Anim() {
     Anim._super.call(this);
+    this.label("Anim");
     this._textures = [];
     this._fps = Anim.FPS;
     this._ft = 1e3 / this._fps;
@@ -2467,7 +2478,7 @@ Anim.prototype.fps = function(fps) {
     if (typeof fps === "undefined") {
         return this._fps;
     }
-    this._fps = fps || Cut.Anim.FPS;
+    this._fps = fps > 0 ? fps : Cut.Anim.FPS;
     this._ft = 1e3 / this._fps;
     return this;
 };
@@ -2542,6 +2553,7 @@ Str.prototype = create(Str._super.prototype);
 
 function Str() {
     Str._super.call(this);
+    this.label("String");
     this._textures = [];
 }
 
@@ -2553,16 +2565,17 @@ Str.prototype.setFont = function(a, b, c) {
 };
 
 Str.prototype.frames = function(frames) {
+    this._textures = [];
     if (typeof frames == "string") {
-        this._frames = function(value) {
+        this._item = function(value) {
             return Cut.texture(frames, value);
         };
     } else if (typeof frames === "object") {
-        this._frames = function(value) {
+        this._item = function(value) {
             return frames[value];
         };
     } else if (typeof frames === "function") {
-        this._frames = frames;
+        this._item = frames;
     }
     return this;
 };
@@ -2590,11 +2603,9 @@ Str.prototype.value = function(value) {
     this._spacing = this._spacing || 0;
     var width = 0, height = 0;
     for (var i = 0; i < value.length; i++) {
-        var image = this._frames(value[i]);
-        var repeat = this._textures.length > i ? this._textures[i] : this._textures[i] = image.pipe();
+        var image = this._textures[i] = this._item(value[i]);
         width += i > 0 ? this._spacing : 0;
-        repeat.src(image.width, image.height);
-        repeat.dest(width, 0);
+        image.dest(width, 0);
         width = width + image.width;
         height = Math.max(height, image.height);
     }
