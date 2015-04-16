@@ -9,7 +9,7 @@ Conf.dotSpace = 6;
 Conf.speed = 0.11;
 Conf.acceleration = 0.0008 / 1000;
 
-Conf.ups = [ "power", "energy", "speed", "pull", "push", "slow" ];
+Conf.ups = [ 'power', 'energy', 'speed', 'pull', 'push', 'slow' ];
 
 Conf.radius = {
   Player : 6,
@@ -29,13 +29,13 @@ Conf.push = {
 };
 
 Conf.coinsScale = {
-  c1 : 0.70,
-  c2 : 0.75,
-  c5 : 0.80,
-  c10 : 0.90,
-  c20 : 0.95,
-  c50 : 1,
-  c100 : 1.1
+  '1' : 0.70,
+  '2' : 0.75,
+  '5' : 0.80,
+  '10' : 0.90,
+  '20' : 0.95,
+  '50' : 1,
+  '100' : 1.1
 };
 
 var Format = {};
@@ -44,34 +44,34 @@ Format.coin = function(num) {
   num = num || 0;
   if (num < 10000) {
   } else if (num < 1000000) {
-    num = (((num / 100) | 0) / 10) + "k";
+    num = (((num / 100) | 0) / 10) + 'k';
   } else {
-    num = (((num / 10000) | 0) / 100) + "M";
+    num = (((num / 10000) | 0) / 100) + 'M';
   }
-  return "$" + num;
+  return '$' + num;
 };
 
 Format.k = function(num) {
   num = num ? ((num / 10) | 0) : 0;
   if (num < 10000) {
   } else if (num < 1000000) {
-    num = (((num / 100) | 0) / 10) + "k";
+    num = (((num / 100) | 0) / 10) + 'k';
   } else {
-    num = (((num / 10000) | 0) / 100) + "M";
+    num = (((num / 10000) | 0) / 100) + 'M';
   }
   return num;
 };
 
 var Data = {
-  key : "data"
+  key : 'data'
 };
 
 Data.load = function() {
   var key = Data.key;
-  DEBUG && console.log("game load", key);
+  DEBUG && console.log('game load', key);
   try {
     var data = localStorage.getItem(key);
-    DEBUG && console.log("game load", key, data);
+    DEBUG && console.log('game load', key, data);
     return (data && JSON.parse(data)) || {};
   } catch (e) {
     console.log(e);
@@ -81,10 +81,10 @@ Data.load = function() {
 
 Data.save = function(data) {
   var key = Data.key;
-  DEBUG && console.log("game save", key);
+  DEBUG && console.log('game save', key);
   try {
     data = JSON.stringify(data);
-    DEBUG && console.log("game save", key, data);
+    DEBUG && console.log('game save', key, data);
     localStorage.setItem(key, data);
     return true;
   } catch (e) {
@@ -122,7 +122,7 @@ function Game() {
 
   this.upgrade = function(name) {
     var price = this.price(name);
-    DEBUG && console.log("upgrade: " + name + " at " + price);
+    DEBUG && console.log('upgrade: ' + name + ' at ' + price);
     if (price > 0 && price <= stats.coins) {
       stats.coins -= price;
       upgrades[name] += 1;
@@ -294,7 +294,7 @@ function Game() {
   };
 
   this.start = function() {
-    DEBUG && console.log("game start");
+    DEBUG && console.log('game start');
 
     this.clear();
 
@@ -332,7 +332,7 @@ function Game() {
   };
 
   this.end = function(die) {
-    DEBUG && console.log("game end");
+    DEBUG && console.log('game end');
     if (this.speed <= 0) {
       return;
     }
@@ -359,7 +359,7 @@ function Game() {
   };
 
   this.clear = function() {
-    DEBUG && console.log("game clear");
+    DEBUG && console.log('game clear');
 
     for (var i = 0; i < objects.length; i++) {
       objects[i].remove();
@@ -406,7 +406,7 @@ function Game() {
 
   function Player() {
     this.radius = Conf.radius.Player;
-    this.name = "player";
+    this.name = 'player';
     game.uiNewPlayer(this);
   }
 
@@ -574,14 +574,14 @@ function Game() {
 
   randomEnemy.add(function(x) {
     var y = M.random(-1, 1) * (Conf.height / 2 - 10);
-    return game.newEnemy("box", x, y);
+    return game.newEnemy('box', x, y);
   });
 
   randomEnemy.add(function(x) {
     var d = M.random() >= 0.5 ? 1 : -1;
     var y = d * Conf.height / 2;
     var vy = -d * game.speed / 2 * M.random(0.7, 1.4);
-    return game.newEnemy("tri", x + 400 * game.speed, y - 400 * vy, 0, vy);
+    return game.newEnemy('tri', x + 400 * game.speed, y - 400 * vy, 0, vy);
   });
 
   var randomCoin = new Randomize().spacing(function() {
@@ -885,7 +885,6 @@ function Game() {
 Cut(function(root, elem) {
   TOP = typeof TOP === 'number' ? TOP : 0;
   var Mouse = Cut.Mouse;
-  Cut.Anim.FPS = 11;
 
   Cut.prototype.xy = (function() {
     var pin = {};
@@ -900,11 +899,11 @@ Cut(function(root, elem) {
 
   var game = new Game();
 
-  root.on("viewport", function(viewport) {
+  root.on('viewport', function(viewport) {
     this.pin({
       width : Conf.width,
       height : Conf.height * 1.2,
-      scaleMode : "in-pad",
+      scaleMode : 'in-pad',
       scaleWidth : viewport.width,
       scaleHeight : viewport.height - TOP,
       offsetY : TOP
@@ -912,14 +911,14 @@ Cut(function(root, elem) {
   });
 
   function open(view) {
-    if (typeof view == "string") {
+    if (typeof view == 'string') {
       view = root[view];
     }
     if (open.view === view) {
       return;
     }
-    open.view && open.view.trigger("close");
-    open.view = view.trigger("open");
+    open.view && open.view.trigger('close');
+    open.view = view.trigger('open');
   }
 
   (function() {// home screen
@@ -927,16 +926,16 @@ Cut(function(root, elem) {
       align : 0.5
     });
 
-    home.on("viewport", function() {
+    home.on('viewport', function() {
       this.pin({
-        width : this.parent().pin("width"),
-        height : this.parent().pin("height")
+        width : this.parent().pin('width'),
+        height : this.parent().pin('height')
       });
 
       bg.pin({
-        scaleMode : "out",
-        scaleWidth : this.pin("width"),
-        scaleHeight : this.pin("height")
+        scaleMode : 'out',
+        scaleWidth : this.pin('width'),
+        scaleHeight : this.pin('height')
       });
     });
 
@@ -944,27 +943,27 @@ Cut(function(root, elem) {
       refresh();
     };
 
-    home.on("open", function() {
+    home.on('open', function() {
       refresh();
       this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
     });
 
-    home.on("close", function() {
+    home.on('close', function() {
       this.tween(200).pin('alpha', 0).then(function() {
         this.hide();
       });
     });
 
-    var bg = Cut.image("main:homebg").appendTo(home).pin("align", 0.5);
+    var bg = Cut.image('homebg').appendTo(home).pin('align', 0.5);
 
-    var menu = Cut.column(0).appendTo(home).pin("align", 0.5).spacing(4);
+    var menu = Cut.column(0).appendTo(home).pin('align', 0.5).spacing(4);
 
-    var tombstone = Cut.image("main:tombstone").appendTo(menu);
+    var tombstone = Cut.image('tombstone').appendTo(menu);
 
     var row = Cut.row().appendTo(menu).spacing(4);
     var flags = [];
     for (var i = 0; i < 6; i++) {
-      var flag = Cut.image("main:play").appendTo(row).on(Mouse.CLICK,
+      var flag = Cut.image('play').appendTo(row).on(Mouse.CLICK,
           startFrom(i - 1));
       flags.push(flag);
     }
@@ -972,9 +971,9 @@ Cut(function(root, elem) {
     function startFrom(flag) {
       return function() {
         if (flag == game.data.upgrades.flags) {
-          game.upgrade("flags");
+          game.upgrade('flags');
         } else if (game.startFrom(flag)) {
-          open("play");
+          open('play');
         }
         return true;
       };
@@ -987,19 +986,19 @@ Cut(function(root, elem) {
 
     for (var i = 0; i < Conf.ups.length; i++) {
       var name = Conf.ups[i];
-      upgrades[name] = Cut.image("main:option").appendTo(row)
-          .attr("name", name).on(Mouse.CLICK, function() {
-            game.upgrade(this.attr("name"));
+      upgrades[name] = Cut.image('option').appendTo(row).attr('name', name).on(
+          Mouse.CLICK, function() {
+            game.upgrade(this.attr('name'));
           });
     }
 
     function refresh() {
       for (var i = 0; i < flags.length; i++) {
-        var button = flags[i].empty().pin("alpha", 0.9);
+        var button = flags[i].empty().pin('alpha', 0.9);
         if (i <= game.data.upgrades.flags) {
           var value = Format.k(game.data.flags[i - 1]);
-          value = i > 0 ? (value || "-") : 0;
-          Cut.string("main:d_").appendTo(button).pin({
+          value = i > 0 ? (value || '-') : 0;
+          Cut.string('d').appendTo(button).pin({
             alignY : 0.5,
             alignX : 0.45,
             handle : 0.5,
@@ -1007,9 +1006,9 @@ Cut(function(root, elem) {
           }).value(value);
           continue;
         }
-        var price = game.price("flags");
+        var price = game.price('flags');
         if (i == game.data.upgrades.flags + 1) {
-          Cut.string("main:d_").value(Format.coin(price)).pin({
+          Cut.string('d').value(Format.coin(price)).pin({
             alignY : 0.5,
             alignX : 0.4,
             handle : 0.5,
@@ -1018,21 +1017,21 @@ Cut(function(root, elem) {
           }).appendTo(button);
         }
         for (var child = button.first(); child; child = child.next()) {
-          child.pin("alpha", price <= game.data.stats.coins ? 1 : 0.5);
+          child.pin('alpha', price <= game.data.stats.coins ? 1 : 0.5);
         }
       }
 
       tombstone.empty();
-      Cut.string("main:d_").appendTo(tombstone).pin({
+      Cut.string('d').appendTo(tombstone).pin({
         alignX : 0.5,
         alignY : 1,
         offsetX : -2,
         offsetY : -6,
         alpha : 0.6,
         scale : 0.8
-      }).value(0 + "-" + Format.k(game.data.stats.dist));
+      }).value(0 + '-' + Format.k(game.data.stats.dist));
 
-      Cut.string("main:d_").appendTo(tombstone).pin({
+      Cut.string('d').appendTo(tombstone).pin({
         alignX : 0.5,
         alignY : 0,
         offsetX : -4,
@@ -1045,11 +1044,11 @@ Cut(function(root, elem) {
         var name = Conf.ups[i];
         var price = game.price(name);
         var level = game.data.upgrades[name] || 0;
-        var button = upgrades[name].empty().pin("alpha", 0.9);
+        var button = upgrades[name].empty().pin('alpha', 0.9);
         // image
-        Cut.image("main:up_" + name).pin("align", 0.5).appendTo(button);
+        Cut.image('up_' + name).pin('align', 0.5).appendTo(button);
         // price
-        Cut.string("main:d_").value(Format.coin(price)).pin({
+        Cut.string('d').value(Format.coin(price)).pin({
           align : 1,
           offsetX : -1.6,
           offsetY : -1.4,
@@ -1058,18 +1057,18 @@ Cut(function(root, elem) {
         }).appendTo(button);
         // level
         if (level <= 6) {
-          Cut.image("main:up_" + level).pin({
+          Cut.string('up').pin({
             alignX : 0,
             alignY : 0,
             offsetX : 1.6,
             offsetY : 1.4,
             alpha : 0.8,
             scale : 0.6
-          }).appendTo(button);
+          }).appendTo(button).value(level);
         }
 
         for (var child = button.first(); child; child = child.next()) {
-          child.pin("alpha", price <= game.data.stats.coins ? 1 : 0.5);
+          child.pin('alpha', price <= game.data.stats.coins ? 1 : 0.5);
         }
       }
     }
@@ -1080,34 +1079,34 @@ Cut(function(root, elem) {
       align : 0.5
     });
 
-    play.on("viewport", function() {
+    play.on('viewport', function() {
       this.pin({
-        width : this.parent().pin("width"),
-        height : this.parent().pin("height")
+        width : this.parent().pin('width'),
+        height : this.parent().pin('height')
       });
 
       bg.pin({
-        scaleMode : "out",
-        scaleWidth : this.pin("width"),
-        scaleHeight : this.pin("height")
+        scaleMode : 'out',
+        scaleWidth : this.pin('width'),
+        scaleHeight : this.pin('height')
       });
 
-      var toph = TOP / this.pin("scaleX") / this.parent().pin("scaleX");
+      var toph = TOP / this.pin('scaleX') / this.parent().pin('scaleX');
       top.pin({
-        width : this.pin("width"),
+        width : this.pin('width'),
         height : toph,
         offsetY : -toph
       });
     });
 
-    play.on("open", function() {
-      elem.style && (elem.style.cursor = "none");
+    play.on('open', function() {
+      elem.style && (elem.style.cursor = 'none');
       game.start();
       this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
     });
 
-    play.on("close", function() {
-      elem.style && (elem.style.cursor = "");
+    play.on('close', function() {
+      elem.style && (elem.style.cursor = '');
       game.end();
       this.tween(200).pin('alpha', 0).then(function() {
         this.hide();
@@ -1118,21 +1117,16 @@ Cut(function(root, elem) {
       game.tick(t);
     }, true);
 
-    var bg = Cut.image("main:playbg").appendTo(play).pin("align", 0.5);
-    var bgcolor = Cut.anim("main:c_").appendTo(bg).pin({
-      alpha : 0.6,
-      align : 0.5,
-      scale : 3
-    });
+    var bg = Cut.image('playbg').appendTo(play).pin('align', 0.5);
 
-    var border = Cut.image("main:border").stretch().appendTo(play).pin({
+    var border = Cut.image('border').stretch().appendTo(play).pin({
       width : Conf.width,
       height : Conf.height,
       align : 0.5,
       alpha : 0.5
     });
 
-    var top = Cut.image("main:shadow").stretch().appendTo(play);
+    var top = Cut.image('shadow').stretch().appendTo(play);
 
     var field = Cut.create().appendTo(play).attr('spy', true).pin({
       width : Conf.width,
@@ -1142,21 +1136,21 @@ Cut(function(root, elem) {
       handleY : 0
     });
 
-    var energy = Cut.image("main:energy").stretch().appendTo(play).pin({
+    var energy = Cut.image('energy').stretch().appendTo(play).pin({
       alignX : 0,
       alignY : 0,
       offsetX : 3,
       offsetY : 2
     });
 
-    var dist = Cut.string("main:d_").appendTo(play).pin({
+    var dist = Cut.string('d').appendTo(play).pin({
       alignX : 0,
       alignY : 0,
       offsetX : 3,
       offsetY : 9
     });
 
-    var coins = Cut.string("main:d_").appendTo(play).pin({
+    var coins = Cut.string('d').appendTo(play).pin({
       alignX : 1,
       alignY : 0,
       offsetX : -3,
@@ -1168,14 +1162,12 @@ Cut(function(root, elem) {
       alignY : 0,
       offsetX : 10,
       offsetY : 2
-    }).append(Cut.anim("main:coin_"), Cut.string("main:d_").pin("scale", 0.8))
-        .hide();
+    }).append(Cut.image(), Cut.string('d').pin('scale', 0.8)).hide();
 
     var lastCoinTimeout = null;
 
     function setLastCoin(value, scale) {
-      lastCoin.first().gotoLabel("coin_" + value + "_")
-          .pin("scale", scale || 1);
+      lastCoin.first().image('coin_' + value).pin('scale', scale || 1);
       lastCoin.last().value(Format.coin(value)).visible(value > 100);
 
       lastCoin.show();
@@ -1185,8 +1177,7 @@ Cut(function(root, elem) {
       }, 1000);
     }
 
-    var cursor = Cut.image("main:cursor").pin("handle", 0.5).appendTo(field)
-        .hide();
+    var cursor = Cut.image('cursor').pin('handle', 0.5).appendTo(field).hide();
 
     var l1 = Cut.create().appendTo(field);
     var l2 = Cut.create().appendTo(field);
@@ -1200,43 +1191,41 @@ Cut(function(root, elem) {
       // game.move(x, y);
     });
 
-    var colors = {
-      list : randomList(bgcolor.length()),
-      i : 0,
-      next : function() {
-        return this.list[(this.i++) % this.list.length];
-      }
-    };
-
-    function randomList(size) {
-      var list = [];
-      for (var i = 0; i < size; i++) {
-        list[i] = i;
-      }
-      for (var i = 0; i < size; i++) {
-        var j = Math.floor(Math.random() * (size - i)) + i;
+    function randomize(list) {
+      // shuffle
+      for (var i = list.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
         var temp = list[i];
         list[i] = list[j];
         list[j] = temp;
       }
-      return list;
+      i = 0;
+      return function() {
+        return list[i++ % list.length];
+      };
     }
 
+    var bgcolors = randomize([ '#f2f2f2', '#e1e1e1', '#ff5a82', '#ff5555',
+        '#db4cf4', '#ff4edc', '#7d7de8', '#a163ff', '#5ba2dd', '#00b2de',
+        '#56dc8b', '#62d962', '#a0f667', '#d6ff36', '#ecff24', '#fffe34',
+        '#ffda3e', '#ffb843' ]);
+
     game.uiStart = function() {
-      DEBUG && console.log("app start");
-      bgcolor.gotoFrame(colors.next());
+      DEBUG && console.log('app start');
+      root.background(bgcolors());
       tilt.start();
     };
 
     game.uiMove = function(dist, time, d, t) {
-      cursor.pin("offsetX", cursor.pin("offsetX") + d);
-      field.pin("offsetX", -dist);
+      cursor.pin('offsetX', cursor.pin('offsetX') + d);
+      field.pin('offsetX', -dist);
     };
 
     game.uiEnd = function() {
-      DEBUG && console.log("app end");
+      DEBUG && console.log('app end');
       setTimeout(function() {
-        open("home");
+        open('home');
+        root.background('#000');
       }, 1000);
       tilt.stop();
     };
@@ -1246,7 +1235,7 @@ Cut(function(root, elem) {
     };
 
     game.uiEnergy = function(e) {
-      energy.pin("width", (Math.max(0, e) * 100 | 0) / 100 * 40);
+      energy.pin('width', (Math.max(0, e) * 100 | 0) / 100 * 40);
     };
 
     game.uiCoins = function(n) {
@@ -1254,27 +1243,26 @@ Cut(function(root, elem) {
     };
 
     game.uiNewPlayer = function(obj) {
-      DEBUG && console.log("player create");
-      obj.ui = Cut.anim("main:" + obj.name + "_").pin("handle", 0.5).appendTo(
-          l3);
+      DEBUG && console.log('player create');
+      obj.ui = Cut.anim(obj.name).pin('handle', 0.5).appendTo(l3);
       obj.uiXY = function() {
         this.ui.xy(this.x, this.y);
       };
       obj.uiLive = function(anim, callback, freeze) {
-        DEBUG && console.log("player live");
+        DEBUG && console.log('player live');
         this.freeze = !!freeze;
-        !this.freeze && Sound.play("start");
+        !this.freeze && Sound.play('start');
         // cursor.show();
-        this.ui.frames("main:" + this.name + "_").show();
+        this.ui.frames(this.name).show();
         !this.freeze && this.ui.play();
         callback && callback();
       };
       obj.uiDie = function(anim, callback) {
-        DEBUG && console.log("player die");
+        DEBUG && console.log('player die');
         if (anim) {
-          !this.freeze && Sound.play("die");
+          !this.freeze && Sound.play('die');
           cursor.hide();
-          this.ui.frames("main:die").play().repeat(1, callback);
+          this.ui.frames('die').play().repeat(1, callback);
         } else {
           callback && callback();
         }
@@ -1282,7 +1270,7 @@ Cut(function(root, elem) {
     };
 
     game.uiNewDot = function(obj) {
-      obj.ui = Cut.image("main:dot").pin("handle", 0.5).appendTo(l1).hide();
+      obj.ui = Cut.image('dot').pin('handle', 0.5).appendTo(l1).hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
@@ -1299,12 +1287,12 @@ Cut(function(root, elem) {
         this.ui = null;
       };
       obj.uiEat = function(e) {
-        Sound.play("dot");
+        Sound.play('dot');
       };
     };
 
     game.uiNewPower = function(obj) {
-      obj.ui = Cut.image("main:power").pin("handle", 0.5).appendTo(l2).hide();
+      obj.ui = Cut.image('power').pin('handle', 0.5).appendTo(l2).hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
@@ -1312,7 +1300,7 @@ Cut(function(root, elem) {
         this.ui.xy(this.x, this.y);
       };
       obj.uiEat = function() {
-        Sound.play("power");
+        Sound.play('power');
       };
       obj.uiRemove = function() {
         this.ui.remove();
@@ -1321,29 +1309,29 @@ Cut(function(root, elem) {
     };
 
     game.uiNewEnemy = function(obj) {
-      obj.ui = Cut.anim("main:" + obj.name).pin("handle", 0.5).appendTo(l2)
+      obj.ui = Cut.anim(obj.name + '_live').pin('handle', 0.5).appendTo(l2)
           .hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
       obj.uiMode = function(weak) {
         if (weak == 0) {
-          this.ui.frames("main:" + this.name + "_").play();
+          this.ui.frames(this.name + '_live').play();
         } else if (weak == -1) {
-          this.ui.frames("main:un" + this.name).gotoFrame(0).pin({
-            "alpha" : 0.8,
-            "rotation" : 0
+          this.ui.frames(this.name + '_dead').gotoFrame(0).pin({
+            'alpha' : 0.8,
+            'rotation' : 0
           });
         } else if (weak == 1) {
-          this.ui.frames("main:" + this.name + "z_").play();
+          this.ui.frames(this.name + '_weak').play();
         } else {
-          this.ui.frames("main:" + this.name + "").play();
+          this.ui.frames(this.name + '_mix').play();
         }
       };
       obj.uiXY = function() {
         this.ui.xy(this.x, this.y);
         if (this.vx || this.vy) {
-          this.ui.pin("rotation", Math.atan2(this.vx, this.vy) - Math.PI / 2);
+          this.ui.pin('rotation', Math.atan2(this.vx, this.vy) - Math.PI / 2);
         }
       };
       obj.uiRemove = function() {
@@ -1351,14 +1339,14 @@ Cut(function(root, elem) {
         this.ui = null;
       };
       obj.uiEat = function() {
-        Sound.play("enemy");
+        Sound.play('enemy');
       };
     };
 
     game.uiNewCoin = function(obj) {
-      obj.scale = Conf.coinsScale["c" + obj.value] || 1;
-      obj.ui = Cut.anim("main:coin_" + obj.value + "_").pin("handle", 0.5)
-          .appendTo(l2).pin("scale", obj.scale).hide();
+      obj.scale = Conf.coinsScale[obj.value] || 1;
+      obj.ui = Cut.image('coin_' + obj.value).pin('handle', 0.5).appendTo(l2)
+          .pin('scale', obj.scale).hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
@@ -1371,12 +1359,12 @@ Cut(function(root, elem) {
       };
       obj.uiEat = function() {
         setLastCoin(this.value, this.scale);
-        Sound.play("coin");
+        Sound.play('coin');
       };
     };
   })();
 
-  open("home");
+  open('home');
 });
 
 function Tilt(fn) {
