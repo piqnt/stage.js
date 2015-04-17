@@ -1,5 +1,5 @@
 /*
- * CutJS 0.5.0-beta.2
+ * CutJS 0.5.0-beta.3
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -46,8 +46,8 @@ Cut.atlas = function(def) {
         _atlases_map[def.name] = atlas;
     }
     _atlases_arr.push(atlas);
-    depricated(def, "imagePath");
-    depricated(def, "imageRatio");
+    deprecated(def, "imagePath");
+    deprecated(def, "imageRatio");
     var url = def.imagePath;
     var ratio = def.imageRatio || 1;
     if (is.string(def.image)) {
@@ -78,13 +78,16 @@ Atlas.prototype = create(Atlas._super.prototype);
 function Atlas(def) {
     Atlas._super.call(this);
     var atlas = this;
-    depricated(def, "filter");
-    depricated(def, "cutouts");
-    depricated(def, "sprites");
-    depricated(def, "factory");
+    deprecated(def, "filter");
+    deprecated(def, "cutouts");
+    deprecated(def, "sprites");
+    deprecated(def, "factory");
     var map = def.map || def.filter;
     var ppu = def.ppu || def.ratio || 1;
     var trim = def.trim || 0;
+    var textures = def.textures;
+    var factory = def.factory;
+    var cutouts = def.cutouts || def.sprites;
     function make(def) {
         if (!def || is.fn(def.draw)) {
             return def;
@@ -113,128 +116,110 @@ function Atlas(def) {
         texture.src(def.x, def.y, def.width, def.height);
         return texture;
     }
-    var textures = def.textures || {};
-    var factory = def.factory;
-    var cutouts = def.cutouts || def.sprites;
-    function link(selected) {
-        if (!selected) {
-            return selected;
-        } else if (is.array(selected)) {
-            for (var i = 0; i < selected.length; i++) {
-                selected[i] = link(selected[i]);
-            }
-            return selected;
-        } else if (is.fn(selected)) {
-            return link(selected());
-        } else if (is.string(selected)) {
-            return link(find(selected));
-        } else if (is.fn(selected.draw)) {
-            return selected;
-        } else if (is.number(selected.width) && is.number(selected.height)) {
-            return make(selected);
-        }
-    }
-    function find(query, subquery) {
+    function find(query) {
         if (is.fn(textures)) {
-            return textures(query, subquery);
+            return textures(query);
         } else if (is.hash(textures)) {
-            var entry = textures[query];
-            if (!entry) {
-                return null;
-            } else if (is.number(entry.width) && is.number(entry.height)) {
-                return entry;
-            } else if (is.hash(entry)) {
-                return subquery ? entry[subquery] : null;
-            } else if (is.object(entry)) {
-                return entry;
-            } else if (is.fn(entry)) {
-                return entry(subquery);
-            } else if (is.array(entry)) {
-                return entry;
-            }
+            return textures[query];
         }
     }
-    this.select = function(query, subquery, prefix) {
+    this.select = function(query) {
         if (textures) {
-            return link(find(query, subquery));
+            return new Selection(find(query), find, make);
         }
         if (cutouts) {
-            if (multi) {
-                var results = [];
-                for (var i = 0; i < cutouts.length; i++) {
-                    if (string.startsWith(cutouts[i].name, query)) {
-                        results.push(link(cutouts[i]));
+            // deprecated
+            var result = null, n = 0;
+            for (var i = 0; i < cutouts.length; i++) {
+                if (string.startsWith(cutouts[i].name, query)) {
+                    if (n === 0) {
+                        result = cutouts[i];
+                    } else if (n === 1) {
+                        result = [ result, cutouts[i] ];
+                    } else {
+                        result.push(cutouts[i]);
                     }
-                }
-                if (results.length) {
-                    return results;
-                }
-            } else {
-                for (var i = 0; i < cutouts.length; i++) {
-                    if (cutouts[i].name == query) {
-                        return link(cutouts[i]);
-                    }
-                }
-                if (is.fn(factory)) {
-                    return link(factory(query));
+                    n++;
                 }
             }
+            if (n === 0 && is.fn(factory)) {
+                result = function(subquery) {
+                    return factory(query + (subquery ? subquery : ""));
+                };
+            }
+            return new Selection(result, null, make);
         }
     };
 }
 
-Cut.texture = function(query, qualifier) {
-    if (!is.string(query)) {
-        if (is.fn(query)) {
-            return Cut.texture(query(), qualifier);
-        } else if (is.array(query)) {
-            for (var i = 0; i < query.length; i++) query[i] = Cut.texture(query[i]);
-        } else if (is.hash(query)) {
-            // TODO: convert hash to texture
-            return query;
-        } else if (is.object(query)) {
-            // TODO: convert object to texture
-            return query;
-        } else {
-            return query;
+var nfTexture = new Texture();
+
+nfTexture.x = nfTexture.y = nfTexture.width = nfTexture.height = 0;
+
+nfTexture.pipe = nfTexture.src = nfTexture.dest = function() {
+    return this;
+};
+
+nfTexture.draw = function() {};
+
+var nfSelection = new Selection(nfTexture);
+
+function Selection(result, find, make) {
+    function link(result, subquery) {
+        if (!result) {
+            return result;
+        } else if (is.fn(result.draw)) {
+            return result;
+        } else if (is.hash(result) && is.number(result.width) && is.number(result.height) && is.fn(make)) {
+            return make(result);
+        } else if (is.hash(result) && is.defined(subquery)) {
+            return link(result[subquery]);
+        } else if (is.fn(result)) {
+            return link(result(subquery));
+        } else if (is.array(result)) {
+            return link(result[0]);
+        } else if (is.string(result) && is.fn(find)) {
+            return link(find(result));
         }
     }
+    this.one = function(subquery) {
+        return link(result, subquery);
+    };
+    this.array = function(arr) {
+        var array = is.array(arr) ? arr : [];
+        if (is.array(result)) {
+            for (var i = 0; i < result.length; i++) {
+                array[i] = link(result[i]);
+            }
+        } else {
+            array[0] = link(result);
+        }
+        return array;
+    };
+}
+
+// TODO: cache and clone
+Cut.texture = function(query) {
+    if (!is.string(query)) {
+        return new Selection(query);
+    }
     var result = null;
-    // var cache = mod ? _cache_one : _cache_mod;
-    // var result = cache[query];
-    //
-    // if (!result) {
-    // TODO: cache and clone
-    var sub = is.string(qualifier) ? qualifier : "";
     var i = query.indexOf(":");
     if (i > 0 && query.length > i + 1) {
         var atlas = _atlases_map[query.slice(0, i)];
-        result = atlas && atlas.select(query.slice(i + 1), sub);
+        result = atlas && atlas.select(query.slice(i + 1));
     }
     for (var i = 0; !result && i < _atlases_arr.length; i++) {
-        result = _atlases_arr[i].select(query, sub);
+        result = _atlases_arr[i].select(query);
     }
-    // cache[query] = result || null;
-    // }
     if (!result) {
-        throw "Texture not found: '" + query + (sub ? "+" + sub : "") + "'";
-    }
-    var reqisarr = is.array(qualifier);
-    var resisarr = is.array(result);
-    if (reqisarr && resisarr) {
-        for (var i = 0, n = result.length; i < n; i++) qualifier[i] = result[i];
-        result = qualifier;
-    } else if (reqisarr) {
-        qualifier[0] = result;
-        result = qualifier;
-    } else if (resisarr) {
-        result = result[0];
+        result = nfSelection;
     }
     return result;
 };
 
-function depricated(hash, name, msg) {
-    if (name in hash) console.log(msg ? msg.replace("%name", name) : "'" + name + "' field of texture atlas is depricated.");
+function deprecated(hash, name, msg) {
+    if (name in hash) console.log(msg ? msg.replace("%name", name) : "'" + name + "' field of texture atlas is deprecated.");
 }
 
 module.exports = Atlas;
@@ -2387,7 +2372,7 @@ Image.prototype.setImage = function(a, b, c) {
 };
 
 Image.prototype.image = function(image) {
-    this._image = Cut.texture(image);
+    this._image = Cut.texture(image).one();
     this.pin("width", this._image ? this._image.width : 0);
     this.pin("height", this._image ? this._image.height : 0);
     this._textures[0] = this._image.pipe();
@@ -2492,7 +2477,7 @@ Anim.prototype.setFrames = function(a, b, c) {
 
 Anim.prototype.frames = function(frames) {
     this._index = 0;
-    this._frames = Cut.texture(frames, []);
+    this._frames = Cut.texture(frames).array();
     this.touch();
     return this;
 };
@@ -2567,8 +2552,9 @@ Str.prototype.setFont = function(a, b, c) {
 Str.prototype.frames = function(frames) {
     this._textures = [];
     if (typeof frames == "string") {
+        frames = Cut.texture(frames);
         this._item = function(value) {
-            return Cut.texture(frames, value);
+            return frames.one(value);
         };
     } else if (typeof frames === "object") {
         this._item = function(value) {

@@ -8,7 +8,8 @@
 * Cut.preload() added
 * Texture renamed to Atlas
 * New Texture class replaced Cut.Out
-* Cut#_cutouts and Cut.cutout() renamed to Cut#_textures and Cut.texture()
+* Cut#_cutouts and Cut.cutout() replaced with Cut#_textures and Cut.texture()
+* Cut.texture() returns selection object
 * image-loader spec changed
 
 #### v0.4.12

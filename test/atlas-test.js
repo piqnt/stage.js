@@ -38,17 +38,8 @@ it('Atlas', function() {
     textures : {
       mario : mario
     }
-  }).select('mario');
-
+  }).select('mario').one();
   bemario(selected);
-
-  selected = new Atlas({
-    textures : {
-      walk : [ mario, mario, mario ]
-    }
-  }).select('walk');
-  expect(selected.length).be(3);
-  bemario(selected[0]);
 
   selected = new Atlas({
     textures : {
@@ -56,7 +47,15 @@ it('Atlas', function() {
         return mario;
       }
     }
-  }).select('mario');
+  }).select('mario').one();
+  bemario(selected);
+
+  selected = new Atlas({
+    textures : {
+      mario : mario,
+      him : 'mario'
+    }
+  }).select('mario').one();
   bemario(selected);
 
   selected = new Atlas({
@@ -66,17 +65,8 @@ it('Atlas', function() {
         return 'mario';
       }
     }
-  }).select('mario');
+  }).select('mario').one();
   bemario(selected);
-
-  selected = new Atlas({
-    textures : {
-      mario : mario,
-      walk : [ 'mario', 'mario', 'mario' ]
-    }
-  }).select('walk');
-  expect(selected.length).be(3);
-  bemario(selected[0]);
 
   selected = new Atlas({
     textures : {
@@ -84,16 +74,41 @@ it('Atlas', function() {
         mario : mario
       }
     }
-  }).select('char', 'mario');
+  }).select('char').one('mario');
   bemario(selected);
 
+  selected = new Atlas({
+    textures : {
+      mario : mario,
+      char : {
+        mario : 'mario'
+      }
+    }
+  }).select('char').one('mario');
+  bemario(selected);
+
+  selected = new Atlas({
+    textures : {
+      walk : [ mario, mario, mario ]
+    }
+  }).select('walk').array();
+  expect(selected.length).be(3);
+  bemario(selected[0]);
+
+  selected = new Atlas({
+    textures : {
+      mario : mario,
+      walk : [ 'mario', 'mario', 'mario' ]
+    }
+  }).select('walk').array();
+  expect(selected.length).be(3);
+  bemario(selected[0]);
 });
 
-it('.atlas()/.texture()', function() {
-  var Cut, atlas, obj, selected;
+it('Cut.texture() +textures', function() {
+  var Cut = sandboxed.require('../lib/');
 
-  Cut = sandboxed.require('../lib/');
-  atlas = Cut.atlas({
+  Cut.atlas({
     name : 'name',
     textures : {
       'mario' : mario,
@@ -101,31 +116,32 @@ it('.atlas()/.texture()', function() {
     }
   });
 
-  selected = Cut.texture('name:mario');
+  var obj, selected;
+
+  selected = Cut.texture('name:mario').one();
   bemario(selected);
 
-  selected = Cut.texture('mario');
+  selected = Cut.texture('mario').one();
   bemario(selected);
 
-  selected = Cut.texture('mario', obj = []);
+  selected = Cut.texture('walk').one();
+  bemario(selected);
+
+  selected = Cut.texture('mario').array(obj = []);
   expect(selected).be(obj);
   expect(selected.length).be(1);
   bemario(selected[0]);
 
-  selected = Cut.texture('walk', obj = []);
+  selected = Cut.texture('walk').array(obj = []);
   expect(selected).be(obj);
   expect(selected.length).be(3);
   bemario(selected[0]);
-
-  selected = Cut.texture('walk');
-  bemario(selected);
 });
 
-describe('Cut.cutouts', function() {
-  // TODO: test cutouts
-  return;
+describe('Cut.texture() +cutouts', function() {
+  var Cut = sandboxed.require('../lib/');
 
-  var atlas = new Atlas({
+  Cut.atlas({
     name : "main",
     imagePath : "main.png",
     imageRatio : 4,
@@ -145,52 +161,26 @@ describe('Cut.cutouts', function() {
     } ]
   });
 
-  it('class', function() {
+  var dark = Cut.texture("main:color_dark").one();
+  var both = Cut.texture("main:color_").array();
 
-    var dark = atlas.select("color_dark");
-    var both = atlas.select("color_", true);
+  expect(dark).be.an('object');
+  expect(both).be.an('array');
+  expect(both.length).be(2);
+  expect(both[0]).be.an('object');
+  expect(both[1]).be.an('object');
+  return;
+  var dark = Cut.texture("color_dark");
+  var both = Cut.texture("color_", true);
 
-    // console.log(dark);
-    // console.log(both);
+  expect(dark).be.an('object');
+  expect(both).be.an('array');
+  expect(both.length).be(2);
+  expect(both[0]).be.an('object');
+  expect(both[1]).be.an('object');
 
-    expect(dark).be.an('object');
-    expect(both).be.an('array');
-    expect(both.length).be(2);
-    expect(both[0]).be.an('object');
-    expect(both[1]).be.an('object');
+  expect(Cut.texture("color_dark")).be(dark);
+  expect(Cut.texture("color_", true)[0]).be(both[0]);
+  expect(Cut.texture("color_", true)[1]).be(both[1]);
 
-    expect(atlas.select("missing")).be.an('undefined');
-    expect(atlas.select("missing", true)).be.an('undefined');
-
-  });
-
-  it('texture', function() {
-    Cut.atlas(atlas);
-
-    var dark = Cut.texture("base:color_dark");
-    var both = Cut.texture("base:color_", true);
-
-    // console.log(dark);
-    // console.log(both);
-
-    expect(dark).be.an('object');
-    expect(both).be.an('array');
-    expect(both.length).be(2);
-    expect(both[0]).be.an('object');
-    expect(both[1]).be.an('object');
-
-    var dark = Cut.texture("color_dark");
-    var both = Cut.texture("color_", true);
-
-    expect(dark).be.an('object');
-    expect(both).be.an('array');
-    expect(both.length).be(2);
-    expect(both[0]).be.an('object');
-    expect(both[1]).be.an('object');
-
-    expect(Cut.texture("color_dark")).be(dark);
-    expect(Cut.texture("color_", true)[0]).be(both[0]);
-    expect(Cut.texture("color_", true)[1]).be(both[1]);
-
-  });
 });
