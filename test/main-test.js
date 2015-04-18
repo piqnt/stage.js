@@ -13,7 +13,10 @@ it('static methods', function() {
   expect(Cut.atlas).be.a('function');
 
   expect(Cut.create).be.a('function');
-  expect(Cut.image).be.a('function');
-  expect(Cut.anim).be.a('function');
-  expect(Cut.string).be.a('function');
+
+  // expect(Cut.root).be.a('function');
+  // expect(Cut.image).be.a('function');
+  // expect(Cut.anim).be.a('function');
+  // expect(Cut.string).be.a('function');
+  // expect(Cut.canvas).be.a('function');
 });

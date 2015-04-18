@@ -12,7 +12,7 @@ it('Mouse', function() {
     document : document
   };
 
-  var Mouse = sandboxed.require('../lib/mouse', {
+  var Mouse = sandboxed.require('../lib/addon/mouse', {
     locals : {
       window : window,
       document : document

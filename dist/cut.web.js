@@ -1,5 +1,5 @@
 /*
- * CutJS 0.5.0-beta.4
+ * CutJS 0.5.0-beta.5
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -8,408 +8,28 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Cut=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = require("../lib/");
 
-module.exports.Mouse = require("../lib/mouse");
+require("../lib/canvas");
+
+require("../lib/image");
+
+require("../lib/anim");
+
+require("../lib/str");
+
+require("../lib/layout");
+
+require("../lib/addon/tween");
+
+module.exports.Mouse = require("../lib/addon/mouse");
 
 module.exports.Math = require("../lib/util/math");
-
-require("../lib/tween");
-
-require("../lib/loader.web");
 
 module.exports._extend = require("../lib/util/extend");
 
 module.exports._create = require("../lib/util/create");
-},{"../lib/":7,"../lib/loader.web":8,"../lib/mouse":10,"../lib/tween":14,"../lib/util/create":16,"../lib/util/extend":17,"../lib/util/math":19}],2:[function(require,module,exports){
-var Cut = require("./core");
 
-var Texture = require("./texture");
-
-var extend = require("./util/extend");
-
-var create = require("./util/create");
-
-var is = require("./util/is");
-
-var string = require("./util/string");
-
-// name : atlas
-var _atlases_map = {};
-
-// [atlas]
-var _atlases_arr = [];
-
-// TODO: return entire atlas as texture
-// TODO: select atlas itself, call texture function
-// TODO: print subquery not found error
-Cut.atlas = function(def) {
-    var atlas = is.fn(def.draw) ? def : new Atlas(def);
-    if (def.name) {
-        _atlases_map[def.name] = atlas;
-    }
-    _atlases_arr.push(atlas);
-    deprecated(def, "imagePath");
-    deprecated(def, "imageRatio");
-    var url = def.imagePath;
-    var ratio = def.imageRatio || 1;
-    if (is.string(def.image)) {
-        url = def.image;
-    } else if (is.hash(def.image)) {
-        url = def.image.url;
-        ratio = def.image.ratio || ratio;
-    }
-    url && Cut.preload(function(done) {
-        DEBUG && console.log("Loading image: " + url);
-        var imageloader = Cut.config("image-loader");
-        imageloader(url, function(image) {
-            DEBUG && console.log("Image loaded: " + url);
-            atlas.src(image, ratio);
-            done();
-        }, function(msg) {
-            DEBUG && console.log("Error loading image: " + url, msg);
-            done();
-        });
-    });
-    return atlas;
-};
-
-Atlas._super = Texture;
-
-Atlas.prototype = create(Atlas._super.prototype);
-
-function Atlas(def) {
-    Atlas._super.call(this);
-    var atlas = this;
-    deprecated(def, "filter");
-    deprecated(def, "cutouts");
-    deprecated(def, "sprites");
-    deprecated(def, "factory");
-    var map = def.map || def.filter;
-    var ppu = def.ppu || def.ratio || 1;
-    var trim = def.trim || 0;
-    var textures = def.textures;
-    var factory = def.factory;
-    var cutouts = def.cutouts || def.sprites;
-    function make(def) {
-        if (!def || is.fn(def.draw)) {
-            return def;
-        }
-        def = extend({}, def);
-        if (is.fn(map)) {
-            def = map(def);
-        }
-        if (ppu != 1) {
-            def.x *= ppu, def.y *= ppu;
-            def.width *= ppu, def.height *= ppu;
-            def.top *= ppu, def.bottom *= ppu;
-            def.left *= ppu, def.right *= ppu;
-        }
-        if (trim != 0) {
-            def.x += trim, def.y += trim;
-            def.width -= 2 * trim, def.height -= 2 * trim;
-            def.top -= trim, def.bottom -= trim;
-            def.left -= trim, def.right -= trim;
-        }
-        var texture = atlas.pipe();
-        texture.top = def.top, texture.bottom = def.bottom;
-        texture.left = def.left, texture.right = def.right;
-        texture.src(def.x, def.y, def.width, def.height);
-        return texture;
-    }
-    function find(query) {
-        if (textures) {
-            if (is.fn(textures)) {
-                return textures(query);
-            } else if (is.hash(textures)) {
-                return textures[query];
-            }
-        }
-        if (cutouts) {
-            // deprecated
-            var result = null, n = 0;
-            for (var i = 0; i < cutouts.length; i++) {
-                if (string.startsWith(cutouts[i].name, query)) {
-                    if (n === 0) {
-                        result = cutouts[i];
-                    } else if (n === 1) {
-                        result = [ result, cutouts[i] ];
-                    } else {
-                        result.push(cutouts[i]);
-                    }
-                    n++;
-                }
-            }
-            if (n === 0 && is.fn(factory)) {
-                result = function(subquery) {
-                    return factory(query + (subquery ? subquery : ""));
-                };
-            }
-            return result;
-        }
-    }
-    this.select = function(query) {
-        var found = find(query);
-        if (found) {
-            return new Selection(found, find, make);
-        }
-    };
-}
-
-var nfTexture = new Texture();
-
-nfTexture.x = nfTexture.y = nfTexture.width = nfTexture.height = 0;
-
-nfTexture.pipe = nfTexture.src = nfTexture.dest = function() {
-    return this;
-};
-
-nfTexture.draw = function() {};
-
-var nfSelection = new Selection(nfTexture);
-
-function Selection(result, find, make) {
-    function link(result, subquery) {
-        if (!result) {
-            return nfTexture;
-        } else if (is.fn(result.draw)) {
-            return result;
-        } else if (is.hash(result) && is.number(result.width) && is.number(result.height) && is.fn(make)) {
-            return make(result);
-        } else if (is.hash(result) && is.defined(subquery)) {
-            return link(result[subquery]);
-        } else if (is.fn(result)) {
-            return link(result(subquery));
-        } else if (is.array(result)) {
-            return link(result[0]);
-        } else if (is.string(result) && is.fn(find)) {
-            return link(find(result));
-        }
-    }
-    this.one = function(subquery) {
-        return link(result, subquery);
-    };
-    this.array = function(arr) {
-        var array = is.array(arr) ? arr : [];
-        if (is.array(result)) {
-            for (var i = 0; i < result.length; i++) {
-                array[i] = link(result[i]);
-            }
-        } else {
-            array[0] = link(result);
-        }
-        return array;
-    };
-}
-
-// TODO: cache and clone
-Cut.texture = function(query) {
-    if (!is.string(query)) {
-        return new Selection(query);
-    }
-    var result = null;
-    var i = query.indexOf(":");
-    if (i > 0 && query.length > i + 1) {
-        var atlas = _atlases_map[query.slice(0, i)];
-        result = atlas && atlas.select(query.slice(i + 1));
-    }
-    for (var i = 0; !result && i < _atlases_arr.length; i++) {
-        result = _atlases_arr[i].select(query);
-    }
-    if (!result) {
-        console.error("Texture not found: " + query);
-        result = nfSelection;
-    }
-    return result;
-};
-
-function deprecated(hash, name, msg) {
-    if (name in hash) console.log(msg ? msg.replace("%name", name) : "'" + name + "' field of texture atlas is deprecated.");
-}
-
-module.exports = Atlas;
-
-
-},{"./core":4,"./texture":13,"./util/create":16,"./util/extend":17,"./util/is":18,"./util/string":23}],3:[function(require,module,exports){
-var Cut = require("./core");
-
-var Texture = require("./texture");
-
-Cut.canvas = function(type, attributes, callback) {
-    if (typeof type === "string") {
-        if (typeof attributes === "object") {} else {
-            if (typeof attributes === "function") {
-                callback = attributes;
-            }
-            attributes = {};
-        }
-    } else {
-        if (typeof type === "function") {
-            callback = type;
-        }
-        attributes = {};
-        type = "2d";
-    }
-    var canvas = document.createElement("canvas");
-    var context = canvas.getContext(type, attributes);
-    var texture = new Texture(canvas);
-    texture.context = function() {
-        return context;
-    };
-    texture.size = function(width, height, ratio) {
-        canvas.width = width * ratio;
-        canvas.height = height * ratio;
-        this.src(canvas, ratio);
-        return this;
-    };
-    texture.canvas = function(fn) {
-        if (typeof fn === "function") {
-            fn.call(this, context);
-        } else if (typeof fn === "undefined" && typeof callback === "function") {
-            callback.call(this, context);
-        }
-        return this;
-    };
-    if (typeof callback === "function") {
-        callback.call(this, context);
-    }
-    return texture;
-};
-
-
-},{"./core":4,"./texture":13}],4:[function(require,module,exports){
-if (typeof DEBUG === "undefined") DEBUG = true;
-
-var stats = require("./util/stats");
-
-var extend = require("./util/extend");
-
-var once = require("./util/once");
-
-var is = require("./util/is");
-
-stats.create = 0;
-
-function Cut(arg) {
-    if (!(this instanceof Cut)) {
-        if (is.fn(arg)) {
-            return Cut.app.apply(Cut, arguments);
-        } else if (is.object(arg)) {
-            return Cut.atlas.apply(Cut, arguments);
-        } else {
-            return arg;
-        }
-    }
-    stats.create++;
-    for (var i = 0; i < _init.length; i++) {
-        _init[i].call(this);
-    }
-}
-
-var _init = [];
-
-Cut._init = function(fn) {
-    _init.push(fn);
-};
-
-var _config = {};
-
-Cut.config = function() {
-    if (arguments.length === 1 && is.string(arguments[0])) {
-        return _config[arguments[0]];
-    }
-    if (arguments.length === 1 && is.object(arguments[0])) {
-        extend(_config, arguments[0]);
-    }
-    if (arguments.length === 2 && is.string(arguments[0])) {
-        _config[(arguments[0], arguments[1])];
-    }
-};
-
-var _app_queue = [];
-
-var _preload_queue = [];
-
-var _app_roots = [];
-
-var _started = false;
-
-var _paused = false;
-
-Cut.app = function(app, opts) {
-    if (!_started) {
-        _app_queue.push(arguments);
-        return;
-    }
-    DEBUG && console.log("Creating app...");
-    var loader = Cut.config("app-loader");
-    loader(function(root, canvas) {
-        DEBUG && console.log("Initing app...");
-        app(root, canvas);
-        _app_roots.push(root);
-        DEBUG && console.log("Starting app...");
-        root.start();
-    }, opts);
-};
-
-Cut.preload = function(load) {
-    if (!_started) {
-        _preload_queue.push(load);
-        return;
-    }
-    load(function(err) {});
-};
-
-Cut.start = function(config) {
-    DEBUG && console.log("Starting...");
-    Cut.config(config);
-    DEBUG && console.log("Preloading...");
-    var loading = 0;
-    if (!_preload_queue.length) {
-        done();
-    } else {
-        while (_preload_queue.length) {
-            var preload = _preload_queue.shift();
-            preload(once(done));
-            loading++;
-        }
-    }
-    function done() {
-        if (--loading <= 0) {
-            DEBUG && console.log("Loading apps...");
-            _started = true;
-            while (_app_queue.length) {
-                var args = _app_queue.shift();
-                Cut.app.apply(Cut, args);
-            }
-        }
-    }
-};
-
-Cut.pause = function() {
-    if (!_paused) {
-        _paused = true;
-        for (var i = _app_roots.length - 1; i >= 0; i--) {
-            _app_roots[i].pause();
-        }
-    }
-};
-
-Cut.resume = function() {
-    if (_paused) {
-        _paused = false;
-        for (var i = _app_roots.length - 1; i >= 0; i--) {
-            _app_roots[i].resume();
-        }
-    }
-};
-
-Cut.create = function() {
-    return new Cut();
-};
-
-module.exports = Cut;
-
-
-},{"./util/extend":17,"./util/is":18,"./util/once":20,"./util/stats":22}],5:[function(require,module,exports){
+require("../lib/loader/web");
+},{"../lib/":11,"../lib/addon/mouse":3,"../lib/addon/tween":4,"../lib/anim":5,"../lib/canvas":7,"../lib/image":10,"../lib/layout":12,"../lib/loader/web":13,"../lib/str":19,"../lib/util/create":21,"../lib/util/extend":22,"../lib/util/math":24}],2:[function(require,module,exports){
 function _identity(x) {
     return x;
 }
@@ -594,355 +214,7 @@ Easing.add({
 module.exports = Easing;
 
 
-},{}],6:[function(require,module,exports){
-var Cut = require("./core");
-
-var is = require("./util/is");
-
-Cut.prototype._listeners = null;
-
-Cut.prototype.on = Cut.prototype.listen = function(types, listener) {
-    if (types = _check(this, types, listener, true)) {
-        for (var i = 0; i < types.length; i++) {
-            var type = types[i];
-            this._listeners[type] = this._listeners[type] || [];
-            this._listeners[type].push(listener);
-            this._flag(type, true);
-        }
-    }
-    return this;
-};
-
-Cut.prototype.off = function(types, listener) {
-    if (types = _check(this, types, listener, false)) {
-        for (var i = 0; i < types.length; i++) {
-            var type = types[i], all = this._listeners[type], index;
-            if (all && (index = all.indexOf(listener)) >= 0) {
-                all.splice(index, 1);
-                if (!all.length) {
-                    delete this._listeners[type];
-                }
-                this._flag(type, false);
-            }
-        }
-    }
-    return this;
-};
-
-function _check(node, types, listener, create) {
-    if (!types || !types.length || typeof listener !== "function") {
-        return false;
-    }
-    if (!(types = (is.array(types) ? types.join(" ") : types).match(/\S+/g))) {
-        return false;
-    }
-    if (node._listeners === null) {
-        if (create) {
-            node._listeners = {};
-        } else {
-            return false;
-        }
-    }
-    return types;
-}
-
-Cut.prototype.listeners = function(type) {
-    return this._listeners && this._listeners[type];
-};
-
-Cut.prototype.publish = function(name, args) {
-    var listeners = this.listeners(name);
-    if (!listeners || !listeners.length) {
-        return 0;
-    }
-    for (var l = 0; l < listeners.length; l++) {
-        listeners[l].apply(this, args);
-    }
-    return listeners.length;
-};
-
-Cut.prototype.trigger = function(name, args) {
-    this.publish(name, args);
-    return this;
-};
-
-
-},{"./core":4,"./util/is":18}],7:[function(require,module,exports){
-module.exports = require("./core");
-
-module.exports.Matrix = require("./matrix");
-
-module.exports.Texture = require("./texture");
-
-require("./atlas");
-
-require("./canvas");
-
-require("./node");
-
-require("./event");
-
-require("./pin");
-
-require("./ui");
-
-
-},{"./atlas":2,"./canvas":3,"./core":4,"./event":6,"./matrix":9,"./node":11,"./pin":12,"./texture":13,"./ui":15}],8:[function(require,module,exports){
-var Cut = require("./core");
-
-if (typeof DEBUG === "undefined") DEBUG = true;
-
-/**
- * Default loader for web.
- */
-window.addEventListener("load", function() {
-    DEBUG && console.log("On load.");
-    Cut.start({
-        "app-loader": AppLoader,
-        "image-loader": ImageLoader
-    });
-}, false);
-
-function AppLoader(app, configs) {
-    configs = configs || {};
-    var canvas = configs.canvas, context = null, full = false;
-    var width = 0, height = 0, ratio = 1;
-    if (typeof canvas === "string") {
-        canvas = document.getElementById(canvas);
-    }
-    if (!canvas) {
-        canvas = document.getElementById("cutjs");
-    }
-    if (!canvas) {
-        full = true;
-        DEBUG && console.log("Creating Canvas...");
-        canvas = document.createElement("canvas");
-        canvas.style.position = "absolute";
-        var body = document.body;
-        body.insertBefore(canvas, body.firstChild);
-    }
-    context = canvas.getContext("2d");
-    var devicePixelRatio = window.devicePixelRatio || 1;
-    var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
-    ratio = devicePixelRatio / backingStoreRatio;
-    var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
-        return window.setTimeout(callback, 1e3 / 60);
-    };
-    DEBUG && console.log("Creating root...");
-    var root = Cut.root(requestAnimationFrame, render);
-    function render() {
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, width, height);
-        root.render(context);
-    }
-    root.background = function(color) {
-        canvas.style.backgroundColor = color;
-        return this;
-    };
-    app(root, canvas);
-    resize();
-    window.addEventListener("resize", resize, false);
-    window.addEventListener("orientationchange", resize, false);
-    function resize() {
-        if (full) {
-            // screen.availWidth/Height?
-            width = window.innerWidth > 0 ? window.innerWidth : screen.width;
-            height = window.innerHeight > 0 ? window.innerHeight : screen.height;
-            canvas.style.width = width + "px";
-            canvas.style.height = height + "px";
-        } else {
-            width = canvas.clientWidth;
-            height = canvas.clientHeight;
-        }
-        width *= ratio;
-        height *= ratio;
-        if (canvas.width === width && canvas.height === height) {
-            return;
-        }
-        canvas.width = width;
-        canvas.height = height;
-        DEBUG && console.log("Resize: " + width + " x " + height + " / " + ratio);
-        root.viewport(width, height, ratio);
-        render();
-    }
-}
-
-function ImageLoader(src, success, error) {
-    DEBUG && console.log("Loading image: " + src);
-    var image = new Image();
-    image.onload = function() {
-        success(image);
-    };
-    image.onerror = error;
-    image.src = src;
-}
-
-
-},{"./core":4}],9:[function(require,module,exports){
-function Matrix(a, b, c, d, e, f) {
-    this._dirty = true;
-    this.a = a || 1;
-    this.b = b || 0;
-    this.c = c || 0;
-    this.d = d || 1;
-    this.e = e || 0;
-    this.f = f || 0;
-}
-
-Matrix.prototype.toString = function() {
-    return "[" + this.a + ", " + this.b + ", " + this.c + ", " + this.d + ", " + this.e + ", " + this.f + "]";
-};
-
-Matrix.prototype.clone = function() {
-    return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
-};
-
-Matrix.prototype.copyTo = function(m) {
-    m.copyFrom(this);
-    return this;
-};
-
-Matrix.prototype.copyFrom = function(m) {
-    this._dirty = true;
-    this.a = m.a;
-    this.b = m.b;
-    this.c = m.c;
-    this.d = m.d;
-    this.e = m.e;
-    this.f = m.f;
-    return this;
-};
-
-Matrix.prototype.identity = function() {
-    this._dirty = true;
-    this.a = 1;
-    this.b = 0;
-    this.c = 0;
-    this.d = 1;
-    this.e = 0;
-    this.f = 0;
-    return this;
-};
-
-Matrix.prototype.rotate = function(angle) {
-    if (!angle) {
-        return this;
-    }
-    this._dirty = true;
-    var u = angle ? Math.cos(angle) : 1;
-    // android bug may give bad 0 values
-    var v = angle ? Math.sin(angle) : 0;
-    var a = u * this.a - v * this.b;
-    var b = u * this.b + v * this.a;
-    var c = u * this.c - v * this.d;
-    var d = u * this.d + v * this.c;
-    var e = u * this.e - v * this.f;
-    var f = u * this.f + v * this.e;
-    this.a = a;
-    this.b = b;
-    this.c = c;
-    this.d = d;
-    this.e = e;
-    this.f = f;
-    return this;
-};
-
-Matrix.prototype.translate = function(x, y) {
-    if (!x && !y) {
-        return this;
-    }
-    this._dirty = true;
-    this.e += x;
-    this.f += y;
-    return this;
-};
-
-Matrix.prototype.scale = function(x, y) {
-    if (!(x - 1) && !(y - 1)) {
-        return this;
-    }
-    this._dirty = true;
-    this.a *= x;
-    this.b *= y;
-    this.c *= x;
-    this.d *= y;
-    this.e *= x;
-    this.f *= y;
-    return this;
-};
-
-Matrix.prototype.skew = function(x, y) {
-    if (!x && !y) {
-        return this;
-    }
-    this._dirty = true;
-    var a = this.a + this.b * x;
-    var b = this.b + this.a * y;
-    var c = this.c + this.d * x;
-    var d = this.d + this.c * y;
-    var e = this.e + this.f * x;
-    var f = this.f + this.e * y;
-    this.a = a;
-    this.b = b;
-    this.c = c;
-    this.d = d;
-    this.e = e;
-    this.f = f;
-    return this;
-};
-
-Matrix.prototype.concat = function(m) {
-    this._dirty = true;
-    var n = this;
-    var a = n.a * m.a + n.b * m.c;
-    var b = n.b * m.d + n.a * m.b;
-    var c = n.c * m.a + n.d * m.c;
-    var d = n.d * m.d + n.c * m.b;
-    var e = n.e * m.a + m.e + n.f * m.c;
-    var f = n.f * m.d + m.f + n.e * m.b;
-    this.a = a;
-    this.b = b;
-    this.c = c;
-    this.d = d;
-    this.e = e;
-    this.f = f;
-    return this;
-};
-
-Matrix.prototype.reverse = function() {
-    if (this._dirty) {
-        this._dirty = false;
-        this.reversed = this.reversed || new Matrix();
-        var z = this.a * this.d - this.b * this.c;
-        this.reversed.a = this.d / z;
-        this.reversed.b = -this.b / z;
-        this.reversed.c = -this.c / z;
-        this.reversed.d = this.a / z;
-        this.reversed.e = (this.c * this.f - this.e * this.d) / z;
-        this.reversed.f = (this.e * this.b - this.a * this.f) / z;
-    }
-    return this.reversed;
-};
-
-Matrix.prototype.map = function(p, q) {
-    q = q || {};
-    q.x = this.a * p.x + this.c * p.y + this.e;
-    q.y = this.b * p.x + this.d * p.y + this.f;
-    return q;
-};
-
-Matrix.prototype.mapX = function(x, y) {
-    return this.a * x + this.c * y + this.e;
-};
-
-Matrix.prototype.mapY = function(x, y) {
-    return this.b * x + this.d * y + this.f;
-};
-
-module.exports = Matrix;
-
-
-},{}],10:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 if (typeof DEBUG === "undefined") DEBUG = true;
 
 function Mouse() {
@@ -1124,7 +396,1188 @@ Mouse._xy = function(root, elem, event, point) {
 module.exports = Mouse;
 
 
-},{}],11:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
+var Easing = require("./easing");
+
+var Cut = require("../core");
+
+var Pin = require("../pin");
+
+Cut.prototype.tween = function(duration, delay) {
+    if (!this._tween) {
+        this._tween = new Tween(this);
+    }
+    return this._tween.tween(duration, delay);
+};
+
+var iid = 0;
+
+function Tween(node) {
+    // TODO: reuse head.start/keys/end
+    var tween = this;
+    this._owner = node;
+    this._queue = [];
+    this._next = null;
+    var lastTime = 0;
+    node.tick(function(elapsed, now, last) {
+        if (!tween._queue.length) {
+            return;
+        }
+        // ignore old elapsed
+        var ignore = lastTime != last;
+        lastTime = now;
+        this.touch();
+        if (ignore) {
+            return;
+        }
+        var head = tween._queue[0];
+        if (!head.time) {
+            head.time = 1;
+        } else {
+            head.time += elapsed;
+        }
+        if (head.time < head.delay) {
+            return;
+        }
+        if (!head.start) {
+            head.start = {};
+            head.keys = {};
+            for (var key in head.end) {
+                if (typeof (start = node.pin(key)) === "number") {
+                    head.start[key] = start;
+                    head.keys[key] = key;
+                } else if (typeof (startX = node.pin(key + "X")) === "number" && typeof (startY = node.pin(key + "Y")) === "number") {
+                    head.start[key + "X"] = startX;
+                    head.keys[key + "X"] = key;
+                    head.start[key + "Y"] = startY;
+                    head.keys[key + "Y"] = key;
+                }
+            }
+        }
+        var p = (head.time - head.delay) / head.duration;
+        var over = p >= 1;
+        p = p > 1 ? 1 : p;
+        p = typeof head.easing == "function" ? head.easing(p) : p;
+        var q = 1 - p;
+        for (var key in head.keys) {
+            node.pin(key, head.start[key] * q + head.end[head.keys[key]] * p);
+        }
+        if (over) {
+            tween._queue.shift();
+            head.then && head.then.call(node);
+        }
+    }, true);
+}
+
+Tween.prototype.tween = function(duration, delay) {
+    this._next = {
+        id: ++iid,
+        end: {},
+        duration: duration || 400,
+        delay: delay || 0
+    };
+    return this;
+};
+
+Tween.prototype.pin = function(a, b) {
+    if (this._next !== this._queue[this._queue.length - 1]) {
+        this._owner.touch();
+        this._queue.push(this._next);
+    }
+    var end = this._next.end;
+    if (typeof a === "object") {
+        for (var attr in a) {
+            end[attr] = a[attr];
+        }
+    } else if (typeof b !== "undefined") {
+        end[a] = b;
+    }
+    return this;
+};
+
+Tween.prototype.clear = function(forward) {
+    var tween;
+    while (tween = this._queue.shift()) {
+        forward && this._owner.pin(tween.end);
+    }
+    return this;
+};
+
+Tween.prototype.then = function(then) {
+    this._next.then = then;
+    return this;
+};
+
+Tween.prototype.ease = function(easing) {
+    this._next.easing = Easing(easing);
+    return this;
+};
+
+module.exports = Tween;
+
+
+},{"../core":8,"../pin":16,"./easing":2}],5:[function(require,module,exports){
+var Cut = require("./core");
+
+require("./pin");
+
+require("./render");
+
+var create = require("./util/create");
+
+var math = require("./util/math");
+
+Cut.anim = function(frames, fps) {
+    var anim = new Anim();
+    anim.frames(frames).gotoFrame(0);
+    fps && anim.fps(fps);
+    return anim;
+};
+
+Anim._super = Cut;
+
+Anim.prototype = create(Anim._super.prototype);
+
+// TODO: replace with atlas fps or texture time
+Cut.Anim = {
+    FPS: 15
+};
+
+function Anim() {
+    Anim._super.call(this);
+    this.label("Anim");
+    this._textures = [];
+    this._fps = Cut.Anim.FPS;
+    this._ft = 1e3 / this._fps;
+    this._time = -1;
+    this._repeat = 0;
+    this._index = 0;
+    this._frames = [];
+    var lastTime = 0;
+    this.tick(function(t, now, last) {
+        if (this._time < 0 || this._frames.length <= 1) {
+            return;
+        }
+        // ignore old elapsed
+        var ignore = lastTime != last;
+        lastTime = now;
+        if (ignore) {
+            return true;
+        }
+        this._time += t;
+        if (this._time < this._ft) {
+            return true;
+        }
+        var n = this._time / this._ft | 0;
+        this._time -= n * this._ft;
+        this.moveFrame(n);
+        if (this._repeat > 0 && (this._repeat -= n) <= 0) {
+            this.stop();
+            this._callback && this._callback();
+            return false;
+        }
+        return true;
+    }, false);
+}
+
+Anim.prototype.fps = function(fps) {
+    if (typeof fps === "undefined") {
+        return this._fps;
+    }
+    this._fps = fps > 0 ? fps : Cut.Anim.FPS;
+    this._ft = 1e3 / this._fps;
+    return this;
+};
+
+/**
+ * @deprecated Use frames
+ */
+Anim.prototype.setFrames = function(a, b, c) {
+    return this.frames(a, b, c);
+};
+
+Anim.prototype.frames = function(frames) {
+    this._index = 0;
+    this._frames = Cut.texture(frames).array();
+    this.touch();
+    return this;
+};
+
+Anim.prototype.length = function() {
+    return this._frames ? this._frames.length : 0;
+};
+
+Anim.prototype.gotoFrame = function(frame, resize) {
+    this._index = math.rotate(frame, this._frames.length) | 0;
+    resize = resize || !this._textures[0];
+    this._textures[0] = this._frames[this._index];
+    if (resize) {
+        this.pin("width", this._textures[0].width);
+        this.pin("height", this._textures[0].height);
+    }
+    this.touch();
+    return this;
+};
+
+Anim.prototype.moveFrame = function(move) {
+    return this.gotoFrame(this._index + move);
+};
+
+Anim.prototype.repeat = function(repeat, callback) {
+    this._repeat = repeat * this._frames.length - 1;
+    this._callback = callback;
+    this.play();
+    return this;
+};
+
+Anim.prototype.play = function(frame) {
+    if (typeof frame !== "undefined") {
+        this.gotoFrame(frame);
+        this._time = 0;
+    } else if (this._time < 0) {
+        this._time = 0;
+    }
+    this.touch();
+    return this;
+};
+
+Anim.prototype.stop = function(frame) {
+    this._time = -1;
+    if (typeof frame !== "undefined") {
+        this.gotoFrame(frame);
+    }
+    return this;
+};
+
+
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/math":24}],6:[function(require,module,exports){
+var Cut = require("./core");
+
+var Texture = require("./texture");
+
+var extend = require("./util/extend");
+
+var create = require("./util/create");
+
+var is = require("./util/is");
+
+var string = require("./util/string");
+
+// name : atlas
+var _atlases_map = {};
+
+// [atlas]
+var _atlases_arr = [];
+
+// TODO: return entire atlas as texture
+// TODO: select atlas itself, call texture function
+// TODO: print subquery not found error
+// TODO: cache and clone or index textures
+Cut.atlas = function(def) {
+    var atlas = is.fn(def.draw) ? def : new Atlas(def);
+    if (def.name) {
+        _atlases_map[def.name] = atlas;
+    }
+    _atlases_arr.push(atlas);
+    deprecated(def, "imagePath");
+    deprecated(def, "imageRatio");
+    var url = def.imagePath;
+    var ratio = def.imageRatio || 1;
+    if (is.string(def.image)) {
+        url = def.image;
+    } else if (is.hash(def.image)) {
+        url = def.image.url;
+        ratio = def.image.ratio || ratio;
+    }
+    url && Cut.preload(function(done) {
+        DEBUG && console.log("Loading image: " + url);
+        var imageloader = Cut.config("image-loader");
+        imageloader(url, function(image) {
+            DEBUG && console.log("Image loaded: " + url);
+            atlas.src(image, ratio);
+            done();
+        }, function(msg) {
+            DEBUG && console.log("Error loading image: " + url, msg);
+            done();
+        });
+    });
+    return atlas;
+};
+
+Atlas._super = Texture;
+
+Atlas.prototype = create(Atlas._super.prototype);
+
+function Atlas(def) {
+    Atlas._super.call(this);
+    var atlas = this;
+    deprecated(def, "filter");
+    deprecated(def, "cutouts");
+    deprecated(def, "sprites");
+    deprecated(def, "factory");
+    var map = def.map || def.filter;
+    var ppu = def.ppu || def.ratio || 1;
+    var trim = def.trim || 0;
+    var textures = def.textures;
+    var factory = def.factory;
+    var cutouts = def.cutouts || def.sprites;
+    function make(def) {
+        if (!def || is.fn(def.draw)) {
+            return def;
+        }
+        def = extend({}, def);
+        if (is.fn(map)) {
+            def = map(def);
+        }
+        if (ppu != 1) {
+            def.x *= ppu, def.y *= ppu;
+            def.width *= ppu, def.height *= ppu;
+            def.top *= ppu, def.bottom *= ppu;
+            def.left *= ppu, def.right *= ppu;
+        }
+        if (trim != 0) {
+            def.x += trim, def.y += trim;
+            def.width -= 2 * trim, def.height -= 2 * trim;
+            def.top -= trim, def.bottom -= trim;
+            def.left -= trim, def.right -= trim;
+        }
+        var texture = atlas.pipe();
+        texture.top = def.top, texture.bottom = def.bottom;
+        texture.left = def.left, texture.right = def.right;
+        texture.src(def.x, def.y, def.width, def.height);
+        return texture;
+    }
+    function find(query) {
+        if (textures) {
+            if (is.fn(textures)) {
+                return textures(query);
+            } else if (is.hash(textures)) {
+                return textures[query];
+            }
+        }
+        if (cutouts) {
+            // deprecated
+            var result = null, n = 0;
+            for (var i = 0; i < cutouts.length; i++) {
+                if (string.startsWith(cutouts[i].name, query)) {
+                    if (n === 0) {
+                        result = cutouts[i];
+                    } else if (n === 1) {
+                        result = [ result, cutouts[i] ];
+                    } else {
+                        result.push(cutouts[i]);
+                    }
+                    n++;
+                }
+            }
+            if (n === 0 && is.fn(factory)) {
+                result = function(subquery) {
+                    return factory(query + (subquery ? subquery : ""));
+                };
+            }
+            return result;
+        }
+    }
+    this.select = function(query) {
+        var found = find(query);
+        if (found) {
+            return new Selection(found, find, make);
+        }
+    };
+}
+
+var nfTexture = new Texture();
+
+nfTexture.x = nfTexture.y = nfTexture.width = nfTexture.height = 0;
+
+nfTexture.pipe = nfTexture.src = nfTexture.dest = function() {
+    return this;
+};
+
+nfTexture.draw = function() {};
+
+var nfSelection = new Selection(nfTexture);
+
+function Selection(result, find, make) {
+    function link(result, subquery) {
+        if (!result) {
+            return nfTexture;
+        } else if (is.fn(result.draw)) {
+            return result;
+        } else if (is.hash(result) && is.number(result.width) && is.number(result.height) && is.fn(make)) {
+            return make(result);
+        } else if (is.hash(result) && is.defined(subquery)) {
+            return link(result[subquery]);
+        } else if (is.fn(result)) {
+            return link(result(subquery));
+        } else if (is.array(result)) {
+            return link(result[0]);
+        } else if (is.string(result) && is.fn(find)) {
+            return link(find(result));
+        }
+    }
+    this.one = function(subquery) {
+        return link(result, subquery);
+    };
+    this.array = function(arr) {
+        var array = is.array(arr) ? arr : [];
+        if (is.array(result)) {
+            for (var i = 0; i < result.length; i++) {
+                array[i] = link(result[i]);
+            }
+        } else {
+            array[0] = link(result);
+        }
+        return array;
+    };
+}
+
+Cut.texture = function(query) {
+    if (!is.string(query)) {
+        return new Selection(query);
+    }
+    var result = null;
+    var i = query.indexOf(":");
+    if (i > 0 && query.length > i + 1) {
+        var atlas = _atlases_map[query.slice(0, i)];
+        result = atlas && atlas.select(query.slice(i + 1));
+    }
+    for (var i = 0; !result && i < _atlases_arr.length; i++) {
+        result = _atlases_arr[i].select(query);
+    }
+    if (!result) {
+        console.error("Texture not found: " + query);
+        result = nfSelection;
+    }
+    return result;
+};
+
+function deprecated(hash, name, msg) {
+    if (name in hash) console.log(msg ? msg.replace("%name", name) : "'" + name + "' field of texture atlas is deprecated.");
+}
+
+module.exports = Atlas;
+
+
+},{"./core":8,"./texture":20,"./util/create":21,"./util/extend":22,"./util/is":23,"./util/string":28}],7:[function(require,module,exports){
+var Cut = require("./core");
+
+var Texture = require("./texture");
+
+Cut.canvas = function(type, attributes, callback) {
+    if (typeof type === "string") {
+        if (typeof attributes === "object") {} else {
+            if (typeof attributes === "function") {
+                callback = attributes;
+            }
+            attributes = {};
+        }
+    } else {
+        if (typeof type === "function") {
+            callback = type;
+        }
+        attributes = {};
+        type = "2d";
+    }
+    var canvas = document.createElement("canvas");
+    var context = canvas.getContext(type, attributes);
+    var texture = new Texture(canvas);
+    texture.context = function() {
+        return context;
+    };
+    texture.size = function(width, height, ratio) {
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        this.src(canvas, ratio);
+        return this;
+    };
+    texture.canvas = function(fn) {
+        if (typeof fn === "function") {
+            fn.call(this, context);
+        } else if (typeof fn === "undefined" && typeof callback === "function") {
+            callback.call(this, context);
+        }
+        return this;
+    };
+    if (typeof callback === "function") {
+        callback.call(texture, context);
+    }
+    return texture;
+};
+
+
+},{"./core":8,"./texture":20}],8:[function(require,module,exports){
+if (typeof DEBUG === "undefined") DEBUG = true;
+
+var stats = require("./util/stats");
+
+var extend = require("./util/extend");
+
+var once = require("./util/once");
+
+var is = require("./util/is");
+
+stats.create = 0;
+
+function Cut(arg) {
+    if (!(this instanceof Cut)) {
+        if (is.fn(arg)) {
+            return Cut.app.apply(Cut, arguments);
+        } else if (is.object(arg)) {
+            return Cut.atlas.apply(Cut, arguments);
+        } else {
+            return arg;
+        }
+    }
+    stats.create++;
+    for (var i = 0; i < _init.length; i++) {
+        _init[i].call(this);
+    }
+}
+
+var _init = [];
+
+Cut._init = function(fn) {
+    _init.push(fn);
+};
+
+var _config = {};
+
+Cut.config = function() {
+    if (arguments.length === 1 && is.string(arguments[0])) {
+        return _config[arguments[0]];
+    }
+    if (arguments.length === 1 && is.object(arguments[0])) {
+        extend(_config, arguments[0]);
+    }
+    if (arguments.length === 2 && is.string(arguments[0])) {
+        _config[(arguments[0], arguments[1])];
+    }
+};
+
+var _app_queue = [];
+
+var _preload_queue = [];
+
+var _app_roots = [];
+
+var _started = false;
+
+var _paused = false;
+
+Cut.app = function(app, opts) {
+    if (!_started) {
+        _app_queue.push(arguments);
+        return;
+    }
+    DEBUG && console.log("Creating app...");
+    var loader = Cut.config("app-loader");
+    loader(function(root, canvas) {
+        DEBUG && console.log("Initing app...");
+        app(root, canvas);
+        _app_roots.push(root);
+        DEBUG && console.log("Starting app...");
+        root.start();
+    }, opts);
+};
+
+Cut.preload = function(load) {
+    if (!_started) {
+        _preload_queue.push(load);
+        return;
+    }
+    load(function(err) {});
+};
+
+Cut.start = function(config) {
+    DEBUG && console.log("Starting...");
+    Cut.config(config);
+    DEBUG && console.log("Preloading...");
+    var loading = 0;
+    if (!_preload_queue.length) {
+        done();
+    } else {
+        while (_preload_queue.length) {
+            var preload = _preload_queue.shift();
+            preload(once(done));
+            loading++;
+        }
+    }
+    function done() {
+        if (--loading <= 0) {
+            DEBUG && console.log("Loading apps...");
+            _started = true;
+            while (_app_queue.length) {
+                var args = _app_queue.shift();
+                Cut.app.apply(Cut, args);
+            }
+        }
+    }
+};
+
+Cut.pause = function() {
+    if (!_paused) {
+        _paused = true;
+        for (var i = _app_roots.length - 1; i >= 0; i--) {
+            _app_roots[i].pause();
+        }
+    }
+};
+
+Cut.resume = function() {
+    if (_paused) {
+        _paused = false;
+        for (var i = _app_roots.length - 1; i >= 0; i--) {
+            _app_roots[i].resume();
+        }
+    }
+};
+
+Cut.create = function() {
+    return new Cut();
+};
+
+module.exports = Cut;
+
+
+},{"./util/extend":22,"./util/is":23,"./util/once":25,"./util/stats":27}],9:[function(require,module,exports){
+var Cut = require("./core");
+
+var is = require("./util/is");
+
+Cut.prototype._listeners = null;
+
+Cut.prototype.on = Cut.prototype.listen = function(types, listener) {
+    if (types = _check(this, types, listener, true)) {
+        for (var i = 0; i < types.length; i++) {
+            var type = types[i];
+            this._listeners[type] = this._listeners[type] || [];
+            this._listeners[type].push(listener);
+            this._flag(type, true);
+        }
+    }
+    return this;
+};
+
+Cut.prototype.off = function(types, listener) {
+    if (types = _check(this, types, listener, false)) {
+        for (var i = 0; i < types.length; i++) {
+            var type = types[i], all = this._listeners[type], index;
+            if (all && (index = all.indexOf(listener)) >= 0) {
+                all.splice(index, 1);
+                if (!all.length) {
+                    delete this._listeners[type];
+                }
+                this._flag(type, false);
+            }
+        }
+    }
+    return this;
+};
+
+function _check(node, types, listener, create) {
+    if (!types || !types.length || typeof listener !== "function") {
+        return false;
+    }
+    if (!(types = (is.array(types) ? types.join(" ") : types).match(/\S+/g))) {
+        return false;
+    }
+    if (node._listeners === null) {
+        if (create) {
+            node._listeners = {};
+        } else {
+            return false;
+        }
+    }
+    return types;
+}
+
+Cut.prototype.listeners = function(type) {
+    return this._listeners && this._listeners[type];
+};
+
+Cut.prototype.publish = function(name, args) {
+    var listeners = this.listeners(name);
+    if (!listeners || !listeners.length) {
+        return 0;
+    }
+    for (var l = 0; l < listeners.length; l++) {
+        listeners[l].apply(this, args);
+    }
+    return listeners.length;
+};
+
+Cut.prototype.trigger = function(name, args) {
+    this.publish(name, args);
+    return this;
+};
+
+
+},{"./core":8,"./util/is":23}],10:[function(require,module,exports){
+var Cut = require("./core");
+
+require("./pin");
+
+require("./render");
+
+var repeat = require("./util/repeat");
+
+var create = require("./util/create");
+
+Cut.image = function(image) {
+    var img = new Image();
+    image && img.image(image);
+    return img;
+};
+
+Image._super = Cut;
+
+Image.prototype = create(Image._super.prototype);
+
+function Image() {
+    Image._super.call(this);
+    this.label("Image");
+    this._textures = [];
+    this._image = null;
+}
+
+/**
+ * @deprecated Use image
+ */
+Image.prototype.setImage = function(a, b, c) {
+    return this.image(a, b, c);
+};
+
+Image.prototype.image = function(image) {
+    this._image = Cut.texture(image).one();
+    this.pin("width", this._image ? this._image.width : 0);
+    this.pin("height", this._image ? this._image.height : 0);
+    this._textures[0] = this._image.pipe();
+    this._textures.length = 1;
+    return this;
+};
+
+Image.prototype.tile = function(inner) {
+    this._repeat(false, inner);
+    return this;
+};
+
+Image.prototype.stretch = function(inner) {
+    this._repeat(true, inner);
+    return this;
+};
+
+Image.prototype._repeat = function(stretch, inner) {
+    var self = this;
+    this.untick(this._repeatTicker);
+    this.tick(this._repeatTicker = function() {
+        if (this._mo_stretch == this._pin._ts_transform) {
+            return;
+        }
+        this._mo_stretch = this._pin._ts_transform;
+        var width = this.pin("width");
+        var height = this.pin("height");
+        this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
+    });
+    function insert(i, sx, sy, sw, sh, dx, dy, dw, dh) {
+        var repeat = self._textures.length > i ? self._textures[i] : self._textures[i] = self._image.pipe();
+        repeat.src(sx, sy, sw, sh);
+        repeat.dest(dx, dy, dw, dh);
+    }
+};
+
+
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/repeat":26}],11:[function(require,module,exports){
+module.exports = require("./core");
+
+module.exports.Matrix = require("./matrix");
+
+module.exports.Texture = require("./texture");
+
+require("./atlas");
+
+require("./node");
+
+require("./event");
+
+require("./pin");
+
+require("./render");
+
+require("./root");
+
+
+},{"./atlas":6,"./core":8,"./event":9,"./matrix":14,"./node":15,"./pin":16,"./render":17,"./root":18,"./texture":20}],12:[function(require,module,exports){
+var Cut = require("./core");
+
+require("./pin");
+
+require("./render");
+
+var create = require("./util/create");
+
+Cut.row = function(align) {
+    return Cut.create().row(align);
+};
+
+Cut.prototype.row = function(align) {
+    this.sequence("row", align);
+    return this;
+};
+
+Cut.column = function(align) {
+    return Cut.create().column(align);
+};
+
+Cut.prototype.column = function(align) {
+    this.sequence("column", align);
+    return this;
+};
+
+Cut.sequence = function(type, align) {
+    return Cut.create().sequence(type, align);
+};
+
+Cut.prototype.sequence = function(type, align) {
+    this._padding = this._padding || 0;
+    this._spacing = this._spacing || 0;
+    this.untick(this._sequenceTicker);
+    this.tick(this._sequenceTicker = function() {
+        if (this._mo_seq == this._ts_touch) {
+            return;
+        }
+        this._mo_seq = this._ts_touch;
+        var alignChildren = this._mo_seqAlign != this._ts_children;
+        this._mo_seqAlign = this._ts_children;
+        var width = 0, height = 0;
+        var child, next = this.first(true);
+        var first = true;
+        while (child = next) {
+            next = child.next(true);
+            child._pin.relativeMatrix();
+            var w = child.pin("boxWidth");
+            var h = child.pin("boxHeight");
+            if (type == "column") {
+                !first && (height += this._spacing);
+                child.pin("offsetY") != height && child.pin("offsetY", height);
+                width = Math.max(width, w);
+                height = height + h;
+                alignChildren && child.pin("alignX", align);
+            } else if (type == "row") {
+                !first && (width += this._spacing);
+                child.pin("offsetX") != width && child.pin("offsetX", width);
+                width = width + w;
+                height = Math.max(height, h);
+                alignChildren && child.pin("alignY", align);
+            }
+            first = false;
+        }
+        width += 2 * this._padding;
+        height += 2 * this._padding;
+        this.pin("width") != width && this.pin("width", width);
+        this.pin("height") != height && this.pin("height", height);
+    });
+    return this;
+};
+
+Cut.box = function() {
+    return Cut.create().box();
+};
+
+Cut.prototype.box = function() {
+    if (this._boxTicker) return this;
+    this._padding = this._padding || 0;
+    this.tick(this._boxTicker = function() {
+        if (this._mo_box == this._ts_touch) {
+            return;
+        }
+        this._mo_box = this._ts_touch;
+        var width = 0, height = 0;
+        var child, next = this.first(true);
+        while (child = next) {
+            next = child.next(true);
+            child._pin.relativeMatrix();
+            var w = child.pin("boxWidth");
+            var h = child.pin("boxHeight");
+            width = Math.max(width, w);
+            height = Math.max(height, h);
+        }
+        width += 2 * this._padding;
+        height += 2 * this._padding;
+        this.pin("width") != width && this.pin("width", width);
+        this.pin("height") != height && this.pin("height", height);
+    });
+    return this;
+};
+
+// TODO: move padding to pin
+Cut.prototype.padding = function(pad) {
+    this._padding = pad;
+    return this;
+};
+
+Cut.prototype.spacing = function(space) {
+    this._spacing = space;
+    return this;
+};
+
+
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21}],13:[function(require,module,exports){
+var Cut = require("../core");
+
+if (typeof DEBUG === "undefined") DEBUG = true;
+
+/**
+ * Default loader for web.
+ */
+window.addEventListener("load", function() {
+    DEBUG && console.log("On load.");
+    Cut.start({
+        "app-loader": AppLoader,
+        "image-loader": ImageLoader
+    });
+}, false);
+
+function AppLoader(app, configs) {
+    configs = configs || {};
+    var canvas = configs.canvas, context = null, full = false;
+    var width = 0, height = 0, ratio = 1;
+    if (typeof canvas === "string") {
+        canvas = document.getElementById(canvas);
+    }
+    if (!canvas) {
+        canvas = document.getElementById("cutjs");
+    }
+    if (!canvas) {
+        full = true;
+        DEBUG && console.log("Creating Canvas...");
+        canvas = document.createElement("canvas");
+        canvas.style.position = "absolute";
+        var body = document.body;
+        body.insertBefore(canvas, body.firstChild);
+    }
+    context = canvas.getContext("2d");
+    var devicePixelRatio = window.devicePixelRatio || 1;
+    var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+    ratio = devicePixelRatio / backingStoreRatio;
+    var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
+        return window.setTimeout(callback, 1e3 / 60);
+    };
+    DEBUG && console.log("Creating root...");
+    var root = Cut.root(requestAnimationFrame, render);
+    function render() {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, width, height);
+        root.render(context);
+    }
+    root.background = function(color) {
+        canvas.style.backgroundColor = color;
+        return this;
+    };
+    app(root, canvas);
+    resize();
+    window.addEventListener("resize", resize, false);
+    window.addEventListener("orientationchange", resize, false);
+    function resize() {
+        if (full) {
+            // screen.availWidth/Height?
+            width = window.innerWidth > 0 ? window.innerWidth : screen.width;
+            height = window.innerHeight > 0 ? window.innerHeight : screen.height;
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+        } else {
+            width = canvas.clientWidth;
+            height = canvas.clientHeight;
+        }
+        width *= ratio;
+        height *= ratio;
+        if (canvas.width === width && canvas.height === height) {
+            return;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        DEBUG && console.log("Resize: " + width + " x " + height + " / " + ratio);
+        root.viewport(width, height, ratio);
+        render();
+    }
+}
+
+function ImageLoader(src, success, error) {
+    DEBUG && console.log("Loading image: " + src);
+    var image = new Image();
+    image.onload = function() {
+        success(image);
+    };
+    image.onerror = error;
+    image.src = src;
+}
+
+
+},{"../core":8}],14:[function(require,module,exports){
+function Matrix(a, b, c, d, e, f) {
+    this._dirty = true;
+    this.a = a || 1;
+    this.b = b || 0;
+    this.c = c || 0;
+    this.d = d || 1;
+    this.e = e || 0;
+    this.f = f || 0;
+}
+
+Matrix.prototype.toString = function() {
+    return "[" + this.a + ", " + this.b + ", " + this.c + ", " + this.d + ", " + this.e + ", " + this.f + "]";
+};
+
+Matrix.prototype.clone = function() {
+    return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
+};
+
+Matrix.prototype.copyTo = function(m) {
+    m.copyFrom(this);
+    return this;
+};
+
+Matrix.prototype.copyFrom = function(m) {
+    this._dirty = true;
+    this.a = m.a;
+    this.b = m.b;
+    this.c = m.c;
+    this.d = m.d;
+    this.e = m.e;
+    this.f = m.f;
+    return this;
+};
+
+Matrix.prototype.identity = function() {
+    this._dirty = true;
+    this.a = 1;
+    this.b = 0;
+    this.c = 0;
+    this.d = 1;
+    this.e = 0;
+    this.f = 0;
+    return this;
+};
+
+Matrix.prototype.rotate = function(angle) {
+    if (!angle) {
+        return this;
+    }
+    this._dirty = true;
+    var u = angle ? Math.cos(angle) : 1;
+    // android bug may give bad 0 values
+    var v = angle ? Math.sin(angle) : 0;
+    var a = u * this.a - v * this.b;
+    var b = u * this.b + v * this.a;
+    var c = u * this.c - v * this.d;
+    var d = u * this.d + v * this.c;
+    var e = u * this.e - v * this.f;
+    var f = u * this.f + v * this.e;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+};
+
+Matrix.prototype.translate = function(x, y) {
+    if (!x && !y) {
+        return this;
+    }
+    this._dirty = true;
+    this.e += x;
+    this.f += y;
+    return this;
+};
+
+Matrix.prototype.scale = function(x, y) {
+    if (!(x - 1) && !(y - 1)) {
+        return this;
+    }
+    this._dirty = true;
+    this.a *= x;
+    this.b *= y;
+    this.c *= x;
+    this.d *= y;
+    this.e *= x;
+    this.f *= y;
+    return this;
+};
+
+Matrix.prototype.skew = function(x, y) {
+    if (!x && !y) {
+        return this;
+    }
+    this._dirty = true;
+    var a = this.a + this.b * x;
+    var b = this.b + this.a * y;
+    var c = this.c + this.d * x;
+    var d = this.d + this.c * y;
+    var e = this.e + this.f * x;
+    var f = this.f + this.e * y;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+};
+
+Matrix.prototype.concat = function(m) {
+    this._dirty = true;
+    var n = this;
+    var a = n.a * m.a + n.b * m.c;
+    var b = n.b * m.d + n.a * m.b;
+    var c = n.c * m.a + n.d * m.c;
+    var d = n.d * m.d + n.c * m.b;
+    var e = n.e * m.a + m.e + n.f * m.c;
+    var f = n.f * m.d + m.f + n.e * m.b;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+};
+
+Matrix.prototype.reverse = function() {
+    if (this._dirty) {
+        this._dirty = false;
+        this.reversed = this.reversed || new Matrix();
+        var z = this.a * this.d - this.b * this.c;
+        this.reversed.a = this.d / z;
+        this.reversed.b = -this.b / z;
+        this.reversed.c = -this.c / z;
+        this.reversed.d = this.a / z;
+        this.reversed.e = (this.c * this.f - this.e * this.d) / z;
+        this.reversed.f = (this.e * this.b - this.a * this.f) / z;
+    }
+    return this.reversed;
+};
+
+Matrix.prototype.map = function(p, q) {
+    q = q || {};
+    q.x = this.a * p.x + this.c * p.y + this.e;
+    q.y = this.b * p.x + this.d * p.y + this.f;
+    return q;
+};
+
+Matrix.prototype.mapX = function(x, y) {
+    return this.a * x + this.c * y + this.e;
+};
+
+Matrix.prototype.mapY = function(x, y) {
+    return this.b * x + this.d * y + this.f;
+};
+
+module.exports = Matrix;
+
+
+},{}],15:[function(require,module,exports){
 var Cut = require("./core");
 
 var iid = 0;
@@ -1445,7 +1898,7 @@ function _ensure(obj) {
 module.exports = Cut;
 
 
-},{"./core":4}],12:[function(require,module,exports){
+},{"./core":8}],16:[function(require,module,exports){
 var Cut = require("./core");
 
 var Matrix = require("./matrix");
@@ -1904,238 +2357,14 @@ Pin.prototype._scaleTo = function(width, height, mode) {
 module.exports = Pin;
 
 
-},{"./core":4,"./matrix":9}],13:[function(require,module,exports){
-var stats = require("./util/stats");
-
-var math = require("./util/math");
-
-function Texture(image, ratio) {
-    if (typeof image === "object") {
-        this.src(image, ratio);
-    }
-}
-
-Texture.prototype.pipe = function() {
-    return new Texture(this);
-};
-
-/**
- * Signatures: (image), (x, y, w, h), (w, h)
- */
-Texture.prototype.src = function(x, y, w, h) {
-    if (typeof x === "object") {
-        var image = x, ratio = y || 1;
-        this._image = image;
-        this._sx = this._dx = 0;
-        this._sy = this._dy = 0;
-        this._sw = this._dw = image.width / ratio;
-        this._sh = this._dh = image.height / ratio;
-        this.width = image.width / ratio;
-        this.height = image.height / ratio;
-        this.ratio = ratio;
-    } else {
-        if (typeof w === "undefined") {
-            w = x, h = y;
-        } else {
-            this._sx = x, this._sy = y;
-        }
-        this._sw = this._dw = w;
-        this._sh = this._dh = h;
-        this.width = w;
-        this.height = h;
-    }
-    return this;
-};
-
-/**
- * Signatures: (x, y, w, h), (x, y)
- */
-Texture.prototype.dest = function(x, y, w, h) {
-    this._dx = x, this._dy = y;
-    this._dx = x, this._dy = y;
-    if (typeof w !== "undefined") {
-        this._dw = w, this._dh = h;
-        this.width = w, this.height = h;
-    }
-    return this;
-};
-
-Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
-    var image = this._image;
-    if (image === null || typeof image !== "object") {
-        return;
-    }
-    var sx = this._sx, sy = this._sy;
-    var sw = this._sw, sh = this._sh;
-    var dx = this._dx, dy = this._dy;
-    var dw = this._dw, dh = this._dh;
-    if (typeof x3 !== "undefined") {
-        x1 = math.limit(x1, 0, this._sw), x2 = math.limit(x2, 0, this._sw - x1);
-        y1 = math.limit(y1, 0, this._sh), y2 = math.limit(y2, 0, this._sh - y1);
-        sx += x1, sy += y1, sw = x2, sh = y2;
-        dx = x3, dy = y3, dw = x4, dh = y4;
-    } else if (typeof x2 !== "undefined") {
-        dx = x1, dy = y1, dw = x2, dh = y2;
-    } else if (typeof x1 !== "undefined") {
-        dw = x1, dh = y1;
-    }
-    var ratio = this.ratio || 1;
-    sx *= ratio, sy *= ratio, sw *= ratio, sh *= ratio;
-    try {
-        if (typeof image.draw === "function") {
-            image.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
-        } else {
-            stats.draw++;
-            context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
-        }
-    } catch (ex) {
-        if (!image._draw_failed) {
-            console.log("Unable to draw: ", image);
-            console.log(ex);
-            image._draw_failed = true;
-        }
-    }
-};
-
-module.exports = Texture;
-
-
-},{"./util/math":19,"./util/stats":22}],14:[function(require,module,exports){
-var Easing = require("./easing");
-
+},{"./core":8,"./matrix":14}],17:[function(require,module,exports){
 var Cut = require("./core");
 
-var Pin = require("./pin");
-
-Cut.prototype.tween = function(duration, delay) {
-    if (!this._tween) {
-        this._tween = new Tween(this);
-    }
-    return this._tween.tween(duration, delay);
-};
-
-var iid = 0;
-
-function Tween(node) {
-    // TODO: reuse head.start/keys/end
-    var tween = this;
-    this._owner = node;
-    this._queue = [];
-    this._next = null;
-    var lastTime = 0;
-    node.tick(function(elapsed, now, last) {
-        if (!tween._queue.length) {
-            return;
-        }
-        // ignore old elapsed
-        var ignore = lastTime != last;
-        lastTime = now;
-        this.touch();
-        if (ignore) {
-            return;
-        }
-        var head = tween._queue[0];
-        if (!head.time) {
-            head.time = 1;
-        } else {
-            head.time += elapsed;
-        }
-        if (head.time < head.delay) {
-            return;
-        }
-        if (!head.start) {
-            head.start = {};
-            head.keys = {};
-            for (var key in head.end) {
-                if (typeof (start = node.pin(key)) === "number") {
-                    head.start[key] = start;
-                    head.keys[key] = key;
-                } else if (typeof (startX = node.pin(key + "X")) === "number" && typeof (startY = node.pin(key + "Y")) === "number") {
-                    head.start[key + "X"] = startX;
-                    head.keys[key + "X"] = key;
-                    head.start[key + "Y"] = startY;
-                    head.keys[key + "Y"] = key;
-                }
-            }
-        }
-        var p = (head.time - head.delay) / head.duration;
-        var over = p >= 1;
-        p = p > 1 ? 1 : p;
-        p = typeof head.easing == "function" ? head.easing(p) : p;
-        var q = 1 - p;
-        for (var key in head.keys) {
-            node.pin(key, head.start[key] * q + head.end[head.keys[key]] * p);
-        }
-        if (over) {
-            tween._queue.shift();
-            head.then && head.then.call(node);
-        }
-    }, true);
-}
-
-Tween.prototype.tween = function(duration, delay) {
-    this._next = {
-        id: ++iid,
-        end: {},
-        duration: duration || 400,
-        delay: delay || 0
-    };
-    return this;
-};
-
-Tween.prototype.pin = function(a, b) {
-    if (this._next !== this._queue[this._queue.length - 1]) {
-        this._owner.touch();
-        this._queue.push(this._next);
-    }
-    var end = this._next.end;
-    if (typeof a === "object") {
-        for (var attr in a) {
-            end[attr] = a[attr];
-        }
-    } else if (typeof b !== "undefined") {
-        end[a] = b;
-    }
-    return this;
-};
-
-Tween.prototype.clear = function(forward) {
-    var tween;
-    while (tween = this._queue.shift()) {
-        forward && this._owner.pin(tween.end);
-    }
-    return this;
-};
-
-Tween.prototype.then = function(then) {
-    this._next.then = then;
-    return this;
-};
-
-Tween.prototype.ease = function(easing) {
-    this._next.easing = Easing(easing);
-    return this;
-};
-
-module.exports = Tween;
-
-
-},{"./core":4,"./easing":5,"./pin":12}],15:[function(require,module,exports){
-var Cut = require("./core");
-
-var Pin = require("./pin");
+require("./pin");
 
 var stats = require("./util/stats");
-
-var repeat = require("./util/repeat");
 
 var create = require("./util/create");
-
-var extend = require("./util/extend");
-
-var math = require("./util/math");
-
-var is = require("./util/is");
 
 Cut.prototype._textures = null;
 
@@ -2235,6 +2464,20 @@ Cut.prototype.untick = function(ticker) {
         this._tickAfter.splice(i, 1);
     }
 };
+
+
+},{"./core":8,"./pin":16,"./util/create":21,"./util/stats":27}],18:[function(require,module,exports){
+var Cut = require("./core");
+
+require("./pin");
+
+require("./render");
+
+var stats = require("./util/stats");
+
+var create = require("./util/create");
+
+var extend = require("./util/extend");
 
 Root._super = Cut;
 
@@ -2352,186 +2595,17 @@ Root.prototype._updateViewbox = function() {
     }
 };
 
-Cut.image = function(image) {
-    var img = new Image();
-    image && img.image(image);
-    return img;
-};
 
-Image._super = Cut;
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/extend":22,"./util/stats":27}],19:[function(require,module,exports){
+var Cut = require("./core");
 
-Image.prototype = create(Image._super.prototype);
+require("./pin");
 
-function Image() {
-    Image._super.call(this);
-    this.label("Image");
-    this._textures = [];
-    this._image = null;
-}
+require("./render");
 
-/**
- * @deprecated Use image
- */
-Image.prototype.setImage = function(a, b, c) {
-    return this.image(a, b, c);
-};
+var create = require("./util/create");
 
-Image.prototype.image = function(image) {
-    this._image = Cut.texture(image).one();
-    this.pin("width", this._image ? this._image.width : 0);
-    this.pin("height", this._image ? this._image.height : 0);
-    this._textures[0] = this._image.pipe();
-    this._textures.length = 1;
-    return this;
-};
-
-Image.prototype.tile = function(inner) {
-    this._repeat(false, inner);
-    return this;
-};
-
-Image.prototype.stretch = function(inner) {
-    this._repeat(true, inner);
-    return this;
-};
-
-Image.prototype._repeat = function(stretch, inner) {
-    var self = this;
-    this.untick(this._repeatTicker);
-    this.tick(this._repeatTicker = function() {
-        if (this._mo_stretch == this._pin._ts_transform) {
-            return;
-        }
-        this._mo_stretch = this._pin._ts_transform;
-        var width = this.pin("width");
-        var height = this.pin("height");
-        this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
-    });
-    function insert(i, sx, sy, sw, sh, dx, dy, dw, dh) {
-        var repeat = self._textures.length > i ? self._textures[i] : self._textures[i] = self._image.pipe();
-        repeat.src(sx, sy, sw, sh);
-        repeat.dest(dx, dy, dw, dh);
-    }
-};
-
-Cut.anim = function(frames, fps) {
-    var anim = new Anim();
-    anim.frames(frames).gotoFrame(0);
-    fps && anim.fps(fps);
-    return anim;
-};
-
-Anim._super = Cut;
-
-Anim.prototype = create(Anim._super.prototype);
-
-Anim.FPS = 12;
-
-function Anim() {
-    Anim._super.call(this);
-    this.label("Anim");
-    this._textures = [];
-    this._fps = Anim.FPS;
-    this._ft = 1e3 / this._fps;
-    this._time = -1;
-    this._repeat = 0;
-    this._index = 0;
-    this._frames = [];
-    var lastTime = 0;
-    this.tick(function(t, now, last) {
-        if (this._time < 0 || this._frames.length <= 1) {
-            return;
-        }
-        // ignore old elapsed
-        var ignore = lastTime != last;
-        lastTime = now;
-        if (ignore) {
-            return true;
-        }
-        this._time += t;
-        if (this._time < this._ft) {
-            return true;
-        }
-        var n = this._time / this._ft | 0;
-        this._time -= n * this._ft;
-        this.moveFrame(n);
-        if (this._repeat > 0 && (this._repeat -= n) <= 0) {
-            this.stop();
-            this._callback && this._callback();
-            return false;
-        }
-        return true;
-    }, false);
-}
-
-Anim.prototype.fps = function(fps) {
-    if (typeof fps === "undefined") {
-        return this._fps;
-    }
-    this._fps = fps > 0 ? fps : Cut.Anim.FPS;
-    this._ft = 1e3 / this._fps;
-    return this;
-};
-
-/**
- * @deprecated Use frames
- */
-Anim.prototype.setFrames = function(a, b, c) {
-    return this.frames(a, b, c);
-};
-
-Anim.prototype.frames = function(frames) {
-    this._index = 0;
-    this._frames = Cut.texture(frames).array();
-    this.touch();
-    return this;
-};
-
-Anim.prototype.length = function() {
-    return this._frames ? this._frames.length : 0;
-};
-
-Anim.prototype.gotoFrame = function(frame, resize) {
-    this._index = math.rotate(frame, this._frames.length) | 0;
-    resize = resize || !this._textures[0];
-    this._textures[0] = this._frames[this._index];
-    if (resize) {
-        this.pin("width", this._textures[0].width);
-        this.pin("height", this._textures[0].height);
-    }
-    this.touch();
-    return this;
-};
-
-Anim.prototype.moveFrame = function(move) {
-    return this.gotoFrame(this._index + move);
-};
-
-Anim.prototype.repeat = function(repeat, callback) {
-    this._repeat = repeat * this._frames.length - 1;
-    this._callback = callback;
-    this.play();
-    return this;
-};
-
-Anim.prototype.play = function(frame) {
-    if (typeof frame !== "undefined") {
-        this.gotoFrame(frame);
-        this._time = 0;
-    } else if (this._time < 0) {
-        this._time = 0;
-    }
-    this.touch();
-    return this;
-};
-
-Anim.prototype.stop = function(frame) {
-    this._time = -1;
-    if (typeof frame !== "undefined") {
-        this.gotoFrame(frame);
-    }
-    return this;
-};
+var is = require("./util/is");
 
 Cut.string = function(frames) {
     return new Str().frames(frames);
@@ -2606,113 +2680,104 @@ Str.prototype.value = function(value) {
     return this;
 };
 
-Cut.row = function(align) {
-    return Cut.create().row(align);
+
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/is":23}],20:[function(require,module,exports){
+var stats = require("./util/stats");
+
+var math = require("./util/math");
+
+function Texture(image, ratio) {
+    if (typeof image === "object") {
+        this.src(image, ratio);
+    }
+}
+
+Texture.prototype.pipe = function() {
+    return new Texture(this);
 };
 
-Cut.prototype.row = function(align) {
-    this.sequence("row", align);
-    return this;
-};
-
-Cut.column = function(align) {
-    return Cut.create().column(align);
-};
-
-Cut.prototype.column = function(align) {
-    this.sequence("column", align);
-    return this;
-};
-
-Cut.sequence = function(type, align) {
-    return Cut.create().sequence(type, align);
-};
-
-Cut.prototype.sequence = function(type, align) {
-    this._padding = this._padding || 0;
-    this._spacing = this._spacing || 0;
-    this.untick(this._sequenceTicker);
-    this.tick(this._sequenceTicker = function() {
-        if (this._mo_seq == this._ts_touch) {
-            return;
+/**
+ * Signatures: (image), (x, y, w, h), (w, h)
+ */
+Texture.prototype.src = function(x, y, w, h) {
+    if (typeof x === "object") {
+        var image = x, ratio = y || 1;
+        this._image = image;
+        this._sx = this._dx = 0;
+        this._sy = this._dy = 0;
+        this._sw = this._dw = image.width / ratio;
+        this._sh = this._dh = image.height / ratio;
+        this.width = image.width / ratio;
+        this.height = image.height / ratio;
+        this.ratio = ratio;
+    } else {
+        if (typeof w === "undefined") {
+            w = x, h = y;
+        } else {
+            this._sx = x, this._sy = y;
         }
-        this._mo_seq = this._ts_touch;
-        var alignChildren = this._mo_seqAlign != this._ts_children;
-        this._mo_seqAlign = this._ts_children;
-        var width = 0, height = 0;
-        var child, next = this.first(true);
-        var first = true;
-        while (child = next) {
-            next = child.next(true);
-            child._pin.relativeMatrix();
-            var w = child.pin("boxWidth");
-            var h = child.pin("boxHeight");
-            if (type == "column") {
-                !first && (height += this._spacing);
-                child.pin("offsetY") != height && child.pin("offsetY", height);
-                width = Math.max(width, w);
-                height = height + h;
-                alignChildren && child.pin("alignX", align);
-            } else if (type == "row") {
-                !first && (width += this._spacing);
-                child.pin("offsetX") != width && child.pin("offsetX", width);
-                width = width + w;
-                height = Math.max(height, h);
-                alignChildren && child.pin("alignY", align);
-            }
-            first = false;
+        this._sw = this._dw = w;
+        this._sh = this._dh = h;
+        this.width = w;
+        this.height = h;
+    }
+    return this;
+};
+
+/**
+ * Signatures: (x, y, w, h), (x, y)
+ */
+Texture.prototype.dest = function(x, y, w, h) {
+    this._dx = x, this._dy = y;
+    this._dx = x, this._dy = y;
+    if (typeof w !== "undefined") {
+        this._dw = w, this._dh = h;
+        this.width = w, this.height = h;
+    }
+    return this;
+};
+
+Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
+    var image = this._image;
+    if (image === null || typeof image !== "object") {
+        return;
+    }
+    var sx = this._sx, sy = this._sy;
+    var sw = this._sw, sh = this._sh;
+    var dx = this._dx, dy = this._dy;
+    var dw = this._dw, dh = this._dh;
+    if (typeof x3 !== "undefined") {
+        x1 = math.limit(x1, 0, this._sw), x2 = math.limit(x2, 0, this._sw - x1);
+        y1 = math.limit(y1, 0, this._sh), y2 = math.limit(y2, 0, this._sh - y1);
+        sx += x1, sy += y1, sw = x2, sh = y2;
+        dx = x3, dy = y3, dw = x4, dh = y4;
+    } else if (typeof x2 !== "undefined") {
+        dx = x1, dy = y1, dw = x2, dh = y2;
+    } else if (typeof x1 !== "undefined") {
+        dw = x1, dh = y1;
+    }
+    var ratio = this.ratio || 1;
+    sx *= ratio, sy *= ratio, sw *= ratio, sh *= ratio;
+    try {
+        if (typeof image.draw === "function") {
+            image.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
+        } else {
+            stats.draw++;
+            context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
         }
-        width += 2 * this._padding;
-        height += 2 * this._padding;
-        this.pin("width") != width && this.pin("width", width);
-        this.pin("height") != height && this.pin("height", height);
-    });
-    return this;
-};
-
-Cut.box = function() {
-    return Cut.create().box();
-};
-
-Cut.prototype.box = function() {
-    if (this._boxTicker) return this;
-    this._padding = this._padding || 0;
-    this.tick(this._boxTicker = function() {
-        if (this._mo_box == this._ts_touch) {
-            return;
+    } catch (ex) {
+        if (!image._draw_failed) {
+            console.log("Unable to draw: ", image);
+            console.log(ex);
+            image._draw_failed = true;
         }
-        this._mo_box = this._ts_touch;
-        var width = 0, height = 0;
-        var child, next = this.first(true);
-        while (child = next) {
-            next = child.next(true);
-            child._pin.relativeMatrix();
-            var w = child.pin("boxWidth");
-            var h = child.pin("boxHeight");
-            width = Math.max(width, w);
-            height = Math.max(height, h);
-        }
-        width += 2 * this._padding;
-        height += 2 * this._padding;
-        this.pin("width") != width && this.pin("width", width);
-        this.pin("height") != height && this.pin("height", height);
-    });
-    return this;
+    }
 };
 
-// TODO: move padding to pin
-Cut.prototype.padding = function(pad) {
-    this._padding = pad;
-    return this;
-};
-
-Cut.prototype.spacing = function(space) {
-    this._spacing = space;
-    return this;
-};
+module.exports = Texture;
 
 
-},{"./core":4,"./pin":12,"./util/create":16,"./util/extend":17,"./util/is":18,"./util/math":19,"./util/repeat":21,"./util/stats":22}],16:[function(require,module,exports){
+},{"./util/math":24,"./util/stats":27}],21:[function(require,module,exports){
 if (typeof Object.create == "function") {
     module.exports = function(proto, props) {
         return Object.create.call(Object, proto, props);
@@ -2728,7 +2793,7 @@ if (typeof Object.create == "function") {
 }
 
 
-},{}],17:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports = function(base) {
     for (var i = 1; i < arguments.length; i++) {
         var obj = arguments[i];
@@ -2742,7 +2807,7 @@ module.exports = function(base) {
 };
 
 
-},{}],18:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var objProto = Object.prototype;
 
 var owns = objProto.hasOwnProperty;
@@ -2893,7 +2958,7 @@ is.hex = function(value) {
 };
 
 
-},{}],19:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 module.exports.random = function(min, max) {
     if (typeof min === "undefined") {
         max = 1, min = 0;
@@ -2933,7 +2998,7 @@ module.exports.length = function(x, y) {
 };
 
 
-},{}],20:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 module.exports = function(fn, ctx) {
     var called = false;
     return function() {
@@ -2945,7 +3010,7 @@ module.exports = function(fn, ctx) {
 };
 
 
-},{}],21:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = function(img, owidth, oheight, stretch, inner, insert) {
     var width = img.width;
     var height = img.height;
@@ -2999,11 +3064,11 @@ module.exports = function(img, owidth, oheight, stretch, inner, insert) {
 };
 
 
-},{}],22:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = {};
 
 
-},{}],23:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports.startsWith = function(str, sub) {
     return typeof str === "string" && typeof sub === "string" && str.substring(0, sub.length) == sub;
 };
