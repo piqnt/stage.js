@@ -1,9 +1,9 @@
 #### Application
 
 ```javascript
-// Create and start an app
+// Create and start an application
 Cut(function(root, element) {
-  // `root` is root node of the application tree
+  // `root` is the root node for this application
   // `element` is the actual element displaying rendered graphics
 
   // Pause playing
@@ -26,8 +26,7 @@ Cut(function(root, element) {
 Every app consists of a tree, tree's root is create by the library.
 
 ```javascript
-// Create new plain node instance. No painting is associated with a plain node,
-// it is just a parent for other nodes
+// Create a new node instance (with no textures)
 var foo = Cut.create();
 
 // Append/prepend bar, baz, ... to foo's children
@@ -246,18 +245,32 @@ Cut({
     ratio : 1, // optional, for high res images
   }
   textures : {
-    stand : { x : x, y : y, width : width, height : height },
+    stand : { x : 0,   y : 0, width : 40, height : 60 },
     walk : [
-      { x : x, y : y, width : width, height : height },
-      { x : x, y : y, width : width, height : height },
-      { x : x, y : y, width : width, height : height }
-    ]
+      { x : 40,  y : 0, width : 40, height : 60 },
+      { x : 80,  y : 0, width : 40, height : 60 },
+      { x : 120, y : 0, width : 40, height : 60 }
+    ],
+    number : {
+      '0' : { x : 0,  y : 60, width : 10, height : 14 },
+      '1' : { x : 10, y : 60, width : 10, height : 14 },
+      '2' : { x : 20, y : 60, width : 10, height : 14 },
+      '3' : { x : 30, y : 60, width : 10, height : 14 },
+      '4' : { x : 40, y : 60, width : 10, height : 14 },
+      '5' : { x : 50, y : 60, width : 10, height : 14 },
+      '6' : { x : 60, y : 60, width : 10, height : 14 },
+      '7' : { x : 70, y : 60, width : 10, height : 14 },
+      '8' : { x : 80, y : 60, width : 10, height : 14 },
+      '9' : { x : 90, y : 60, width : 10, height : 14 }
+    }
   }
 });
 
 Cut.image('mario:stand');
 
 Cut.anim('mario:walk');
+
+Cut.string('mario:number');
 ```
 
 #### Image
@@ -267,7 +280,7 @@ An image is a node with one texture.
 // Create a new image instance
 var image = Cut.image(texture);
 
-// Change image
+// Change image texture
 image.image(texture);
 
 // Tile/Stretch image when pinning width and/or height
@@ -281,7 +294,7 @@ An animation is a node with an array of textures as frames.
 
 ```javascript
 // Create a new anim instance
-var anim = Cut.anim(textures, fps = Cut.Anim.FPS);
+var anim = Cut.anim(textures, fps = 15);
 
 // Get or set animation frame per second
 anim.fps();

@@ -11,6 +11,7 @@
 * Cut#_cutouts and Cut.cutout() replaced with Cut#_textures and Cut.texture()
 * Cut.texture() returns selection object
 * image-loader spec changed
+* Cut.Anim.FPS is not public
 
 #### v0.4.12
 * root.background method added
