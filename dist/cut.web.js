@@ -1375,7 +1375,7 @@ function AppLoader(app, configs) {
         canvas.style.backgroundColor = color;
         return this;
     };
-    Mouse(root, canvas);
+    Mouse.subscribe(root, canvas);
     app(root, canvas);
     resize();
     window.addEventListener("resize", resize, false);
