@@ -1,4 +1,4 @@
-Cut(function(root, container) {
+Cut(function(root) {
 
   var SHIP = Math.pow(2, 1);
   var BULLET = Math.pow(2, 2);
@@ -358,8 +358,6 @@ Cut(function(root, container) {
   };
 
   var ui = {};
-
-  Cut.Mouse(root, container);
 
   root.on('viewport', function(size) {
     ui.meta.pin({

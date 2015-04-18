@@ -1,5 +1,5 @@
-Cut(function(root, container) {
-  Cut.Mouse(root, container);
+Cut(function(root) {
+
   root.viewbox(400, 400).pin('handle', -0.5);
 
   var world = new SAT.World();

@@ -1,5 +1,5 @@
-Cut(function(root, container) {
-  Cut.Mouse.subscribe(root, container, true);
+Cut(function(root) {
+
   root.viewbox(1000, 1000).pin('handle', -0.5);
 
   var clicked = false;

@@ -45,7 +45,7 @@ it('Mouse', function() {
   cuts(1).on(Mouse.END, listener('end-' + 1));
   cuts(1).on(Mouse.MOVE, listener('move-' + 1));
 
-  Mouse(root, elem = {
+  Mouse.subscribe(root, elem = {
     addEventListener : add = sinon.stub(),
     removeEventListener : remove = sinon.stub()
   });

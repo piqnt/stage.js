@@ -69,8 +69,8 @@ function Game() {
 
 }
 
-Cut(function(root, container) {
-  Cut.Mouse(root, container);
+Cut(function(root) {
+
   root.viewbox(50, 50).pin('handle', -0.5);
 
   Cut.image('bg').pin('handle', 0.5).appendTo(root);

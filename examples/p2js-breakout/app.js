@@ -1,8 +1,7 @@
 // p2 scale, point per unit
 var p2s = 0.5, ppu = 16 / p2s;
 
-Cut(function(root, container) {
-  Cut.Mouse.subscribe(root, container);
+Cut(function(root) {
 
   var M = Cut.Math;
   var maxKey = 'breakout-v1';

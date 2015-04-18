@@ -155,8 +155,8 @@ function Game(width, height) {
   this.Tile = Tile;
 }
 
-Cut(function(root, container) {
-  Cut.Mouse(root, container);
+Cut(function(root) {
+
   root.viewbox(24, 24);
 
   var width = 8, height = 8;

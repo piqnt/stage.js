@@ -210,9 +210,6 @@ foo.publish(name, args);
 Mouse class is used to capture mouse and touch events.
 
 ```javascript
-// Subscribe root to Mouse events
-Cut.Mouse(root, element);
-
 // Add click listener to bar
 bar.on(Cut.Mouse.CLICK, function(point) {
   // point.x and point.y are relative to this node left and top
@@ -229,7 +226,7 @@ Cut.Mouse.CANCEL = 'touchcancel';
 ```
 
 #### Texture
-A texture is an object which is used by tree nodes to draw graphics on the Canvas surface.
+Textures are drawable objects which are used by tree nodes to draw graphics on the Canvas surface.
 
 #### Texture Atlas
 A texture atlas (sprite sheet) consists of a set of named textures which are referenced by name in the application.
@@ -413,7 +410,7 @@ Cut({ });
 // Can be used for preloading application assets
 Cut.preload(function(done) {
   // Call `done` when loaded or failed
-  done(error = undefined);
+  done(error);
 });
 
 // Start loading and playing all applications

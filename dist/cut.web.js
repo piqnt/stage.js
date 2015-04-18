@@ -1,5 +1,5 @@
 /*
- * CutJS 0.5.0-beta.5
+ * CutJS 0.5.0-beta.6
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -217,9 +217,7 @@ module.exports = Easing;
 },{}],3:[function(require,module,exports){
 if (typeof DEBUG === "undefined") DEBUG = true;
 
-function Mouse() {
-    Mouse.subscribe.apply(Mouse, arguments);
-}
+function Mouse() {}
 
 Mouse.CLICK = "click";
 
@@ -1323,13 +1321,16 @@ Cut.prototype.spacing = function(space) {
 
 
 },{"./core":8,"./pin":16,"./render":17,"./util/create":21}],13:[function(require,module,exports){
-var Cut = require("../core");
-
-if (typeof DEBUG === "undefined") DEBUG = true;
-
 /**
  * Default loader for web.
  */
+if (typeof DEBUG === "undefined") DEBUG = true;
+
+var Cut = require("../core");
+
+// TODO: don't hard-code this
+var Mouse = require("../addon/mouse");
+
 window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
     Cut.start({
@@ -1374,6 +1375,7 @@ function AppLoader(app, configs) {
         canvas.style.backgroundColor = color;
         return this;
     };
+    Mouse(root, canvas);
     app(root, canvas);
     resize();
     window.addEventListener("resize", resize, false);
@@ -1413,7 +1415,7 @@ function ImageLoader(src, success, error) {
 }
 
 
-},{"../core":8}],14:[function(require,module,exports){
+},{"../addon/mouse":3,"../core":8}],14:[function(require,module,exports){
 function Matrix(a, b, c, d, e, f) {
     this._dirty = true;
     this.a = a || 1;

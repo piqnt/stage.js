@@ -1,4 +1,4 @@
-Cut(function(root, container) {
+Cut(function(root) {
 
   var Mouse = Cut.Mouse, Util = {};
 
@@ -36,9 +36,6 @@ Cut(function(root, container) {
       y : a.y / length * m
     };
   };
-
-  // enable mouse
-  Mouse(root, container);
 
   // set viewbox
   root.viewbox(150, 150);

@@ -143,9 +143,7 @@ Cut({
   }
 });
 
-Cut(function(root, canvas) {
-
-  Cut.Mouse(root, canvas);
+Cut(function(root) {
 
   root.viewbox(300, 300).pin('handle', -0.5).on('viewport', function() {
     world.size(this.pin('width'), this.pin('height'));

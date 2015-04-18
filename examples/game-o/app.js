@@ -895,8 +895,6 @@ Cut(function(root, elem) {
     };
   })();
 
-  Mouse(root, elem);
-
   var game = new Game();
 
   root.on('viewport', function(viewport) {

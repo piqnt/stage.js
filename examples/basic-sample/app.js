@@ -1,8 +1,5 @@
 // Create new app
-Cut(function(root, container) {
-
-  // Subscribe to Cut.Mouse
-  Cut.Mouse(root, container);
+Cut(function(root) {
 
   // Set view box
   root.viewbox(300, 200);

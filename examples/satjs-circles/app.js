@@ -2,8 +2,8 @@ var V = function(x, y) {
   return new SAT.Vector(x, y);
 };
 
-Cut(function(root, container) {
-  Cut.Mouse(root, container);
+Cut(function(root) {
+
   root.viewbox(640, 640).pin('handle', -0.5);
 
   var world = new SAT.World({

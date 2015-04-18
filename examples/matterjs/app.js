@@ -77,8 +77,7 @@ Events.on(engine, 'collisionEnd', function(event) {
   }
 });
 
-Cut(function(root, container) {
-  Cut.Mouse(root, container);
+Cut(function(root) {
   root.MAX_ELAPSE = 100;
   new Cut.Matter(engine).appendTo(root);
 });

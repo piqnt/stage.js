@@ -1,5 +1,5 @@
-Cut(function(root, container) {
-  Cut.Mouse(root, container);
+Cut(function(root) {
+
   root.viewbox(800, 600).pin('handle', -0.5);
 
   var world = Physics(function(world) {
