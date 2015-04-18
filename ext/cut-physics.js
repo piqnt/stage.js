@@ -95,7 +95,7 @@ Cut.PJS.prototype.drawCircle = function(radius, options) {
   var height = radius * 2 + lineWidth * 2;
   var ratio = options.ratio;
 
-  return Cut.drawing(function(ctx) {
+  return Cut.canvas(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -130,7 +130,7 @@ Cut.PJS.prototype.drawConvex = function(verts, options) {
     height = Math.max(Math.abs(y), height);
   }
 
-  return Cut.drawing(function(ctx) {
+  return Cut.canvas(function(ctx) {
     this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 
     ctx.scale(ratio, ratio);

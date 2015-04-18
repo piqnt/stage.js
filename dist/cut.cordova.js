@@ -1,5 +1,5 @@
 /*
- * CutJS 0.5.0-beta.3
+ * CutJS 0.5.0-beta.4
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -40,6 +40,7 @@ var _atlases_arr = [];
 
 // TODO: return entire atlas as texture
 // TODO: select atlas itself, call texture function
+// TODO: print subquery not found error
 Cut.atlas = function(def) {
     var atlas = is.fn(def.draw) ? def : new Atlas(def);
     if (def.name) {
@@ -109,23 +110,18 @@ function Atlas(def) {
             def.left -= trim, def.right -= trim;
         }
         var texture = atlas.pipe();
-        texture.top = def.top;
-        texture.bottom = def.bottom;
-        texture.left = def.left;
-        texture.right = def.right;
+        texture.top = def.top, texture.bottom = def.bottom;
+        texture.left = def.left, texture.right = def.right;
         texture.src(def.x, def.y, def.width, def.height);
         return texture;
     }
     function find(query) {
-        if (is.fn(textures)) {
-            return textures(query);
-        } else if (is.hash(textures)) {
-            return textures[query];
-        }
-    }
-    this.select = function(query) {
         if (textures) {
-            return new Selection(find(query), find, make);
+            if (is.fn(textures)) {
+                return textures(query);
+            } else if (is.hash(textures)) {
+                return textures[query];
+            }
         }
         if (cutouts) {
             // deprecated
@@ -147,7 +143,13 @@ function Atlas(def) {
                     return factory(query + (subquery ? subquery : ""));
                 };
             }
-            return new Selection(result, null, make);
+            return result;
+        }
+    }
+    this.select = function(query) {
+        var found = find(query);
+        if (found) {
+            return new Selection(found, find, make);
         }
     };
 }
@@ -167,7 +169,7 @@ var nfSelection = new Selection(nfTexture);
 function Selection(result, find, make) {
     function link(result, subquery) {
         if (!result) {
-            return result;
+            return nfTexture;
         } else if (is.fn(result.draw)) {
             return result;
         } else if (is.hash(result) && is.number(result.width) && is.number(result.height) && is.fn(make)) {
@@ -213,6 +215,7 @@ Cut.texture = function(query) {
         result = _atlases_arr[i].select(query);
     }
     if (!result) {
+        console.error("Texture not found: " + query);
         result = nfSelection;
     }
     return result;
@@ -225,7 +228,54 @@ function deprecated(hash, name, msg) {
 module.exports = Atlas;
 
 
-},{"./core":3,"./texture":13,"./util/create":16,"./util/extend":17,"./util/is":18,"./util/string":23}],3:[function(require,module,exports){
+},{"./core":4,"./texture":13,"./util/create":16,"./util/extend":17,"./util/is":18,"./util/string":23}],3:[function(require,module,exports){
+var Cut = require("./core");
+
+var Texture = require("./texture");
+
+Cut.canvas = function(type, attributes, callback) {
+    if (typeof type === "string") {
+        if (typeof attributes === "object") {} else {
+            if (typeof attributes === "function") {
+                callback = attributes;
+            }
+            attributes = {};
+        }
+    } else {
+        if (typeof type === "function") {
+            callback = type;
+        }
+        attributes = {};
+        type = "2d";
+    }
+    var canvas = document.createElement("canvas");
+    var context = canvas.getContext(type, attributes);
+    var texture = new Texture(canvas);
+    texture.context = function() {
+        return context;
+    };
+    texture.size = function(width, height, ratio) {
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        this.src(canvas, ratio);
+        return this;
+    };
+    texture.canvas = function(fn) {
+        if (typeof fn === "function") {
+            fn.call(this, context);
+        } else if (typeof fn === "undefined" && typeof callback === "function") {
+            callback.call(this, context);
+        }
+        return this;
+    };
+    if (typeof callback === "function") {
+        callback.call(this, context);
+    }
+    return texture;
+};
+
+
+},{"./core":4,"./texture":13}],4:[function(require,module,exports){
 if (typeof DEBUG === "undefined") DEBUG = true;
 
 var stats = require("./util/stats");
@@ -359,52 +409,7 @@ Cut.create = function() {
 module.exports = Cut;
 
 
-},{"./util/extend":17,"./util/is":18,"./util/once":20,"./util/stats":22}],4:[function(require,module,exports){
-var Cut = require("./core");
-
-var Texture = require("./texture");
-
-Cut.drawing = function(type, attributes, callback) {
-    if (typeof type === "string") {
-        if (typeof attributes === "object") {} else {
-            if (typeof attributes === "function") {
-                callback = attributes;
-            }
-            attributes = {};
-        }
-    } else {
-        if (typeof type === "function") {
-            callback = type;
-        }
-        attributes = {};
-        type = "2d";
-    }
-    var canvas = document.createElement("canvas");
-    var context = canvas.getContext(type, attributes);
-    var texture = new Texture(canvas);
-    texture.context = function() {
-        return context;
-    };
-    texture.size = function(width, height, ratio) {
-        canvas.width = width * ratio;
-        canvas.height = height * ratio;
-        this.src(canvas, ratio);
-        return this;
-    };
-    texture.drawing = function(fn) {
-        if (typeof fn === "function") {
-            fn.call(this, context);
-        } else if (typeof fn === "undefined" && typeof callback === "function") {
-            callback.call(this, context);
-        }
-        return this;
-    };
-    texture.drawing();
-    return texture;
-};
-
-
-},{"./core":3,"./texture":13}],5:[function(require,module,exports){
+},{"./util/extend":17,"./util/is":18,"./util/once":20,"./util/stats":22}],5:[function(require,module,exports){
 function _identity(x) {
     return x;
 }
@@ -662,7 +667,7 @@ Cut.prototype.trigger = function(name, args) {
 };
 
 
-},{"./core":3,"./util/is":18}],7:[function(require,module,exports){
+},{"./core":4,"./util/is":18}],7:[function(require,module,exports){
 module.exports = require("./core");
 
 module.exports.Matrix = require("./matrix");
@@ -671,7 +676,7 @@ module.exports.Texture = require("./texture");
 
 require("./atlas");
 
-require("./drawing");
+require("./canvas");
 
 require("./node");
 
@@ -682,7 +687,7 @@ require("./pin");
 require("./ui");
 
 
-},{"./atlas":2,"./core":3,"./drawing":4,"./event":6,"./matrix":9,"./node":11,"./pin":12,"./texture":13,"./ui":15}],8:[function(require,module,exports){
+},{"./atlas":2,"./canvas":3,"./core":4,"./event":6,"./matrix":9,"./node":11,"./pin":12,"./texture":13,"./ui":15}],8:[function(require,module,exports){
 var Cut = require("./core");
 
 if (typeof DEBUG === "undefined") DEBUG = true;
@@ -811,7 +816,7 @@ function ImageLoader(src, success, error) {
 }
 
 
-},{"./core":3}],9:[function(require,module,exports){
+},{"./core":4}],9:[function(require,module,exports){
 function Matrix(a, b, c, d, e, f) {
     this._dirty = true;
     this.a = a || 1;
@@ -1478,7 +1483,7 @@ function _ensure(obj) {
 module.exports = Cut;
 
 
-},{"./core":3}],12:[function(require,module,exports){
+},{"./core":4}],12:[function(require,module,exports){
 var Cut = require("./core");
 
 var Matrix = require("./matrix");
@@ -1937,7 +1942,7 @@ Pin.prototype._scaleTo = function(width, height, mode) {
 module.exports = Pin;
 
 
-},{"./core":3,"./matrix":9}],13:[function(require,module,exports){
+},{"./core":4,"./matrix":9}],13:[function(require,module,exports){
 var stats = require("./util/stats");
 
 var math = require("./util/math");
@@ -2153,7 +2158,7 @@ Tween.prototype.ease = function(easing) {
 module.exports = Tween;
 
 
-},{"./core":3,"./easing":5,"./pin":12}],15:[function(require,module,exports){
+},{"./core":4,"./easing":5,"./pin":12}],15:[function(require,module,exports){
 var Cut = require("./core");
 
 var Pin = require("./pin");
@@ -2745,7 +2750,7 @@ Cut.prototype.spacing = function(space) {
 };
 
 
-},{"./core":3,"./pin":12,"./util/create":16,"./util/extend":17,"./util/is":18,"./util/math":19,"./util/repeat":21,"./util/stats":22}],16:[function(require,module,exports){
+},{"./core":4,"./pin":12,"./util/create":16,"./util/extend":17,"./util/is":18,"./util/math":19,"./util/repeat":21,"./util/stats":22}],16:[function(require,module,exports){
 if (typeof Object.create == "function") {
     module.exports = function(proto, props) {
         return Object.create.call(Object, proto, props);

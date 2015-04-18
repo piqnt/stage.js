@@ -421,7 +421,7 @@ Cut({
   textures : {
     text : function(d) {
       d += '';
-      return Cut.drawing(function(ctx) {
+      return Cut.canvas(function(ctx) {
         var ratio = 2;
         this.size(16, 24, ratio);
         ctx.scale(ratio, ratio);

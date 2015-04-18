@@ -4,7 +4,7 @@
 * Cut.addTexture() removed
 * Image#cropY/cropY removed
 * Anim#gotoLabel removed
-* drawing() signature changed
+* drawing() replaced with .canvas()
 * Cut.preload() added
 * Texture renamed to Atlas
 * New Texture class replaced Cut.Out

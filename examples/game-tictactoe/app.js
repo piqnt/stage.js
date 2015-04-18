@@ -121,7 +121,7 @@ Cut(function(root, container) {
 
 Cut({
   textures : {
-    'bg' : Cut.drawing(function(ctx) {
+    'bg' : Cut.canvas(function(ctx) {
       var ratio = 20;
       this.size(30, 30, ratio);
       ctx.scale(ratio, ratio);
@@ -138,7 +138,7 @@ Cut({
       ctx.strokeStyle = '#999';
       ctx.stroke();
     }),
-    'x' : Cut.drawing(function(ctx) {
+    'x' : Cut.canvas(function(ctx) {
       var ratio = 20;
       this.size(10, 10, ratio);
       ctx.scale(ratio, ratio);
@@ -151,7 +151,7 @@ Cut({
       ctx.strokeStyle = '#000';
       ctx.stroke();
     }),
-    'o' : Cut.drawing(function(ctx) {
+    'o' : Cut.canvas(function(ctx) {
       var ratio = 20;
       this.size(10, 10, ratio);
       ctx.scale(ratio, ratio);
@@ -160,7 +160,7 @@ Cut({
       ctx.strokeStyle = '#000';
       ctx.stroke();
     }),
-    '-' : Cut.drawing(function(ctx) {
+    '-' : Cut.canvas(function(ctx) {
       var ratio = 20;
       this.size(10, 10, ratio);
     })
