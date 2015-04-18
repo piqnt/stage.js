@@ -214,7 +214,6 @@ Mouse class is used to capture mouse and touch events.
 bar.on(Cut.Mouse.CLICK, function(point) {
   // point.x and point.y are relative to this node left and top
   // point.raw is original event
-  return trueToStopPropagating;
 });
 
 // Mouse events:
