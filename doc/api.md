@@ -29,17 +29,17 @@ Every app consists of a tree, tree's root is create by the library.
 // Create a new node instance (with no textures)
 var foo = Cut.create();
 
-// Append/prepend bar, baz, ... to foo's children
-foo.append(bar, baz, ...);
-foo.prepend(bar, baz, ...);
+// Append/prepend bar to foo's children
+foo.append(bar);
+foo.prepend(bar);
 
 // Append/prepend bar to foo's children
 bar.appendTo(foo);
 bar.prependTo(foo);
 
-// Insert baz, qux, ... after/before bar
-bar.insertNext(baz, qux, ...);
-bar.insertPrev(baz, qux, ...);
+// Insert baz after/before bar
+bar.insertNext(baz);
+bar.insertPrev(baz);
 
 // Insert baz after/before bar
 baz.insertAfter(bar);
@@ -48,8 +48,8 @@ baz.insertBefore(bar);
 // Remove bar from parent
 bar.remove();
 
-// Remove bar, baz, ... from foo
-foo.remove(bar, baz, ...);
+// Remove bar from foo
+foo.remove(bar);
 
 // Remove all foo's children
 foo.empty();
