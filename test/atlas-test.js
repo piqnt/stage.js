@@ -105,82 +105,70 @@ it('Atlas', function() {
   bemario(selected[0]);
 });
 
-it('Cut.texture() +textures', function() {
-  var Cut = sandboxed.require('../lib/');
+describe('Cut.texture()', function() {
+  it('atlas.textures', function() {
+    var Cut = sandboxed.require('../lib/');
 
-  Cut.atlas({
-    name : 'name',
-    textures : {
-      'mario' : mario,
-      'walk' : [ 'mario', 'mario', 'mario' ]
-    }
+    Cut.atlas({
+      name : 'name',
+      textures : {
+        'mario' : mario,
+        'walk' : [ 'mario', 'mario', 'mario' ]
+      }
+    });
+
+    var obj, selected;
+
+    selected = Cut.texture('name:mario').one();
+    bemario(selected);
+
+    selected = Cut.texture('mario').one();
+    bemario(selected);
+
+    selected = Cut.texture('walk').one();
+    bemario(selected);
+
+    selected = Cut.texture('mario').array(obj = []);
+    expect(selected).be(obj);
+    expect(selected.length).be(1);
+    bemario(selected[0]);
+
+    selected = Cut.texture('walk').array(obj = []);
+    expect(selected).be(obj);
+    expect(selected.length).be(3);
+    bemario(selected[0]);
   });
 
-  var obj, selected;
+  it('atlas.cutouts', function() {
+    var Cut = sandboxed.require('../lib/');
 
-  selected = Cut.texture('name:mario').one();
-  bemario(selected);
+    Cut.atlas({
+      name : "main",
+      imagePath : "main.png",
+      imageRatio : 4,
+      trim : 0.1,
+      cutouts : [ {
+        name : "color_dark",
+        x : 0,
+        y : 0,
+        width : 16,
+        height : 16
+      }, {
+        name : "color_light",
+        x : 16,
+        y : 16,
+        width : 16,
+        height : 16
+      } ]
+    });
 
-  selected = Cut.texture('mario').one();
-  bemario(selected);
+    var dark = Cut.texture("main:color_dark").one();
+    var both = Cut.texture("main:color_").array();
 
-  selected = Cut.texture('walk').one();
-  bemario(selected);
-
-  selected = Cut.texture('mario').array(obj = []);
-  expect(selected).be(obj);
-  expect(selected.length).be(1);
-  bemario(selected[0]);
-
-  selected = Cut.texture('walk').array(obj = []);
-  expect(selected).be(obj);
-  expect(selected.length).be(3);
-  bemario(selected[0]);
-});
-
-describe('Cut.texture() +cutouts', function() {
-  var Cut = sandboxed.require('../lib/');
-
-  Cut.atlas({
-    name : "main",
-    imagePath : "main.png",
-    imageRatio : 4,
-    trim : 0.1,
-    cutouts : [ {
-      name : "color_dark",
-      x : 0,
-      y : 0,
-      width : 16,
-      height : 16
-    }, {
-      name : "color_light",
-      x : 16,
-      y : 16,
-      width : 16,
-      height : 16
-    } ]
+    expect(dark).be.an('object');
+    expect(both).be.an('array');
+    expect(both.length).be(2);
+    expect(both[0]).be.an('object');
+    expect(both[1]).be.an('object');
   });
-
-  var dark = Cut.texture("main:color_dark").one();
-  var both = Cut.texture("main:color_").array();
-
-  expect(dark).be.an('object');
-  expect(both).be.an('array');
-  expect(both.length).be(2);
-  expect(both[0]).be.an('object');
-  expect(both[1]).be.an('object');
-  return;
-  var dark = Cut.texture("color_dark");
-  var both = Cut.texture("color_", true);
-
-  expect(dark).be.an('object');
-  expect(both).be.an('array');
-  expect(both.length).be(2);
-  expect(both[0]).be.an('object');
-  expect(both[1]).be.an('object');
-
-  expect(Cut.texture("color_dark")).be(dark);
-  expect(Cut.texture("color_", true)[0]).be(both[0]);
-  expect(Cut.texture("color_", true)[1]).be(both[1]);
-
 });

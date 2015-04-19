@@ -29,7 +29,7 @@ Every app consists of a tree, tree's root is create by the library.
 // Create a new node instance (with no textures)
 var foo = Cut.create();
 
-// Append/prepend bar to foo's children
+// Append/prepend bar to foo's children (accepts array)
 foo.append(bar);
 foo.prepend(bar);
 
@@ -37,7 +37,7 @@ foo.prepend(bar);
 bar.appendTo(foo);
 bar.prependTo(foo);
 
-// Insert baz after/before bar
+// Insert baz after/before bar (accepts array)
 bar.insertNext(baz);
 bar.insertPrev(baz);
 
@@ -48,7 +48,7 @@ baz.insertBefore(bar);
 // Remove bar from parent
 bar.remove();
 
-// Remove bar from foo
+// Remove bar from foo (accepts array)
 foo.remove(bar);
 
 // Remove all foo's children
@@ -412,16 +412,10 @@ Cut.preload(function(done) {
   done(error);
 });
 
-// Start loading and playing all applications
-// Called inernally by a platform loader
-Cut.start(config);
-
 // Pause playing all applications
-// Called inernally by a platform loader
 Cut.pause();
 
 // Resume playing all applications
-// Called inernally by a platform loader
 Cut.resume();
 
 ```

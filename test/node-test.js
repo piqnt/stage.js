@@ -4,13 +4,101 @@ var memo = require('./util/memo');
 
 var Cut = require('../lib/node');
 
+it('label', function() {
+  var foo = Cut.create();
+  expect(foo.label('label')).be(foo);
+  expect(foo.label()).be('label');
+});
+
 it('attr', function() {
   var foo = Cut.create();
   expect(foo.attr('name')).not.ok();
-  expect(foo.attr('name', 'Name')).equal(foo);
+  expect(foo.attr('string', 'Name')).equal(foo);
   expect(foo.attr('number', 9876543210)).equal(foo);
-  expect(foo.attr('name')).equal('Name');
+  expect(foo.attr('string')).equal('Name');
   expect(foo.attr('number')).equal(9876543210);
+});
+
+it('append', function() {
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  foo.append(bar);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(bar);
+  foo.append(baz);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(baz);
+
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  foo.append([ bar, baz ]);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(baz);
+});
+
+it('prepend', function() {
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  foo.prepend(bar);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(bar);
+  foo.prepend(baz);
+  expect(foo.first()).be(baz);
+  expect(foo.last()).be(bar);
+
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  foo.prepend([ bar, baz ]);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(baz);
+});
+
+it('appendTo', function() {
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  bar.appendTo(foo);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(bar);
+  baz.appendTo(foo);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(baz);
+});
+
+it('prependTo', function() {
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  bar.prependTo(foo);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(bar);
+  baz.prependTo(foo);
+  expect(foo.first()).be(baz);
+  expect(foo.last()).be(bar);
+});
+
+it('insertAfter', function() {
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  bar.prependTo(foo);
+  baz.insertAfter(bar);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(baz);
+});
+
+it('insertBefore', function() {
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  bar.prependTo(foo);
+  baz.insertBefore(bar);
+  expect(foo.first()).be(baz);
+  expect(foo.last()).be(bar);
+});
+
+it('insertNext', function() {
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  bar.prependTo(foo);
+  bar.insertNext(baz);
+  expect(foo.first()).be(bar);
+  expect(foo.last()).be(baz);
+});
+
+it('insertPrev', function() {
+  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  bar.prependTo(foo);
+  bar.insertPrev(baz);
+  expect(foo.first()).be(baz);
+  expect(foo.last()).be(bar);
 });
 
 it('visit', function() {
@@ -35,8 +123,8 @@ it('visit', function() {
     start : sinon.stub(),
     end : sinon.stub()
   }, data = {});
-  expect(visitor.start.args.pluck(0)).list(
-      cuts([ 1, 11, 12, 122, 123, 13 ]), 'id');
+  expect(visitor.start.args.pluck(0)).list(cuts([ 1, 11, 12, 122, 123, 13 ]),
+      'id');
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 
@@ -49,49 +137,4 @@ it('visit', function() {
       cuts([ 1, 13, 12, 123, 122, 121, 11 ]), 'id');
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
-});
-
-it('flag', function() {
-  var foo = Cut.create();
-  var bar = Cut.create();
-  var baz = Cut.create();
-  var qux = Cut.create();
-
-  var ring = sinon.stub();
-  baz.on('ring', ring);
-  expect(baz._flag('ring')).equal(1);
-
-  baz.off('ring', ring);
-  expect(baz._flag('ring')).equal(0);
-
-  baz.on('knock', sinon.stub());
-  expect(baz._flag('knock')).equal(1);
-
-  qux.on('knock', sinon.stub());
-  qux.on('knock', sinon.stub());
-  expect(qux._flag('knock')).equal(2);
-
-  bar.appendTo(foo);
-
-  baz.appendTo(bar);
-  qux.appendTo(bar);
-
-  expect(bar._flag('knock')).equal(2);
-  expect(foo._flag('knock')).equal(1);
-
-  baz.remove();
-  expect(bar._flag('knock')).equal(1);
-  expect(foo._flag('knock')).equal(1);
-
-  qux.remove();
-  expect(bar._flag('knock')).equal(0);
-  expect(foo._flag('knock')).equal(0);
-
-  bar.remove();
-
-  foo.append(bar, baz, qux);
-  expect(foo._flag('knock')).equal(2);
-
-  foo.empty();
-  expect(foo._flag('knock')).equal(0);
 });
