@@ -12,6 +12,7 @@
 * Cut.texture() returns selection object
 * image-loader spec changed
 * Cut.Anim.FPS is not public
+* append/prepend/insert methods accept array
 
 #### v0.4.12
 * root.background method added
