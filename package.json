@@ -1,7 +1,7 @@
 {
   "name": "stage.js",
-  "version": "0.6.0",
-  "description": "Lightweight, fast, interactable 2D HTML5 rendering engine for cross-platform game development.",
+  "version": "0.6.1",
+  "description": "Lightweight and fast HTML5 2D rendering engine for cross-platform game development.",
   "homepage": "http://piqnt.com/stage.js/",
   "keywords": [
     "html5",
@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/piqnt/stage.git"
+    "url": "git://github.com/piqnt/stage.js.git"
   },
   "main": "lib/index.js",
   "files": [

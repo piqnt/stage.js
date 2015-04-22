@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.6.0
+ * Stage.js 0.6.1
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
