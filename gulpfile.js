@@ -42,7 +42,7 @@ function dist(file, nomin) {
   return function() {
     var task = browserify({
       entries : [ './platform/' + file ],
-      standalone : 'Cut'
+      standalone : 'Stage'
     });
     task = task.transform({
       fromString : true,
@@ -54,7 +54,7 @@ function dist(file, nomin) {
       }
     }, 'uglifyify');
     task = task.bundle();
-    task = task.pipe(source('cut.' + file + '.js')).pipe(buffer()); // vinylify
+    task = task.pipe(source('stage.' + file + '.js')).pipe(buffer()); // vinylify
     task = task.pipe(wrap({
       src : 'template/dist.js'
     }, {
@@ -62,7 +62,7 @@ function dist(file, nomin) {
     }));
     task = task.pipe(gulp.dest('dist'));
     if (!nomin) {
-      task = task.pipe(rename('cut.' + file + '.min.js'));
+      task = task.pipe(rename('stage.' + file + '.min.js'));
       task = task.pipe(uglify({
         output : {
           comments : /@license/i

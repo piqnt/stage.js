@@ -1,22 +1,22 @@
 var expect = require('./util/expect');
 var sinon = require('sinon');
 
-var Cut = require('../lib/');
+var Stage = require('../lib/');
 
 it('static methods', function() {
-  expect(Cut.config).be.a('function');
-  expect(Cut.preload).be.a('function');
-  expect(Cut.start).be.a('function');
-  expect(Cut.pause).be.a('function');
-  expect(Cut.resume).be.a('function');
-  expect(Cut.app).be.a('function');
-  expect(Cut.atlas).be.a('function');
+  expect(Stage.config).be.a('function');
+  expect(Stage.preload).be.a('function');
+  expect(Stage.start).be.a('function');
+  expect(Stage.pause).be.a('function');
+  expect(Stage.resume).be.a('function');
+  expect(Stage.app).be.a('function');
+  expect(Stage.atlas).be.a('function');
 
-  expect(Cut.create).be.a('function');
+  expect(Stage.create).be.a('function');
 
-  // expect(Cut.root).be.a('function');
-  // expect(Cut.image).be.a('function');
-  // expect(Cut.anim).be.a('function');
-  // expect(Cut.string).be.a('function');
-  // expect(Cut.canvas).be.a('function');
+  // expect(Stage.stage).be.a('function');
+  // expect(Stage.image).be.a('function');
+  // expect(Stage.anim).be.a('function');
+  // expect(Stage.string).be.a('function');
+  // expect(Stage.canvas).be.a('function');
 });

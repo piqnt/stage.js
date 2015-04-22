@@ -69,17 +69,17 @@ function Game() {
 
 }
 
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(50, 50).pin('handle', -0.5);
+  stage.viewbox(50, 50).pin('handle', -0.5);
 
-  Cut.image('bg').pin('handle', 0.5).appendTo(root);
+  Stage.image('bg').pin('handle', 0.5).appendTo(stage);
 
   var game = new Game();
 
   game.uiNewCell = function(cell) {
     console.log('Game.uiNewCell');
-    cell.ui = Cut.image('x').appendTo(root).pin({
+    cell.ui = Stage.image('x').appendTo(stage).pin({
       offsetX : cell.i * 10,
       offsetY : cell.j * 10,
       handle : 0.5
@@ -119,9 +119,9 @@ Cut(function(root) {
   game.start();
 });
 
-Cut({
+Stage({
   textures : {
-    'bg' : Cut.canvas(function(ctx) {
+    'bg' : Stage.canvas(function(ctx) {
       var ratio = 20;
       this.size(30, 30, ratio);
       ctx.scale(ratio, ratio);
@@ -138,7 +138,7 @@ Cut({
       ctx.strokeStyle = '#999';
       ctx.stroke();
     }),
-    'x' : Cut.canvas(function(ctx) {
+    'x' : Stage.canvas(function(ctx) {
       var ratio = 20;
       this.size(10, 10, ratio);
       ctx.scale(ratio, ratio);
@@ -151,7 +151,7 @@ Cut({
       ctx.strokeStyle = '#000';
       ctx.stroke();
     }),
-    'o' : Cut.canvas(function(ctx) {
+    'o' : Stage.canvas(function(ctx) {
       var ratio = 20;
       this.size(10, 10, ratio);
       ctx.scale(ratio, ratio);
@@ -160,7 +160,7 @@ Cut({
       ctx.strokeStyle = '#000';
       ctx.stroke();
     }),
-    '-' : Cut.canvas(function(ctx) {
+    '-' : Stage.canvas(function(ctx) {
       var ratio = 20;
       this.size(10, 10, ratio);
     })

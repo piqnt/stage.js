@@ -1,8 +1,8 @@
 /**
- * CutJS viewer for Matter.js
+ * Matter.js viewer for Stage.js
  */
-Cut.Matter = function(engine) {
-  Cut.Matter._super.call(this);
+Stage.Matter = function(engine) {
+  Stage.Matter._super.call(this);
 
   var Engine = Matter.Engine;
   var Composite = Matter.Composite;
@@ -62,11 +62,11 @@ Cut.Matter = function(engine) {
   });
 };
 
-Cut.Matter._super = Cut;
-Cut.Matter.prototype = Cut._create(Cut.Matter._super.prototype);
-Cut.Matter.prototype.constructor = Cut.Matter;
+Stage.Matter._super = Stage;
+Stage.Matter.prototype = Stage._create(Stage.Matter._super.prototype);
+Stage.Matter.prototype.constructor = Stage.Matter;
 
-Cut.Matter.prototype.addRenderable = function(body) {
+Stage.Matter.prototype.addRenderable = function(body) {
   if (!body.ui) {
     var texture = null;
     if (body.circleRadius) {
@@ -75,19 +75,19 @@ Cut.Matter.prototype.addRenderable = function(body) {
       texture = this.drawConvex(body.vertices, body.position, body.render);
     }
     if (texture) {
-      body.ui = Cut.image(texture).pin('handle', 0.5).appendTo(this);
+      body.ui = Stage.image(texture).pin('handle', 0.5).appendTo(this);
     }
     this.updateRenderable(body);
   }
 };
 
-Cut.Matter.prototype.removeRenderable = function(body) {
+Stage.Matter.prototype.removeRenderable = function(body) {
   if (body.ui) {
     body.ui.remove();
   }
 };
 
-Cut.Matter.prototype.updateRenderable = (function() {
+Stage.Matter.prototype.updateRenderable = (function() {
   var pin = {};
   return function(body) {
     if (body.ui) {
@@ -99,14 +99,14 @@ Cut.Matter.prototype.updateRenderable = (function() {
   };
 })();
 
-Cut.Matter.prototype.drawCircle = function(radius, options) {
+Stage.Matter.prototype.drawCircle = function(radius, options) {
   var lineWidth = options.lineWidth;
 
   var width = radius * 2 + lineWidth * 2;
   var height = radius * 2 + lineWidth * 2;
   var ratio = 1;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
 
     this.size(width, height, ratio);
 
@@ -123,7 +123,7 @@ Cut.Matter.prototype.drawCircle = function(radius, options) {
   });
 };
 
-Cut.Matter.prototype.drawConvex = function(verts, base, options) {
+Stage.Matter.prototype.drawConvex = function(verts, base, options) {
   var lineWidth = options.lineWidth;
 
   if (!verts.length) {
@@ -141,7 +141,7 @@ Cut.Matter.prototype.drawConvex = function(verts, base, options) {
     height = Math.max(Math.abs(y - y0), height);
   }
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
 
     this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 

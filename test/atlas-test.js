@@ -2,7 +2,7 @@ var expect = require('./util/expect');
 var sandboxed = require('sandboxed-module');
 var sinon = require('sinon');
 
-var Cut = require('../lib/node');
+var Stage = require('../lib/node');
 var Texture = require('../lib/texture');
 var Atlas = require('../lib/atlas');
 
@@ -105,11 +105,11 @@ it('Atlas', function() {
   bemario(selected[0]);
 });
 
-describe('Cut.texture()', function() {
+describe('Stage.texture()', function() {
   it('atlas.textures', function() {
-    var Cut = sandboxed.require('../lib/');
+    var Stage = sandboxed.require('../lib/');
 
-    Cut.atlas({
+    Stage.atlas({
       name : 'name',
       textures : {
         'mario' : mario,
@@ -119,30 +119,30 @@ describe('Cut.texture()', function() {
 
     var obj, selected;
 
-    selected = Cut.texture('name:mario').one();
+    selected = Stage.texture('name:mario').one();
     bemario(selected);
 
-    selected = Cut.texture('mario').one();
+    selected = Stage.texture('mario').one();
     bemario(selected);
 
-    selected = Cut.texture('walk').one();
+    selected = Stage.texture('walk').one();
     bemario(selected);
 
-    selected = Cut.texture('mario').array(obj = []);
+    selected = Stage.texture('mario').array(obj = []);
     expect(selected).be(obj);
     expect(selected.length).be(1);
     bemario(selected[0]);
 
-    selected = Cut.texture('walk').array(obj = []);
+    selected = Stage.texture('walk').array(obj = []);
     expect(selected).be(obj);
     expect(selected.length).be(3);
     bemario(selected[0]);
   });
 
   it('atlas.cutouts', function() {
-    var Cut = sandboxed.require('../lib/');
+    var Stage = sandboxed.require('../lib/');
 
-    Cut.atlas({
+    Stage.atlas({
       name : "main",
       imagePath : "main.png",
       imageRatio : 4,
@@ -162,8 +162,8 @@ describe('Cut.texture()', function() {
       } ]
     });
 
-    var dark = Cut.texture("main:color_dark").one();
-    var both = Cut.texture("main:color_").array();
+    var dark = Stage.texture("main:color_dark").one();
+    var both = Stage.texture("main:color_").array();
 
     expect(dark).be.an('object');
     expect(both).be.an('array');

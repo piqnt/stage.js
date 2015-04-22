@@ -1,7 +1,7 @@
 var expect = require('./util/expect');
 var sinon = require('sinon');
 
-var Cut = require('../lib/node');
+var Stage = require('../lib/node');
 require('../lib/event');
 
 describe('Event', function() {
@@ -10,7 +10,7 @@ describe('Event', function() {
     var hello = sinon.stub();
     var open = sinon.stub();
 
-    var door = Cut.create();
+    var door = Stage.create();
 
     expect(door.listeners('knock')).not.ok();
 
@@ -37,10 +37,10 @@ describe('Event', function() {
   });
 
   it('flag', function() {
-    var foo = Cut.create();
-    var bar = Cut.create();
-    var baz = Cut.create();
-    var qux = Cut.create();
+    var foo = Stage.create();
+    var bar = Stage.create();
+    var baz = Stage.create();
+    var qux = Stage.create();
 
     var ring = sinon.stub();
     baz.on('ring', ring);

@@ -1,6 +1,6 @@
-Cut(function(root) {
+Stage(function(root) {
 
-  var Mouse = Cut.Mouse, Util = {};
+  var Mouse = Stage.Mouse, Util = {};
 
   // few useful functions
   Util.random = function(min, max) {
@@ -41,7 +41,7 @@ Cut(function(root) {
   root.viewbox(150, 150);
 
   // add the background
-  Cut.image('background').pin('align', 0.5).on('viewport', function() {
+  Stage.image('background').pin('align', 0.5).on('viewport', function() {
     // on viewport change scale it to fill root
     this.pin({
       scaleMode : 'out',
@@ -60,7 +60,7 @@ Cut(function(root) {
   }
 
   // game home view
-  var homeview = Cut.create().appendTo(root).hide().on('viewport', function() {
+  var homeview = Stage.create().appendTo(root).hide().on('viewport', function() {
     this.pin({
       width : root.pin('width'),
       height : root.pin('height')
@@ -68,7 +68,7 @@ Cut(function(root) {
   });
 
   // start button
-  var startbtn = Cut.image('play').appendTo(homeview).pin('align', 0.5);
+  var startbtn = Stage.image('play').appendTo(homeview).pin('align', 0.5);
   startbtn.on(Mouse.CLICK, function() {
     play();
   });
@@ -79,21 +79,21 @@ Cut(function(root) {
   }
 
   // game play view
-  var playview = Cut.create().appendTo(root).hide().on('viewport', function() {
+  var playview = Stage.create().appendTo(root).hide().on('viewport', function() {
     this.pin({
       width : root.pin('width'),
       height : root.pin('height')
     });
   });
 
-  var spacepanel = Cut.create().appendTo(playview).pin('align', 0.5);
+  var spacepanel = Stage.create().appendTo(playview).pin('align', 0.5);
 
   // score number
-  var scorenum = Cut.string('digit').pin('scale', 0.8);
+  var scorenum = Stage.string('digit').pin('scale', 0.8);
   // life number
-  var lifenum = Cut.string('digit').pin('scale', 0.8).hide();
+  var lifenum = Stage.string('digit').pin('scale', 0.8).hide();
   // align score and life number on a row and place it on top-left
-  Cut.row().spacing(2).pin({
+  Stage.row().spacing(2).pin({
     offset : 2,
     align : 0,
     handle : 0
@@ -229,7 +229,7 @@ Cut(function(root) {
     this.x = 0;
     this.y = 0;
 
-    var img = Cut.image('planet').pin('handle', 0.5);
+    var img = Stage.image('planet').pin('handle', 0.5);
 
     this.add = function(parent) {
       img.appendTo(parent);
@@ -250,8 +250,8 @@ Cut(function(root) {
     this.x = 0;
     this.y = 0;
 
-    var img = Cut.image('ship').pin('handle', 0.5);
-    var readyimg = Cut.image('next').pin('align', 0.5).appendTo(img).hide();
+    var img = Stage.image('ship').pin('handle', 0.5);
+    var readyimg = Stage.image('next').pin('align', 0.5).appendTo(img).hide();
 
     var ready = RELOAD; // time to reload and ready
 
@@ -296,7 +296,7 @@ Cut(function(root) {
     // calculate velocity
     var v = Util.unitvect(Util.diff(from, planet), speed);
 
-    var img = Cut.image('asteroid').pin('handle', 0.5);
+    var img = Stage.image('asteroid').pin('handle', 0.5);
 
     this.add = function(parent) {
       img.appendTo(parent);
@@ -336,7 +336,7 @@ Cut(function(root) {
       y : to.y
     };
 
-    var img = Cut.image('bullet').pin('handle', 0.5);
+    var img = Stage.image('bullet').pin('handle', 0.5);
 
     this.add = function(parent) {
       img.appendTo(parent);
@@ -363,7 +363,7 @@ Cut(function(root) {
   }
 
   function explode(bullet) {
-    Cut.image('explosion').pin('handle', 0.5).pin({
+    Stage.image('explosion').pin('handle', 0.5).pin({
       offsetX : bullet.x,
       offsetY : bullet.y
     }).appendTo(spacepanel).pin('scale', 0.1).tween(50).pin({

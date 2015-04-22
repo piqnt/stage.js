@@ -2,32 +2,32 @@
 
 ```javascript
 // Create and start an application
-Cut(function(root, element) {
-  // `root` is the root node for this application
-  // `element` is the actual element displaying rendered graphics
+Stage(function(stage, display) {
+  // `stage` is the root node for this application
+  // `display` is the actual element displaying rendered graphics
 
   // Pause playing
-  root.pause();
+  stage.pause();
 
   // Resume playing
-  root.resume();
+  stage.resume();
 
-  // Set viewbox for root, valid modes are 'in', 'in-pad', 'out' and 'out-crop'
-  root.viewbox(width, height, mode = 'in-pad');
+  // Set viewbox for stage, valid modes are 'in', 'in-pad', 'out' and 'out-crop'
+  stage.viewbox(width, height, mode = 'in-pad');
 
   // Listen to view port resize events
-  root.on('viewport', function(viewport) {
+  stage.on('viewport', function(viewport) {
     // `viewport` attributes are `width`, `height` and `ratio`
   });
 });
 ```
 
 #### Tree Model
-Every app consists of a tree, tree's root is create by the library.
+Every app consists of a tree, tree's root is provided as `stage`.
 
 ```javascript
 // Create a new node instance (with no textures)
-var foo = Cut.create();
+var foo = Stage.create();
 
 // Append/prepend bar to foo's children (accepts array)
 foo.append(bar);
@@ -211,17 +211,17 @@ Mouse class is used to capture mouse and touch events.
 
 ```javascript
 // Add click listener to bar
-bar.on(Cut.Mouse.CLICK, function(point) {
+bar.on(Stage.Mouse.CLICK, function(point) {
   // point.x and point.y are relative to this node left and top
   // point.raw is original event
 });
 
 // Mouse events:
-Cut.Mouse.CLICK = 'click';
-Cut.Mouse.START = 'touchstart mousedown';
-Cut.Mouse.MOVE = 'touchmove mousemove';
-Cut.Mouse.END = 'touchend mouseup';
-Cut.Mouse.CANCEL = 'touchcancel';
+Stage.Mouse.CLICK = 'click';
+Stage.Mouse.START = 'touchstart mousedown';
+Stage.Mouse.MOVE = 'touchmove mousemove';
+Stage.Mouse.END = 'touchend mouseup';
+Stage.Mouse.CANCEL = 'touchcancel';
 ```
 
 #### Texture
@@ -234,11 +234,11 @@ Atlases are usually created using static image files. Images referenced in atlas
 
 ```javascript
 // Adding texture atlas
-Cut({
+Stage({
   name : 'mario', // optional
   image : {
     src : 'mario.png',
-    ratio : 1, // optional, for high res images
+    ratio : 1, // optional, for high-res images
   }
   textures : {
     stand : { x : 0,   y : 0, width : 40, height : 60 },
@@ -262,11 +262,11 @@ Cut({
   }
 });
 
-Cut.image('mario:stand');
+Stage.image('mario:stand');
 
-Cut.anim('mario:walk');
+Stage.anim('mario:walk');
 
-Cut.string('mario:number');
+Stage.string('mario:number');
 ```
 
 #### Image
@@ -274,7 +274,7 @@ An image is a node with one texture.
 
 ```javascript
 // Create a new image instance
-var image = Cut.image(texture);
+var image = Stage.image(texture);
 
 // Change image texture
 image.image(texture);
@@ -290,7 +290,7 @@ An animation is a node with an array of textures as frames.
 
 ```javascript
 // Create a new anim instance
-var anim = Cut.anim(textures, fps = 15);
+var anim = Stage.anim(textures, fps = 15);
 
 // Get or set animation frame per second
 anim.fps();
@@ -323,8 +323,8 @@ A row/column is a node which organizes its children as a horizontal/vertical seq
 
 ```javascript
 // Create a new row/column
-var row = Cut.row(childrenVerticalAlign = 0);
-var column = Cut.column(childrenHorizontalAlign = 0);
+var row = Stage.row(childrenVerticalAlign = 0);
+var column = Stage.column(childrenHorizontalAlign = 0);
 
 // Make foo a row/column
 foo.row(childrenVerticalAlign = 0);
@@ -339,7 +339,7 @@ String is a row of images, but images are dynamically created using `frames` and
 
 ```javascript
 // Create a new string instance
-var string = Cut.string(textures);
+var string = Stage.string(textures);
 
 // Value is a string or array, each char/item is used to create an image using
 // frames
@@ -360,7 +360,7 @@ images to create variable size components such as windows and buttons.
 
 ```javascript
 // Create a new box
-var box = Cut.box();
+var box = Stage.box();
 
 // Make foo a box
 foo = foo.box();
@@ -400,22 +400,22 @@ var nextTween = tween.tween(duration = 400, delay = 0);
 ```javascript
 
 // Create a new app
-Cut(function(root, element) { });
+Stage(function(stage, display) { });
 
 // Create and preload a texture atlas
-Cut({ });
+Stage({ });
 
 // A function to be called before starting any app
 // Can be used for preloading application assets
-Cut.preload(function(done) {
+Stage.preload(function(done) {
   // Call `done` when loaded or failed
   done(error);
 });
 
 // Pause playing all applications
-Cut.pause();
+Stage.pause();
 
 // Resume playing all applications
-Cut.resume();
+Stage.resume();
 
 ```

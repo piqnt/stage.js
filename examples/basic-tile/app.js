@@ -1,15 +1,15 @@
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(200, 200);
+  stage.viewbox(200, 200);
 
-  Cut.image('box').tile().appendTo(root).pin({
+  Stage.image('box').tile().appendTo(stage).pin({
     width : 64,
     height : 64,
     align : 0.5
-  }).on(Cut.Mouse.CLICK, function() {
+  }).on(Stage.Mouse.CLICK, function() {
     this.tween().clear().pin({
-      width : Cut.Math.random(32, 96),
-      height : Cut.Math.random(32, 96)
+      width : Stage.Math.random(32, 96),
+      height : Stage.Math.random(32, 96)
     });
     return true;
   });

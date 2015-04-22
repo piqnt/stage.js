@@ -1,4 +1,4 @@
-Cut({
+Stage({
   image : {
     url : 'bg.png',
     ratio : 2 * ppu
@@ -9,7 +9,7 @@ Cut({
   }
 });
 
-Cut({
+Stage({
   image : {
     url : 'main.png',
     ratio : 2 * ppu,

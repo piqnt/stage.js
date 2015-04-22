@@ -1,8 +1,8 @@
 {
-  "name": "cutjs",
-  "version": "0.5.0",
+  "name": "stage.js",
+  "version": "0.6.0",
   "description": "Lightweight, fast, interactable 2D HTML5 rendering engine for cross-platform game development.",
-  "homepage": "http://cutjs.org/",
+  "homepage": "http://piqnt.com/stage.js/",
   "keywords": [
     "html5",
     "game",
@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/piqnt/cutjs.git"
+    "url": "git://github.com/piqnt/stage.git"
   },
   "ignore": [ "examples/", "template/", "test/" ]
 }

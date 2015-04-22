@@ -1,27 +1,27 @@
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(300, 100);
+  stage.viewbox(300, 100);
 
-  var row = Cut.row().appendTo(root).pin('align', 0.5).spacing(1);
+  var row = Stage.row().appendTo(stage).pin('align', 0.5).spacing(1);
 
-  Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.CLICK, function(point) {
+  Stage.anim('rainbow').appendTo(row).on(Stage.Mouse.CLICK, function(point) {
     this.moveFrame(1);
   }).label('click');
 
-  Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.START, function(point) {
+  Stage.anim('rainbow').appendTo(row).on(Stage.Mouse.START, function(point) {
     this.moveFrame(1);
   }).label('start');
 
-  Cut.anim('rainbow').appendTo(row).on(Cut.Mouse.END, function(point) {
+  Stage.anim('rainbow').appendTo(row).on(Stage.Mouse.END, function(point) {
     this.moveFrame(1);
   }).label('end');
 
-  var cursor = Cut.image('circle').pin({
+  var cursor = Stage.image('circle').pin({
     handle : 0.5
-  }).appendTo(root);
+  }).appendTo(stage);
 
   var down = false;
-  root.on(Cut.Mouse.START, function(point) {
+  stage.on(Stage.Mouse.START, function(point) {
     down = true;
     cursor.pin({
       offsetX : point.x,
@@ -29,7 +29,7 @@ Cut(function(root) {
       alpha : 1,
       scale : 1
     });
-  }).on(Cut.Mouse.MOVE, function(point) {
+  }).on(Stage.Mouse.MOVE, function(point) {
     if (down) {
       cursor.pin({
         offsetX : point.x,
@@ -38,7 +38,7 @@ Cut(function(root) {
         scale : 2
       });
     }
-  }).on(Cut.Mouse.END, function(point) {
+  }).on(Stage.Mouse.END, function(point) {
     down = false;
     cursor.pin({
       offsetX : point.x,
@@ -46,7 +46,7 @@ Cut(function(root) {
       alpha : 1,
       scale : 1
     });
-  }).on(Cut.Mouse.CANCEL, function() {
+  }).on(Stage.Mouse.CANCEL, function() {
     down = false;
     cursor.pin({
       alpha : 0.6,

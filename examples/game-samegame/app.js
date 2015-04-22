@@ -155,37 +155,37 @@ function Game(width, height) {
   this.Tile = Tile;
 }
 
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(24, 24);
+  stage.viewbox(24, 24);
 
   var width = 8, height = 8;
 
   var ui = {};
 
-  ui.board = Cut.create().appendTo(root).pin({
+  ui.board = Stage.create().appendTo(stage).pin({
     width : width * 2,
     height : height * 2,
     align : 0.5
   });
 
-  Cut.image('easy').appendTo(ui.board).pin({
+  Stage.image('easy').appendTo(ui.board).pin({
     alignX : 1,
     alignY : 1,
     handleY : 0,
     offsetX : -2,
     offsetY : 0.5
-  }).on(Cut.Mouse.CLICK, function() {
+  }).on(Stage.Mouse.CLICK, function() {
     game.start(4);
   });
 
-  Cut.image('hard').appendTo(ui.board).pin({
+  Stage.image('hard').appendTo(ui.board).pin({
     alignX : 1,
     alignY : 1,
     handleY : 0,
     offsetX : 0.1,
     offsetY : 0.5
-  }).on(Cut.Mouse.CLICK, function() {
+  }).on(Stage.Mouse.CLICK, function() {
     game.start(5);
   });
 
@@ -193,12 +193,12 @@ Cut(function(root) {
 
   game.Tile.prototype.uiInsert = function() {
     var self = this;
-    this.ui = Cut.image('tile-' + this.color).appendTo(ui.board);
+    this.ui = Stage.image('tile-' + this.color).appendTo(ui.board);
     this.ui.pin({
       offsetX : this.i * 2 + 1,
       offsetY : this.j * 2 + 1,
       handle : 0.5
-    }).on(Cut.Mouse.CLICK, function(point) {
+    }).on(Stage.Mouse.CLICK, function(point) {
       game.click(self);
     });
   };

@@ -1,6 +1,6 @@
 # [Orbit](http://play.cutjs.org/examples/game-orbit/)
 
-Orbit is a cross-platform demo game for [CutJS](http://cutjs.org/)—the best HTML5 engine for cross-platform game development!  To package this game for mobile devices [Cordova 3](http://cordova.apache.org/) is used.
+Orbit is a cross-platform demo game for [Stage.js](http://piqnt.com/stage.js/)—the best HTML5 engine for cross-platform game development!  To package this game for mobile devices [Cordova 3](http://cordova.apache.org/) is used.
 
 [Play it here](http://play.cutjs.org/examples/game-orbit/)
 
@@ -10,8 +10,8 @@ The game consists of following files:
 - `www/textures.js` definition of game graphic textures
 - `www/media/*` graphic image files
 
-In addition to the game files, CutJS build for Cordova platforms is also needed:
-- `www/cut.cordova.js`
+In addition to the game files, Stage.js build for Cordova platforms is also needed:
+- `www/stage.cordova.js`
 
 Now all you need is to build your project.  But first make sure you have [installed NPM](https://www.google.com/search?q=install+node.js+npm) and then install Cordova 3 CLI:
 ```

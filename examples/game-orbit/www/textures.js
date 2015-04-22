@@ -1,14 +1,14 @@
   
 MEDIAURL = (typeof MEDIAURL !== 'undefined') ? MEDIAURL : 'media';
 
-Cut({
+Stage({
   image : { url : MEDIAURL + '/bg.png', ratio : 8 },
   textures : {
     'background' : { x : 0, y : 0, width : 128, height : 128 }
   }
 });
 
-Cut({
+Stage({
   image : { url : MEDIAURL + '/main.png', ratio : 8 },
   textures : {
     'planet' :    { x : 0,     y : 0,    width : 12,   height : 12 },
@@ -21,7 +21,7 @@ Cut({
   }
 });
 
-Cut({
+Stage({
   image : { url : MEDIAURL + '/digit.png', ratio : 8 },
   ppu : 8,
   textures : {

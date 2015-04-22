@@ -1,6 +1,6 @@
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(800, 600).pin('handle', -0.5);
+  stage.viewbox(800, 600).pin('handle', -0.5);
 
   var world = Physics(function(world) {
 
@@ -28,6 +28,6 @@ Cut(function(root) {
 
   });
 
-  new Cut.PJS(world).appendTo(root);
+  new Stage.PJS(world).appendTo(stage);
 
 });

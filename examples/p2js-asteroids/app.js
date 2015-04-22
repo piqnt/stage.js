@@ -1,4 +1,4 @@
-Cut(function(root) {
+Stage(function(stage) {
 
   var SHIP = Math.pow(2, 1);
   var BULLET = Math.pow(2, 2);
@@ -343,8 +343,8 @@ Cut(function(root) {
   // If the body is out of space bounds, wrap it to the other side
   function wrap(body) {
     var p = body.position;
-    p[0] = Cut.Math.rotate(p[0], -spaceWidth / 2, spaceWidth / 2);
-    p[1] = Cut.Math.rotate(p[1], -spaceHeight / 2, spaceHeight / 2);
+    p[0] = Stage.Math.rotate(p[0], -spaceWidth / 2, spaceWidth / 2);
+    p[1] = Stage.Math.rotate(p[1], -spaceHeight / 2, spaceHeight / 2);
   }
 
   // Returns a random number between -0.5 and 0.5
@@ -359,7 +359,7 @@ Cut(function(root) {
 
   var ui = {};
 
-  root.on('viewport', function(size) {
+  stage.on('viewport', function(size) {
     ui.meta.pin({
       scaleMode : 'in-pad',
       scaleWidth : size.width,
@@ -374,28 +374,28 @@ Cut(function(root) {
 
   init();
 
-  ui.p2 = new Cut.P2(world, {
+  ui.p2 = new Stage.P2(world, {
     lineColor : '#fff',
     fillColor : ''
   }).pin({
     handle : -0.5,
     width : spaceWidth,
     height : spaceHeight
-  }).appendTo(root);
+  }).appendTo(stage);
 
-  root.tick(tick);
+  stage.tick(tick);
 
-  ui.meta = Cut.create().pin({
+  ui.meta = Stage.create().pin({
     width : 1000,
     height : 1000
-  }).appendTo(root);
+  }).appendTo(stage);
 
-  ui.status = Cut.string('text').pin({
+  ui.status = Stage.string('text').pin({
     align : 0,
     offset : 20
   }).appendTo(ui.meta);
 
-  ui.gameover = Cut.string('text').value('Game Over!').pin({
+  ui.gameover = Stage.string('text').value('Game Over!').pin({
     align : 0.5,
     scale : 1.6
   }).appendTo(ui.meta);
@@ -415,11 +415,11 @@ Cut(function(root) {
   start();
 });
 
-Cut({
+Stage({
   textures : {
     text : function(d) {
       d += '';
-      return Cut.canvas(function(ctx) {
+      return Stage.canvas(function(ctx) {
         var ratio = 2;
         this.size(16, 24, ratio);
         ctx.scale(ratio, ratio);

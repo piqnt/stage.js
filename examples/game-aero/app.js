@@ -128,7 +128,7 @@ Drone.prototype.animate = function(t) {
   this.uiUpdate();
 };
 
-Cut({
+Stage({
   image : {
     url : "main.png",
     ratio : 4
@@ -143,9 +143,9 @@ Cut({
   }
 });
 
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(300, 300).pin('handle', -0.5).on('viewport', function() {
+  stage.viewbox(300, 300).pin('handle', -0.5).on('viewport', function() {
     world.size(this.pin('width'), this.pin('height'));
   }).tick(function(t) {
     world.animate(t);
@@ -153,7 +153,7 @@ Cut(function(root) {
 
   // Objects
   var world = new World();
-  world.ui = root;
+  world.ui = stage;
   var speed = 100 / 1000;
   var acc = speed * 2 / 1000;
   var drone = new Drone(speed, speed * 2, acc);
@@ -190,16 +190,16 @@ Cut(function(root) {
   };
 
   // Mouse
-  root.on(Cut.Mouse.START, function(point) {
+  stage.on(Stage.Mouse.START, function(point) {
     world.run(true);
     world.ui.touch();
     tilt.watch(true);
     drone.accCX = point.x;
     drone.accCY = point.y;
-  }).on(Cut.Mouse.END, function(point) {
+  }).on(Stage.Mouse.END, function(point) {
     tilt.watch(false);
     drone.accCX = drone.accCY = null;
-  }).on(Cut.Mouse.MOVE, function(point) {
+  }).on(Stage.Mouse.MOVE, function(point) {
     if (drone.accCX !== null && drone.accCY !== null) {
       drone.accCX = point.x;
       drone.accCY = point.y;
@@ -242,9 +242,9 @@ Cut(function(root) {
 });
 
 Drone.prototype.uiAdd = function(world) {
-  this.ui = (this.ui || Cut.image('drone').pin('handle', 0.5))
+  this.ui = (this.ui || Stage.image('drone').pin('handle', 0.5))
       .appendTo(world.ui);
-  this.ui2 = (this.ui2 || Cut.image('drone').pin('handle', 0.5).pin({
+  this.ui2 = (this.ui2 || Stage.image('drone').pin('handle', 0.5).pin({
     alpha : 0.2
   })).appendTo(world.ui);
   this.uiUpdate();
@@ -278,7 +278,7 @@ Drone.prototype.uiRemove = function() {
   }
 };
 
-var M = Cut.Math;
+var M = Stage.Math;
 
 M.limit = function(value, min, max) {
   if (value > max) {

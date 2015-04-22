@@ -1,1 +1,0 @@
-../../../dist/cut.cordova.js

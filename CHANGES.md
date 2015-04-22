@@ -1,3 +1,6 @@
+#### v0.6.0
+Cut/CutJS renamed to Stage/Stage.js
+
 #### v0.5.0
 * atlas spec changed
 * Cut#id renamed to Cut#label

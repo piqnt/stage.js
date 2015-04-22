@@ -1,6 +1,6 @@
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(400, 400).pin('handle', -0.5);
+  stage.viewbox(400, 400).pin('handle', -0.5);
 
   var world = new SAT.World();
 
@@ -20,12 +20,12 @@ Cut(function(root) {
     solid : true
   }));
 
-  root.tick(function(t) {
+  stage.tick(function(t) {
     poly.shape.setAngle(poly.shape.angle + (Math.PI * t / 1000));
-    root.touch();
+    stage.touch();
   });
 
-  new Cut.SAT(world).appendTo(root);
+  new Stage.SAT(world).appendTo(stage);
 });
 
 function V(x, y) {

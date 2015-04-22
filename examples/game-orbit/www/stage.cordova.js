@@ -1,0 +1,1 @@
+../../../dist/stage.cordova.js

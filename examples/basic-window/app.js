@@ -1,26 +1,26 @@
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(300, 200);
+  stage.viewbox(300, 200);
 
-  var window = Cut.image('dark').box().stretch().pin('align', 0.5).pin(
-      'textureAlpha', 0.5).padding(7).appendTo(root);
+  var window = Stage.image('dark').box().stretch().pin('align', 0.5).pin(
+      'textureAlpha', 0.5).padding(7).appendTo(stage);
 
-  var column = Cut.column(1).pin('align', 0.5).spacing(5).appendTo(window);
+  var column = Stage.column(1).pin('align', 0.5).spacing(5).appendTo(window);
 
-  var text = Cut.string('digit').value('0123456789').appendTo(column);
+  var text = Stage.string('digit').value('0123456789').appendTo(column);
 
-  var row = Cut.row().appendTo(column).spacing(1);
+  var row = Stage.row().appendTo(column).spacing(1);
 
-  Cut.image('red').box().stretch().appendTo(row).append(
-      Cut.string('digit').value('1')).on(Cut.Mouse.CLICK, function() {
-    var range = Math.pow(10, Cut.Math.random(0, 10) | 0);
-    text.value(Cut.Math.random(0, range) | 0);
+  Stage.image('red').box().stretch().appendTo(row).append(
+      Stage.string('digit').value('1')).on(Stage.Mouse.CLICK, function() {
+    var range = Math.pow(10, Stage.Math.random(0, 10) | 0);
+    text.value(Stage.Math.random(0, range) | 0);
   });
 
-  Cut.image('blue').box().stretch().appendTo(row).append(
-      Cut.string('digit').value('2')).on(Cut.Mouse.CLICK, function() {
-    var range = Math.pow(10, Cut.Math.random(0, 10) | 0);
-    text.value(Cut.Math.random(0, range) | 0);
+  Stage.image('blue').box().stretch().appendTo(row).append(
+      Stage.string('digit').value('2')).on(Stage.Mouse.CLICK, function() {
+    var range = Math.pow(10, Stage.Math.random(0, 10) | 0);
+    text.value(Stage.Math.random(0, range) | 0);
   });
 
 });

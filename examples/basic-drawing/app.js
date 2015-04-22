@@ -1,18 +1,18 @@
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(200, 200).on('click', function() {
+  stage.viewbox(200, 200).on('click', function() {
     draw();
   });
 
   var width = 50, height = 50;
   var r1 = 10, r2 = 20, p = 4;
 
-  var image = Cut.image().appendTo(root).pin('align', 0.5);
+  var image = Stage.image().appendTo(stage).pin('align', 0.5);
 
   draw();
 
   function draw() {
-    image.image(Cut.canvas(function(ctx) {
+    image.image(Stage.canvas(function(ctx) {
       p = (p + 1 - 3) % 3 + 3;
 
       this.size(width, height, 4);

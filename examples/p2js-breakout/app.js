@@ -1,18 +1,18 @@
 // p2 scale, point per unit
 var p2s = 0.5, ppu = 16 / p2s;
 
-Cut(function(root) {
+Stage(function(stage) {
 
-  var M = Cut.Math;
+  var M = Stage.Math;
   var maxKey = 'breakout-v1';
   var width = 20 * p2s, height = 26 * p2s;
   var ui = {}, shape = {}, mat = {};
   var score = 0, combo = 1, max = 0, playing = false;
 
-  root.viewbox(width * ppu, height * 1.12 * ppu).pin('offsetY',
+  stage.viewbox(width * ppu, height * 1.12 * ppu).pin('offsetY',
       -height * 0.04 * ppu).pin('align', -0.5);
 
-  root.MAX_ELAPSE = 100;
+  stage.MAX_ELAPSE = 100;
 
   var paddleSpeed = 20 * p2s, dropSpeed = -6 * p2s;
 
@@ -175,7 +175,7 @@ Cut(function(root) {
   paddle.full.paddleWidth = 3 * p2s;
   paddle.full.addShape(shape.paddleFull);
   paddle.full.isPaddle = true;
-  paddle.full.ui = Cut.image('paddleFull').pin('handle', 0.5);
+  paddle.full.ui = Stage.image('paddleFull').pin('handle', 0.5);
   paddle.full.motionState = p2.Body.STATIC;
 
   paddle.mini = new p2.Body({
@@ -185,7 +185,7 @@ Cut(function(root) {
   paddle.mini.paddleWidth = 2 * p2s;
   paddle.mini.addShape(shape.paddleMini);
   paddle.mini.isPaddle = true;
-  paddle.mini.ui = Cut.image('paddleMini').pin('handle', 0.5);
+  paddle.mini.ui = Stage.image('paddleMini').pin('handle', 0.5);
   paddle.mini.motionState = p2.Body.STATIC;
 
   function newBall(p) {
@@ -199,7 +199,7 @@ Cut(function(root) {
     body.angularDamping = 0;
     body.addShape(shape.ball);
     body.isBall = true;
-    body.ui = Cut.image('ball', 10).pin('handle', 0.5);
+    body.ui = Stage.image('ball', 10).pin('handle', 0.5);
     return body;
   }
 
@@ -209,7 +209,7 @@ Cut(function(root) {
     });
     body.addShape(shape.drop);
     body.isDrop = name;
-    body.ui = Cut.image('' + name).pin('handle', 0.5);
+    body.ui = Stage.image('' + name).pin('handle', 0.5);
     return body;
   }
 
@@ -222,7 +222,7 @@ Cut(function(root) {
     }
     body.addShape(shape);
     body.isBrick = true;
-    body.ui = Cut.image('b' + name).pin('handle', 0.5);
+    body.ui = Stage.image('b' + name).pin('handle', 0.5);
     body.ui.drop = function() {
       this.tween(70).pin('alpha', 0).then(function() {
         this.remove();
@@ -337,7 +337,7 @@ Cut(function(root) {
       }
     }
     paddle.current.ui.hide();
-    ui.restart.appendTo(root);
+    ui.restart.appendTo(stage);
     ui.p2.tween(100).clear().pin('alpha', 0.5);
     Timeout.reset();
   }
@@ -373,7 +373,7 @@ Cut(function(root) {
     playing = true;
   }
 
-  root.tick(function(t) {
+  stage.tick(function(t) {
     if (playing) {
       var noBallInside = true;
       for (var i = world.bodies.length - 1; i >= 0; i--) {
@@ -406,10 +406,10 @@ Cut(function(root) {
     over && gameover();
   }
 
-  ui.bg = Cut.image('board').appendTo(root).pin('handle', 0.5)
+  ui.bg = Stage.image('board').appendTo(stage).pin('handle', 0.5)
       .pin('scale', ppu).attr('spy', true);
 
-  ui.p2 = new Cut.P2(world, {
+  ui.p2 = new Stage.P2(world, {
     lineWidth : 0.01,
     lineColor : '#888',
     ratio : 256,
@@ -419,15 +419,15 @@ Cut(function(root) {
 
   var paddleTo = 0;
 
-  ui.p2.on([ Cut.Mouse.START, Cut.Mouse.MOVE ], function(point) {
+  ui.p2.on([ Stage.Mouse.START, Stage.Mouse.MOVE ], function(point) {
     paddleTo = point.x;
   }).attr('spy', true);
 
-  root.on(Cut.Mouse.CLICK, function() {
+  stage.on(Stage.Mouse.CLICK, function() {
     playing || start();
   });
 
-  root.tick(function(t) {
+  stage.tick(function(t) {
     if (paddle.current) {
       var x = Math.max(paddle.current.paddleWidth / 2 - 9 * p2s, Math.min(
           -paddle.current.paddleWidth / 2 + 9 * p2s, paddleTo));
@@ -439,21 +439,21 @@ Cut(function(root) {
     }
   });
 
-  ui.max = Cut.string('d_').appendTo(ui.bg).pin({
+  ui.max = Stage.string('d_').appendTo(ui.bg).pin({
     alignX : 1,
     alignY : 1,
     offsetX : -1.5 * p2s,
     offsetY : -0.5 * p2s
   });
 
-  ui.score = Cut.string('d_').appendTo(ui.bg).pin({
+  ui.score = Stage.string('d_').appendTo(ui.bg).pin({
     alignX : 0,
     alignY : 1,
     offsetX : 1.5 * p2s,
     offsetY : -0.5 * p2s
   });
 
-  ui.restart = Cut.image('restart').pin({
+  ui.restart = Stage.image('restart').pin({
     handle : 0.5,
     offsetY : 0.5 * ppu,
     scale : ppu

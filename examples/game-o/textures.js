@@ -1,4 +1,4 @@
-Cut({
+Stage({
   image : { url : "main.png", ratio : 8 },
   ppu : 16,
   textures : {

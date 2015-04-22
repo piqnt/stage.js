@@ -2,9 +2,9 @@ var V = function(x, y) {
   return new SAT.Vector(x, y);
 };
 
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(640, 640).pin('handle', -0.5);
+  stage.viewbox(640, 640).pin('handle', -0.5);
 
   var world = new SAT.World({
     loopCount : 5
@@ -18,5 +18,5 @@ Cut(function(root) {
     }
   }
 
-  new Cut.SAT(world).appendTo(root);
+  new Stage.SAT(world).appendTo(stage);
 });

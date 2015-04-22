@@ -1,8 +1,8 @@
 /**
- * CutJS viewer for p2.js
+ * P2.js viewer for Stage.js
  */
-Cut.P2 = function(world, options) {
-  Cut.P2._super.call(this);
+Stage.P2 = function(world, options) {
+  Stage.P2._super.call(this);
 
   var self = this;
   this.world = world;
@@ -15,9 +15,9 @@ Cut.P2 = function(world, options) {
     lineWidth : 0.025,
     lineColor : '#000000',
     fillColor : function() {
-      var red = Cut.Math.random(192, 256) | 0;
-      var green = Cut.Math.random(192, 256) | 0;
-      var blue = Cut.Math.random(192, 256) | 0;
+      var red = Stage.Math.random(192, 256) | 0;
+      var green = Stage.Math.random(192, 256) | 0;
+      var blue = Stage.Math.random(192, 256) | 0;
       return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
     },
     ratio : 128,
@@ -26,7 +26,7 @@ Cut.P2 = function(world, options) {
       return typeof value === 'function' ? value() : value;
     },
     extend : function(options) {
-      return Cut._extend({}, this, options);
+      return Stage._extend({}, this, options);
     }
   }.extend(options);
 
@@ -68,11 +68,11 @@ Cut.P2 = function(world, options) {
   this.tempv = p2.vec2.fromValues(0, 0);
 };
 
-Cut.P2._super = Cut;
-Cut.P2.prototype = Cut._create(Cut.P2._super.prototype);
-Cut.P2.prototype.constructor = Cut.P2;
+Stage.P2._super = Stage;
+Stage.P2.prototype = Stage._create(Stage.P2._super.prototype);
+Stage.P2.prototype.constructor = Stage.P2;
 
-Cut.P2.prototype.step = function(t) {
+Stage.P2.prototype.step = function(t) {
   this.world.step(this.options.timeStep, t, this.options.maxSubSteps);
 
   for (var i = 0; i < this.world.bodies.length; i++) {
@@ -106,7 +106,7 @@ Cut.P2.prototype.step = function(t) {
 
     var a = Math.atan2(dx, dy) + Math.PI / 2;
 
-    var s = Cut.Math.length(dx, dy) / spring.restLength;
+    var s = Stage.Math.length(dx, dy) / spring.restLength;
 
     spring.ui.pin({
       offsetX : x,
@@ -117,19 +117,19 @@ Cut.P2.prototype.step = function(t) {
   }
 };
 
-Cut.P2.prototype.addRenderable = function(obj) {
+Stage.P2.prototype.addRenderable = function(obj) {
 
   if (!this.options.debug && typeof obj.ui !== "undefined") {
     obj.ui && obj.ui.appendTo(this);
     return;
   }
 
-  obj.ui = Cut.create().appendTo(this);
+  obj.ui = Stage.create().appendTo(this);
 
   if (obj instanceof p2.Body && obj.shapes.length) {
     if (obj.concavePath && !this.options.debugPolygons) {
       var texture = this.drawConvex(obj.concavePath);
-      Cut.image(texture).appendTo(obj.ui).pin({
+      Stage.image(texture).appendTo(obj.ui).pin({
         handle : 0.5,
         offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
         offsetY : -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
@@ -167,7 +167,7 @@ Cut.P2.prototype.addRenderable = function(obj) {
             texture = this.drawConvex(shape.vertices);
           }
         }
-        Cut.image(texture).appendTo(obj.ui).pin({
+        Stage.image(texture).appendTo(obj.ui).pin({
           handle : 0.5,
           offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
           offsetY : -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
@@ -178,18 +178,18 @@ Cut.P2.prototype.addRenderable = function(obj) {
 
   } else if (obj instanceof p2.Spring) {
     var texture = this.drawSpring(obj.restLength);
-    Cut.image(texture).appendTo(obj.ui).pin({
+    Stage.image(texture).appendTo(obj.ui).pin({
       handle : 0.5
     });
   }
 
 };
 
-Cut.P2.prototype.removeRenderable = function(obj) {
+Stage.P2.prototype.removeRenderable = function(obj) {
   obj.ui && (obj.ui.drop ? obj.ui.drop() : obj.ui.remove());
 };
 
-Cut.P2.prototype.drawLine = function(length, options) {
+Stage.P2.prototype.drawLine = function(length, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -197,7 +197,7 @@ Cut.P2.prototype.drawLine = function(length, options) {
   lineWidth *= 2;
   var ratio = options.ratio;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(length + 2 * lineWidth, lineWidth, ratio);
 
     ctx.scale(ratio, ratio);
@@ -212,7 +212,7 @@ Cut.P2.prototype.drawLine = function(length, options) {
   });
 };
 
-Cut.P2.prototype.drawRectangle = function(w, h, options) {
+Stage.P2.prototype.drawRectangle = function(w, h, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -221,7 +221,7 @@ Cut.P2.prototype.drawRectangle = function(w, h, options) {
   var height = h + 2 * lineWidth;
   var ratio = options.ratio;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -237,7 +237,7 @@ Cut.P2.prototype.drawRectangle = function(w, h, options) {
   });
 };
 
-Cut.P2.prototype.drawCircle = function(radius, options) {
+Stage.P2.prototype.drawCircle = function(radius, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -246,7 +246,7 @@ Cut.P2.prototype.drawCircle = function(radius, options) {
   var height = radius * 2 + lineWidth * 2;
   var ratio = options.ratio;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -268,7 +268,7 @@ Cut.P2.prototype.drawCircle = function(radius, options) {
   });
 };
 
-Cut.P2.prototype.drawCapsule = function(len, radius, options) {
+Stage.P2.prototype.drawCapsule = function(len, radius, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -277,7 +277,7 @@ Cut.P2.prototype.drawCapsule = function(len, radius, options) {
   var height = 2 * radius + 2 * lineWidth;
   var ratio = options.ratio;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -300,7 +300,7 @@ Cut.P2.prototype.drawCapsule = function(len, radius, options) {
   });
 };
 
-Cut.P2.prototype.drawSpring = function(length, options) {
+Stage.P2.prototype.drawSpring = function(length, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -313,7 +313,7 @@ Cut.P2.prototype.drawSpring = function(length, options) {
 
   var ratio = options.ratio;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(length, dy * 2, ratio);
 
     ctx.scale(ratio, ratio);
@@ -340,14 +340,14 @@ Cut.P2.prototype.drawSpring = function(length, options) {
   });
 };
 
-Cut.P2.prototype.drawPlane = function(x0, x1, max, options) {
+Stage.P2.prototype.drawPlane = function(x0, x1, max, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
 
   var ratio = options.ratio;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(max * 2, max * 2, ratio);
 
     ctx.scale(ratio, ratio);
@@ -375,7 +375,7 @@ Cut.P2.prototype.drawPlane = function(x0, x1, max, options) {
 
 };
 
-Cut.P2.prototype.drawConvex = function(verts, options) {
+Stage.P2.prototype.drawConvex = function(verts, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -393,7 +393,7 @@ Cut.P2.prototype.drawConvex = function(verts, options) {
     height = Math.max(Math.abs(y), height);
   }
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 
     ctx.scale(ratio, ratio);

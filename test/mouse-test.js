@@ -3,7 +3,7 @@ var sinon = require('sinon');
 var sandboxed = require('sandboxed-module');
 var memo = require('./util/memo');
 
-var Cut = require('../lib/node');
+var Stage = require('../lib/node');
 
 it('Mouse', function() {
   var document = {
@@ -21,15 +21,15 @@ it('Mouse', function() {
 
   var elem, add, remove, event;
 
-  Mouse._xy = sinon.spy(function(root, el, ev, point) {
+  Mouse._xy = sinon.spy(function(stage, el, ev, point) {
     expect(ev).equal(event);
     expect(el).equal(elem);
     point.x = ev.x;
     point.y = ev.y;
   });
 
-  var cuts = memo(function(id) {
-    return Cut.create().label(id).pin({
+  var node = memo(function(id) {
+    return Stage.create().label(id).pin({
       width : 400,
       height : 300
     });
@@ -37,15 +37,15 @@ it('Mouse', function() {
   var listener = memo(function(id) {
     return sinon.spy();
   });
-  var root = cuts(1).append(cuts(11),
-      cuts(12).append(cuts(121).hide(), cuts(122), cuts(123)), cuts(13));
+  var stage = node(1).append(node(11),
+      node(12).append(node(121).hide(), node(122), node(123)), node(13));
 
-  cuts(1).on(Mouse.CLICK, listener('click-' + 1));
-  cuts(1).on(Mouse.START, listener('start-' + 1));
-  cuts(1).on(Mouse.END, listener('end-' + 1));
-  cuts(1).on(Mouse.MOVE, listener('move-' + 1));
+  node(1).on(Mouse.CLICK, listener('click-' + 1));
+  node(1).on(Mouse.START, listener('start-' + 1));
+  node(1).on(Mouse.END, listener('end-' + 1));
+  node(1).on(Mouse.MOVE, listener('move-' + 1));
 
-  Mouse.subscribe(root, elem = {
+  Mouse.subscribe(stage, elem = {
     addEventListener : add = sinon.stub(),
     removeEventListener : remove = sinon.stub()
   });

@@ -1,10 +1,10 @@
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(400, 100);
+  stage.viewbox(400, 100);
 
   var turn = false;
 
-  Cut.image('dark').appendTo(root).pin('align', 0.5).on(Cut.Mouse.CLICK,
+  Stage.image('dark').appendTo(stage).pin('align', 0.5).on(Stage.Mouse.CLICK,
       function(point) {
         turn = !turn;
         this.tween(500, 500).clear().pin({

@@ -100,7 +100,7 @@ Sound.play = function(name) {
 };
 
 function Game() {
-  var M = Cut.Math;
+  var M = Stage.Math;
 
   var game = this;
   this.data = Data.load();
@@ -867,7 +867,7 @@ function Game() {
   });
 
   function zigzag(t) {
-    t = Cut.Math.rotate(t, -Math.PI, Math.PI) / Math.PI * 2;
+    t = Stage.Math.rotate(t, -Math.PI, Math.PI) / Math.PI * 2;
     if (t > 1) {
       t = 2 - t;
     } else if (t < -1) {
@@ -882,11 +882,11 @@ function Game() {
 }
 
 // UI
-Cut(function(root, elem) {
+Stage(function(stage, elem) {
   TOP = typeof TOP === 'number' ? TOP : 0;
-  var Mouse = Cut.Mouse;
+  var Mouse = Stage.Mouse;
 
-  Cut.prototype.xy = (function() {
+  Stage.prototype.xy = (function() {
     var pin = {};
     return function(x, y) {
       pin.offsetX = x, pin.offsetY = y;
@@ -897,7 +897,7 @@ Cut(function(root, elem) {
 
   var game = new Game();
 
-  root.on('viewport', function(viewport) {
+  stage.on('viewport', function(viewport) {
     this.pin({
       width : Conf.width,
       height : Conf.height * 1.2,
@@ -910,7 +910,7 @@ Cut(function(root, elem) {
 
   function open(view) {
     if (typeof view == 'string') {
-      view = root[view];
+      view = stage[view];
     }
     if (open.view === view) {
       return;
@@ -920,7 +920,7 @@ Cut(function(root, elem) {
   }
 
   (function() {// home screen
-    var home = root.home = Cut.create().appendTo(root).hide().pin({
+    var home = stage.home = Stage.create().appendTo(stage).hide().pin({
       align : 0.5
     });
 
@@ -952,16 +952,16 @@ Cut(function(root, elem) {
       });
     });
 
-    var bg = Cut.image('homebg').appendTo(home).pin('align', 0.5);
+    var bg = Stage.image('homebg').appendTo(home).pin('align', 0.5);
 
-    var menu = Cut.column(0).appendTo(home).pin('align', 0.5).spacing(4);
+    var menu = Stage.column(0).appendTo(home).pin('align', 0.5).spacing(4);
 
-    var tombstone = Cut.image('tombstone').appendTo(menu);
+    var tombstone = Stage.image('tombstone').appendTo(menu);
 
-    var row = Cut.row().appendTo(menu).spacing(4);
+    var row = Stage.row().appendTo(menu).spacing(4);
     var flags = [];
     for (var i = 0; i < 6; i++) {
-      var flag = Cut.image('play').appendTo(row).on(Mouse.CLICK,
+      var flag = Stage.image('play').appendTo(row).on(Mouse.CLICK,
           startFrom(i - 1));
       flags.push(flag);
     }
@@ -978,13 +978,13 @@ Cut(function(root, elem) {
       return null;
     }
 
-    var row = Cut.row().appendTo(menu).spacing(4);
+    var row = Stage.row().appendTo(menu).spacing(4);
 
     var upgrades = {};
 
     for (var i = 0; i < Conf.ups.length; i++) {
       var name = Conf.ups[i];
-      upgrades[name] = Cut.image('option').appendTo(row).attr('name', name).on(
+      upgrades[name] = Stage.image('option').appendTo(row).attr('name', name).on(
           Mouse.CLICK, function() {
             game.upgrade(this.attr('name'));
           });
@@ -996,7 +996,7 @@ Cut(function(root, elem) {
         if (i <= game.data.upgrades.flags) {
           var value = Format.k(game.data.flags[i - 1]);
           value = i > 0 ? (value || '-') : 0;
-          Cut.string('d').appendTo(button).pin({
+          Stage.string('d').appendTo(button).pin({
             alignY : 0.5,
             alignX : 0.45,
             handle : 0.5,
@@ -1006,7 +1006,7 @@ Cut(function(root, elem) {
         }
         var price = game.price('flags');
         if (i == game.data.upgrades.flags + 1) {
-          Cut.string('d').value(Format.coin(price)).pin({
+          Stage.string('d').value(Format.coin(price)).pin({
             alignY : 0.5,
             alignX : 0.4,
             handle : 0.5,
@@ -1020,7 +1020,7 @@ Cut(function(root, elem) {
       }
 
       tombstone.empty();
-      Cut.string('d').appendTo(tombstone).pin({
+      Stage.string('d').appendTo(tombstone).pin({
         alignX : 0.5,
         alignY : 1,
         offsetX : -2,
@@ -1029,7 +1029,7 @@ Cut(function(root, elem) {
         scale : 0.8
       }).value(0 + '-' + Format.k(game.data.stats.dist));
 
-      Cut.string('d').appendTo(tombstone).pin({
+      Stage.string('d').appendTo(tombstone).pin({
         alignX : 0.5,
         alignY : 0,
         offsetX : -4,
@@ -1044,9 +1044,9 @@ Cut(function(root, elem) {
         var level = game.data.upgrades[name] || 0;
         var button = upgrades[name].empty().pin('alpha', 0.9);
         // image
-        Cut.image('up_' + name).pin('align', 0.5).appendTo(button);
+        Stage.image('up_' + name).pin('align', 0.5).appendTo(button);
         // price
-        Cut.string('d').value(Format.coin(price)).pin({
+        Stage.string('d').value(Format.coin(price)).pin({
           align : 1,
           offsetX : -1.6,
           offsetY : -1.4,
@@ -1055,7 +1055,7 @@ Cut(function(root, elem) {
         }).appendTo(button);
         // level
         if (level <= 6) {
-          Cut.string('up').pin({
+          Stage.string('up').pin({
             alignX : 0,
             alignY : 0,
             offsetX : 1.6,
@@ -1073,7 +1073,7 @@ Cut(function(root, elem) {
   })();
 
   (function() { // play screen
-    var play = root.play = Cut.create().appendTo(root).hide().pin({
+    var play = stage.play = Stage.create().appendTo(stage).hide().pin({
       align : 0.5
     });
 
@@ -1115,18 +1115,18 @@ Cut(function(root, elem) {
       game.tick(t);
     }, true);
 
-    var bg = Cut.image('playbg').appendTo(play).pin('align', 0.5);
+    var bg = Stage.image('playbg').appendTo(play).pin('align', 0.5);
 
-    var border = Cut.image('border').stretch().appendTo(play).pin({
+    var border = Stage.image('border').stretch().appendTo(play).pin({
       width : Conf.width,
       height : Conf.height,
       align : 0.5,
       alpha : 0.5
     });
 
-    var top = Cut.image('shadow').stretch().appendTo(play);
+    var top = Stage.image('shadow').stretch().appendTo(play);
 
-    var field = Cut.create().appendTo(play).attr('spy', true).pin({
+    var field = Stage.create().appendTo(play).attr('spy', true).pin({
       width : Conf.width,
       height : Conf.height,
       alignX : 0.5,
@@ -1134,33 +1134,33 @@ Cut(function(root, elem) {
       handleY : 0
     });
 
-    var energy = Cut.image('energy').stretch().appendTo(play).pin({
+    var energy = Stage.image('energy').stretch().appendTo(play).pin({
       alignX : 0,
       alignY : 0,
       offsetX : 3,
       offsetY : 2
     });
 
-    var dist = Cut.string('d').appendTo(play).pin({
+    var dist = Stage.string('d').appendTo(play).pin({
       alignX : 0,
       alignY : 0,
       offsetX : 3,
       offsetY : 9
     });
 
-    var coins = Cut.string('d').appendTo(play).pin({
+    var coins = Stage.string('d').appendTo(play).pin({
       alignX : 1,
       alignY : 0,
       offsetX : -3,
       offsetY : 3
     });
 
-    var lastCoin = Cut.column(0.5).appendTo(play).pin({
+    var lastCoin = Stage.column(0.5).appendTo(play).pin({
       alignX : 0.5,
       alignY : 0,
       offsetX : 10,
       offsetY : 2
-    }).append(Cut.image(), Cut.string('d').pin('scale', 0.8)).hide();
+    }).append(Stage.image(), Stage.string('d').pin('scale', 0.8)).hide();
 
     var lastCoinTimeout = null;
 
@@ -1175,11 +1175,11 @@ Cut(function(root, elem) {
       }, 1000);
     }
 
-    var cursor = Cut.image('cursor').pin('handle', 0.5).appendTo(field).hide();
+    var cursor = Stage.image('cursor').pin('handle', 0.5).appendTo(field).hide();
 
-    var l1 = Cut.create().appendTo(field);
-    var l2 = Cut.create().appendTo(field);
-    var l3 = Cut.create().appendTo(field);
+    var l1 = Stage.create().appendTo(field);
+    var l2 = Stage.create().appendTo(field);
+    var l3 = Stage.create().appendTo(field);
 
     field.on([ Mouse.MOVE, Mouse.START ], function(point) {
       cursor.xy(point.x, point.y).visible(game.pointer(point.x, point.y));
@@ -1210,7 +1210,7 @@ Cut(function(root, elem) {
 
     game.uiStart = function() {
       DEBUG && console.log('app start');
-      root.background(bgcolors());
+      stage.background(bgcolors());
       tilt.start();
     };
 
@@ -1223,7 +1223,7 @@ Cut(function(root, elem) {
       DEBUG && console.log('app end');
       setTimeout(function() {
         open('home');
-        root.background('#000');
+        stage.background('#000');
       }, 1000);
       tilt.stop();
     };
@@ -1242,7 +1242,7 @@ Cut(function(root, elem) {
 
     game.uiNewPlayer = function(obj) {
       DEBUG && console.log('player create');
-      obj.ui = Cut.anim(obj.name).pin('handle', 0.5).appendTo(l3);
+      obj.ui = Stage.anim(obj.name).pin('handle', 0.5).appendTo(l3);
       obj.uiXY = function() {
         this.ui.xy(this.x, this.y);
       };
@@ -1268,7 +1268,7 @@ Cut(function(root, elem) {
     };
 
     game.uiNewDot = function(obj) {
-      obj.ui = Cut.image('dot').pin('handle', 0.5).appendTo(l1).hide();
+      obj.ui = Stage.image('dot').pin('handle', 0.5).appendTo(l1).hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
@@ -1290,7 +1290,7 @@ Cut(function(root, elem) {
     };
 
     game.uiNewPower = function(obj) {
-      obj.ui = Cut.image('power').pin('handle', 0.5).appendTo(l2).hide();
+      obj.ui = Stage.image('power').pin('handle', 0.5).appendTo(l2).hide();
       obj.uiEnter = function() {
         this.ui.show();
       };
@@ -1307,7 +1307,7 @@ Cut(function(root, elem) {
     };
 
     game.uiNewEnemy = function(obj) {
-      obj.ui = Cut.anim(obj.name + '_live').pin('handle', 0.5).appendTo(l2)
+      obj.ui = Stage.anim(obj.name + '_live').pin('handle', 0.5).appendTo(l2)
           .hide();
       obj.uiEnter = function() {
         this.ui.show();
@@ -1343,7 +1343,7 @@ Cut(function(root, elem) {
 
     game.uiNewCoin = function(obj) {
       obj.scale = Conf.coinsScale[obj.value] || 1;
-      obj.ui = Cut.image('coin_' + obj.value).pin('handle', 0.5).appendTo(l2)
+      obj.ui = Stage.image('coin_' + obj.value).pin('handle', 0.5).appendTo(l2)
           .pin('scale', obj.scale).hide();
       obj.uiEnter = function() {
         this.ui.show();

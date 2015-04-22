@@ -1,4 +1,4 @@
-Cut({
+Stage({
   name : "example",
   image : {
     url : "../example.png",

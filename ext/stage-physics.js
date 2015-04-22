@@ -1,8 +1,8 @@
 /**
- * CutJS viewer for PhysicsJS
+ * PhysicsJS viewer for Stage.js
  */
-Cut.PJS = function(world, options) {
-  Cut.PJS._super.call(this);
+Stage.PJS = function(world, options) {
+  Stage.PJS._super.call(this);
 
   var self = this;
   this.world = world;
@@ -11,9 +11,9 @@ Cut.PJS = function(world, options) {
     lineWidth : 2,
     lineColor : '#000000',
     fillColor : function() {
-      var red = Cut.Math.random(192, 256) | 0;
-      var green = Cut.Math.random(192, 256) | 0;
-      var blue = Cut.Math.random(192, 256) | 0;
+      var red = Stage.Math.random(192, 256) | 0;
+      var green = Stage.Math.random(192, 256) | 0;
+      var blue = Stage.Math.random(192, 256) | 0;
       return '#' + red.toString(16) + green.toString(16) + blue.toString(16);
     },
     ratio : 1,
@@ -22,7 +22,7 @@ Cut.PJS = function(world, options) {
       return typeof value === 'function' ? value() : value;
     },
     extend : function(options) {
-      return Cut._extend({}, this, options);
+      return Stage._extend({}, this, options);
     }
   }.extend(options);
 
@@ -59,11 +59,11 @@ Cut.PJS = function(world, options) {
 
 };
 
-Cut.PJS._super = Cut;
-Cut.PJS.prototype = Cut._create(Cut.PJS._super.prototype);
-Cut.PJS.prototype.constructor = Cut.PJS;
+Stage.PJS._super = Stage;
+Stage.PJS.prototype = Stage._create(Stage.PJS._super.prototype);
+Stage.PJS.prototype.constructor = Stage.PJS;
 
-Cut.PJS.prototype.addRenderable = function(obj) {
+Stage.PJS.prototype.addRenderable = function(obj) {
   if (obj.ui || !obj.geometry) {
     return;
   }
@@ -76,17 +76,17 @@ Cut.PJS.prototype.addRenderable = function(obj) {
     // texture = this.drawConvex(shape.points);
     // }
   }
-  obj.ui = Cut.create().append(Cut.image(texture).pin({
+  obj.ui = Stage.create().append(Stage.image(texture).pin({
     handle : 0.5
   })).appendTo(this);
 };
 
-Cut.PJS.prototype.removeRenderable = function(obj) {
+Stage.PJS.prototype.removeRenderable = function(obj) {
   obj.ui && obj.ui.remove();
   return this;
 };
 
-Cut.PJS.prototype.drawCircle = function(radius, options) {
+Stage.PJS.prototype.drawCircle = function(radius, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -95,7 +95,7 @@ Cut.PJS.prototype.drawCircle = function(radius, options) {
   var height = radius * 2 + lineWidth * 2;
   var ratio = options.ratio;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -112,7 +112,7 @@ Cut.PJS.prototype.drawCircle = function(radius, options) {
   });
 };
 
-Cut.PJS.prototype.drawConvex = function(verts, options) {
+Stage.PJS.prototype.drawConvex = function(verts, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -130,7 +130,7 @@ Cut.PJS.prototype.drawConvex = function(verts, options) {
     height = Math.max(Math.abs(y), height);
   }
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 
     ctx.scale(ratio, ratio);

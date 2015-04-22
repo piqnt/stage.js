@@ -2,16 +2,16 @@ var expect = require('./util/expect');
 var sinon = require('sinon');
 var memo = require('./util/memo');
 
-var Cut = require('../lib/node');
+var Stage = require('../lib/node');
 
 it('label', function() {
-  var foo = Cut.create();
+  var foo = Stage.create();
   expect(foo.label('label')).be(foo);
   expect(foo.label()).be('label');
 });
 
 it('attr', function() {
-  var foo = Cut.create();
+  var foo = Stage.create();
   expect(foo.attr('name')).not.ok();
   expect(foo.attr('string', 'Name')).equal(foo);
   expect(foo.attr('number', 9876543210)).equal(foo);
@@ -20,7 +20,7 @@ it('attr', function() {
 });
 
 it('append', function() {
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   foo.append(bar);
   expect(foo.first()).be(bar);
   expect(foo.last()).be(bar);
@@ -28,14 +28,14 @@ it('append', function() {
   expect(foo.first()).be(bar);
   expect(foo.last()).be(baz);
 
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   foo.append([ bar, baz ]);
   expect(foo.first()).be(bar);
   expect(foo.last()).be(baz);
 });
 
 it('prepend', function() {
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   foo.prepend(bar);
   expect(foo.first()).be(bar);
   expect(foo.last()).be(bar);
@@ -43,14 +43,14 @@ it('prepend', function() {
   expect(foo.first()).be(baz);
   expect(foo.last()).be(bar);
 
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   foo.prepend([ bar, baz ]);
   expect(foo.first()).be(bar);
   expect(foo.last()).be(baz);
 });
 
 it('appendTo', function() {
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   bar.appendTo(foo);
   expect(foo.first()).be(bar);
   expect(foo.last()).be(bar);
@@ -60,7 +60,7 @@ it('appendTo', function() {
 });
 
 it('prependTo', function() {
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   bar.prependTo(foo);
   expect(foo.first()).be(bar);
   expect(foo.last()).be(bar);
@@ -70,7 +70,7 @@ it('prependTo', function() {
 });
 
 it('insertAfter', function() {
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   bar.prependTo(foo);
   baz.insertAfter(bar);
   expect(foo.first()).be(bar);
@@ -78,7 +78,7 @@ it('insertAfter', function() {
 });
 
 it('insertBefore', function() {
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   bar.prependTo(foo);
   baz.insertBefore(bar);
   expect(foo.first()).be(baz);
@@ -86,7 +86,7 @@ it('insertBefore', function() {
 });
 
 it('insertNext', function() {
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   bar.prependTo(foo);
   bar.insertNext(baz);
   expect(foo.first()).be(bar);
@@ -94,7 +94,7 @@ it('insertNext', function() {
 });
 
 it('insertPrev', function() {
-  var foo = Cut.create(), bar = Cut.create(), baz = Cut.create();
+  var foo = Stage.create(), bar = Stage.create(), baz = Stage.create();
   bar.prependTo(foo);
   bar.insertPrev(baz);
   expect(foo.first()).be(baz);
@@ -102,39 +102,39 @@ it('insertPrev', function() {
 });
 
 it('visit', function() {
-  var cuts = memo(function(id) {
-    return Cut.create().label(id);
+  var node = memo(function(id) {
+    return Stage.create().label(id);
   });
   var visitor, data;
-  var root = cuts(1).append(cuts(11),
-      cuts(12).append(cuts(121).hide(), cuts(122), cuts(123)), cuts(13));
+  var stage = node(1).append(node(11),
+      node(12).append(node(121).hide(), node(122), node(123)), node(13));
 
-  root.visit(visitor = {
+  stage.visit(visitor = {
     start : sinon.stub(),
     end : sinon.stub()
   }, data = {});
   expect(visitor.start.args.pluck(0)).list(
-      cuts([ 1, 11, 12, 121, 122, 123, 13 ]), 'id');
+      node([ 1, 11, 12, 121, 122, 123, 13 ]), 'id');
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 
-  root.visit(visitor = {
+  stage.visit(visitor = {
     visible : true,
     start : sinon.stub(),
     end : sinon.stub()
   }, data = {});
-  expect(visitor.start.args.pluck(0)).list(cuts([ 1, 11, 12, 122, 123, 13 ]),
+  expect(visitor.start.args.pluck(0)).list(node([ 1, 11, 12, 122, 123, 13 ]),
       'id');
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 
-  root.visit(visitor = {
+  stage.visit(visitor = {
     reverse : true,
     start : sinon.stub(),
     end : sinon.stub()
   }, data = {});
   expect(visitor.start.args.pluck(0)).list(
-      cuts([ 1, 13, 12, 123, 122, 121, 11 ]), 'id');
+      node([ 1, 13, 12, 123, 122, 121, 11 ]), 'id');
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 });

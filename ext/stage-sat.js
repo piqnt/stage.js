@@ -1,8 +1,8 @@
 /**
- * CutJS viewer for SAT.js
+ * SAT.js viewer for Stage.js
  */
-Cut.SAT = function(world, options) {
-  Cut.SAT._super.call(this);
+Stage.SAT = function(world, options) {
+  Stage.SAT._super.call(this);
 
   var self = this;
   this.world = world;
@@ -11,9 +11,9 @@ Cut.SAT = function(world, options) {
     lineWidth : 2,
     lineColor : '#000000',
     fillColor : function() {
-      var red = Cut.Math.random(192, 256) | 0;
-      var green = Cut.Math.random(192, 256) | 0;
-      var blue = Cut.Math.random(192, 256) | 0;
+      var red = Stage.Math.random(192, 256) | 0;
+      var green = Stage.Math.random(192, 256) | 0;
+      var blue = Stage.Math.random(192, 256) | 0;
       return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
     },
     ratio : 2,
@@ -22,7 +22,7 @@ Cut.SAT = function(world, options) {
       return typeof value === 'function' ? value() : value;
     },
     extend : function(options) {
-      return Cut._extend({}, this, options);
+      return Stage._extend({}, this, options);
     }
   }.extend(options);
 
@@ -43,7 +43,7 @@ Cut.SAT = function(world, options) {
   });
 
   var dragPoint = {}, dragShape = null;
-  this.attr('spy', true).on(Cut.Mouse.START, function(point) {
+  this.attr('spy', true).on(Stage.Mouse.START, function(point) {
     dragPoint = {
       x : point.x,
       y : point.y
@@ -57,7 +57,7 @@ Cut.SAT = function(world, options) {
       }
     }
 
-  }).on(Cut.Mouse.MOVE, function(point) {
+  }).on(Stage.Mouse.MOVE, function(point) {
     if (dragShape) {
       dragShape.pos.x -= dragPoint.x - point.x;
       dragShape.pos.y -= dragPoint.y - point.y;
@@ -67,16 +67,16 @@ Cut.SAT = function(world, options) {
       y : point.y
     };
 
-  }).on(Cut.Mouse.END, function(point) {
+  }).on(Stage.Mouse.END, function(point) {
     dragShape = null;
   });
 };
 
-Cut.SAT._super = Cut;
-Cut.SAT.prototype = Cut._create(Cut.SAT._super.prototype);
-Cut.SAT.prototype.constructor = Cut.SAT;
+Stage.SAT._super = Stage;
+Stage.SAT.prototype = Stage._create(Stage.SAT._super.prototype);
+Stage.SAT.prototype.constructor = Stage.SAT;
 
-Cut.SAT.prototype.simulate = function(t) {
+Stage.SAT.prototype.simulate = function(t) {
   this.world.simulate();
 
   for (var i = 0; i < this.world.bodies.length; i++) {
@@ -89,9 +89,9 @@ Cut.SAT.prototype.simulate = function(t) {
   }
 };
 
-Cut.SAT.prototype.addRenderable = function(obj) {
+Stage.SAT.prototype.addRenderable = function(obj) {
 
-  obj.ui = Cut.create().appendTo(this);
+  obj.ui = Stage.create().appendTo(this);
 
   var texture = null;
   var shape = obj.shape;
@@ -105,17 +105,17 @@ Cut.SAT.prototype.addRenderable = function(obj) {
     }
   }
 
-  Cut.image(texture).appendTo(obj.ui).pin({
+  Stage.image(texture).appendTo(obj.ui).pin({
     handle : 0.5
   });
 
 };
 
-Cut.SAT.prototype.removeRenderable = function(obj) {
+Stage.SAT.prototype.removeRenderable = function(obj) {
   obj.ui && obj.ui.remove();
 };
 
-Cut.SAT.prototype.drawCircle = function(radius, options) {
+Stage.SAT.prototype.drawCircle = function(radius, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -124,7 +124,7 @@ Cut.SAT.prototype.drawCircle = function(radius, options) {
   var height = radius * 2 + lineWidth * 2;
   var ratio = options.ratio;
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(width, height, ratio);
 
     ctx.scale(ratio, ratio);
@@ -141,7 +141,7 @@ Cut.SAT.prototype.drawCircle = function(radius, options) {
   });
 };
 
-Cut.SAT.prototype.drawConvex = function(verts, options) {
+Stage.SAT.prototype.drawConvex = function(verts, options) {
   options = this.options.extend(options);
   var lineWidth = options.get('lineWidth'), lineColor = options
       .get('lineColor'), fillColor = options.get('fillColor');
@@ -159,7 +159,7 @@ Cut.SAT.prototype.drawConvex = function(verts, options) {
     height = Math.max(Math.abs(y), height);
   }
 
-  return Cut.canvas(function(ctx) {
+  return Stage.canvas(function(ctx) {
     this.size(2 * width + 2 * lineWidth, 2 * height + 2 * lineWidth, ratio);
 
     ctx.scale(ratio, ratio);

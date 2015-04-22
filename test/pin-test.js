@@ -1,7 +1,7 @@
 var expect = require('./util/expect');
 var sinon = require('sinon');
 
-var Cut = require('../lib/node');
+var Stage = require('../lib/node');
 var Pin = require('../lib/pin');
 
 describe('Pin', function() {
@@ -24,7 +24,7 @@ describe('Pin', function() {
   });
 
   it('.pin()', function() {
-    var foo = Cut.create();
+    var foo = Stage.create();
     var pin = foo.pin();
     foo.pin('scale', 2);
     expect(foo.pin('scaleX')).be(2);
@@ -38,7 +38,7 @@ describe('Pin', function() {
   });
 
   it('.scaleTo()', function() {
-    var foo = Cut.create();
+    var foo = Stage.create();
     var pin = foo.pin();
     foo.pin({
       width : 100,

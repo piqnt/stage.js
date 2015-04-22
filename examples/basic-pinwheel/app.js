@@ -1,10 +1,10 @@
-Cut(function(root) {
+Stage(function(stage) {
 
-  root.viewbox(1000, 1000).pin('handle', -0.5);
+  stage.viewbox(1000, 1000).pin('handle', -0.5);
 
   var clicked = false;
-  var logo = Cut.image('pinwheel').appendTo(root).pin('handle', 0.5).on(
-      Cut.Mouse.CLICK, function() {
+  var logo = Stage.image('pinwheel').appendTo(stage).pin('handle', 0.5).on(
+      Stage.Mouse.CLICK, function() {
         clicked = true;
         then();
       });
@@ -24,7 +24,7 @@ Cut(function(root) {
   }
 });
 
-Cut({
+Stage({
   image : 'pinwheel.png',
   textures : {
     pinwheel : {

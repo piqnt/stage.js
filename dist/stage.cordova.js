@@ -1,11 +1,11 @@
 /*
- * CutJS 0.5.0
+ * Stage.js 0.6.0
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
  */
 
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Cut=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Stage=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = require("../lib/");
 
 require("../lib/canvas");
@@ -229,7 +229,7 @@ Mouse.END = "touchend mouseup";
 
 Mouse.CANCEL = "touchcancel";
 
-Mouse.subscribe = function(root, elem) {
+Mouse.subscribe = function(stage, elem) {
     var visitor = null, data = {}, abs = null, rel = null, clicked = [];
     elem = elem || document;
     // click events are synthesized from start/end events on same nodes
@@ -242,7 +242,7 @@ Mouse.subscribe = function(root, elem) {
     elem.addEventListener("mouseup", handleEnd);
     elem.addEventListener("mousemove", handleMove);
     function handleStart(event) {
-        Mouse._xy(root, elem, event, abs);
+        Mouse._xy(stage, elem, event, abs);
         DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
         event.preventDefault();
         publish(event.type, event);
@@ -264,10 +264,10 @@ Mouse.subscribe = function(root, elem) {
         publish(event.type, event);
     }
     function handleMove(event) {
-        Mouse._xy(root, elem, event, abs);
+        Mouse._xy(stage, elem, event, abs);
         // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
         // abs);
-        if (!root._flag(event.type)) {
+        if (!stage._flag(event.type)) {
             return;
         }
         event.preventDefault();
@@ -282,7 +282,7 @@ Mouse.subscribe = function(root, elem) {
     function fireClicks(event) {
         data.event = event;
         data.type = "click";
-        data.root = root;
+        data.stage = stage;
         data.collect = false;
         var cancel = false;
         while (clicked.length) {
@@ -298,9 +298,9 @@ Mouse.subscribe = function(root, elem) {
         rel.y = abs.y;
         data.event = event;
         data.type = type;
-        data.root = /* root._capture || */ root;
+        data.stage = /* stage._capture || */ stage;
         data.collect = collect;
-        data.root.visit(visitor, data);
+        data.stage.visit(visitor, data);
     }
     visitor = {
         reverse: true,
@@ -309,7 +309,7 @@ Mouse.subscribe = function(root, elem) {
             return !node._flag(data.type);
         },
         end: function(node, data) {
-            // data: event, type, root, collect
+            // data: event, type, stage, collect
             rel.raw = data.event;
             rel.type = data.type;
             var listeners = node.listeners(data.type);
@@ -317,7 +317,7 @@ Mouse.subscribe = function(root, elem) {
                 return;
             }
             node.matrix().reverse().map(abs, rel);
-            if (!(node === data.root || node.attr("spy") || Mouse._isInside(node, rel))) {
+            if (!(node === data.stage || node.attr("spy") || Mouse._isInside(node, rel))) {
                 return;
             }
             if (data.collect) {
@@ -351,7 +351,7 @@ Mouse._isInside = function(node, point) {
     return point.x >= 0 && point.x <= node._pin._width && point.y >= 0 && point.y <= node._pin._height;
 };
 
-Mouse._xy = function(root, elem, event, point) {
+Mouse._xy = function(stage, elem, event, point) {
     var isTouch = false;
     // touch screen events
     if (event.touches) {
@@ -387,8 +387,8 @@ Mouse._xy = function(root, elem, event, point) {
         }
         par = par.offsetParent;
     }
-    point.x *= root.viewport().ratio || 1;
-    point.y *= root.viewport().ratio || 1;
+    point.x *= stage.viewport().ratio || 1;
+    point.y *= stage.viewport().ratio || 1;
 };
 
 module.exports = Mouse;
@@ -397,11 +397,11 @@ module.exports = Mouse;
 },{}],4:[function(require,module,exports){
 var Easing = require("./easing");
 
-var Cut = require("../core");
+var Class = require("../core");
 
 var Pin = require("../pin");
 
-Cut.prototype.tween = function(duration, delay) {
+Class.prototype.tween = function(duration, delay) {
     if (!this._tween) {
         this._tween = new Tween(this);
     }
@@ -515,7 +515,7 @@ module.exports = Tween;
 
 
 },{"../core":8,"../pin":16,"./easing":2}],5:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 require("./pin");
 
@@ -525,19 +525,19 @@ var create = require("./util/create");
 
 var math = require("./util/math");
 
-Cut.anim = function(frames, fps) {
+Class.anim = function(frames, fps) {
     var anim = new Anim();
     anim.frames(frames).gotoFrame(0);
     fps && anim.fps(fps);
     return anim;
 };
 
-Anim._super = Cut;
+Anim._super = Class;
 
 Anim.prototype = create(Anim._super.prototype);
 
 // TODO: replace with atlas fps or texture time
-Cut.Anim = {
+Class.Anim = {
     FPS: 15
 };
 
@@ -545,7 +545,7 @@ function Anim() {
     Anim._super.call(this);
     this.label("Anim");
     this._textures = [];
-    this._fps = Cut.Anim.FPS;
+    this._fps = Class.Anim.FPS;
     this._ft = 1e3 / this._fps;
     this._time = -1;
     this._repeat = 0;
@@ -582,7 +582,7 @@ Anim.prototype.fps = function(fps) {
     if (typeof fps === "undefined") {
         return this._fps;
     }
-    this._fps = fps > 0 ? fps : Cut.Anim.FPS;
+    this._fps = fps > 0 ? fps : Class.Anim.FPS;
     this._ft = 1e3 / this._fps;
     return this;
 };
@@ -596,7 +596,7 @@ Anim.prototype.setFrames = function(a, b, c) {
 
 Anim.prototype.frames = function(frames) {
     this._index = 0;
-    this._frames = Cut.texture(frames).array();
+    this._frames = Class.texture(frames).array();
     this.touch();
     return this;
 };
@@ -649,7 +649,7 @@ Anim.prototype.stop = function(frame) {
 
 
 },{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/math":24}],6:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 var Texture = require("./texture");
 
@@ -671,7 +671,7 @@ var _atlases_arr = [];
 // TODO: select atlas itself, call texture function
 // TODO: print subquery not found error
 // TODO: cache and clone or index textures
-Cut.atlas = function(def) {
+Class.atlas = function(def) {
     var atlas = is.fn(def.draw) ? def : new Atlas(def);
     if (def.name) {
         _atlases_map[def.name] = atlas;
@@ -687,9 +687,9 @@ Cut.atlas = function(def) {
         url = def.image.url;
         ratio = def.image.ratio || ratio;
     }
-    url && Cut.preload(function(done) {
+    url && Class.preload(function(done) {
         DEBUG && console.log("Loading image: " + url);
-        var imageloader = Cut.config("image-loader");
+        var imageloader = Class.config("image-loader");
         imageloader(url, function(image) {
             DEBUG && console.log("Image loaded: " + url);
             atlas.src(image, ratio);
@@ -830,7 +830,7 @@ function Selection(result, find, make) {
     };
 }
 
-Cut.texture = function(query) {
+Class.texture = function(query) {
     if (!is.string(query)) {
         return new Selection(query);
     }
@@ -858,11 +858,11 @@ module.exports = Atlas;
 
 
 },{"./core":8,"./texture":20,"./util/create":21,"./util/extend":22,"./util/is":23,"./util/string":28}],7:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 var Texture = require("./texture");
 
-Cut.canvas = function(type, attributes, callback) {
+Class.canvas = function(type, attributes, callback) {
     if (typeof type === "string") {
         if (typeof attributes === "object") {} else {
             if (typeof attributes === "function") {
@@ -917,12 +917,12 @@ var is = require("./util/is");
 
 stats.create = 0;
 
-function Cut(arg) {
-    if (!(this instanceof Cut)) {
+function Class(arg) {
+    if (!(this instanceof Class)) {
         if (is.fn(arg)) {
-            return Cut.app.apply(Cut, arguments);
+            return Class.app.apply(Class, arguments);
         } else if (is.object(arg)) {
-            return Cut.atlas.apply(Cut, arguments);
+            return Class.atlas.apply(Class, arguments);
         } else {
             return arg;
         }
@@ -935,13 +935,13 @@ function Cut(arg) {
 
 var _init = [];
 
-Cut._init = function(fn) {
+Class._init = function(fn) {
     _init.push(fn);
 };
 
 var _config = {};
 
-Cut.config = function() {
+Class.config = function() {
     if (arguments.length === 1 && is.string(arguments[0])) {
         return _config[arguments[0]];
     }
@@ -957,29 +957,29 @@ var _app_queue = [];
 
 var _preload_queue = [];
 
-var _app_roots = [];
+var _stages = [];
 
 var _started = false;
 
 var _paused = false;
 
-Cut.app = function(app, opts) {
+Class.app = function(app, opts) {
     if (!_started) {
         _app_queue.push(arguments);
         return;
     }
     DEBUG && console.log("Creating app...");
-    var loader = Cut.config("app-loader");
-    loader(function(root, canvas) {
+    var loader = Class.config("app-loader");
+    loader(function(stage, canvas) {
         DEBUG && console.log("Initing app...");
-        app(root, canvas);
-        _app_roots.push(root);
+        app(stage, canvas);
+        _stages.push(stage);
         DEBUG && console.log("Starting app...");
-        root.start();
+        stage.start();
     }, opts);
 };
 
-Cut.preload = function(load) {
+Class.preload = function(load) {
     if (!_started) {
         _preload_queue.push(load);
         return;
@@ -987,9 +987,9 @@ Cut.preload = function(load) {
     load(function(err) {});
 };
 
-Cut.start = function(config) {
+Class.start = function(config) {
     DEBUG && console.log("Starting...");
-    Cut.config(config);
+    Class.config(config);
     DEBUG && console.log("Preloading...");
     var loading = 0;
     if (!_preload_queue.length) {
@@ -1007,45 +1007,45 @@ Cut.start = function(config) {
             _started = true;
             while (_app_queue.length) {
                 var args = _app_queue.shift();
-                Cut.app.apply(Cut, args);
+                Class.app.apply(Class, args);
             }
         }
     }
 };
 
-Cut.pause = function() {
+Class.pause = function() {
     if (!_paused) {
         _paused = true;
-        for (var i = _app_roots.length - 1; i >= 0; i--) {
-            _app_roots[i].pause();
+        for (var i = _stages.length - 1; i >= 0; i--) {
+            _stages[i].pause();
         }
     }
 };
 
-Cut.resume = function() {
+Class.resume = function() {
     if (_paused) {
         _paused = false;
-        for (var i = _app_roots.length - 1; i >= 0; i--) {
-            _app_roots[i].resume();
+        for (var i = _stages.length - 1; i >= 0; i--) {
+            _stages[i].resume();
         }
     }
 };
 
-Cut.create = function() {
-    return new Cut();
+Class.create = function() {
+    return new Class();
 };
 
-module.exports = Cut;
+module.exports = Class;
 
 
 },{"./util/extend":22,"./util/is":23,"./util/once":25,"./util/stats":27}],9:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 var is = require("./util/is");
 
-Cut.prototype._listeners = null;
+Class.prototype._listeners = null;
 
-Cut.prototype.on = Cut.prototype.listen = function(types, listener) {
+Class.prototype.on = Class.prototype.listen = function(types, listener) {
     if (types = _check(this, types, listener, true)) {
         for (var i = 0; i < types.length; i++) {
             var type = types[i];
@@ -1057,7 +1057,7 @@ Cut.prototype.on = Cut.prototype.listen = function(types, listener) {
     return this;
 };
 
-Cut.prototype.off = function(types, listener) {
+Class.prototype.off = function(types, listener) {
     if (types = _check(this, types, listener, false)) {
         for (var i = 0; i < types.length; i++) {
             var type = types[i], all = this._listeners[type], index;
@@ -1090,11 +1090,11 @@ function _check(node, types, listener, create) {
     return types;
 }
 
-Cut.prototype.listeners = function(type) {
+Class.prototype.listeners = function(type) {
     return this._listeners && this._listeners[type];
 };
 
-Cut.prototype.publish = function(name, args) {
+Class.prototype.publish = function(name, args) {
     var listeners = this.listeners(name);
     if (!listeners || !listeners.length) {
         return 0;
@@ -1105,14 +1105,14 @@ Cut.prototype.publish = function(name, args) {
     return listeners.length;
 };
 
-Cut.prototype.trigger = function(name, args) {
+Class.prototype.trigger = function(name, args) {
     this.publish(name, args);
     return this;
 };
 
 
 },{"./core":8,"./util/is":23}],10:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 require("./pin");
 
@@ -1122,13 +1122,13 @@ var repeat = require("./util/repeat");
 
 var create = require("./util/create");
 
-Cut.image = function(image) {
+Class.image = function(image) {
     var img = new Image();
     image && img.image(image);
     return img;
 };
 
-Image._super = Cut;
+Image._super = Class;
 
 Image.prototype = create(Image._super.prototype);
 
@@ -1147,7 +1147,7 @@ Image.prototype.setImage = function(a, b, c) {
 };
 
 Image.prototype.image = function(image) {
-    this._image = Cut.texture(image).one();
+    this._image = Class.texture(image).one();
     this.pin("width", this._image ? this._image.width : 0);
     this.pin("height", this._image ? this._image.height : 0);
     this._textures[0] = this._image.pipe();
@@ -1206,7 +1206,7 @@ require("./root");
 
 
 },{"./atlas":6,"./core":8,"./event":9,"./matrix":14,"./node":15,"./pin":16,"./render":17,"./root":18,"./texture":20}],12:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 require("./pin");
 
@@ -1214,29 +1214,29 @@ require("./render");
 
 var create = require("./util/create");
 
-Cut.row = function(align) {
-    return Cut.create().row(align);
+Class.row = function(align) {
+    return Class.create().row(align);
 };
 
-Cut.prototype.row = function(align) {
+Class.prototype.row = function(align) {
     this.sequence("row", align);
     return this;
 };
 
-Cut.column = function(align) {
-    return Cut.create().column(align);
+Class.column = function(align) {
+    return Class.create().column(align);
 };
 
-Cut.prototype.column = function(align) {
+Class.prototype.column = function(align) {
     this.sequence("column", align);
     return this;
 };
 
-Cut.sequence = function(type, align) {
-    return Cut.create().sequence(type, align);
+Class.sequence = function(type, align) {
+    return Class.create().sequence(type, align);
 };
 
-Cut.prototype.sequence = function(type, align) {
+Class.prototype.sequence = function(type, align) {
     this._padding = this._padding || 0;
     this._spacing = this._spacing || 0;
     this.untick(this._sequenceTicker);
@@ -1278,11 +1278,11 @@ Cut.prototype.sequence = function(type, align) {
     return this;
 };
 
-Cut.box = function() {
-    return Cut.create().box();
+Class.box = function() {
+    return Class.create().box();
 };
 
-Cut.prototype.box = function() {
+Class.prototype.box = function() {
     if (this._boxTicker) return this;
     this._padding = this._padding || 0;
     this.tick(this._boxTicker = function() {
@@ -1309,12 +1309,12 @@ Cut.prototype.box = function() {
 };
 
 // TODO: move padding to pin
-Cut.prototype.padding = function(pad) {
+Class.prototype.padding = function(pad) {
     this._padding = pad;
     return this;
 };
 
-Cut.prototype.spacing = function(space) {
+Class.prototype.spacing = function(space) {
     this._spacing = space;
     return this;
 };
@@ -1326,7 +1326,7 @@ Cut.prototype.spacing = function(space) {
  */
 if (typeof DEBUG === "undefined") DEBUG = true;
 
-var Cut = require("../core");
+var Class = require("../core");
 
 // TODO: don't hard-code this
 var Mouse = require("../addon/mouse");
@@ -1339,21 +1339,21 @@ window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
     // var readyTimeout = setTimeout(function() {
     // DEBUG && console.log('On deviceready timeout.');
-    // Cut.start();
+    // Class.start();
     // }, 2000);
     document.addEventListener("deviceready", function() {
         DEBUG && console.log("On deviceready.");
         // clearTimeout(readyTimeout);
-        Cut.start({
+        Class.start({
             "app-loader": AppLoader,
             "image-loader": ImageLoader
         });
     }, false);
     document.addEventListener("pause", function() {
-        Cut.pause();
+        Class.pause();
     }, false);
     document.addEventListener("resume", function() {
-        Cut.resume();
+        Class.resume();
     }, false);
 }, false);
 
@@ -1365,7 +1365,7 @@ function AppLoader(app, configs) {
         canvas = document.getElementById(canvas);
     }
     if (!canvas) {
-        canvas = document.getElementById("cutjs");
+        canvas = document.getElementById("cutjs") || document.getElementById("stage");
     }
     if (!canvas) {
         full = true;
@@ -1387,8 +1387,8 @@ function AppLoader(app, configs) {
     var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
         return window.setTimeout(callback, 1e3 / 60);
     };
-    DEBUG && console.log("Creating root...");
-    var root = Cut.root(requestAnimationFrame, render);
+    DEBUG && console.log("Creating stage...");
+    var root = Class.root(requestAnimationFrame, render);
     function render() {
         if (context.isFast) {
             context.clear();
@@ -1618,43 +1618,43 @@ module.exports = Matrix;
 
 
 },{}],15:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 var is = require("./util/is");
 
 var iid = 0;
 
 // TODO: do not clear next/prev/parent on remove
-Cut.prototype._label = "";
+Class.prototype._label = "";
 
-Cut.prototype._visible = true;
+Class.prototype._visible = true;
 
-Cut.prototype._parent = null;
+Class.prototype._parent = null;
 
-Cut.prototype._next = null;
+Class.prototype._next = null;
 
-Cut.prototype._prev = null;
+Class.prototype._prev = null;
 
-Cut.prototype._first = null;
+Class.prototype._first = null;
 
-Cut.prototype._last = null;
+Class.prototype._last = null;
 
-Cut.prototype._attrs = null;
+Class.prototype._attrs = null;
 
-Cut.prototype._flags = null;
+Class.prototype._flags = null;
 
-Cut.prototype.toString = function() {
+Class.prototype.toString = function() {
     return "[" + this._label + "]";
 };
 
 /**
  * @deprecated Use label()
  */
-Cut.prototype.id = function(id) {
+Class.prototype.id = function(id) {
     return this.label(id);
 };
 
-Cut.prototype.label = function(label) {
+Class.prototype.label = function(label) {
     if (typeof label === "undefined") {
         return this._label;
     }
@@ -1662,7 +1662,7 @@ Cut.prototype.label = function(label) {
     return this;
 };
 
-Cut.prototype.attr = function(name, value) {
+Class.prototype.attr = function(name, value) {
     if (typeof value === "undefined") {
         return this._attrs !== null ? this._attrs[name] : undefined;
     }
@@ -1670,7 +1670,7 @@ Cut.prototype.attr = function(name, value) {
     return this;
 };
 
-Cut.prototype.visible = function(visible) {
+Class.prototype.visible = function(visible) {
     if (typeof visible === "undefined") {
         return this._visible;
     }
@@ -1681,19 +1681,19 @@ Cut.prototype.visible = function(visible) {
     return this;
 };
 
-Cut.prototype.hide = function() {
+Class.prototype.hide = function() {
     return this.visible(false);
 };
 
-Cut.prototype.show = function() {
+Class.prototype.show = function() {
     return this.visible(true);
 };
 
-Cut.prototype.parent = function() {
+Class.prototype.parent = function() {
     return this._parent;
 };
 
-Cut.prototype.next = function(visible) {
+Class.prototype.next = function(visible) {
     var next = this._next;
     while (next && visible && !next._visible) {
         next = next._next;
@@ -1701,7 +1701,7 @@ Cut.prototype.next = function(visible) {
     return next;
 };
 
-Cut.prototype.prev = function(visible) {
+Class.prototype.prev = function(visible) {
     var prev = this._prev;
     while (prev && visible && !prev._visible) {
         prev = prev._prev;
@@ -1709,7 +1709,7 @@ Cut.prototype.prev = function(visible) {
     return prev;
 };
 
-Cut.prototype.first = function(visible) {
+Class.prototype.first = function(visible) {
     var next = this._first;
     while (next && visible && !next._visible) {
         next = next._next;
@@ -1717,7 +1717,7 @@ Cut.prototype.first = function(visible) {
     return next;
 };
 
-Cut.prototype.last = function(visible) {
+Class.prototype.last = function(visible) {
     var prev = this._last;
     while (prev && visible && !prev._visible) {
         prev = prev._prev;
@@ -1725,7 +1725,7 @@ Cut.prototype.last = function(visible) {
     return prev;
 };
 
-Cut.prototype.visit = function(visitor, data) {
+Class.prototype.visit = function(visitor, data) {
     var reverse = visitor.reverse;
     var visible = visitor.visible;
     if (visitor.start && visitor.start(this, data)) {
@@ -1741,46 +1741,46 @@ Cut.prototype.visit = function(visitor, data) {
     return visitor.end && visitor.end(this, data);
 };
 
-Cut.prototype.append = function(child, more) {
+Class.prototype.append = function(child, more) {
     if (is.array(child)) for (var i = 0; i < child.length; i++) append(this, child[i]); else if (typeof more !== "undefined") // deprecated
     for (var i = 0; i < arguments.length; i++) append(this, arguments[i]); else if (typeof child !== "undefined") append(this, child);
     return this;
 };
 
-Cut.prototype.prepend = function(child, more) {
+Class.prototype.prepend = function(child, more) {
     if (is.array(child)) for (var i = child.length - 1; i >= 0; i--) prepend(this, child[i]); else if (typeof more !== "undefined") // deprecated
     for (var i = arguments.length - 1; i >= 0; i--) prepend(this, arguments[i]); else if (typeof child !== "undefined") prepend(this, child);
     return this;
 };
 
-Cut.prototype.appendTo = function(parent) {
+Class.prototype.appendTo = function(parent) {
     append(parent, this);
     return this;
 };
 
-Cut.prototype.prependTo = function(parent) {
+Class.prototype.prependTo = function(parent) {
     prepend(parent, this);
     return this;
 };
 
-Cut.prototype.insertNext = function(sibling, more) {
+Class.prototype.insertNext = function(sibling, more) {
     if (is.array(sibling)) for (var i = 0; i < sibling.length; i++) insertAfter(sibling[i], this); else if (typeof more !== "undefined") // deprecated
     for (var i = 0; i < arguments.length; i++) insertAfter(arguments[i], this); else if (typeof sibling !== "undefined") insertAfter(sibling, this);
     return this;
 };
 
-Cut.prototype.insertPrev = function(sibling, more) {
+Class.prototype.insertPrev = function(sibling, more) {
     if (is.array(sibling)) for (var i = sibling.length - 1; i >= 0; i--) insertBefore(sibling[i], this); else if (typeof more !== "undefined") // deprecated
     for (var i = arguments.length - 1; i >= 0; i--) insertBefore(arguments[i], this); else if (typeof sibling !== "undefined") insertBefore(sibling, this);
     return this;
 };
 
-Cut.prototype.insertAfter = function(prev) {
+Class.prototype.insertAfter = function(prev) {
     insertAfter(this, prev);
     return this;
 };
 
-Cut.prototype.insertBefore = function(next) {
+Class.prototype.insertBefore = function(next) {
     insertBefore(this, next);
     return this;
 };
@@ -1855,7 +1855,7 @@ function insertAfter(self, prev) {
     self.touch();
 }
 
-Cut.prototype.remove = function(child, more) {
+Class.prototype.remove = function(child, more) {
     if (typeof child !== "undefined") {
         if (is.array(child)) {
             for (var i = 0; i < child.length; i++) _ensure(child[i]).remove();
@@ -1889,7 +1889,7 @@ Cut.prototype.remove = function(child, more) {
     return this;
 };
 
-Cut.prototype.empty = function() {
+Class.prototype.empty = function() {
     var child, next = this._first;
     while (child = next) {
         next = child._next;
@@ -1902,7 +1902,7 @@ Cut.prototype.empty = function() {
     return this;
 };
 
-Cut.prototype.touch = function() {
+Class.prototype.touch = function() {
     this._ts_touch = ++iid;
     this._parent && this._parent.touch();
     return this;
@@ -1911,7 +1911,7 @@ Cut.prototype.touch = function() {
 /**
  * Deep flags used for optimizing event distribution.
  */
-Cut.prototype._flag = function(obj, name) {
+Class.prototype._flag = function(obj, name) {
     if (typeof name === "undefined") {
         return this._flags !== null && this._flags[obj] || 0;
     }
@@ -1942,31 +1942,31 @@ Cut.prototype._flag = function(obj, name) {
 };
 
 function _ensure(obj) {
-    if (obj && obj instanceof Cut) {
+    if (obj && obj instanceof Class) {
         return obj;
     }
     throw "Invalid node: " + obj;
 }
 
-module.exports = Cut;
+module.exports = Class;
 
 
 },{"./core":8,"./util/is":23}],16:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 var Matrix = require("./matrix");
 
 var iid = 0;
 
-Cut._init(function() {
+Class._init(function() {
     this._pin = new Pin(this);
 });
 
-Cut.prototype.matrix = function() {
+Class.prototype.matrix = function() {
     return this._pin.absoluteMatrix();
 };
 
-Cut.prototype.pin = function(a, b) {
+Class.prototype.pin = function(a, b) {
     if (typeof a === "object") {
         this._pin.set(a);
         return this;
@@ -1987,7 +1987,7 @@ function Pin(owner) {
     this._parent = null;
     // relative to parent
     this._relativeMatrix = new Matrix();
-    // relative to root
+    // relative to stage
     this._absoluteMatrix = new Matrix();
     this.reset();
 }
@@ -2411,7 +2411,7 @@ module.exports = Pin;
 
 
 },{"./core":8,"./matrix":14}],17:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 require("./pin");
 
@@ -2419,15 +2419,15 @@ var stats = require("./util/stats");
 
 var create = require("./util/create");
 
-Cut.prototype._textures = null;
+Class.prototype._textures = null;
 
-Cut.prototype._tickBefore = null;
+Class.prototype._tickBefore = null;
 
-Cut.prototype._tickAfter = null;
+Class.prototype._tickAfter = null;
 
-Cut.prototype._alpha = 1;
+Class.prototype._alpha = 1;
 
-Cut.prototype.render = function(context) {
+Class.prototype.render = function(context) {
     if (!this._visible) {
         return;
     }
@@ -2455,9 +2455,9 @@ Cut.prototype.render = function(context) {
     }
 };
 
-Cut.prototype.MAX_ELAPSE = Infinity;
+Class.prototype.MAX_ELAPSE = Infinity;
 
-Cut.prototype._tick = function(elapsed, now, last) {
+Class.prototype._tick = function(elapsed, now, last) {
     if (!this._visible) {
         return;
     }
@@ -2487,7 +2487,7 @@ Cut.prototype._tick = function(elapsed, now, last) {
     return ticked;
 };
 
-Cut.prototype.tick = function(ticker, before) {
+Class.prototype.tick = function(ticker, before) {
     if (typeof ticker !== "function") {
         return;
     }
@@ -2505,7 +2505,7 @@ Cut.prototype.tick = function(ticker, before) {
     this._flag("_tick", this._tickAfter !== null && this._tickAfter.length > 0 || this._tickBefore !== null && this._tickBefore.length > 0);
 };
 
-Cut.prototype.untick = function(ticker) {
+Class.prototype.untick = function(ticker) {
     if (typeof ticker !== "function") {
         return;
     }
@@ -2520,7 +2520,7 @@ Cut.prototype.untick = function(ticker) {
 
 
 },{"./core":8,"./pin":16,"./util/create":21,"./util/stats":27}],18:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 require("./pin");
 
@@ -2532,11 +2532,11 @@ var create = require("./util/create");
 
 var extend = require("./util/extend");
 
-Root._super = Cut;
+Root._super = Class;
 
 Root.prototype = create(Root._super.prototype);
 
-Cut.root = function(request, render) {
+Class.root = function(request, render) {
     return new Root(request, render);
 };
 
@@ -2650,7 +2650,7 @@ Root.prototype._updateViewbox = function() {
 
 
 },{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/extend":22,"./util/stats":27}],19:[function(require,module,exports){
-var Cut = require("./core");
+var Class = require("./core");
 
 require("./pin");
 
@@ -2660,11 +2660,11 @@ var create = require("./util/create");
 
 var is = require("./util/is");
 
-Cut.string = function(frames) {
+Class.string = function(frames) {
     return new Str().frames(frames);
 };
 
-Str._super = Cut;
+Str._super = Class;
 
 Str.prototype = create(Str._super.prototype);
 
@@ -2684,7 +2684,7 @@ Str.prototype.setFont = function(a, b, c) {
 Str.prototype.frames = function(frames) {
     this._textures = [];
     if (typeof frames == "string") {
-        frames = Cut.texture(frames);
+        frames = Class.texture(frames);
         this._item = function(value) {
             return frames.one(value);
         };
