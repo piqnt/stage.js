@@ -882,7 +882,7 @@ function Game() {
 }
 
 // UI
-Stage(function(stage, elem) {
+Stage(function(stage, display) {
   TOP = typeof TOP === 'number' ? TOP : 0;
   var Mouse = Stage.Mouse;
 
@@ -1098,13 +1098,13 @@ Stage(function(stage, elem) {
     });
 
     play.on('open', function() {
-      elem.style && (elem.style.cursor = 'none');
+      display.style && (display.style.cursor = 'none');
       game.start();
       this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
     });
 
     play.on('close', function() {
-      elem.style && (elem.style.cursor = '');
+      display.style && (display.style.cursor = '');
       game.end();
       this.tween(200).pin('alpha', 0).then(function() {
         this.hide();
