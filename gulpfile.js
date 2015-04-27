@@ -30,7 +30,7 @@ gulp.task('cordova', dist('cordova'));
 gulp.task('dev', [ 'web-nomin', 'watch-dev' ]);
 
 gulp.task('watch-dev', function() {
-  gulp.watch('{lib/*.js,platform/*.js}', [ 'web-nomin' ]);
+  gulp.watch('{lib/**/*.js,platform/**/*.js}', [ 'web-nomin' ]);
 });
 
 gulp.task('build-nomin', [ 'web-nomin', 'cordova-nomin' ]);
