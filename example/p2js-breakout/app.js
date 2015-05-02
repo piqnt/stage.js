@@ -1,7 +1,6 @@
-function Physics(ui, width, height) {
-  var p2s = 16;
+var P2DEBUG = false;
 
-  width *= p2s, height *= p2s;
+function Physics(ui, width, height) {
 
   var world = this.world = new p2.World({
     // broadphase : new p2.SAPBroadphase(),
@@ -18,35 +17,31 @@ function Physics(ui, width, height) {
     restitution : 1.0,
   }));
 
-  var vwallShape = new p2.Line(25 * p2s, 1 * p2s);
+  var vwallShape = new p2.Line(25, 1);
   vwallShape.material = wallMater;
 
-  var hwallShape = new p2.Line(18 * p2s, 1 * p2s);
+  var hwallShape = new p2.Line(18, 1);
   hwallShape.material = wallMater;
 
-  var ballShape = new p2.Circle(0.5 * p2s);
+  var ballShape = new p2.Circle(0.5);
   ballShape.material = ballMater;
 
-  var normalBrickShape = new p2.Rectangle(1.9 * p2s, 1.9 * p2s);
+  var normalBrickShape = new p2.Rectangle(1.9, 1.9);
   normalBrickShape.material = brickMater;
 
-  var smallBrickShape = new p2.Rectangle(0.9 * p2s, 0.9 * p2s);
+  var smallBrickShape = new p2.Rectangle(0.9, 0.9);
   smallBrickShape.material = brickMater;
 
-  var dropShape = new p2.Circle(0.3 * p2s);
+  var dropShape = new p2.Circle(0.3);
 
-  var fullPaddleShape = new p2.Convex([ [ 1.8 * p2s, -0.1 * p2s ],
-      [ 1.8 * p2s, 0.1 * p2s ], [ 1.2 * p2s, 0.4 * p2s ],
-      [ 0.4 * p2s, 0.6 * p2s ], [ -0.4 * p2s, 0.6 * p2s ],
-      [ -1.2 * p2s, 0.4 * p2s ], [ -1.8 * p2s, 0.1 * p2s ],
-      [ -1.8 * p2s, -0.1 * p2s ] ]);
+  var fullPaddleShape = new p2.Convex([ [ 1.8, -0.1 ], [ 1.8, 0.1 ],
+      [ 1.2, 0.4 ], [ 0.4, 0.6 ], [ -0.4, 0.6 ], [ -1.2, 0.4 ], [ -1.8, 0.1 ],
+      [ -1.8, -0.1 ] ]);
   fullPaddleShape.material = paddleMater;
 
-  var miniPaddleShape = new p2.Convex([ [ 1.2 * p2s, -0.1 * p2s ],
-      [ 1.2 * p2s, 0.1 * p2s ], [ 0.9 * p2s, 0.4 * p2s ],
-      [ 0.2 * p2s, 0.6 * p2s ], [ -0.2 * p2s, 0.6 * p2s ],
-      [ -0.9 * p2s, 0.4 * p2s ], [ -1.2 * p2s, 0.1 * p2s ],
-      [ -1.2 * p2s, -0.1 * p2s ] ]);
+  var miniPaddleShape = new p2.Convex([ [ 1.2, -0.1 ], [ 1.2, 0.1 ],
+      [ 0.9, 0.4 ], [ 0.2, 0.6 ], [ -0.2, 0.6 ], [ -0.9, 0.4 ], [ -1.2, 0.1 ],
+      [ -1.2, -0.1 ] ]);
   miniPaddleShape.material = paddleMater;
 
   var BALL = 1, WALL = 2, BRICK = 4, DROP = 8;
@@ -70,7 +65,7 @@ function Physics(ui, width, height) {
   dropShape.collisionMask = WALL;
 
   var leftWall = new p2.Body({
-    position : [ +9 * p2s, -0.5 * p2s ],
+    position : [ +9, -0.5 ],
     angle : Math.PI / 2,
     mass : 0,
   });
@@ -79,7 +74,7 @@ function Physics(ui, width, height) {
   world.addBody(leftWall);
 
   var rightWall = new p2.Body({
-    position : [ -9 * p2s, -0.5 * p2s ],
+    position : [ -9, -0.5 ],
     angle : Math.PI / 2,
     mass : 0
   });
@@ -88,7 +83,7 @@ function Physics(ui, width, height) {
   world.addBody(rightWall);
 
   var topWall = new p2.Body({
-    position : [ 0, +12 * p2s ],
+    position : [ 0, +12 ],
     mass : 0
   });
   topWall.addShape(hwallShape);
@@ -96,7 +91,7 @@ function Physics(ui, width, height) {
   world.addBody(topWall);
 
   var bottomWall = new p2.Body({
-    position : [ 0, -13 * p2s ],
+    position : [ 0, -13 ],
     mass : 0
   });
   bottomWall.addShape(hwallShape);
@@ -105,20 +100,20 @@ function Physics(ui, width, height) {
   world.addBody(bottomWall);
 
   var fullPaddle = new p2.Body({
-    position : [ 0, -10.5 * p2s ],
+    position : [ 0, -10.5 ],
     mass : 0
   });
-  fullPaddle.paddleWidth = 3 * p2s;
+  fullPaddle.paddleWidth = 3;
   fullPaddle.addShape(fullPaddleShape);
   fullPaddle.isPaddle = true;
   fullPaddle.motionState = p2.Body.STATIC;
   ui.fullPaddle(fullPaddle);
 
   var miniPaddle = new p2.Body({
-    position : [ 0, -10.5 * p2s ],
+    position : [ 0, -10.5 ],
     mass : 0
   });
-  miniPaddle.paddleWidth = 2 * p2s;
+  miniPaddle.paddleWidth = 2;
   miniPaddle.addShape(miniPaddleShape);
   miniPaddle.isPaddle = true;
   miniPaddle.motionState = p2.Body.STATIC;
@@ -194,7 +189,7 @@ function Physics(ui, width, height) {
     }
 
     if (ball) {
-      var speed = ui.ballSpeed() * p2s;
+      var speed = ui.ballSpeed();
       var velocity = ball.velocity;
 
       if (velocity[1] >= 0) {
@@ -248,13 +243,13 @@ function Physics(ui, width, height) {
       }
     }
     setPaddle(fullPaddle);
-    makeBall([ 0, -5 * p2s ]);
+    makeBall([ 0, -5 ]);
   };
 
   this.startGame = function() {
     var ball = findBall();
     var a = Math.PI * Math.random() * 0.4 - 0.2;
-    var speed = ui.ballSpeed() * p2s;
+    var speed = ui.ballSpeed();
     ball.velocity = [ speed * Math.sin(a), speed * Math.cos(a) ];
   };
 
@@ -272,25 +267,21 @@ function Physics(ui, width, height) {
     for (var i = 0; i < world.bodies.length; i++) {
       var body = world.bodies[i];
       if (body.isBrick) {
-        body.position[1] -= 2 * p2s;
-        over = over || body.position[1] < -10 * p2s;
+        body.position[1] -= 2;
+        over = over || body.position[1] < -10;
       }
     }
 
     for (var i = 0; i < row.length; i++) {
-      var cell = row[i], x = (i - 3) * 2 * p2s, y = 9 * p2s;
+      var cell = row[i], x = (i - 3) * 2, y = 9;
 
       if (cell.type == 'none') {
 
       } else if (cell.type == 'small') {
-        makeBrick(cell.color + 's', smallBrickShape, [ x + 0.5 * p2s,
-            y + 0.5 * p2s ]);
-        makeBrick(cell.color + 's', smallBrickShape, [ x - 0.5 * p2s,
-            y + 0.5 * p2s ]);
-        makeBrick(cell.color + 's', smallBrickShape, [ x + 0.5 * p2s,
-            y - 0.5 * p2s ]);
-        makeBrick(cell.color + 's', smallBrickShape, [ x - 0.5 * p2s,
-            y - 0.5 * p2s ]);
+        makeBrick(cell.color + 's', smallBrickShape, [ x + 0.5, y + 0.5 ]);
+        makeBrick(cell.color + 's', smallBrickShape, [ x - 0.5, y + 0.5 ]);
+        makeBrick(cell.color + 's', smallBrickShape, [ x + 0.5, y - 0.5 ]);
+        makeBrick(cell.color + 's', smallBrickShape, [ x - 0.5, y - 0.5 ]);
 
       } else if (cell.type == 'normal') {
         makeBrick(cell.color, normalBrickShape, [ x, y ]);
@@ -306,7 +297,7 @@ function Physics(ui, width, height) {
     var body = makeDrop(name);
     body.position[0] = brick.position[0];
     body.position[1] = brick.position[1];
-    body.velocity[1] = ui.dropSpeed() * p2s;
+    body.velocity[1] = ui.dropSpeed();
   };
 
   this.addBall = function() {
@@ -350,8 +341,8 @@ function Physics(ui, width, height) {
 
     if (paddleTo !== paddle.position[0]) {
       var padx = paddle.position[0];
-      var wallLimit = 9 * p2s - paddle.paddleWidth / 2;
-      var speedLimit = ui.paddleSpeed() * p2s * t / 1000;
+      var wallLimit = 9 - paddle.paddleWidth / 2;
+      var speedLimit = ui.paddleSpeed() * t / 1000;
       if (paddleTo > padx) {
         paddle.position[0] = Math.min(paddleTo, padx + speedLimit, wallLimit);
       } else if (paddleTo < padx) {
@@ -382,16 +373,27 @@ Stage(function(stage) {
   stage.viewbox(width * 16, height * 1.12 * 16).pin('offsetY',
       -height * 0.04 * 16).pin('align', -0.5);
 
+  var pscale = 16;
+
   var physics = new Physics({
     newBall : function(body) {
-      body.ui = Stage.image('ball', 10).pin('handle', 0.5);
+      body.ui = Stage.image('ball', 10).pin({
+        'handle' : 0.5,
+        'scale' : 1 / pscale
+      });
     },
     newDrop : function(body, name) {
-      body.ui = Stage.image(name).pin('handle', 0.5);
+      body.ui = Stage.image(name).pin({
+        'handle' : 0.5,
+        'scale' : 1 / pscale
+      });
       body.ui.dropName = name;
     },
     newBrick : function(body, name) {
-      body.ui = Stage.image('b' + name).pin('handle', 0.5);
+      body.ui = Stage.image('b' + name).pin({
+        'handle' : 0.5,
+        'scale' : 1 / pscale
+      });
       body.ui.drop = function() {
         this.tween(70).pin('alpha', 0).then(function() {
           this.remove();
@@ -426,10 +428,16 @@ Stage(function(stage) {
       }
     },
     miniPaddle : function(body) {
-      body.ui = Stage.image('paddleMini').pin('handle', 0.5);
+      body.ui = Stage.image('paddleMini').pin({
+        'handle' : 0.5,
+        'scale' : 1 / pscale
+      });
     },
     fullPaddle : function(body) {
-      body.ui = Stage.image('paddleFull').pin('handle', 0.5);
+      body.ui = Stage.image('paddleFull').pin({
+        'handle' : 0.5,
+        'scale' : 1 / pscale
+      });
     },
     gameOver : function() {
       gameOver();
@@ -449,11 +457,14 @@ Stage(function(stage) {
       'spy', true);
 
   var p2view = new Stage.P2(physics.world, {
-    lineWidth : 1,
+    lineWidth : 1 / pscale,
     lineColor : '#888',
-    ratio : 4,
-    debug : false
-  }).attr('spy', true).pin('align', 0.5).appendTo(board);
+    ratio : 4 * pscale,
+    debug : P2DEBUG
+  }).attr('spy', true).pin({
+    'align' : 0.5,
+    'scale' : pscale
+  }).appendTo(board);
 
   p2view.on([ Mouse.START, Mouse.MOVE ], function(point) {
     physics.movePaddle(point.x);
