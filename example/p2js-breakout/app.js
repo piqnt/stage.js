@@ -1,67 +1,9 @@
-// p2 scale, point per unit
-var p2s = 0.5, ppu = 16 / p2s;
+function Physics(ui, width, height) {
+  var p2s = 16;
 
-Stage(function(stage) {
+  width *= p2s, height *= p2s;
 
-  var M = Stage.Math;
-  var maxKey = 'breakout-v1';
-  var width = 20 * p2s, height = 26 * p2s;
-  var ui = {}, shape = {}, mat = {};
-  var score = 0, combo = 1, max = 0, playing = false;
-
-  stage.viewbox(width * ppu, height * 1.12 * ppu).pin('offsetY',
-      -height * 0.04 * ppu).pin('align', -0.5);
-
-  stage.MAX_ELAPSE = 100;
-
-  var paddleSpeed = 20 * p2s, dropSpeed = -6 * p2s;
-
-  function ballSpeed() {
-    return (13 + score * 0.05) * p2s;
-  }
-
-  function nextRow() {
-    return 8000 - 20 * score;
-  }
-
-  function randomColor() {
-    return [ 'b', 'r', 'y', 'g', 'p' ][Math.random() * 5 | 0];
-  }
-
-  function randomBrick() {
-    if (Math.random() < 0.1) {
-      return;
-    }
-    var color = randomColor();
-    var one = score + 1, four = Math.max(0, score * 1.1 - 60);
-    if (Math.random() < one / (four + one)) {
-      return function(x, y) {
-        world.addBody(newBrick(color, shape.brick, [ x, y ]));
-      };
-    } else {
-      return function(x, y) {
-        world.addBody(newBrick(color + 's', shape.smallbrick, [ x + 0.5 * p2s,
-            y + 0.5 * p2s ]));
-        world.addBody(newBrick(color + 's', shape.smallbrick, [ x - 0.5 * p2s,
-            y + 0.5 * p2s ]));
-        world.addBody(newBrick(color + 's', shape.smallbrick, [ x + 0.5 * p2s,
-            y - 0.5 * p2s ]));
-        world.addBody(newBrick(color + 's', shape.smallbrick, [ x - 0.5 * p2s,
-            y - 0.5 * p2s ]));
-      };
-    }
-  }
-
-  function randomDrop() {
-    var random = Math.random();
-    if (random < 0.06) {
-      return '+';
-    } else if (random < 0.1) {
-      return '-';
-    }
-  }
-
-  var world = new p2.World({
+  var world = this.world = new p2.World({
     // broadphase : new p2.SAPBroadphase(),
     gravity : [ 0, 0 ],
     defaultFriction : 0
@@ -69,65 +11,70 @@ Stage(function(stage) {
 
   world.solver.stiffness = Number.MAX_VALUE;
 
-  mat.ball = new p2.Material();
-  mat.wall = mat.brick = mat.paddle = new p2.Material();
+  var ballMater = new p2.Material();
+  var wallMater = brickMater = paddleMater = new p2.Material();
 
-  world.addContactMaterial(new p2.ContactMaterial(mat.ball, mat.wall, {
+  world.addContactMaterial(new p2.ContactMaterial(ballMater, wallMater, {
     restitution : 1.0,
   }));
 
-  shape.vwall = new p2.Line(25 * p2s, 1 * p2s);
-  shape.vwall.material = mat.wall;
-  shape.hwall = new p2.Line(18 * p2s, 1 * p2s);
-  shape.hwall.material = mat.wall;
-  shape.ball = new p2.Circle(0.5 * p2s);
-  shape.ball.material = mat.ball;
-  shape.brick = new p2.Rectangle(1.9 * p2s, 1.9 * p2s);
-  shape.brick.material = mat.brick;
-  shape.smallbrick = new p2.Rectangle(0.9 * p2s, 0.9 * p2s);
-  shape.smallbrick.material = mat.brick;
-  shape.drop = new p2.Circle(0.3 * p2s);
+  var vwallShape = new p2.Line(25 * p2s, 1 * p2s);
+  vwallShape.material = wallMater;
 
-  shape.paddleFull = new p2.Convex([ [ 1.8 * p2s, -0.1 * p2s ],
+  var hwallShape = new p2.Line(18 * p2s, 1 * p2s);
+  hwallShape.material = wallMater;
+
+  var ballShape = new p2.Circle(0.5 * p2s);
+  ballShape.material = ballMater;
+
+  var normalBrickShape = new p2.Rectangle(1.9 * p2s, 1.9 * p2s);
+  normalBrickShape.material = brickMater;
+
+  var smallBrickShape = new p2.Rectangle(0.9 * p2s, 0.9 * p2s);
+  smallBrickShape.material = brickMater;
+
+  var dropShape = new p2.Circle(0.3 * p2s);
+
+  var fullPaddleShape = new p2.Convex([ [ 1.8 * p2s, -0.1 * p2s ],
       [ 1.8 * p2s, 0.1 * p2s ], [ 1.2 * p2s, 0.4 * p2s ],
       [ 0.4 * p2s, 0.6 * p2s ], [ -0.4 * p2s, 0.6 * p2s ],
       [ -1.2 * p2s, 0.4 * p2s ], [ -1.8 * p2s, 0.1 * p2s ],
       [ -1.8 * p2s, -0.1 * p2s ] ]);
-  shape.paddleFull.material = mat.paddle;
+  fullPaddleShape.material = paddleMater;
 
-  shape.paddleMini = new p2.Convex([ [ 1.2 * p2s, -0.1 * p2s ],
+  var miniPaddleShape = new p2.Convex([ [ 1.2 * p2s, -0.1 * p2s ],
       [ 1.2 * p2s, 0.1 * p2s ], [ 0.9 * p2s, 0.4 * p2s ],
       [ 0.2 * p2s, 0.6 * p2s ], [ -0.2 * p2s, 0.6 * p2s ],
       [ -0.9 * p2s, 0.4 * p2s ], [ -1.2 * p2s, 0.1 * p2s ],
       [ -1.2 * p2s, -0.1 * p2s ] ]);
-  shape.paddleMini.material = mat.paddle;
+  miniPaddleShape.material = paddleMater;
 
   var BALL = 1, WALL = 2, BRICK = 4, DROP = 8;
 
-  shape.vwall.collisionGroup = WALL;
-  shape.hwall.collisionGroup = WALL;
-  shape.paddleFull.collisionGroup = WALL;
-  shape.paddleMini.collisionGroup = WALL;
-  shape.brick.collisionGroup = BRICK;
-  shape.smallbrick.collisionGroup = BRICK;
-  shape.ball.collisionGroup = BALL;
-  shape.drop.collisionGroup = DROP;
+  vwallShape.collisionGroup = WALL;
+  hwallShape.collisionGroup = WALL;
+  fullPaddleShape.collisionGroup = WALL;
+  miniPaddleShape.collisionGroup = WALL;
+  normalBrickShape.collisionGroup = BRICK;
+  smallBrickShape.collisionGroup = BRICK;
+  ballShape.collisionGroup = BALL;
+  dropShape.collisionGroup = DROP;
 
-  shape.vwall.collisionMask = BALL;
-  shape.hwall.collisionMask = BALL | DROP;
-  shape.brick.collisionMask = BALL;
-  shape.smallbrick.collisionMask = BALL;
-  shape.paddleFull.collisionMask = BALL | DROP;
-  shape.paddleMini.collisionMask = BALL | DROP;
-  shape.ball.collisionMask = WALL | BRICK;
-  shape.drop.collisionMask = WALL;
+  vwallShape.collisionMask = BALL;
+  hwallShape.collisionMask = BALL | DROP;
+  normalBrickShape.collisionMask = BALL;
+  smallBrickShape.collisionMask = BALL;
+  fullPaddleShape.collisionMask = BALL | DROP;
+  miniPaddleShape.collisionMask = BALL | DROP;
+  ballShape.collisionMask = WALL | BRICK;
+  dropShape.collisionMask = WALL;
 
   var leftWall = new p2.Body({
     position : [ +9 * p2s, -0.5 * p2s ],
     angle : Math.PI / 2,
     mass : 0,
   });
-  leftWall.addShape(shape.vwall);
+  leftWall.addShape(vwallShape);
   leftWall.ui = null;
   world.addBody(leftWall);
 
@@ -136,7 +83,7 @@ Stage(function(stage) {
     angle : Math.PI / 2,
     mass : 0
   });
-  rightWall.addShape(shape.vwall);
+  rightWall.addShape(vwallShape);
   rightWall.ui = null;
   world.addBody(rightWall);
 
@@ -144,7 +91,7 @@ Stage(function(stage) {
     position : [ 0, +12 * p2s ],
     mass : 0
   });
-  topWall.addShape(shape.hwall);
+  topWall.addShape(hwallShape);
   topWall.ui = null;
   world.addBody(topWall);
 
@@ -152,166 +99,438 @@ Stage(function(stage) {
     position : [ 0, -13 * p2s ],
     mass : 0
   });
-  bottomWall.addShape(shape.hwall);
+  bottomWall.addShape(hwallShape);
   bottomWall.isBottom = true;
   bottomWall.ui = null;
   world.addBody(bottomWall);
 
-  var paddle = {
-    set : function(paddle) {
-      if (this.current) {
-        world.removeBody(this.current);
-        paddle.position[0] = this.current.position[0];
-        paddle.velocity[0] = this.current.velocity[0];
-      }
-      world.addBody(this.current = paddle);
+  var fullPaddle = new p2.Body({
+    position : [ 0, -10.5 * p2s ],
+    mass : 0
+  });
+  fullPaddle.paddleWidth = 3 * p2s;
+  fullPaddle.addShape(fullPaddleShape);
+  fullPaddle.isPaddle = true;
+  fullPaddle.motionState = p2.Body.STATIC;
+  ui.fullPaddle(fullPaddle);
+
+  var miniPaddle = new p2.Body({
+    position : [ 0, -10.5 * p2s ],
+    mass : 0
+  });
+  miniPaddle.paddleWidth = 2 * p2s;
+  miniPaddle.addShape(miniPaddleShape);
+  miniPaddle.isPaddle = true;
+  miniPaddle.motionState = p2.Body.STATIC;
+  ui.miniPaddle(miniPaddle);
+
+  var paddle = fullPaddle;
+  world.addBody(paddle);
+
+  function setPaddle(neo) {
+    if (paddle !== neo) {
+      world.removeBody(paddle);
+      neo.position[0] = paddle.position[0];
+      neo.velocity[0] = paddle.velocity[0];
+      world.addBody(paddle = neo);
     }
-  };
+  }
 
-  paddle.full = new p2.Body({
-    position : [ 0, -10.5 * p2s ],
-    mass : 0
-  });
-  paddle.full.paddleWidth = 3 * p2s;
-  paddle.full.addShape(shape.paddleFull);
-  paddle.full.isPaddle = true;
-  paddle.full.ui = Stage.image('paddleFull').pin('handle', 0.5);
-  paddle.full.motionState = p2.Body.STATIC;
-
-  paddle.mini = new p2.Body({
-    position : [ 0, -10.5 * p2s ],
-    mass : 0
-  });
-  paddle.mini.paddleWidth = 2 * p2s;
-  paddle.mini.addShape(shape.paddleMini);
-  paddle.mini.isPaddle = true;
-  paddle.mini.ui = Stage.image('paddleMini').pin('handle', 0.5);
-  paddle.mini.motionState = p2.Body.STATIC;
-
-  function newBall(p) {
+  function makeBall(pos) {
     var body = new p2.Body({
       mass : 1
     });
-    if (p) {
-      body.position = p;
+    if (pos) {
+      body.position = pos;
     }
     body.damping = 0;
     body.angularDamping = 0;
-    body.addShape(shape.ball);
+    body.addShape(ballShape);
     body.isBall = true;
-    body.ui = Stage.image('ball', 10).pin('handle', 0.5);
+    ui.newBall(body);
+    world.addBody(body);
     return body;
   }
 
-  function newDrop(name) {
-    var body = new p2.Body({
-      mass : 1
-    });
-    body.addShape(shape.drop);
-    body.isDrop = name;
-    body.ui = Stage.image('' + name).pin('handle', 0.5);
-    return body;
-  }
-
-  function newBrick(name, shape, p) {
+  function makeBrick(name, shape, pos) {
     var body = new p2.Body({
       mass : 0
     });
-    if (p) {
-      body.position = p;
+    if (pos) {
+      body.position = pos;
     }
     body.addShape(shape);
     body.isBrick = true;
-    body.ui = Stage.image('b' + name).pin('handle', 0.5);
-    body.ui.drop = function() {
-      this.tween(70).pin('alpha', 0).then(function() {
-        this.remove();
-      });
-    };
     body.motionState = p2.Body.STATIC;
+    ui.newBrick(body, name);
+    world.addBody(body);
+    return body;
+  }
+
+  function makeDrop(name) {
+    var body = new p2.Body({
+      mass : 1
+    });
+    body.addShape(dropShape);
+    body.isDrop = true;
+    ui.newDrop(body, name);
+    world.addBody(body);
     return body;
   }
 
   world.on('impact', function(evt) {
     var a = evt.bodyA, b = evt.bodyB;
-    var iball = a.isBall && a || b.isBall && b;
-    var ibrick = a.isBrick && a || b.isBrick && b;
-    var ibottom = a.isBottom && a || b.isBottom && b;
-    var ipaddle = a.isPaddle && a || b.isPaddle && b;
-    var idrop = a.isDrop && a || b.isDrop && b;
+    var ball = a.isBall && a || b.isBall && b;
+    var brick = a.isBrick && a || b.isBrick && b;
+    var bottom = a.isBottom && a || b.isBottom && b;
+    var paddle = a.isPaddle && a || b.isPaddle && b;
+    var drop = a.isDrop && a || b.isDrop && b;
 
-    if (idrop) {
-      world.removeBody(idrop);
-      var oldball;
-      if (ipaddle && (oldball = anyBall())) {
-        if (idrop.isDrop == '+') {
-          var newball = newBall();
-          newball.position[0] = oldball.position[0];
-          newball.position[1] = oldball.position[1];
-          newball.velocity[0] = -oldball.velocity[0];
-          newball.velocity[1] = -oldball.velocity[1];
-          world.addBody(newball);
-        } else {
-          Timeout.set(function() {
-            paddle.set(paddle.mini);
-          }, 1);
-          Timeout.set(function() {
-            paddle.set(paddle.full);
-          }, 7500, 'mini');
-        }
+    if (drop) {
+      world.removeBody(drop);
+      if (paddle) {
+        ui.catchDrop(drop);
       }
     }
 
-    if (iball) {
-      if (iball.velocity[1] >= 0) {
-        iball.velocity[1] = Math.max(iball.velocity[1], ballSpeed() / 3);
+    if (ball) {
+      var speed = ui.ballSpeed() * p2s;
+      var velocity = ball.velocity;
+
+      if (velocity[1] >= 0) {
+        velocity[1] = Math.max(velocity[1], speed / 3);
       } else {
-        iball.velocity[1] = Math.min(iball.velocity[1], -ballSpeed() / 3);
+        velocity[1] = Math.min(velocity[1], -speed / 3);
       }
-      var s = ballSpeed() / M.length(iball.velocity[0], iball.velocity[1]);
-      iball.velocity[0] *= s;
-      iball.velocity[1] *= s;
-      iball.angularVelocity = iball.angle = 0;
+      var fix = speed
+          / Math.sqrt(velocity[0] * velocity[0] + velocity[1] * velocity[1]);
+      velocity[0] *= fix, velocity[1] *= fix;
 
-      if (ibrick) {
-        world.removeBody(ibrick);
-        !anyBricks() && addBrick();
-        score += combo;
-        // combo++;
-        updateScore();
+      ball.angularVelocity = ball.angle = 0;
 
-        var drop = randomDrop();
-        if (drop) {
-          drop = newDrop(drop);
-          drop.position[0] = ibrick.position[0];
-          drop.position[1] = ibrick.position[1];
-          drop.velocity[1] = dropSpeed;
-          world.addBody(drop);
-        }
+      if (brick) {
+        world.removeBody(brick);
+        ui.hitBrick(brick);
 
-      } else if (ipaddle) {
-        // combo = 1;
-      } else if (ibottom) {
-        world.removeBody(iball);
-        !anyBall() && gameover();
+      } else if (bottom) {
+        world.removeBody(ball);
+        ui.hitBottom(bottom);
+
+      } else if (paddle) {
+        ui.hitPaddle(paddle);
       }
     }
   });
 
-  function anyBricks() {
+  function findBrick() {
     for (var i = 0; i < world.bodies.length; i++) {
       if (world.bodies[i].isBrick) {
         return world.bodies[i];
       }
     }
   }
+  this.findBrick = findBrick;
 
-  function anyBall() {
+  function findBall() {
     for (var i = 0; i < world.bodies.length; i++) {
       if (world.bodies[i].isBall) {
         return world.bodies[i];
       }
     }
+  }
+  this.findBall = findBall;
+
+  this.initGame = function() {
+    for (var i = world.bodies.length - 1; i >= 0; i--) {
+      var body = world.bodies[i];
+      if (body.isBrick || body.isBall || body.isDrop) {
+        world.removeBody(body);
+      }
+    }
+    setPaddle(fullPaddle);
+    makeBall([ 0, -5 * p2s ]);
+  };
+
+  this.startGame = function() {
+    var ball = findBall();
+    var a = Math.PI * Math.random() * 0.4 - 0.2;
+    var speed = ui.ballSpeed() * p2s;
+    ball.velocity = [ speed * Math.sin(a), speed * Math.cos(a) ];
+  };
+
+  this.gameOver = function() {
+    for (var i = world.bodies.length - 1; i >= 0; i--) {
+      var body = world.bodies[i];
+      if (body.isBall) {
+        world.removeBody(body);
+      }
+    }
+  };
+
+  this.addRow = function(row) {
+    var over = false;
+    for (var i = 0; i < world.bodies.length; i++) {
+      var body = world.bodies[i];
+      if (body.isBrick) {
+        body.position[1] -= 2 * p2s;
+        over = over || body.position[1] < -10 * p2s;
+      }
+    }
+
+    for (var i = 0; i < row.length; i++) {
+      var cell = row[i], x = (i - 3) * 2 * p2s, y = 9 * p2s;
+
+      if (cell.type == 'none') {
+
+      } else if (cell.type == 'small') {
+        makeBrick(cell.color + 's', smallBrickShape, [ x + 0.5 * p2s,
+            y + 0.5 * p2s ]);
+        makeBrick(cell.color + 's', smallBrickShape, [ x - 0.5 * p2s,
+            y + 0.5 * p2s ]);
+        makeBrick(cell.color + 's', smallBrickShape, [ x + 0.5 * p2s,
+            y - 0.5 * p2s ]);
+        makeBrick(cell.color + 's', smallBrickShape, [ x - 0.5 * p2s,
+            y - 0.5 * p2s ]);
+
+      } else if (cell.type == 'normal') {
+        makeBrick(cell.color, normalBrickShape, [ x, y ]);
+      }
+    }
+
+    if (over) {
+      ui.gameOver();
+    }
+  };
+
+  this.dropDown = function(brick, name) {
+    var body = makeDrop(name);
+    body.position[0] = brick.position[0];
+    body.position[1] = brick.position[1];
+    body.velocity[1] = ui.dropSpeed() * p2s;
+  };
+
+  this.addBall = function() {
+    var oldball = findBall();
+    var newball = makeBall();
+    newball.position[0] = oldball.position[0];
+    newball.position[1] = oldball.position[1];
+    newball.velocity[0] = -oldball.velocity[0];
+    newball.velocity[1] = -oldball.velocity[1];
+  };
+
+  var paddleTo = 0;
+
+  this.movePaddle = function(x) {
+    paddleTo = x;
+  };
+
+  this.miniPaddle = function() {
+    setPaddle(miniPaddle);
+  };
+
+  this.fullPaddle = function() {
+    setPaddle(fullPaddle);
+  };
+
+  this.tick = function(t) {
+    var balls = 0;
+    for (var i = world.bodies.length - 1; i >= 0; i--) {
+      var body = world.bodies[i];
+      // remove ball if passed through walls
+      if (Math.abs(body.position[0]) > width / 2
+          || Math.abs(body.position[1]) > height / 2) {
+        world.removeBody(body);
+      } else if (body.isBall) {
+        balls++;
+      }
+    }
+    if (balls < 1) {
+      ui.gameOver();
+    }
+
+    if (paddleTo !== paddle.position[0]) {
+      var padx = paddle.position[0];
+      var wallLimit = 9 * p2s - paddle.paddleWidth / 2;
+      var speedLimit = ui.paddleSpeed() * p2s * t / 1000;
+      if (paddleTo > padx) {
+        paddle.position[0] = Math.min(paddleTo, padx + speedLimit, wallLimit);
+      } else if (paddleTo < padx) {
+        paddle.position[0] = Math.max(paddleTo, padx - speedLimit, -wallLimit);
+      }
+    }
+  };
+
+}
+
+Stage(function(stage) {
+
+  var Mouse = Stage.Mouse;
+  var STORE_KEY = 'breakout-v1';
+
+  var width = 20, height = 26;
+
+  var state = {
+    score : 0,
+    combo : 1,
+    max : 0,
+    ready : false,
+    playing : false
+  };
+
+  stage.MAX_ELAPSE = 100;
+
+  stage.viewbox(width * 16, height * 1.12 * 16).pin('offsetY',
+      -height * 0.04 * 16).pin('align', -0.5);
+
+  var physics = new Physics({
+    newBall : function(body) {
+      body.ui = Stage.image('ball', 10).pin('handle', 0.5);
+    },
+    newDrop : function(body, name) {
+      body.ui = Stage.image(name).pin('handle', 0.5);
+      body.ui.dropName = name;
+    },
+    newBrick : function(body, name) {
+      body.ui = Stage.image('b' + name).pin('handle', 0.5);
+      body.ui.drop = function() {
+        this.tween(70).pin('alpha', 0).then(function() {
+          this.remove();
+        });
+      };
+    },
+    hitBrick : function(brick) {
+      !physics.findBrick() && addRow();
+      state.score += state.combo;
+      // state.combo++;
+      updateScore();
+      dropDown(brick);
+    },
+    hitPaddle : function() {
+      // state.combo = 1;
+    },
+    hitBottom : function() {
+      !physics.findBall() && gameOver();
+    },
+    catchDrop : function(drop) {
+      var name = drop.ui.dropName;
+      if (name == '+') {
+        physics.addBall();
+
+      } else if (name == '-') {
+        Timeout.set(function() {
+          physics.miniPaddle();
+        }, 1);
+        Timeout.set(function() {
+          physics.fullPaddle();
+        }, 7500, 'mini');
+      }
+    },
+    miniPaddle : function(body) {
+      body.ui = Stage.image('paddleMini').pin('handle', 0.5);
+    },
+    fullPaddle : function(body) {
+      body.ui = Stage.image('paddleFull').pin('handle', 0.5);
+    },
+    gameOver : function() {
+      gameOver();
+    },
+    paddleSpeed : function() {
+      return 20;
+    },
+    dropSpeed : function() {
+      return -6;
+    },
+    ballSpeed : function() {
+      return (13 + state.score * 0.05);
+    }
+  }, width, height);
+
+  var board = Stage.image('board').appendTo(stage).pin('handle', 0.5).attr(
+      'spy', true);
+
+  var p2view = new Stage.P2(physics.world, {
+    lineWidth : 1,
+    lineColor : '#888',
+    ratio : 4,
+    debug : false
+  }).attr('spy', true).pin('align', 0.5).appendTo(board);
+
+  p2view.on([ Mouse.START, Mouse.MOVE ], function(point) {
+    physics.movePaddle(point.x);
+  });
+
+  var maxscore = Stage.string('d_').appendTo(board).pin({
+    alignX : 1,
+    alignY : 1,
+    offsetX : -1.5 * 16,
+    offsetY : -0.5 * 16
+  });
+
+  var myscore = Stage.string('d_').appendTo(board).pin({
+    alignX : 0,
+    alignY : 1,
+    offsetX : 1.5 * 16,
+    offsetY : -0.5 * 16
+  });
+
+  var restart = Stage.image('restart').appendTo(board).pin({
+    align : 0.5,
+  });
+
+  stage.on(Mouse.CLICK, function() {
+    if (!state.playing) {
+      startGame();
+    }
+  });
+
+  stage.tick(function(t) {
+    if (state.playing) {
+      physics.tick(t);
+    }
+  });
+
+  try {
+    state.max = localStorage.getItem(STORE_KEY) || 0;
+  } catch (e) {
+  }
+
+  initGame();
+
+  function initGame() {
+    if (!state.ready) {
+      p2view.tween(100).clear().pin('alpha', 1);
+      restart.hide();
+      state.score = 0, state.combo = 1;
+      updateStatus();
+      physics.initGame();
+      addRow() + addRow() + addRow();
+    }
+    state.ready = true;
+  }
+
+  function startGame() {
+    initGame();
+    state.ready = false;
+    physics.startGame();
+    Timeout.loop(function() {
+      addRow();
+      return nextTime();
+    }, nextTime());
+    state.playing = true;
+  }
+
+  function gameOver() {
+    state.playing = false;
+    updateStatus();
+    state.max = Math.max(state.max, state.score);
+    try {
+      localStorage.setItem(STORE_KEY, state.max);
+    } catch (e) {
+    }
+    physics.gameOver();
+    restart.show();
+    p2view.tween(100).clear().pin('alpha', 0.5);
+    Timeout.reset();
   }
 
   function updateStatus() {
@@ -319,151 +538,47 @@ Stage(function(stage) {
   }
 
   function updateScore() {
-    ui.score.setValue(score);
-    ui.max.setValue(max);
+    myscore.setValue(state.score);
+    maxscore.setValue(state.max);
   }
 
-  function gameover() {
-    playing = false;
-    updateStatus();
-    max = Math.max(max, score);
-    try {
-      localStorage.setItem(maxKey, max);
-    } catch (e) {
-    }
-    for (var i = world.bodies.length - 1; i >= 0; i--) {
-      if (world.bodies[i].isBall) {
-        world.removeBody(world.bodies[i]);
-      }
-    }
-    paddle.current.ui.hide();
-    ui.restart.appendTo(stage);
-    ui.p2.tween(100).clear().pin('alpha', 0.5);
-    Timeout.reset();
+  function nextTime() {
+    return 8000 - 20 * state.score;
   }
 
-  function setup() {
-    ui.p2.tween(100).clear().pin('alpha', 1);
-    ui.restart.remove();
-    for (var i = world.bodies.length - 1; i >= 0; i--) {
-      var body = world.bodies[i];
-      if (body.isBrick || body.isBall || body.isDrop) {
-        world.removeBody(body);
-      }
-    }
-    score = 0, combo = 1;
-    updateStatus();
-    paddle.set(paddle.full);
-    paddle.current.ui.show();
-    world.addBody(newBall([ 0, -5 * p2s ]));
-    addBrick() + addBrick() + addBrick();
-    ready = true;
-  }
-
-  function start() {
-    ready || setup();
-    ready = false;
-    var ball = anyBall();
-    var a = Math.PI * M.random(-0.2, 0.2);
-    ball.velocity = [ ballSpeed() * Math.sin(a), ballSpeed() * Math.cos(a) ];
-    Timeout.loop(function() {
-      addBrick();
-      return nextRow();
-    }, nextRow());
-    playing = true;
-  }
-
-  stage.tick(function(t) {
-    if (playing) {
-      var noBallInside = true;
-      for (var i = world.bodies.length - 1; i >= 0; i--) {
-        var body = world.bodies[i];
-        var x = body.position[0];
-        var y = body.position[1];
-        if (Math.abs(x) > width / 2 || Math.abs(y) > height / 2) {
-          world.removeBody(body);
-        } else if (body.isBall) {
-          noBallInside = false;
-        }
-      }
-      noBallInside && gameover();
-    }
-  });
-
-  function addBrick() {
-    var over = false;
-    for (var i = 0; i < world.bodies.length; i++) {
-      var brick = world.bodies[i];
-      if (brick.isBrick) {
-        brick.position[1] -= 2 * p2s;
-        over = over || brick.position[1] < -10 * p2s;
-      }
-    }
+  function addRow() {
+    var row = [];
     for (var i = 0; i < 7; i++) {
-      var bricks = randomBrick();
-      bricks && bricks((i - 3) * 2 * p2s, 9 * p2s);
-    }
-    over && gameover();
-  }
-
-  ui.bg = Stage.image('board').appendTo(stage).pin('handle', 0.5)
-      .pin('scale', ppu).attr('spy', true);
-
-  ui.p2 = new Stage.P2(world, {
-    lineWidth : 0.01,
-    lineColor : '#888',
-    ratio : 256,
-    debug : false
-  });
-  ui.p2.appendTo(ui.bg).pin('align', 0.5);
-
-  var paddleTo = 0;
-
-  ui.p2.on([ Stage.Mouse.START, Stage.Mouse.MOVE ], function(point) {
-    paddleTo = point.x;
-  }).attr('spy', true);
-
-  stage.on(Stage.Mouse.CLICK, function() {
-    playing || start();
-  });
-
-  stage.tick(function(t) {
-    if (paddle.current) {
-      var x = Math.max(paddle.current.paddleWidth / 2 - 9 * p2s, Math.min(
-          -paddle.current.paddleWidth / 2 + 9 * p2s, paddleTo));
-      var d = paddle.current.position[0] - x;
-      if (Math.abs(d) > 0.001) {
-        var max = paddleSpeed * t / 1000;
-        paddle.current.position[0] -= Math.max(-max, Math.min(max, d));
+      if (Math.random() < 0.1) {
+        row.push({
+          type : 'none'
+        });
+        continue;
+      }
+      var color = [ 'b', 'r', 'y', 'g', 'p' ][Math.random() * 5 | 0];
+      var one = state.score + 1, four = Math.max(0, state.score * 1.1 - 60);
+      if (Math.random() < one / (four + one)) {
+        row.push({
+          type : 'normal',
+          color : color
+        });
+      } else {
+        row.push({
+          type : 'small',
+          color : color
+        });
       }
     }
-  });
-
-  ui.max = Stage.string('d_').appendTo(ui.bg).pin({
-    alignX : 1,
-    alignY : 1,
-    offsetX : -1.5 * p2s,
-    offsetY : -0.5 * p2s
-  });
-
-  ui.score = Stage.string('d_').appendTo(ui.bg).pin({
-    alignX : 0,
-    alignY : 1,
-    offsetX : 1.5 * p2s,
-    offsetY : -0.5 * p2s
-  });
-
-  ui.restart = Stage.image('restart').pin({
-    handle : 0.5,
-    offsetY : 0.5 * ppu,
-    scale : ppu
-  });
-
-  try {
-    max = localStorage.getItem(maxKey) || 0;
-  } catch (e) {
+    physics.addRow(row);
   }
 
-  setup();
+  function dropDown(brick) {
+    var random = Math.random();
+    if (random < 0.06) {
+      physics.dropDown(brick, '+');
+    } else if (random < 0.1) {
+      physics.dropDown(brick, '-');
+    }
+  }
 
 });

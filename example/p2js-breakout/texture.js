@@ -1,9 +1,8 @@
 Stage({
   image : {
     url : 'bg.png',
-    ratio : 2 * ppu
+    ratio : 2 
   },
-  ppu : 1 / ppu,
   textures : {
     'board' : { x : 0, y : 0,  width : 320, height : 416 }
   }
@@ -12,9 +11,8 @@ Stage({
 Stage({
   image : {
     url : 'main.png',
-    ratio : 2 * ppu,
+    ratio : 2 ,
   },
-  ppu : 1 / ppu,
   map : function(tex) {
     tex.y = 256 - (tex.y + tex.height);
     return tex;
