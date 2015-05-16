@@ -44,7 +44,15 @@ it('Mouse', function() {
   node(1).on(Mouse.MOVE, listener('move-' + 1));
 
   Mouse.subscribe(stage, elem = {
-    addEventListener : elemOn = sinon.stub()
+    addEventListener : elemOn = sinon.stub(),
+    getBoundingClientRect : function() {
+      return {
+        left : 0,
+        top : 0
+      };
+    },
+    clientLeft : 0,
+    clientTop : 0
   });
 
   expect(elemOn.args.pluck(0)).list(
