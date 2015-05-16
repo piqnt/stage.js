@@ -3,29 +3,21 @@ var sinon = require('sinon');
 var sandboxed = require('sandboxed-module');
 var memo = require('./util/memo');
 
-var Stage = require('../lib/node');
+var Stage = require('../lib/');
 
 it('Mouse', function() {
-  var document = {
-    body : {}
-  }, window = {
-    document : document
-  };
+  var event, elem, elemOn, doc, docOn, win, winOn;
 
   var Mouse = sandboxed.require('../lib/addon/mouse', {
     locals : {
-      window : window,
-      document : document
+      document : doc = {
+        addEventListener : docOn = sinon.stub()
+      },
+      window : win = {
+        document : doc,
+        addEventListener : winOn = sinon.stub()
+      }
     }
-  });
-
-  var elem, add, remove, event;
-
-  Mouse._xy = sinon.spy(function(stage, el, ev, point) {
-    expect(ev).equal(event);
-    expect(el).equal(elem);
-    point.x = ev.x;
-    point.y = ev.y;
   });
 
   var node = memo(function(id) {
@@ -40,22 +32,27 @@ it('Mouse', function() {
   var stage = node(1).append(node(11),
       node(12).append(node(121).hide(), node(122), node(123)), node(13));
 
+  stage.viewport = function() {
+    return {
+      ratio : 1
+    };
+  };
+
   node(1).on(Mouse.CLICK, listener('click-' + 1));
   node(1).on(Mouse.START, listener('start-' + 1));
   node(1).on(Mouse.END, listener('end-' + 1));
   node(1).on(Mouse.MOVE, listener('move-' + 1));
 
   Mouse.subscribe(stage, elem = {
-    addEventListener : add = sinon.stub(),
-    removeEventListener : remove = sinon.stub()
+    addEventListener : elemOn = sinon.stub()
   });
 
-  expect(add.args.pluck(0)).list(
+  expect(elemOn.args.pluck(0)).list(
       [ 'touchstart', 'touchend', 'touchmove', 'touchcancel', 'mousedown',
           'mouseup', 'mousemove' ]);
-  expect(add.alwaysCalledOn(elem)).ok();
+  expect(elemOn.alwaysCalledOn(elem)).ok();
 
-  var down = add.args[0][1], up = add.args[1][1], move;
+  var down = elemOn.args[0][1], up = elemOn.args[1][1], move;
 
   down.call(elem, event = Event('mousedown', 40, 30));
   expect(listener('start-' + 1).callCount).be(1);
@@ -72,7 +69,7 @@ it('Mouse', function() {
   listener('click-' + 1).reset();
 
   down.call(elem, event = Event('mousedown', 40, 30));
-  move = add.lastCall.args[1];
+  move = elemOn.lastCall.args[1];
   move.call(elem, event = Event('mousemove', 30, 20));
   up.call(elem, event = Event('mouseup'));
   expect(listener('start-' + 1).callCount).be(1);
@@ -83,8 +80,8 @@ it('Mouse', function() {
 
 function Event(type, x, y) {
   return {
-    x : x,
-    y : y,
+    pageX : x,
+    pageY : y,
     type : type,
     preventDefault : sinon.stub()
   };
