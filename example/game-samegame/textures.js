@@ -1,8 +1,5 @@
 Stage({
-  image : {
-    url : "main.png",
-    ratio : 32
-  },
+  image : { src : "main.png", ratio : 32 },
   textures : {
     "easy"   : { x : 0,   y : 0,  width : 2,  height : 2 },
     "hard"   : { x : 2,   y : 0,  width : 2,  height : 2 },

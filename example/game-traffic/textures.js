@@ -1,16 +1,10 @@
 Stage({
   name : "bg",
-  image : {
-    url : "bg.png",
-    ratio : 2
-  }
+  image : { src : "bg.png", ratio : 2 }
 });
 
 Stage({
-  image : {
-    url : "main.png",
-    ratio : 4
-  },
+  image : { src : "main.png", ratio : 4 },
   ppu : 16,
   textures : {
     plane : { x : 0, y : 0, width : 1, height : 1 },

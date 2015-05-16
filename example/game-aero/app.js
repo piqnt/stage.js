@@ -130,7 +130,7 @@ Drone.prototype.animate = function(t) {
 
 Stage({
   image : {
-    url : "main.png",
+    src : "main.png",
     ratio : 4
   },
   textures : {
