@@ -886,15 +886,6 @@ Stage(function(stage, display) {
   TOP = typeof TOP === 'number' ? TOP : 0;
   var Mouse = Stage.Mouse;
 
-  Stage.prototype.xy = (function() {
-    var pin = {};
-    return function(x, y) {
-      pin.offsetX = x, pin.offsetY = y;
-      this.pin(pin);
-      return this;
-    };
-  })();
-
   var game = new Game();
 
   stage.on('viewport', function(viewport) {
@@ -1182,7 +1173,7 @@ Stage(function(stage, display) {
     var l3 = Stage.create().appendTo(field);
 
     field.on([ Mouse.MOVE, Mouse.START ], function(point) {
-      cursor.xy(point.x, point.y).visible(game.pointer(point.x, point.y));
+      cursor.offset(point).visible(game.pointer(point.x, point.y));
     });
 
     var tilt = Tilt(function(x, y) {
@@ -1244,7 +1235,7 @@ Stage(function(stage, display) {
       DEBUG && console.log('player create');
       obj.ui = Stage.anim(obj.name).pin('handle', 0.5).appendTo(l3);
       obj.uiXY = function() {
-        this.ui.xy(this.x, this.y);
+        this.ui.offset(this);
       };
       obj.uiLive = function(anim, callback, freeze) {
         DEBUG && console.log('player live');
@@ -1273,7 +1264,7 @@ Stage(function(stage, display) {
         this.ui.show();
       };
       obj.uiXY = function() {
-        this.ui.xy(this.x, this.y);
+        this.ui.offset(this);
       };
       obj.onCheckOut = function() {
       };
@@ -1295,7 +1286,7 @@ Stage(function(stage, display) {
         this.ui.show();
       };
       obj.uiXY = function() {
-        this.ui.xy(this.x, this.y);
+        this.ui.offset(this);
       };
       obj.uiEat = function() {
         Sound.play('power');
@@ -1327,7 +1318,7 @@ Stage(function(stage, display) {
         }
       };
       obj.uiXY = function() {
-        this.ui.xy(this.x, this.y);
+        this.ui.offset(this);
         if (this.vx || this.vy) {
           this.ui.pin('rotation', Math.atan2(this.vx, this.vy) - Math.PI / 2);
         }
@@ -1349,7 +1340,7 @@ Stage(function(stage, display) {
         this.ui.show();
       };
       obj.uiXY = function() {
-        this.ui.xy(this.x, this.y);
+        this.ui.offset(this);
       };
       obj.uiRemove = function() {
         this.ui.remove();

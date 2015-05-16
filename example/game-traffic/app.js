@@ -319,14 +319,3 @@ Stage(function(stage, container) {
     };
   }
 });
-
-Stage.prototype.timeout = function(fn, time) {
-  this.tick(function timer(t) {
-    if ((time -= t) < 0) {
-      this.untick(timer);
-      fn.call(this);
-    } else {
-      return true;
-    }
-  });
-};
