@@ -118,8 +118,8 @@ foo.tick(function(millisecElapsed) {
 foo.touch();
 ```
 
-#### Pinning
-Pinning is a top level concept, it specifies how a node is transformed relative to its parent.
+#### Pin
+Pin or pinning defines how a node is transformed relative to its parent.
 
 When `nameX` equals `nameY`, `name` shorthand can be used instead.
 
