@@ -1,6 +1,6 @@
 {
   "name": "stage.js",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Lightweight and fast HTML5 2D rendering engine for cross-platform game development.",
   "homepage": "http://piqnt.com/stage.js/",
   "keywords": [

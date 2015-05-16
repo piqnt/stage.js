@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.6.1
+ * Stage.js 0.6.2
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -29,7 +29,7 @@ module.exports._extend = require("../lib/util/extend");
 module.exports._create = require("../lib/util/create");
 
 require("../lib/loader/cordova");
-},{"../lib/":11,"../lib/addon/mouse":3,"../lib/addon/tween":4,"../lib/anim":5,"../lib/canvas":7,"../lib/image":10,"../lib/layout":12,"../lib/loader/cordova":13,"../lib/str":19,"../lib/util/create":21,"../lib/util/extend":22,"../lib/util/math":24}],2:[function(require,module,exports){
+},{"../lib/":11,"../lib/addon/mouse":3,"../lib/addon/tween":4,"../lib/anim":5,"../lib/canvas":7,"../lib/image":10,"../lib/layout":12,"../lib/loader/cordova":13,"../lib/str":19,"../lib/util/create":21,"../lib/util/extend":23,"../lib/util/math":25}],2:[function(require,module,exports){
 function _identity(x) {
     return x;
 }
@@ -217,6 +217,11 @@ module.exports = Easing;
 },{}],3:[function(require,module,exports){
 if (typeof DEBUG === "undefined") DEBUG = true;
 
+require("../core")._load(function(stage, elem) {
+    Mouse.subscribe(stage, elem);
+});
+
+// TODO: capture mouse
 function Mouse() {}
 
 Mouse.CLICK = "click";
@@ -227,10 +232,12 @@ Mouse.MOVE = "touchmove mousemove";
 
 Mouse.END = "touchend mouseup";
 
-Mouse.CANCEL = "touchcancel";
+Mouse.CANCEL = "touchcancel mousecancel";
 
 Mouse.subscribe = function(stage, elem) {
-    var visitor = null, data = {}, abs = null, rel = null, clicked = [];
+    var visitor = null, data = {};
+    var abs = null, rel = null;
+    var clicklist = [], cancellist = [];
     elem = elem || document;
     // click events are synthesized from start/end events on same nodes
     // elem.addEventListener('click', handleClick);
@@ -241,66 +248,67 @@ Mouse.subscribe = function(stage, elem) {
     elem.addEventListener("mousedown", handleStart);
     elem.addEventListener("mouseup", handleEnd);
     elem.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseup", handleCancel);
+    window.addEventListener("blur", handleCancel);
     function handleStart(event) {
-        Mouse._xy(stage, elem, event, abs);
-        DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
         event.preventDefault();
+        locate(elem, event, abs);
+        DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
         publish(event.type, event);
-        findClicks();
+        lookup("click", clicklist);
+        lookup("mousecancel", cancellist);
     }
     function handleEnd(event) {
-        // New xy is not valid/available, last xy is used instead.
-        DEBUG && console.log("Mouse End: " + event.type + " " + abs);
         event.preventDefault();
+        // up/end location is not available, last one is used instead
+        DEBUG && console.log("Mouse End: " + event.type + " " + abs);
         publish(event.type, event);
-        if (clicked.length) {
-            DEBUG && console.log("Mouse Click: " + clicked.length);
-            fireClicks(event);
+        if (clicklist.length) {
+            DEBUG && console.log("Mouse Click: " + clicklist.length);
+            publish("click", event, clicklist);
+            cancellist.length = 0;
         }
     }
     function handleCancel(event) {
-        DEBUG && console.log("Mouse Cancel: " + event.type);
-        event.preventDefault();
-        publish(event.type, event);
+        if (cancellist.length) {
+            DEBUG && console.log("Mouse Cancel: " + event.type);
+            publish("mousecancel", event, cancellist);
+        }
     }
     function handleMove(event) {
-        Mouse._xy(stage, elem, event, abs);
-        // DEBUG && console.log('Mouse Move: ' + event.type + ' ' +
-        // abs);
-        if (!stage._flag(event.type)) {
-            return;
-        }
         event.preventDefault();
+        locate(elem, event, abs);
         publish(event.type, event);
     }
-    function findClicks() {
-        while (clicked.length) {
-            clicked.pop();
-        }
-        publish("click", null, clicked);
+    var ratio = stage.viewport().ratio || 1;
+    stage.on("viewport", function(size) {
+        ratio = size.ratio || ratio;
+    });
+    function locate(elem, event) {
+        locateElevent(elem, event, abs);
+        abs.x *= ratio;
+        abs.y *= ratio;
     }
-    function fireClicks(event) {
-        data.event = event;
-        data.type = "click";
-        data.stage = stage;
-        data.collect = false;
-        var cancel = false;
-        while (clicked.length) {
-            var node = clicked.shift();
-            if (cancel) {
-                continue;
-            }
-            cancel = visitor.end(node, data) ? true : cancel;
-        }
-    }
-    function publish(type, event, collect) {
-        rel.x = abs.x;
-        rel.y = abs.y;
-        data.event = event;
+    function lookup(type, collect) {
         data.type = type;
-        data.stage = /* stage._capture || */ stage;
+        data.root = stage;
+        data.event = null;
+        collect.length = 0;
         data.collect = collect;
-        data.stage.visit(visitor, data);
+        data.root.visit(visitor, data);
+    }
+    function publish(type, event, targets) {
+        data.type = type;
+        data.root = stage;
+        data.event = event;
+        data.collect = false;
+        data.timeStamp = Date.now();
+        if (targets) {
+            while (targets.length) if (visitor.end(targets.shift(), data)) break;
+            targets.length = 0;
+        } else {
+            data.root.visit(visitor, data);
+        }
     }
     visitor = {
         reverse: true,
@@ -309,26 +317,28 @@ Mouse.subscribe = function(stage, elem) {
             return !node._flag(data.type);
         },
         end: function(node, data) {
-            // data: event, type, stage, collect
+            // data: event, type, root, collect
             rel.raw = data.event;
             rel.type = data.type;
+            rel.timeStamp = data.timeStamp;
             var listeners = node.listeners(data.type);
             if (!listeners) {
                 return;
             }
-            node.matrix().reverse().map(abs, rel);
-            if (!(node === data.stage || node.attr("spy") || Mouse._isInside(node, rel))) {
+            node.matrix().inverse().map(abs, rel);
+            if (!(node === data.root || node.hitTest(rel))) {
                 return;
             }
             if (data.collect) {
                 data.collect.push(node);
-                return;
             }
-            var cancel = false;
-            for (var l = 0; l < listeners.length; l++) {
-                cancel = listeners[l].call(node, rel) ? true : cancel;
+            if (data.event) {
+                var cancel = false;
+                for (var l = 0; l < listeners.length; l++) {
+                    cancel = listeners[l].call(node, rel) ? true : cancel;
+                }
+                return cancel;
             }
-            return cancel;
         }
     };
     abs = {
@@ -336,65 +346,51 @@ Mouse.subscribe = function(stage, elem) {
         y: 0,
         toString: function() {
             return (this.x | 0) + "x" + (this.y | 0);
+        },
+        clone: function(clone) {
+            clone = clone || {};
+            clone.x = this.x;
+            clone.y = this.y;
+            return clone;
         }
     };
     rel = {
         x: 0,
         y: 0,
+        abs: abs,
         toString: function() {
             return abs + " / " + (this.x | 0) + "x" + (this.y | 0);
+        },
+        clone: function(clone) {
+            clone = clone || {};
+            clone.x = this.x;
+            clone.y = this.y;
+            return clone;
         }
     };
 };
 
-Mouse._isInside = function(node, point) {
-    return point.x >= 0 && point.x <= node._pin._width && point.y >= 0 && point.y <= node._pin._height;
-};
-
-Mouse._xy = function(stage, elem, event, point) {
-    var isTouch = false;
-    // touch screen events
-    if (event.touches) {
-        if (event.touches.length) {
-            isTouch = true;
-            point.x = event.touches[0].pageX;
-            point.y = event.touches[0].pageY;
-        } else {
-            return;
-        }
+function locateElevent(el, ev, loc) {
+    // TODO: use pageX/Y if available?
+    if (ev.touches && ev.touches.length) {
+        loc.x = ev.touches[0].clientX;
+        loc.y = ev.touches[0].clientY;
     } else {
-        // mouse events
-        point.x = event.clientX;
-        point.y = event.clientY;
-        // See http://goo.gl/JuVnF2
-        if (document.body.scrollLeft || document.body.scrollTop) {} else if (document.documentElement) {
-            point.x += document.documentElement.scrollLeft;
-            point.y += document.documentElement.scrollTop;
-        }
+        loc.x = ev.clientX;
+        loc.y = ev.clientY;
     }
-    // accounts for border
-    point.x -= elem.clientLeft || 0;
-    point.y -= elem.clientTop || 0;
-    var par = elem;
-    while (par) {
-        point.x -= par.offsetLeft || 0;
-        point.y -= par.offsetTop || 0;
-        if (!isTouch) {
-            // touch events offset scrolling with pageX/Y
-            // so scroll offset not needed for them
-            point.x += par.scrollLeft || 0;
-            point.y += par.scrollTop || 0;
-        }
-        par = par.offsetParent;
-    }
-    point.x *= stage.viewport().ratio || 1;
-    point.y *= stage.viewport().ratio || 1;
-};
+    var rect = el.getBoundingClientRect();
+    loc.x -= rect.left;
+    loc.y -= rect.top;
+    loc.x -= el.clientLeft | 0;
+    loc.y -= el.clientTop | 0;
+    return loc;
+}
 
 module.exports = Mouse;
 
 
-},{}],4:[function(require,module,exports){
+},{"../core":8}],4:[function(require,module,exports){
 var Easing = require("./easing");
 
 var Class = require("../core");
@@ -648,7 +644,9 @@ Anim.prototype.stop = function(frame) {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/math":24}],6:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/math":25}],6:[function(require,module,exports){
+if (typeof DEBUG === "undefined") DEBUG = true;
+
 var Class = require("./core");
 
 var Texture = require("./texture");
@@ -667,10 +665,8 @@ var _atlases_map = {};
 // [atlas]
 var _atlases_arr = [];
 
-// TODO: return entire atlas as texture
-// TODO: select atlas itself, call texture function
 // TODO: print subquery not found error
-// TODO: cache and clone or index textures
+// TODO: index textures
 Class.atlas = function(def) {
     var atlas = is.fn(def.draw) ? def : new Atlas(def);
     if (def.name) {
@@ -684,7 +680,7 @@ Class.atlas = function(def) {
     if (is.string(def.image)) {
         url = def.image;
     } else if (is.hash(def.image)) {
-        url = def.image.url;
+        url = def.image.src || def.image.url;
         ratio = def.image.ratio || ratio;
     }
     url && Class.preload(function(done) {
@@ -777,6 +773,10 @@ function Atlas(def) {
         }
     }
     this.select = function(query) {
+        if (!query) {
+            // TODO: if `textures` is texture def, map or fn?
+            return new Selection(this.pipe());
+        }
         var found = find(query);
         if (found) {
             return new Selection(found, find, make);
@@ -834,14 +834,16 @@ Class.texture = function(query) {
     if (!is.string(query)) {
         return new Selection(query);
     }
-    var result = null;
-    var i = query.indexOf(":");
-    if (i > 0 && query.length > i + 1) {
-        var atlas = _atlases_map[query.slice(0, i)];
+    var result = null, atlas, i;
+    if ((i = query.indexOf(":")) > 0 && query.length > i + 1) {
+        atlas = _atlases_map[query.slice(0, i)];
         result = atlas && atlas.select(query.slice(i + 1));
     }
-    for (var i = 0; !result && i < _atlases_arr.length; i++) {
+    for (i = 0; !result && i < _atlases_arr.length; i++) {
         result = _atlases_arr[i].select(query);
+    }
+    if (!result && (atlas = _atlases_map[query])) {
+        result = atlas.select();
     }
     if (!result) {
         console.error("Texture not found: " + query);
@@ -857,7 +859,7 @@ function deprecated(hash, name, msg) {
 module.exports = Atlas;
 
 
-},{"./core":8,"./texture":20,"./util/create":21,"./util/extend":22,"./util/is":23,"./util/string":28}],7:[function(require,module,exports){
+},{"./core":8,"./texture":20,"./util/create":21,"./util/extend":23,"./util/is":24,"./util/string":29}],7:[function(require,module,exports){
 var Class = require("./core");
 
 var Texture = require("./texture");
@@ -884,6 +886,7 @@ Class.canvas = function(type, attributes, callback) {
         return context;
     };
     texture.size = function(width, height, ratio) {
+        ratio = ratio || 1;
         canvas.width = width * ratio;
         canvas.height = height * ratio;
         this.src(canvas, ratio);
@@ -939,6 +942,12 @@ Class._init = function(fn) {
     _init.push(fn);
 };
 
+var _load = [];
+
+Class._load = function(fn) {
+    _load.push(fn);
+};
+
 var _config = {};
 
 Class.config = function() {
@@ -972,6 +981,9 @@ Class.app = function(app, opts) {
     var loader = Class.config("app-loader");
     loader(function(stage, canvas) {
         DEBUG && console.log("Initing app...");
+        for (var i = 0; i < _load.length; i++) {
+            _load[i].call(this, stage, canvas);
+        }
         app(stage, canvas);
         _stages.push(stage);
         DEBUG && console.log("Starting app...");
@@ -1038,80 +1050,13 @@ Class.create = function() {
 module.exports = Class;
 
 
-},{"./util/extend":22,"./util/is":23,"./util/once":25,"./util/stats":27}],9:[function(require,module,exports){
-var Class = require("./core");
-
-var is = require("./util/is");
-
-Class.prototype._listeners = null;
-
-Class.prototype.on = Class.prototype.listen = function(types, listener) {
-    if (types = _check(this, types, listener, true)) {
-        for (var i = 0; i < types.length; i++) {
-            var type = types[i];
-            this._listeners[type] = this._listeners[type] || [];
-            this._listeners[type].push(listener);
-            this._flag(type, true);
-        }
-    }
-    return this;
-};
-
-Class.prototype.off = function(types, listener) {
-    if (types = _check(this, types, listener, false)) {
-        for (var i = 0; i < types.length; i++) {
-            var type = types[i], all = this._listeners[type], index;
-            if (all && (index = all.indexOf(listener)) >= 0) {
-                all.splice(index, 1);
-                if (!all.length) {
-                    delete this._listeners[type];
-                }
-                this._flag(type, false);
-            }
-        }
-    }
-    return this;
-};
-
-function _check(node, types, listener, create) {
-    if (!types || !types.length || typeof listener !== "function") {
-        return false;
-    }
-    if (!(types = (is.array(types) ? types.join(" ") : types).match(/\S+/g))) {
-        return false;
-    }
-    if (node._listeners === null) {
-        if (create) {
-            node._listeners = {};
-        } else {
-            return false;
-        }
-    }
-    return types;
-}
-
-Class.prototype.listeners = function(type) {
-    return this._listeners && this._listeners[type];
-};
-
-Class.prototype.publish = function(name, args) {
-    var listeners = this.listeners(name);
-    if (!listeners || !listeners.length) {
-        return 0;
-    }
-    for (var l = 0; l < listeners.length; l++) {
-        listeners[l].apply(this, args);
-    }
-    return listeners.length;
-};
-
-Class.prototype.trigger = function(name, args) {
-    this.publish(name, args);
-    return this;
-};
+},{"./util/extend":23,"./util/is":24,"./util/once":26,"./util/stats":28}],9:[function(require,module,exports){
+require("./util/event")(require("./core").prototype, function(obj, name, on) {
+    obj._flag(name, on);
+});
 
 
-},{"./core":8,"./util/is":23}],10:[function(require,module,exports){
+},{"./core":8,"./util/event":22}],10:[function(require,module,exports){
 var Class = require("./core");
 
 require("./pin");
@@ -1185,7 +1130,7 @@ Image.prototype._repeat = function(stretch, inner) {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/repeat":26}],11:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/repeat":27}],11:[function(require,module,exports){
 module.exports = require("./core");
 
 module.exports.Matrix = require("./matrix");
@@ -1215,7 +1160,7 @@ require("./render");
 var create = require("./util/create");
 
 Class.row = function(align) {
-    return Class.create().row(align);
+    return Class.create().row(align).label("Row");
 };
 
 Class.prototype.row = function(align) {
@@ -1224,7 +1169,7 @@ Class.prototype.row = function(align) {
 };
 
 Class.column = function(align) {
-    return Class.create().column(align);
+    return Class.create().column(align).label("Row");
 };
 
 Class.prototype.column = function(align) {
@@ -1233,14 +1178,14 @@ Class.prototype.column = function(align) {
 };
 
 Class.sequence = function(type, align) {
-    return Class.create().sequence(type, align);
+    return Class.create().sequence(type, align).label("Sequence");
 };
 
 Class.prototype.sequence = function(type, align) {
     this._padding = this._padding || 0;
     this._spacing = this._spacing || 0;
-    this.untick(this._sequenceTicker);
-    this.tick(this._sequenceTicker = function() {
+    this.untick(this._layoutTiker);
+    this.tick(this._layoutTiker = function() {
         if (this._mo_seq == this._ts_touch) {
             return;
         }
@@ -1279,13 +1224,13 @@ Class.prototype.sequence = function(type, align) {
 };
 
 Class.box = function() {
-    return Class.create().box();
+    return Class.create().box().label("Box");
 };
 
 Class.prototype.box = function() {
-    if (this._boxTicker) return this;
     this._padding = this._padding || 0;
-    this.tick(this._boxTicker = function() {
+    this.untick(this._layoutTiker);
+    this.tick(this._layoutTiker = function() {
         if (this._mo_box == this._ts_touch) {
             return;
         }
@@ -1308,6 +1253,28 @@ Class.prototype.box = function() {
     return this;
 };
 
+Class.layer = function() {
+    return Class.create().layer().label("Layer");
+};
+
+Class.prototype.layer = function() {
+    this.untick(this._layoutTiker);
+    this.tick(this._layoutTiker = function() {
+        var parent = this.parent();
+        if (parent) {
+            var width = parent.pin("width");
+            if (this.pin("width") != width) {
+                this.pin("width", width);
+            }
+            var height = parent.pin("height");
+            if (this.pin("height") != height) {
+                this.pin("height", height);
+            }
+        }
+    }, true);
+    return this;
+};
+
 // TODO: move padding to pin
 Class.prototype.padding = function(pad) {
     this._padding = pad;
@@ -1327,9 +1294,6 @@ Class.prototype.spacing = function(space) {
 if (typeof DEBUG === "undefined") DEBUG = true;
 
 var Class = require("../core");
-
-// TODO: don't hard-code this
-var Mouse = require("../addon/mouse");
 
 if (typeof FastContext === "undefined") {
     FastContext = window.FastContext;
@@ -1407,7 +1371,6 @@ function AppLoader(app, configs) {
         }
         return this;
     };
-    Mouse.subscribe(root, canvas);
     app(root, canvas);
     resize();
     window.addEventListener("resize", resize, false);
@@ -1453,7 +1416,7 @@ function ImageLoader(src, success, error) {
 }
 
 
-},{"../addon/mouse":3,"../core":8}],14:[function(require,module,exports){
+},{"../core":8}],14:[function(require,module,exports){
 function Matrix(a, b, c, d, e, f) {
     this._dirty = true;
     this.a = a || 1;
@@ -1584,19 +1547,19 @@ Matrix.prototype.concat = function(m) {
     return this;
 };
 
-Matrix.prototype.reverse = function() {
+Matrix.prototype.inverse = Matrix.prototype.reverse = function() {
     if (this._dirty) {
         this._dirty = false;
-        this.reversed = this.reversed || new Matrix();
+        this.inversed = this.inversed || new Matrix();
         var z = this.a * this.d - this.b * this.c;
-        this.reversed.a = this.d / z;
-        this.reversed.b = -this.b / z;
-        this.reversed.c = -this.c / z;
-        this.reversed.d = this.a / z;
-        this.reversed.e = (this.c * this.f - this.e * this.d) / z;
-        this.reversed.f = (this.e * this.b - this.a * this.f) / z;
+        this.inversed.a = this.d / z;
+        this.inversed.b = -this.b / z;
+        this.inversed.c = -this.c / z;
+        this.inversed.d = this.a / z;
+        this.inversed.e = (this.c * this.f - this.e * this.d) / z;
+        this.inversed.f = (this.e * this.b - this.a * this.f) / z;
     }
-    return this.reversed;
+    return this.inversed;
 };
 
 Matrix.prototype.map = function(p, q) {
@@ -1607,10 +1570,12 @@ Matrix.prototype.map = function(p, q) {
 };
 
 Matrix.prototype.mapX = function(x, y) {
+    if (typeof x === "object") y = x.y, x = x.x;
     return this.a * x + this.c * y + this.e;
 };
 
 Matrix.prototype.mapY = function(x, y) {
+    if (typeof x === "object") y = x.y, x = x.x;
     return this.b * x + this.d * y + this.f;
 };
 
@@ -1941,6 +1906,16 @@ Class.prototype._flag = function(obj, name) {
     return this;
 };
 
+/**
+ * @private
+ */
+Class.prototype.hitTest = function(hit) {
+    if (this.attr("spy")) {
+        return true;
+    }
+    return hit.x >= 0 && hit.x <= this._pin._width && hit.y >= 0 && hit.y <= this._pin._height;
+};
+
 function _ensure(obj) {
     if (obj && obj instanceof Class) {
         return obj;
@@ -1951,7 +1926,7 @@ function _ensure(obj) {
 module.exports = Class;
 
 
-},{"./core":8,"./util/is":23}],16:[function(require,module,exports){
+},{"./core":8,"./util/is":24}],16:[function(require,module,exports){
 var Class = require("./core");
 
 var Matrix = require("./matrix");
@@ -2407,6 +2382,46 @@ Pin.prototype._scaleTo = function(width, height, mode) {
     }
 };
 
+Class.prototype.size = function(w, h) {
+    this.pin("width", w);
+    this.pin("height", h);
+    return this;
+};
+
+Class.prototype.offset = function(a, b) {
+    if (typeof a === "object") b = a.y, a = a.x;
+    this.pin("offsetX", a);
+    this.pin("offsetY", b);
+    return this;
+};
+
+Class.prototype.rotate = function(a) {
+    this.pin("rotation", a);
+    return this;
+};
+
+Class.prototype.skew = function(a, b) {
+    if (typeof a === "object") b = a.y, a = a.x; else if (typeof b === "undefined") b = a;
+    this.pin("skewX", a);
+    this.pin("skewY", b);
+    return this;
+};
+
+Class.prototype.scale = function(a, b) {
+    if (typeof a === "object") b = a.y, a = a.x; else if (typeof b === "undefined") b = a;
+    this.pin("scaleX", a);
+    this.pin("scaleY", b);
+    return this;
+};
+
+Class.prototype.alpha = function(a, ta) {
+    this.pin("alpha", a);
+    if (typeof ta !== "undefined") {
+        this.pin("textureAlpha", ta);
+    }
+    return this;
+};
+
 module.exports = Pin;
 
 
@@ -2518,8 +2533,19 @@ Class.prototype.untick = function(ticker) {
     }
 };
 
+Class.prototype.timeout = function(fn, time) {
+    this.tick(function timer(t) {
+        if ((time -= t) < 0) {
+            this.untick(timer);
+            fn.call(this);
+        } else {
+            return true;
+        }
+    });
+};
 
-},{"./core":8,"./pin":16,"./util/create":21,"./util/stats":27}],18:[function(require,module,exports){
+
+},{"./core":8,"./pin":16,"./util/create":21,"./util/stats":28}],18:[function(require,module,exports){
 var Class = require("./core");
 
 require("./pin");
@@ -2649,7 +2675,7 @@ Root.prototype._updateViewbox = function() {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/extend":22,"./util/stats":27}],19:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/extend":23,"./util/stats":28}],19:[function(require,module,exports){
 var Class = require("./core");
 
 require("./pin");
@@ -2734,7 +2760,7 @@ Str.prototype.value = function(value) {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/is":23}],20:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/is":24}],20:[function(require,module,exports){
 var stats = require("./util/stats");
 
 var math = require("./util/math");
@@ -2830,7 +2856,7 @@ Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
 module.exports = Texture;
 
 
-},{"./util/math":24,"./util/stats":27}],21:[function(require,module,exports){
+},{"./util/math":25,"./util/stats":28}],21:[function(require,module,exports){
 if (typeof Object.create == "function") {
     module.exports = function(proto, props) {
         return Object.create.call(Object, proto, props);
@@ -2847,6 +2873,73 @@ if (typeof Object.create == "function") {
 
 
 },{}],22:[function(require,module,exports){
+module.exports = function(prototype, callback) {
+    prototype._listeners = null;
+    prototype.on = prototype.listen = function(types, listener) {
+        if (!types || !types.length || typeof listener !== "function") {
+            return this;
+        }
+        if (this._listeners === null) {
+            this._listeners = {};
+        }
+        var isarray = typeof types !== "string" && typeof types.join === "function";
+        if (types = (isarray ? types.join(" ") : types).match(/\S+/g)) {
+            for (var i = 0; i < types.length; i++) {
+                var type = types[i];
+                this._listeners[type] = this._listeners[type] || [];
+                this._listeners[type].push(listener);
+                if (typeof callback === "function") {
+                    callback(this, type, true);
+                }
+            }
+        }
+        return this;
+    };
+    prototype.off = function(types, listener) {
+        if (!types || !types.length || typeof listener !== "function") {
+            return this;
+        }
+        if (this._listeners === null) {
+            return this;
+        }
+        var isarray = typeof types !== "string" && typeof types.join === "function";
+        if (types = (isarray ? types.join(" ") : types).match(/\S+/g)) {
+            for (var i = 0; i < types.length; i++) {
+                var type = types[i], all = this._listeners[type], index;
+                if (all && (index = all.indexOf(listener)) >= 0) {
+                    all.splice(index, 1);
+                    if (!all.length) {
+                        delete this._listeners[type];
+                    }
+                    if (typeof callback === "function") {
+                        callback(this, type, false);
+                    }
+                }
+            }
+        }
+        return this;
+    };
+    prototype.listeners = function(type) {
+        return this._listeners && this._listeners[type];
+    };
+    prototype.publish = function(name, args) {
+        var listeners = this.listeners(name);
+        if (!listeners || !listeners.length) {
+            return 0;
+        }
+        for (var l = 0; l < listeners.length; l++) {
+            listeners[l].apply(this, args);
+        }
+        return listeners.length;
+    };
+    prototype.trigger = function(name, args) {
+        this.publish(name, args);
+        return this;
+    };
+};
+
+
+},{}],23:[function(require,module,exports){
 module.exports = function(base) {
     for (var i = 1; i < arguments.length; i++) {
         var obj = arguments[i];
@@ -2860,7 +2953,7 @@ module.exports = function(base) {
 };
 
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 var objProto = Object.prototype;
 
 var owns = objProto.hasOwnProperty;
@@ -3011,7 +3104,7 @@ is.hex = function(value) {
 };
 
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 module.exports.random = function(min, max) {
     if (typeof min === "undefined") {
         max = 1, min = 0;
@@ -3051,7 +3144,7 @@ module.exports.length = function(x, y) {
 };
 
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = function(fn, ctx) {
     var called = false;
     return function() {
@@ -3063,7 +3156,7 @@ module.exports = function(fn, ctx) {
 };
 
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = function(img, owidth, oheight, stretch, inner, insert) {
     var width = img.width;
     var height = img.height;
@@ -3117,11 +3210,11 @@ module.exports = function(img, owidth, oheight, stretch, inner, insert) {
 };
 
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = {};
 
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 module.exports.startsWith = function(str, sub) {
     return typeof str === "string" && typeof sub === "string" && str.substring(0, sub.length) == sub;
 };
