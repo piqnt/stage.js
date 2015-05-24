@@ -1,3 +1,9 @@
+#### v0.6.2
+* `atlas.image.url` renamed to `src`
+* pining shorthand methods added to node
+* tick-based `timeout(fn, delay)` method added to node
+* entire atlas can be used as texture
+
 #### v0.6.0
 Cut/CutJS renamed to Stage/Stage.js
 

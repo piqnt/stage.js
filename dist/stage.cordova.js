@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.6.2
+ * Stage.js 0.6.3
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -1308,10 +1308,7 @@ window.addEventListener("load", function() {
     document.addEventListener("deviceready", function() {
         DEBUG && console.log("On deviceready.");
         // clearTimeout(readyTimeout);
-        Class.start({
-            "app-loader": AppLoader,
-            "image-loader": ImageLoader
-        });
+        Class.start();
     }, false);
     document.addEventListener("pause", function() {
         Class.pause();
@@ -1320,6 +1317,11 @@ window.addEventListener("load", function() {
         Class.resume();
     }, false);
 }, false);
+
+Class.config({
+    "app-loader": AppLoader,
+    "image-loader": ImageLoader
+});
 
 function AppLoader(app, configs) {
     configs = configs || {};
@@ -1418,13 +1420,7 @@ function ImageLoader(src, success, error) {
 
 },{"../core":8}],14:[function(require,module,exports){
 function Matrix(a, b, c, d, e, f) {
-    this._dirty = true;
-    this.a = a || 1;
-    this.b = b || 0;
-    this.c = c || 0;
-    this.d = d || 1;
-    this.e = e || 0;
-    this.f = f || 0;
+    this.reset(a, b, c, d, e, f);
 }
 
 Matrix.prototype.toString = function() {
@@ -1435,19 +1431,17 @@ Matrix.prototype.clone = function() {
     return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
 };
 
-Matrix.prototype.copyTo = function(m) {
-    m.copyFrom(this);
-    return this;
-};
-
-Matrix.prototype.copyFrom = function(m) {
+Matrix.prototype.reset = function(a, b, c, d, e, f) {
     this._dirty = true;
-    this.a = m.a;
-    this.b = m.b;
-    this.c = m.c;
-    this.d = m.d;
-    this.e = m.e;
-    this.f = m.f;
+    if (typeof a === "object") {
+        this.a = a.a, this.d = a.d;
+        this.b = a.b, this.c = a.c;
+        this.e = a.e, this.f = a.f;
+    } else {
+        this.a = a || 1, this.d = d || 1;
+        this.b = b || 0, this.c = c || 0;
+        this.e = e || 0, this.f = f || 0;
+    }
     return this;
 };
 
@@ -2029,7 +2023,7 @@ Pin.prototype.absoluteMatrix = function() {
     }
     this._mo_abs = ts;
     var abs = this._absoluteMatrix;
-    abs.copyFrom(this.relativeMatrix());
+    abs.reset(this.relativeMatrix());
     this._parent && abs.concat(this._parent._absoluteMatrix);
     this._ts_matrix = ++iid;
     return abs;
@@ -2432,13 +2426,7 @@ require("./pin");
 
 var stats = require("./util/stats");
 
-var create = require("./util/create");
-
 Class.prototype._textures = null;
-
-Class.prototype._tickBefore = null;
-
-Class.prototype._tickAfter = null;
 
 Class.prototype._alpha = 1;
 
@@ -2469,6 +2457,10 @@ Class.prototype.render = function(context) {
         child.render(context);
     }
 };
+
+Class.prototype._tickBefore = null;
+
+Class.prototype._tickAfter = null;
 
 Class.prototype.MAX_ELAPSE = Infinity;
 
@@ -2545,7 +2537,7 @@ Class.prototype.timeout = function(fn, time) {
 };
 
 
-},{"./core":8,"./pin":16,"./util/create":21,"./util/stats":28}],18:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./util/stats":28}],18:[function(require,module,exports){
 var Class = require("./core");
 
 require("./pin");
@@ -2569,11 +2561,11 @@ Class.root = function(request, render) {
 function Root(request, render) {
     Root._super.call(this);
     this.label("Root");
-    this._paused = true;
+    var paused = true;
     var self = this;
     var lastTime = 0;
     var loop = function(now) {
-        if (self._paused === true) {
+        if (paused === true) {
             return;
         }
         stats.tick = stats.node = stats.draw = 0;
@@ -2583,41 +2575,35 @@ function Root(request, render) {
         var ticked = self._tick(elapsed, now, last);
         if (self._mo_touch != self._ts_touch) {
             self._mo_touch = self._ts_touch;
-            render.call(self);
-            self.request();
+            render(self);
+            request(loop);
         } else if (ticked) {
-            self.request();
+            request(loop);
         } else {
-            self.pause();
+            paused = true;
         }
         stats.fps = elapsed ? 1e3 / elapsed : 0;
     };
-    this.request = function() {
-        request(loop);
+    this.start = function() {
+        return this.resume();
+    };
+    this.resume = function() {
+        if (paused) {
+            paused = false;
+            request(loop);
+        }
+        return this;
+    };
+    this.pause = function() {
+        paused = true;
+        return this;
+    };
+    this.touch_root = this.touch;
+    this.touch = function() {
+        this.resume();
+        return this.touch_root();
     };
 }
-
-Root.prototype.start = function() {
-    return this.resume();
-};
-
-Root.prototype.resume = function(force) {
-    if (this._paused || force) {
-        this._paused = false;
-        this.request();
-    }
-    return this;
-};
-
-Root.prototype.pause = function() {
-    this._paused = true;
-    return this;
-};
-
-Root.prototype.touch = function() {
-    this.resume();
-    return Root._super.prototype.touch.call(this);
-};
 
 Root.prototype.background = function(color) {
     // to be implemented by loaders
@@ -2633,7 +2619,7 @@ Root.prototype.viewport = function(width, height, ratio) {
         height: height,
         ratio: ratio || 1
     };
-    this._updateViewbox();
+    this.viewbox();
     var data = extend({}, this._viewport);
     this.visit({
         start: function(node) {
@@ -2648,16 +2634,13 @@ Root.prototype.viewport = function(width, height, ratio) {
 
 // TODO: static/fixed viewbox
 Root.prototype.viewbox = function(width, height, mode) {
-    this._viewbox = {
-        width: width,
-        height: height,
-        mode: /^(in|out|in-pad|out-crop)$/.test(mode) ? mode : "in-pad"
-    };
-    this._updateViewbox();
-    return this;
-};
-
-Root.prototype._updateViewbox = function() {
+    if (typeof width === "number" && typeof height === "number") {
+        this._viewbox = {
+            width: width,
+            height: height,
+            mode: /^(in|out|in-pad|out-crop)$/.test(mode) ? mode : "in-pad"
+        };
+    }
     var box = this._viewbox;
     var size = this._viewport;
     if (size && box) {
@@ -2672,6 +2655,7 @@ Root.prototype._updateViewbox = function() {
             height: size.height
         });
     }
+    return this;
 };
 
 
