@@ -5,7 +5,7 @@ Standalone builds:
     dist/stage.web[.min].js
     dist/stage.cordova[.min].js
 
-Platforms CommonJS modules:
+CommonJS/Node.js modules:
 
     platform/web.js
     platform/cordova.js
@@ -20,3 +20,7 @@ Extensions for other libraries:
 Documents:
 
     doc/api.md
+
+### License
+Copyright (c) 2015 Ali Shakiba, Piqnt LLC  
+Available under the MIT license
