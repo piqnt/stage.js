@@ -189,6 +189,27 @@ bar.pin({
 });
 ```
 
+Following shortcut methods are also available for setting pinning values.
+
+```
+foo.size(width, height);
+
+foo.offset(x, y);
+foo.offset({ x : x, y : y });
+
+foo.scale(x, y = x);
+foo.scale({ x : x, y : y });
+
+foo.rotate(angle);
+
+foo.skew(x, y = x);
+foo.skew({ x : x, y : y });
+
+foo.alpha(alpha);
+foo.alpha(alpha, textureAlpha);
+```
+
+
 #### Events
 
 ```javascript
