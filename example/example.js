@@ -1,8 +1,8 @@
-!function() {
+(function(supported) {
   var body = document.body;
   var loading = document.createElement('class');
   loading.className = 'loading';
-  if (supported()) {
+  if (supported) {
     loading.innerHTML = 'Loading...';
     loading.style.zIndex = -1;
   } else {
@@ -10,12 +10,10 @@
     loading.style.zIndex = 0;
   }
   body.insertBefore(loading, body.firstChild);
-
-  function supported() {
-    var elem = document.createElement('canvas');
-    return !!(elem.getContext && elem.getContext('2d'));
-  }
-}();
+})(function() {
+  var elem = document.createElement('canvas');
+  return !!(elem.getContext && elem.getContext('2d'));
+}());
 
 var status = (function() {
   var el = null;

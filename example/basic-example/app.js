@@ -6,10 +6,10 @@ Stage(function(stage) {
 
   // Create an image and append it to stage
   var box = Stage.image('box').appendTo(stage);
-  
+
   // Align box to center
   box.pin('align', 0.5);
-  
+
   // On mouse click...
   box.on('click', function(point) {
     // ...tween scale values of this node

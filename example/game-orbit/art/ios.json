@@ -19,7 +19,7 @@
     ]
 } , {
   "input" : "splash.svg",
-  "output" : [ 
+  "output" : [
     "../platforms/ios/Orbit/Resources/splash/Default-Landscape@2x~ipad.png 1496:2048",
     "../platforms/ios/Orbit/Resources/splash/Default-Landscape~ipad.png    748:1024",
     "../platforms/ios/Orbit/Resources/splash/Default-Portrait@2x~ipad.png  1536:2008",

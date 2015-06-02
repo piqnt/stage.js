@@ -9,7 +9,7 @@ Stage({
 
     "option"     : { x : 9.5,  y : 0.25, width : 1.5,     height : 1.5 },
     "play"       : { x : 7.5,  y : 0.25, width : 1.5,     height : 1.5 },
-    
+
     "tombstone"  : { x :12+3/8,y : 0,    width : 4-3/8,   height : 4-3/8 },
 
     "coin_1"     : { x : 0,    y : 2,    width : 1,       height : 1 },

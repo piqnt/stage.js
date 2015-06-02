@@ -1,4 +1,4 @@
-  
+
 MEDIAURL = (typeof MEDIAURL !== 'undefined') ? MEDIAURL : 'media';
 
 Stage({
