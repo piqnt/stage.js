@@ -12,13 +12,6 @@ Stage(function(stage) {
 });
 
 Stage({
-  image : 'box.png',
-  textures : {
-    box : {
-      x : 0,
-      y : 0,
-      width : 200,
-      height : 200
-    }
-  }
+  name : 'box',
+  image : 'box.png'
 });
