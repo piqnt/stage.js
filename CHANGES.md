@@ -1,3 +1,7 @@
+#### v0.6.4
+* pinning shortcuts are added to nodes
+* entire atlas can be referenced
+
 #### v0.6.2
 * `atlas.image.url` renamed to `src`
 * pining shorthand methods added to node

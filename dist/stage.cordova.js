@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.6.3
+ * Stage.js 0.6.4
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -222,8 +222,6 @@ require("../core")._load(function(stage, elem) {
 });
 
 // TODO: capture mouse
-function Mouse() {}
-
 Mouse.CLICK = "click";
 
 Mouse.START = "touchstart mousedown";
@@ -235,12 +233,12 @@ Mouse.END = "touchend mouseup";
 Mouse.CANCEL = "touchcancel mousecancel";
 
 Mouse.subscribe = function(stage, elem) {
-    var visitor = null, data = {};
-    var abs = null, rel = null;
-    var clicklist = [], cancellist = [];
-    elem = elem || document;
-    // click events are synthesized from start/end events on same nodes
-    // elem.addEventListener('click', handleClick);
+    if (stage.mouse) {
+        return;
+    }
+    stage.mouse = new Mouse(stage, elem);
+    // `click` events are synthesized from start/end events on same nodes
+    // `mousecancel` events are synthesized on blur or mouseup outside element
     elem.addEventListener("touchstart", handleStart);
     elem.addEventListener("touchend", handleEnd);
     elem.addEventListener("touchmove", handleMove);
@@ -250,89 +248,108 @@ Mouse.subscribe = function(stage, elem) {
     elem.addEventListener("mousemove", handleMove);
     document.addEventListener("mouseup", handleCancel);
     window.addEventListener("blur", handleCancel);
+    var clicklist = [], cancellist = [];
     function handleStart(event) {
         event.preventDefault();
-        locate(elem, event, abs);
-        DEBUG && console.log("Mouse Start: " + event.type + " " + abs);
-        publish(event.type, event);
-        lookup("click", clicklist);
-        lookup("mousecancel", cancellist);
+        stage.mouse.locate(event);
+        // DEBUG && console.log('Mouse Start: ' + event.type + ' ' + mouse);
+        stage.mouse.publish(event.type, event);
+        stage.mouse.lookup("click", clicklist);
+        stage.mouse.lookup("mousecancel", cancellist);
+    }
+    function handleMove(event) {
+        event.preventDefault();
+        stage.mouse.locate(event);
+        stage.mouse.publish(event.type, event);
     }
     function handleEnd(event) {
         event.preventDefault();
         // up/end location is not available, last one is used instead
-        DEBUG && console.log("Mouse End: " + event.type + " " + abs);
-        publish(event.type, event);
+        // DEBUG && console.log('Mouse End: ' + event.type + ' ' + mouse);
+        stage.mouse.publish(event.type, event);
         if (clicklist.length) {
-            DEBUG && console.log("Mouse Click: " + clicklist.length);
-            publish("click", event, clicklist);
-            cancellist.length = 0;
+            // DEBUG && console.log('Mouse Click: ' + clicklist.length);
+            stage.mouse.publish("click", event, clicklist);
         }
+        cancellist.length = 0;
     }
     function handleCancel(event) {
         if (cancellist.length) {
-            DEBUG && console.log("Mouse Cancel: " + event.type);
-            publish("mousecancel", event, cancellist);
+            // DEBUG && console.log('Mouse Cancel: ' + event.type);
+            stage.mouse.publish("mousecancel", event, cancellist);
         }
+        clicklist.length = 0;
     }
-    function handleMove(event) {
-        event.preventDefault();
-        locate(elem, event, abs);
-        publish(event.type, event);
+};
+
+function Mouse(stage, elem) {
+    if (!(this instanceof Mouse)) {
+        // old-style mouse subscription
+        return;
     }
     var ratio = stage.viewport().ratio || 1;
     stage.on("viewport", function(size) {
         ratio = size.ratio || ratio;
     });
-    function locate(elem, event) {
-        locateElevent(elem, event, abs);
-        abs.x *= ratio;
-        abs.y *= ratio;
-    }
-    function lookup(type, collect) {
-        data.type = type;
-        data.root = stage;
-        data.event = null;
+    this.x = 0;
+    this.y = 0;
+    this.toString = function() {
+        return (this.x | 0) + "x" + (this.y | 0);
+    };
+    this.locate = function(event) {
+        locateElevent(elem, event, this);
+        this.x *= ratio;
+        this.y *= ratio;
+    };
+    this.lookup = function(type, collect) {
+        this.type = type;
+        this.root = stage;
+        this.event = null;
         collect.length = 0;
-        data.collect = collect;
-        data.root.visit(visitor, data);
-    }
-    function publish(type, event, targets) {
-        data.type = type;
-        data.root = stage;
-        data.event = event;
-        data.collect = false;
-        data.timeStamp = Date.now();
+        this.collect = collect;
+        this.root.visit(this.visitor, this);
+    };
+    this.publish = function(type, event, targets) {
+        this.type = type;
+        this.root = stage;
+        this.event = event;
+        this.collect = false;
+        this.timeStamp = Date.now();
+        if (type !== "mousemove" && type !== "touchmove") {
+            DEBUG && console.log(this.type + " " + this);
+        }
         if (targets) {
-            while (targets.length) if (visitor.end(targets.shift(), data)) break;
+            while (targets.length) if (this.visitor.end(targets.shift(), this)) break;
             targets.length = 0;
         } else {
-            data.root.visit(visitor, data);
+            this.root.visit(this.visitor, this);
         }
-    }
-    visitor = {
+    };
+    this.visitor = {
         reverse: true,
         visible: true,
-        start: function(node, data) {
-            return !node._flag(data.type);
+        start: function(node, mouse) {
+            return !node._flag(mouse.type);
         },
-        end: function(node, data) {
-            // data: event, type, root, collect
-            rel.raw = data.event;
-            rel.type = data.type;
-            rel.timeStamp = data.timeStamp;
-            var listeners = node.listeners(data.type);
+        end: function(node, mouse) {
+            // mouse: event/collect, type, root
+            rel.raw = mouse.event;
+            rel.type = mouse.type;
+            rel.timeStamp = mouse.timeStamp;
+            rel.abs.x = mouse.x;
+            rel.abs.y = mouse.y;
+            var listeners = node.listeners(mouse.type);
             if (!listeners) {
                 return;
             }
-            node.matrix().inverse().map(abs, rel);
-            if (!(node === data.root || node.hitTest(rel))) {
+            node.matrix().inverse().map(mouse, rel);
+            if (!(node === mouse.root || node.hitTest(rel))) {
                 return;
             }
-            if (data.collect) {
-                data.collect.push(node);
+            if (mouse.collect) {
+                mouse.collect.push(node);
             }
-            if (data.event) {
+            if (mouse.event) {
                 var cancel = false;
                 for (var l = 0; l < listeners.length; l++) {
                     cancel = listeners[l].call(node, rel) ? true : cancel;
@@ -341,37 +358,39 @@ Mouse.subscribe = function(stage, elem) {
             }
         }
     };
-    abs = {
-        x: 0,
-        y: 0,
-        toString: function() {
-            return (this.x | 0) + "x" + (this.y | 0);
-        },
-        clone: function(clone) {
-            clone = clone || {};
-            clone.x = this.x;
-            clone.y = this.y;
-            return clone;
+}
+
+var rel = Object.defineProperties({}, {
+    clone: {
+        value: function(obj) {
+            obj = obj || {}, obj.x = this.x, obj.y = this.y;
+            return obj;
         }
-    };
-    rel = {
-        x: 0,
-        y: 0,
-        abs: abs,
-        toString: function() {
-            return abs + " / " + (this.x | 0) + "x" + (this.y | 0);
-        },
-        clone: function(clone) {
-            clone = clone || {};
-            clone.x = this.x;
-            clone.y = this.y;
-            return clone;
+    },
+    toString: {
+        value: function() {
+            return (this.x | 0) + "x" + (this.y | 0) + " (" + this.abs + ")";
         }
-    };
-};
+    },
+    abs: {
+        value: Object.defineProperties({}, {
+            clone: {
+                value: function(obj) {
+                    obj = obj || {}, obj.x = this.x, obj.y = this.y;
+                    return obj;
+                }
+            },
+            toString: {
+                value: function() {
+                    return (this.x | 0) + "x" + (this.y | 0);
+                }
+            }
+        })
+    }
+});
 
 function locateElevent(el, ev, loc) {
-    // TODO: use pageX/Y if available?
+    // pageX/Y if available?
     if (ev.touches && ev.touches.length) {
         loc.x = ev.touches[0].clientX;
         loc.y = ev.touches[0].clientY;
@@ -420,9 +439,8 @@ function Tween(node) {
         // ignore old elapsed
         var ignore = lastTime != last;
         lastTime = now;
-        this.touch();
         if (ignore) {
-            return;
+            return true;
         }
         var head = tween._queue[0];
         if (!head.time) {
@@ -506,6 +524,8 @@ Tween.prototype.ease = function(easing) {
     this._next.easing = Easing(easing);
     return this;
 };
+
+Pin._add_shortcuts(Tween);
 
 module.exports = Tween;
 
@@ -684,14 +704,17 @@ Class.atlas = function(def) {
         ratio = def.image.ratio || ratio;
     }
     url && Class.preload(function(done) {
-        DEBUG && console.log("Loading image: " + url);
+        if (def.base) {
+            url = def.base + url;
+        }
+        DEBUG && console.log("Loading atlas: " + url);
         var imageloader = Class.config("image-loader");
         imageloader(url, function(image) {
             DEBUG && console.log("Image loaded: " + url);
             atlas.src(image, ratio);
             done();
-        }, function(msg) {
-            DEBUG && console.log("Error loading image: " + url, msg);
+        }, function(err) {
+            DEBUG && console.log("Error loading atlas: " + url, err);
             done();
         });
     });
@@ -918,6 +941,8 @@ var once = require("./util/once");
 
 var is = require("./util/is");
 
+var wait = require("./util/wait");
+
 stats.create = 0;
 
 function Class(arg) {
@@ -1002,27 +1027,19 @@ Class.preload = function(load) {
 Class.start = function(config) {
     DEBUG && console.log("Starting...");
     Class.config(config);
+    var loading = wait();
     DEBUG && console.log("Preloading...");
-    var loading = 0;
-    if (!_preload_queue.length) {
-        done();
-    } else {
-        while (_preload_queue.length) {
-            var preload = _preload_queue.shift();
-            preload(once(done));
-            loading++;
-        }
+    while (_preload_queue.length) {
+        _preload_queue.shift()(loading());
     }
-    function done() {
-        if (--loading <= 0) {
-            DEBUG && console.log("Loading apps...");
-            _started = true;
-            while (_app_queue.length) {
-                var args = _app_queue.shift();
-                Class.app.apply(Class, args);
-            }
+    loading.then(function() {
+        DEBUG && console.log("Loading apps...");
+        _started = true;
+        while (_app_queue.length) {
+            var args = _app_queue.shift();
+            Class.app.apply(Class, args);
         }
-    }
+    });
 };
 
 Class.pause = function() {
@@ -1050,7 +1067,7 @@ Class.create = function() {
 module.exports = Class;
 
 
-},{"./util/extend":23,"./util/is":24,"./util/once":26,"./util/stats":28}],9:[function(require,module,exports){
+},{"./util/extend":23,"./util/is":24,"./util/once":26,"./util/stats":28,"./util/wait":30}],9:[function(require,module,exports){
 require("./util/event")(require("./core").prototype, function(obj, name, on) {
     obj._flag(name, on);
 });
@@ -1295,20 +1312,26 @@ if (typeof DEBUG === "undefined") DEBUG = true;
 
 var Class = require("../core");
 
+var once = require("../util/once");
+
 if (typeof FastContext === "undefined") {
     FastContext = window.FastContext;
 }
 
 window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
-    // var readyTimeout = setTimeout(function() {
-    // DEBUG && console.log('On deviceready timeout.');
-    // Class.start();
-    // }, 2000);
-    document.addEventListener("deviceready", function() {
-        DEBUG && console.log("On deviceready.");
-        // clearTimeout(readyTimeout);
+    var start = once(function(msg) {
+        DEBUG && msg && console.log(msg);
         Class.start();
+    });
+    // setTimeout(function() {
+    // start('On deviceready timeout.');
+    // }, 2000);
+    document.addEventListener("click", function() {
+        start("Started by click.");
+    }, false);
+    document.addEventListener("deviceready", function() {
+        start("On deviceready.");
     }, false);
     document.addEventListener("pause", function() {
         Class.pause();
@@ -1418,7 +1441,7 @@ function ImageLoader(src, success, error) {
 }
 
 
-},{"../core":8}],14:[function(require,module,exports){
+},{"../core":8,"../util/once":26}],14:[function(require,module,exports){
 function Matrix(a, b, c, d, e, f) {
     this.reset(a, b, c, d, e, f);
 }
@@ -2376,45 +2399,53 @@ Pin.prototype._scaleTo = function(width, height, mode) {
     }
 };
 
-Class.prototype.size = function(w, h) {
-    this.pin("width", w);
-    this.pin("height", h);
-    return this;
+// Used by Tween class.
+Pin._add_shortcuts = function(Class) {
+    Class.prototype.size = function(w, h) {
+        this.pin("width", w);
+        this.pin("height", h);
+        return this;
+    };
+    Class.prototype.width = function(w) {
+        this.pin("width", w);
+        return this;
+    };
+    Class.prototype.height = function(h) {
+        this.pin("height", h);
+        return this;
+    };
+    Class.prototype.offset = function(a, b) {
+        if (typeof a === "object") b = a.y, a = a.x;
+        this.pin("offsetX", a);
+        this.pin("offsetY", b);
+        return this;
+    };
+    Class.prototype.rotate = function(a) {
+        this.pin("rotation", a);
+        return this;
+    };
+    Class.prototype.skew = function(a, b) {
+        if (typeof a === "object") b = a.y, a = a.x; else if (typeof b === "undefined") b = a;
+        this.pin("skewX", a);
+        this.pin("skewY", b);
+        return this;
+    };
+    Class.prototype.scale = function(a, b) {
+        if (typeof a === "object") b = a.y, a = a.x; else if (typeof b === "undefined") b = a;
+        this.pin("scaleX", a);
+        this.pin("scaleY", b);
+        return this;
+    };
+    Class.prototype.alpha = function(a, ta) {
+        this.pin("alpha", a);
+        if (typeof ta !== "undefined") {
+            this.pin("textureAlpha", ta);
+        }
+        return this;
+    };
 };
 
-Class.prototype.offset = function(a, b) {
-    if (typeof a === "object") b = a.y, a = a.x;
-    this.pin("offsetX", a);
-    this.pin("offsetY", b);
-    return this;
-};
-
-Class.prototype.rotate = function(a) {
-    this.pin("rotation", a);
-    return this;
-};
-
-Class.prototype.skew = function(a, b) {
-    if (typeof a === "object") b = a.y, a = a.x; else if (typeof b === "undefined") b = a;
-    this.pin("skewX", a);
-    this.pin("skewY", b);
-    return this;
-};
-
-Class.prototype.scale = function(a, b) {
-    if (typeof a === "object") b = a.y, a = a.x; else if (typeof b === "undefined") b = a;
-    this.pin("scaleX", a);
-    this.pin("scaleY", b);
-    return this;
-};
-
-Class.prototype.alpha = function(a, ta) {
-    this.pin("alpha", a);
-    if (typeof ta !== "undefined") {
-        this.pin("textureAlpha", ta);
-    }
-    return this;
-};
+Pin._add_shortcuts(Class);
 
 module.exports = Pin;
 
@@ -3201,6 +3232,30 @@ module.exports = {};
 },{}],29:[function(require,module,exports){
 module.exports.startsWith = function(str, sub) {
     return typeof str === "string" && typeof sub === "string" && str.substring(0, sub.length) == sub;
+};
+
+
+},{}],30:[function(require,module,exports){
+module.exports = function() {
+    var then, wait = 0;
+    function fork(fn, n) {
+        wait += n = typeof n === "number" && n >= 1 ? n : 1;
+        return function() {
+            fn && fn.apply(this, arguments);
+            if (n > 0) {
+                n--, wait--, call();
+            }
+        };
+    }
+    function call() {
+        if (wait === 0 && typeof then === "function") {
+            then();
+        }
+    }
+    fork.then = function(fn) {
+        then = fn, call();
+    };
+    return fork;
 };
 
 
