@@ -3,6 +3,7 @@ var args = require('minimist')(process.argv.slice(2));
 var browserify = require('browserify');
 
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var wrap = require('gulp-wrap');
@@ -23,25 +24,24 @@ gulp.task('test', function() {
 });
 
 gulp.task('build', [ 'web', 'cordova' ]);
-
-gulp.task('web', dist('web'));
-gulp.task('cordova', dist('cordova'));
-
-gulp.task('dev', [ 'web-nomin', 'watch-dev' ]);
-
-gulp.task('watch-dev', function() {
-  gulp.watch('{lib/**/*.js,platform/**/*.js}', [ 'web-nomin' ]);
-});
+gulp.task('web', dist([ './platform/web' ], 'web'));
+gulp.task('cordova', dist([ './platform/cordova' ], 'cordova'));
 
 gulp.task('build-nomin', [ 'web-nomin', 'cordova-nomin' ]);
+gulp.task('web-nomin', dist([ './platform/web' ], 'web', true));
+gulp.task('cordova-nomin', dist([ './platform/cordova' ], 'cordova', true));
 
-gulp.task('web-nomin', dist('web', true));
-gulp.task('cordova-nomin', dist('cordova', true));
+(function(tasks) {
+  gulp.task('dev', tasks.concat([ 'watch-dev' ]));
+  gulp.task('watch-dev', function() {
+    gulp.watch('{lib/**/*.js,platform/**/*.js}', tasks);
+  });
+})([ 'web-nomin' /* , 'cordova-nomin' */]);
 
-function dist(file, nomin) {
+function dist(files, file, nomin) {
   return function() {
     var task = browserify({
-      entries : [ './platform/' + file ],
+      entries : files,
       standalone : 'Stage'
     });
     task = task.transform({
@@ -54,6 +54,10 @@ function dist(file, nomin) {
       }
     }, 'uglifyify');
     task = task.bundle();
+    task.on('error', function(err) {
+      console.log(gutil.colors.red(err.message));
+      this.emit('end');
+    });
     task = task.pipe(source('stage.' + file + '.js')).pipe(buffer()); // vinylify
     task = task.pipe(wrap({
       src : 'template/dist.js'

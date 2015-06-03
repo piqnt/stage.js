@@ -48,5 +48,8 @@
     "test": "gulp test",
     "build": "gulp",
     "watch": "gulp build-min watch"
+  },
+  "dependencies": {
+    "gulp-util": "^3.0.5"
   }
 }
