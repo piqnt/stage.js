@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.6.4
+ * Stage.js 0.6.5
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -704,9 +704,6 @@ Class.atlas = function(def) {
         ratio = def.image.ratio || ratio;
     }
     url && Class.preload(function(done) {
-        if (def.base) {
-            url = def.base + url;
-        }
         DEBUG && console.log("Loading atlas: " + url);
         var imageloader = Class.config("image-loader");
         imageloader(url, function(image) {
@@ -941,8 +938,6 @@ var once = require("./util/once");
 
 var is = require("./util/is");
 
-var wait = require("./util/wait");
-
 stats.create = 0;
 
 function Class(arg) {
@@ -1017,29 +1012,40 @@ Class.app = function(app, opts) {
 };
 
 Class.preload = function(load) {
+    if (typeof load === "string") {
+        if (/\.js($|\?|\#)/.test(load)) {
+            return Class.preloadScript(load);
+        }
+    }
+    if (typeof load !== "function") {
+        return;
+    }
     if (!_started) {
         _preload_queue.push(load);
         return;
     }
-    load(function(err) {});
+    load(function(err) {
+        console.log(err);
+    });
 };
 
 Class.start = function(config) {
     DEBUG && console.log("Starting...");
     Class.config(config);
-    var loading = wait();
     DEBUG && console.log("Preloading...");
-    while (_preload_queue.length) {
-        _preload_queue.shift()(loading());
-    }
-    loading.then(function() {
-        DEBUG && console.log("Loading apps...");
-        _started = true;
-        while (_app_queue.length) {
-            var args = _app_queue.shift();
-            Class.app.apply(Class, args);
+    (function next() {
+        if (_preload_queue.length) {
+            var load = _preload_queue.shift();
+            load(next);
+        } else {
+            DEBUG && console.log("Loading apps...");
+            _started = true;
+            while (_app_queue.length) {
+                var args = _app_queue.shift();
+                Class.app.apply(Class, args);
+            }
         }
-    });
+    })();
 };
 
 Class.pause = function() {
@@ -1066,8 +1072,29 @@ Class.create = function() {
 
 module.exports = Class;
 
+Class.preloadScript = function(src) {
+    return Class.preload(function(callback) {
+        loadScript(src, callback);
+    });
+};
 
-},{"./util/extend":23,"./util/is":24,"./util/once":26,"./util/stats":28,"./util/wait":30}],9:[function(require,module,exports){
+function loadScript(src, callback) {
+    var el = document.createElement("script");
+    el.addEventListener("load", function() {
+        callback();
+    });
+    el.addEventListener("error", function(err) {
+        callback(err || "Error loading script: " + src);
+    });
+    el.src = src;
+    el.id = "preload-" + Date.now();
+    document.body.appendChild(el);
+}
+
+
+
+
+},{"./util/extend":23,"./util/is":24,"./util/once":26,"./util/stats":28}],9:[function(require,module,exports){
 require("./util/event")(require("./core").prototype, function(obj, name, on) {
     obj._flag(name, on);
 });
@@ -3188,30 +3215,6 @@ module.exports = {};
 },{}],29:[function(require,module,exports){
 module.exports.startsWith = function(str, sub) {
     return typeof str === "string" && typeof sub === "string" && str.substring(0, sub.length) == sub;
-};
-
-
-},{}],30:[function(require,module,exports){
-module.exports = function() {
-    var then, wait = 0;
-    function fork(fn, n) {
-        wait += n = typeof n === "number" && n >= 1 ? n : 1;
-        return function() {
-            fn && fn.apply(this, arguments);
-            if (n > 0) {
-                n--, wait--, call();
-            }
-        };
-    }
-    function call() {
-        if (wait === 0 && typeof then === "function") {
-            then();
-        }
-    }
-    fork.then = function(fn) {
-        then = fn, call();
-    };
-    return fork;
 };
 
 

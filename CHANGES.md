@@ -1,3 +1,6 @@
+#### v0.6.5
+* preload('url.js') and preloadScript('url') are added
+
 #### v0.6.4
 * pinning shortcuts are added to nodes
 * entire atlas can be referenced
