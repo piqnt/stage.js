@@ -5,9 +5,7 @@ if (typeof BASE_URL === 'undefined') {
 
 Stage({
   image : { src : BASE_URL + 'media/bg.png', ratio : 8 },
-  textures : {
-    'background' : { x : 0, y : 0, width : 128, height : 128 }
-  }
+  name : 'background'
 });
 
 Stage({
@@ -16,8 +14,8 @@ Stage({
     'planet' :    { x : 0,     y : 0,    width : 12,   height : 12 },
     'play' :      { x : 0,     y : 16,   width : 12,   height : 12 },
     'explosion' : { x : 12,    y : 0,    width : 12,   height : 12 },
-    'ship' :      { x : 0,     y : 12,   width : 4,    height : 4 },
-    'next' :      { x : 4,     y : 12,   width : 4,    height : 4 },
+    'orbit' :     { x : 0,     y : 12,   width : 4,    height : 4 },
+    'first' :     { x : 4,     y : 12,   width : 4,    height : 4 },
     'asteroid' :  { x : 8,     y : 12,   width : 4,    height : 4 },
     'bullet' :    { x : 12,    y : 12,   width : 4,    height : 4 }
   }
