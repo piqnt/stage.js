@@ -144,8 +144,8 @@ describe('Stage.texture()', function() {
 
     Stage.atlas({
       name : "main",
-      imagePath : "main.png",
-      imageRatio : 4,
+      // imagePath : "main.png",
+      // imageRatio : 4,
       trim : 0.1,
       cutouts : [ {
         name : "color_dark",
