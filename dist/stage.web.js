@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.6.5
+ * Stage.js 0.6.6
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -29,7 +29,7 @@ module.exports._extend = require("../lib/util/extend");
 module.exports._create = require("../lib/util/create");
 
 require("../lib/loader/web");
-},{"../lib/":11,"../lib/addon/mouse":3,"../lib/addon/tween":4,"../lib/anim":5,"../lib/canvas":7,"../lib/image":10,"../lib/layout":12,"../lib/loader/web":13,"../lib/str":19,"../lib/util/create":21,"../lib/util/extend":23,"../lib/util/math":25}],2:[function(require,module,exports){
+},{"../lib/":11,"../lib/addon/mouse":3,"../lib/addon/tween":4,"../lib/anim":5,"../lib/canvas":7,"../lib/image":10,"../lib/layout":12,"../lib/loader/web":13,"../lib/str":19,"../lib/util/create":22,"../lib/util/extend":24,"../lib/util/math":26}],2:[function(require,module,exports){
 function _identity(x) {
     return x;
 }
@@ -360,34 +360,34 @@ function Mouse(stage, elem) {
     };
 }
 
-var rel = Object.defineProperties({}, {
-    clone: {
-        value: function(obj) {
-            obj = obj || {}, obj.x = this.x, obj.y = this.y;
-            return obj;
-        }
-    },
-    toString: {
-        value: function() {
-            return (this.x | 0) + "x" + (this.y | 0) + " (" + this.abs + ")";
-        }
-    },
-    abs: {
-        value: Object.defineProperties({}, {
-            clone: {
-                value: function(obj) {
-                    obj = obj || {}, obj.x = this.x, obj.y = this.y;
-                    return obj;
-                }
-            },
-            toString: {
-                value: function() {
-                    return (this.x | 0) + "x" + (this.y | 0);
-                }
-            }
-        })
-    }
+// TODO: define per mouse object with get-only x and y
+var rel = {}, abs = {};
+
+defineValue(rel, "clone", function(obj) {
+    obj = obj || {}, obj.x = this.x, obj.y = this.y;
+    return obj;
 });
+
+defineValue(rel, "toString", function() {
+    return (this.x | 0) + "x" + (this.y | 0) + " (" + this.abs + ")";
+});
+
+defineValue(rel, "abs", abs);
+
+defineValue(abs, "clone", function(obj) {
+    obj = obj || {}, obj.x = this.x, obj.y = this.y;
+    return obj;
+});
+
+defineValue(abs, "toString", function() {
+    return (this.x | 0) + "x" + (this.y | 0);
+});
+
+function defineValue(obj, name, value) {
+    Object.defineProperty(obj, name, {
+        value: value
+    });
+}
 
 function locateElevent(el, ev, loc) {
     // pageX/Y if available?
@@ -664,7 +664,7 @@ Anim.prototype.stop = function(frame) {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/math":25}],6:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":22,"./util/math":26}],6:[function(require,module,exports){
 if (typeof DEBUG === "undefined") DEBUG = true;
 
 var Class = require("./core");
@@ -859,11 +859,11 @@ Class.texture = function(query) {
         atlas = _atlases_map[query.slice(0, i)];
         result = atlas && atlas.select(query.slice(i + 1));
     }
-    for (i = 0; !result && i < _atlases_arr.length; i++) {
-        result = _atlases_arr[i].select(query);
-    }
     if (!result && (atlas = _atlases_map[query])) {
         result = atlas.select();
+    }
+    for (i = 0; !result && i < _atlases_arr.length; i++) {
+        result = _atlases_arr[i].select(query);
     }
     if (!result) {
         console.error("Texture not found: " + query);
@@ -879,7 +879,7 @@ function deprecated(hash, name, msg) {
 module.exports = Atlas;
 
 
-},{"./core":8,"./texture":20,"./util/create":21,"./util/extend":23,"./util/is":24,"./util/string":29}],7:[function(require,module,exports){
+},{"./core":8,"./texture":20,"./util/create":22,"./util/extend":24,"./util/is":25,"./util/string":30}],7:[function(require,module,exports){
 var Class = require("./core");
 
 var Texture = require("./texture");
@@ -938,6 +938,8 @@ var once = require("./util/once");
 
 var is = require("./util/is");
 
+var await = require("./util/await");
+
 stats.create = 0;
 
 function Class(arg) {
@@ -988,12 +990,12 @@ var _preload_queue = [];
 
 var _stages = [];
 
-var _started = false;
+var _loaded = false;
 
 var _paused = false;
 
 Class.app = function(app, opts) {
-    if (!_started) {
+    if (!_loaded) {
         _app_queue.push(arguments);
         return;
     }
@@ -1011,41 +1013,44 @@ Class.app = function(app, opts) {
     }, opts);
 };
 
+var loading = await();
+
 Class.preload = function(load) {
     if (typeof load === "string") {
-        if (/\.js($|\?|\#)/.test(load)) {
-            return Class.preloadScript(load);
+        var url = load;
+        if (/\.js($|\?|\#)/.test(url)) {
+            load = function(callback) {
+                loadScript(url, callback);
+            };
         }
     }
     if (typeof load !== "function") {
         return;
     }
-    if (!_started) {
-        _preload_queue.push(load);
-        return;
-    }
-    load(function(err) {
-        console.log(err);
-    });
+    // if (!_started) {
+    // _preload_queue.push(load);
+    // return;
+    // }
+    load(loading());
 };
 
 Class.start = function(config) {
     DEBUG && console.log("Starting...");
     Class.config(config);
-    DEBUG && console.log("Preloading...");
-    (function next() {
-        if (_preload_queue.length) {
-            var load = _preload_queue.shift();
-            load(next);
-        } else {
-            DEBUG && console.log("Loading apps...");
-            _started = true;
-            while (_app_queue.length) {
-                var args = _app_queue.shift();
-                Class.app.apply(Class, args);
-            }
+    // DEBUG && console.log('Preloading...');
+    // _started = true;
+    // while (_preload_queue.length) {
+    // var load = _preload_queue.shift();
+    // load(loading());
+    // }
+    loading.then(function() {
+        DEBUG && console.log("Loading apps...");
+        _loaded = true;
+        while (_app_queue.length) {
+            var args = _app_queue.shift();
+            Class.app.apply(Class, args);
         }
-    })();
+    });
 };
 
 Class.pause = function() {
@@ -1072,12 +1077,6 @@ Class.create = function() {
 
 module.exports = Class;
 
-Class.preloadScript = function(src) {
-    return Class.preload(function(callback) {
-        loadScript(src, callback);
-    });
-};
-
 function loadScript(src, callback) {
     var el = document.createElement("script");
     el.addEventListener("load", function() {
@@ -1094,13 +1093,13 @@ function loadScript(src, callback) {
 
 
 
-},{"./util/extend":23,"./util/is":24,"./util/once":26,"./util/stats":28}],9:[function(require,module,exports){
+},{"./util/await":21,"./util/extend":24,"./util/is":25,"./util/once":27,"./util/stats":29}],9:[function(require,module,exports){
 require("./util/event")(require("./core").prototype, function(obj, name, on) {
     obj._flag(name, on);
 });
 
 
-},{"./core":8,"./util/event":22}],10:[function(require,module,exports){
+},{"./core":8,"./util/event":23}],10:[function(require,module,exports){
 var Class = require("./core");
 
 require("./pin");
@@ -1174,7 +1173,7 @@ Image.prototype._repeat = function(stretch, inner) {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/repeat":27}],11:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":22,"./util/repeat":28}],11:[function(require,module,exports){
 module.exports = require("./core");
 
 module.exports.Matrix = require("./matrix");
@@ -1331,7 +1330,7 @@ Class.prototype.spacing = function(space) {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21}],13:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":22}],13:[function(require,module,exports){
 /**
  * Default loader for web.
  */
@@ -1926,7 +1925,7 @@ function _ensure(obj) {
 module.exports = Class;
 
 
-},{"./core":8,"./util/is":24}],16:[function(require,module,exports){
+},{"./core":8,"./util/is":25}],16:[function(require,module,exports){
 var Class = require("./core");
 
 var Matrix = require("./matrix");
@@ -2390,10 +2389,16 @@ Pin._add_shortcuts = function(Class) {
         return this;
     };
     Class.prototype.width = function(w) {
+        if (typeof w === "undefined") {
+            return this.pin("width");
+        }
         this.pin("width", w);
         return this;
     };
     Class.prototype.height = function(h) {
+        if (typeof h === "undefined") {
+            return this.pin("height");
+        }
         this.pin("height", h);
         return this;
     };
@@ -2551,7 +2556,7 @@ Class.prototype.timeout = function(fn, time) {
 };
 
 
-},{"./core":8,"./pin":16,"./util/stats":28}],18:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./util/stats":29}],18:[function(require,module,exports){
 var Class = require("./core");
 
 require("./pin");
@@ -2673,7 +2678,7 @@ Root.prototype.viewbox = function(width, height, mode) {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/extend":23,"./util/stats":28}],19:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":22,"./util/extend":24,"./util/stats":29}],19:[function(require,module,exports){
 var Class = require("./core");
 
 require("./pin");
@@ -2758,7 +2763,7 @@ Str.prototype.value = function(value) {
 };
 
 
-},{"./core":8,"./pin":16,"./render":17,"./util/create":21,"./util/is":24}],20:[function(require,module,exports){
+},{"./core":8,"./pin":16,"./render":17,"./util/create":22,"./util/is":25}],20:[function(require,module,exports){
 var stats = require("./util/stats");
 
 var math = require("./util/math");
@@ -2854,7 +2859,38 @@ Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
 module.exports = Texture;
 
 
-},{"./util/math":25,"./util/stats":28}],21:[function(require,module,exports){
+},{"./util/math":26,"./util/stats":29}],21:[function(require,module,exports){
+module.exports = function() {
+    var await = 0;
+    function fork(fn, n) {
+        await += n = typeof n === "number" && n >= 1 ? n : 1;
+        return function() {
+            fn && fn.apply(this, arguments);
+            if (n > 0) {
+                n--, await--, call();
+            }
+        };
+    }
+    var then = [];
+    function call() {
+        if (await === 0) {
+            while (then.length) {
+                setTimeout(then.shift(), 0);
+            }
+        }
+    }
+    fork.then = function(fn) {
+        if (await === 0) {
+            setTimeout(fn, 0);
+        } else {
+            then.push(fn);
+        }
+    };
+    return fork;
+};
+
+
+},{}],22:[function(require,module,exports){
 if (typeof Object.create == "function") {
     module.exports = function(proto, props) {
         return Object.create.call(Object, proto, props);
@@ -2870,7 +2906,7 @@ if (typeof Object.create == "function") {
 }
 
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = function(prototype, callback) {
     prototype._listeners = null;
     prototype.on = prototype.listen = function(types, listener) {
@@ -2937,7 +2973,7 @@ module.exports = function(prototype, callback) {
 };
 
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 module.exports = function(base) {
     for (var i = 1; i < arguments.length; i++) {
         var obj = arguments[i];
@@ -2951,7 +2987,7 @@ module.exports = function(base) {
 };
 
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var objProto = Object.prototype;
 
 var owns = objProto.hasOwnProperty;
@@ -3102,7 +3138,7 @@ is.hex = function(value) {
 };
 
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports.random = function(min, max) {
     if (typeof min === "undefined") {
         max = 1, min = 0;
@@ -3142,7 +3178,7 @@ module.exports.length = function(x, y) {
 };
 
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = function(fn, ctx) {
     var called = false;
     return function() {
@@ -3154,7 +3190,7 @@ module.exports = function(fn, ctx) {
 };
 
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = function(img, owidth, oheight, stretch, inner, insert) {
     var width = img.width;
     var height = img.height;
@@ -3208,11 +3244,11 @@ module.exports = function(img, owidth, oheight, stretch, inner, insert) {
 };
 
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 module.exports = {};
 
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 module.exports.startsWith = function(str, sub) {
     return typeof str === "string" && typeof sub === "string" && str.substring(0, sub.length) == sub;
 };
