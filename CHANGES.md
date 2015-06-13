@@ -1,5 +1,10 @@
+#### v0.6.6
+* lookup atlas by name before textures 
+* `node.width/height()` pinning shortcuts return value
+* preloadScript('url') removed
+
 #### v0.6.5
-* preload('url.js') and preloadScript('url') are added
+* preload('url.js') is added
 
 #### v0.6.4
 * pinning shortcuts are added to nodes
