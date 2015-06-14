@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.6.6
+ * Stage.js 0.6.7
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -3183,6 +3183,10 @@ is.hex = function(value) {
 
 
 },{}],26:[function(require,module,exports){
+var create = require("./create");
+
+module.exports = create(Math);
+
 module.exports.random = function(min, max) {
     if (typeof min === "undefined") {
         max = 1, min = 0;
@@ -3222,7 +3226,7 @@ module.exports.length = function(x, y) {
 };
 
 
-},{}],27:[function(require,module,exports){
+},{"./create":22}],27:[function(require,module,exports){
 module.exports = function(fn, ctx) {
     var called = false;
     return function() {

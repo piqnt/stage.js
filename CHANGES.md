@@ -1,3 +1,6 @@
+#### v0.6.7
+* Stage.Math extends native Math 
+
 #### v0.6.6
 * lookup atlas by name before textures 
 * `node.width/height()` pinning shortcuts return value
