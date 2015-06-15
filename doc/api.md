@@ -290,6 +290,8 @@ Stage.anim('mario:walk');
 Stage.string('mario:number');
 ```
 
+If image URL starts with `./` it will be resolved relative to current script URL.
+
 #### Image
 An image is a node with one texture.
 
@@ -398,6 +400,7 @@ var tween = foo.tween(duration = 400, delay = 0);
 tween.clear(jumpToEnd = false);
 
 // Set pinning values and start tweening
+// Pinning shortcut methods (such as `.scale()`) can also be used
 tween.pin(pinning);
 
 // Set easing for tweening, it can be either a function or an identifier
@@ -432,6 +435,10 @@ Stage.preload(function(done) {
   // Call `done` when loaded or failed
   done(error);
 });
+
+// Preload `script.js`
+// URLs starting with `./` are resolved relative to current script URL
+Stage.preload('script.js');
 
 // Pause playing all applications
 Stage.pause();
