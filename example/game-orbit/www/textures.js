@@ -1,15 +1,11 @@
 
-if (typeof BASE_URL === 'undefined') {
-  var BASE_URL = '';
-}
-
 Stage({
-  image : { src : BASE_URL + 'media/bg.png', ratio : 8 },
+  image : { src : './media/bg.png', ratio : 8 },
   name : 'background'
 });
 
 Stage({
-  image : { src : BASE_URL + 'media/main.png', ratio : 8 },
+  image : { src : './media/main.png', ratio : 8 },
   textures : {
     'planet' :    { x : 0,     y : 0,    width : 12,   height : 12 },
     'play' :      { x : 0,     y : 16,   width : 12,   height : 12 },
@@ -22,7 +18,7 @@ Stage({
 });
 
 Stage({
-  image : { src : BASE_URL + 'media/digit.png', ratio : 8 },
+  image : { src : './media/digit.png', ratio : 8 },
   ppu : 8,
   textures : {
     'digit' : {

@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.6.7
+ * Stage.js 0.7.0
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -704,6 +704,7 @@ Class.atlas = function(def) {
         ratio = def.image.ratio || ratio;
     }
     url && Class.preload(function(done) {
+        url = Class.resolve(url);
         DEBUG && console.log("Loading atlas: " + url);
         var imageloader = Class.config("image-loader");
         imageloader(url, function(image) {
@@ -934,8 +935,6 @@ var stats = require("./util/stats");
 
 var extend = require("./util/extend");
 
-var once = require("./util/once");
-
 var is = require("./util/is");
 
 var await = require("./util/await");
@@ -1017,8 +1016,9 @@ var loading = await();
 
 Class.preload = function(load) {
     if (typeof load === "string") {
-        var url = load;
+        var url = Class.resolve(load);
         if (/\.js($|\?|\#)/.test(url)) {
+            DEBUG && console.log("Loading script: " + url);
             load = function(callback) {
                 loadScript(url, callback);
             };
@@ -1075,6 +1075,60 @@ Class.create = function() {
     return new Class();
 };
 
+Class.resolve = function() {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+        return function(url) {
+            return url;
+        };
+    }
+    var scripts = document.getElementsByTagName("script");
+    function getScriptSrc() {
+        // HTML5
+        if (document.currentScript) {
+            return document.currentScript.src;
+        }
+        // IE>=10
+        var stack;
+        try {
+            var err = new Error();
+            if (err.stack) {
+                stack = err.stack;
+            } else {
+                throw err;
+            }
+        } catch (err) {
+            stack = err.stack;
+        }
+        if (typeof stack === "string") {
+            stack = stack.split("\n");
+            // Uses the last line, where the call started
+            for (var i = stack.length; i--; ) {
+                var url = stack[i].match(/(\w+\:\/\/[^\/]*?\/.+?)(:\d+)(:\d+)?/);
+                if (url) {
+                    return url[1];
+                }
+            }
+        }
+        // IE<11
+        if (scripts.length && "readyState" in scripts[0]) {
+            for (var i = scripts.length; i--; ) {
+                if (scripts[i].readyState === "interactive") {
+                    return scripts[i].src;
+                }
+            }
+        }
+        return location.href;
+    }
+    return function(url) {
+        if (/^\.\//.test(url)) {
+            var src = getScriptSrc();
+            var base = src.substring(0, src.lastIndexOf("/") + 1);
+            url = base + url.substring(2);
+        }
+        return url;
+    };
+}();
+
 module.exports = Class;
 
 function loadScript(src, callback) {
@@ -1093,7 +1147,7 @@ function loadScript(src, callback) {
 
 
 
-},{"./util/await":21,"./util/extend":24,"./util/is":25,"./util/once":27,"./util/stats":29}],9:[function(require,module,exports){
+},{"./util/await":21,"./util/extend":24,"./util/is":25,"./util/stats":29}],9:[function(require,module,exports){
 require("./util/event")(require("./core").prototype, function(obj, name, on) {
     obj._flag(name, on);
 });
@@ -3185,6 +3239,8 @@ is.hex = function(value) {
 },{}],26:[function(require,module,exports){
 var create = require("./create");
 
+var M = Math;
+
 module.exports = create(Math);
 
 module.exports.random = function(min, max) {
@@ -3193,7 +3249,7 @@ module.exports.random = function(min, max) {
     } else if (typeof max === "undefined") {
         max = min, min = 0;
     }
-    return min == max ? min : Math.random() * (max - min) + min;
+    return min == max ? min : M.random() * (max - min) + min;
 };
 
 module.exports.rotate = function(num, min, max) {

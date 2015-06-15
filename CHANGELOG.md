@@ -1,3 +1,6 @@
+#### v0.7.0
+* **images and script urls starting with `./` are resolved as relative**
+
 #### v0.6.7
 * Stage.Math extends native Math 
 
@@ -20,7 +23,7 @@
 * entire atlas can be used as texture
 
 #### v0.6.0
-Cut/CutJS renamed to Stage/Stage.js
+* **Cut/CutJS renamed to Stage/Stage.js**
 
 #### v0.5.0
 * atlas spec changed

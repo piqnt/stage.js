@@ -1,3 +1,5 @@
+Stage.preload('./textures.js');
+
 // game logic
 function Game(ui) {
 
