@@ -395,9 +395,7 @@ Stage(function(stage) {
         'scale' : 1 / pscale
       });
       body.ui.drop = function() {
-        this.tween(70).pin('alpha', 0).then(function() {
-          this.remove();
-        });
+        this.tween(70).alpha(0).remove();
       };
     },
     hitBrick : function(brick) {

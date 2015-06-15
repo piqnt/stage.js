@@ -1,28 +1,13 @@
 Stage.preload('./textures.js');
 
-// game logic
-function Game(ui) {
+// Game logic
+function Game(gameui) {
 
-  // useful functions
-  var Util = {};
-  Util.unitVect = function(vect, m) {
-    m = m || 1;
-    var length = Math.sqrt(vect.x * vect.x + vect.y * vect.y);
-    return {
-      x : vect.x / length * m,
-      y : vect.y / length * m
-    };
-  };
-  Util.dist = function(a, b) {
-    var x = b.x - a.x, y = b.y - a.y;
-    return Math.sqrt(x * x + y * y);
-  };
-  Util.random = function(min, max) {
-    if (min == max) {
-      return min;
-    }
-    return Math.random() * (max - min) + min;
-  };
+  // self
+  var game = this;
+
+  // use enhanced Stage.Math
+  var Math = Stage.Math;
 
   // constant values
   var PLANET = 6; // planet collision radius
@@ -35,7 +20,6 @@ function Game(ui) {
   var bullets = [];
   var asteroids = [];
 
-  var game = this;
   game.life = 0;
   game.score = 0;
 
@@ -45,7 +29,7 @@ function Game(ui) {
   var nextOrbitPosition = 0;
   var nextAsteroidTime = 0;
 
-  // start game
+  // start/reset game
   this.start = function() {
     time = 0;
 
@@ -104,7 +88,7 @@ function Game(ui) {
       var bullet = bullets[i];
       // if arrived at target
       if (bullet.tick(t, time)) {
-        ui.explode(bullet);
+        gameui.explode(bullet);
         bullet.remove();
         bullets.splice(i, 1);
       }
@@ -112,11 +96,11 @@ function Game(ui) {
 
     // if it's time to add next asteroid
     if ((nextAsteroidTime -= t) < 0) {
-      nextAsteroidTime = Util.random(2, 3) * 180 / (time / 1000 + 180) * 1000;
+      nextAsteroidTime = Math.random(2, 3) * 180 / (time / 1000 + 180) * 1000;
       // create an asteroid at a random angle and radius
-      var a = Util.random(0, 2 * Math.PI);
-      var r = Util.random(120, 180);
-      var velocity = Util.random(0.7, 1.7) * (4 + time * 0.00001);
+      var a = Math.random(0, 2 * Math.PI);
+      var r = Math.random(120, 180);
+      var velocity = Math.random(0.7, 1.7) * (4 + time * 0.00001);
       new Asteroid({
         x : r * Math.sin(a),
         y : r * Math.cos(a)
@@ -125,10 +109,10 @@ function Game(ui) {
 
     planet.tick(t, time);
 
-    ui.update(game);
+    gameui.status(game);
 
     if (game.life == 0) {
-      ui.gameOver();
+      gameui.gameover();
     }
   };
 
@@ -145,10 +129,10 @@ function Game(ui) {
     }
   };
 
-  this.explode = function(log) {
+  this.explode = function(loc) {
     for (var i = asteroids.length - 1; i >= 0; i--) {
       var asteroid = asteroids[i];
-      if (Util.dist(asteroid, log) < EXPLODE) {
+      if (vectDist(asteroid, loc) < EXPLODE) {
         asteroid.remove();
         asteroids.splice(i, 1);
         // game.life = Math.min(LIFE, game.life + 1);
@@ -161,21 +145,21 @@ function Game(ui) {
     this.x = 0;
     this.y = 0;
 
-    var img;
+    var ui = gameui.planet(this);
 
-    this.add = function(parent) {
-      img = ui.planet.add();
+    this.add = function() {
+      ui.add();
       return this;
     };
 
     this.remove = function() {
-      ui.planet.remove(this, img);
+      ui.remove();
       return this;
     };
 
     this.tick = function(t, time) {
       this.life = Math.min(1, Math.max(0, Math.pow(game.life / LIFE, 2)));
-      ui.planet.update(this, img);
+      ui.update();
     };
   }
 
@@ -184,22 +168,21 @@ function Game(ui) {
     this.y = from.y;
 
     // calculate velocity vector
-    velocity = Util.unitVect({
+    velocity = unitVect({
       x : planet.x - from.x,
       y : planet.y - from.y
     }, velocity);
 
-    var img;
+    var ui = gameui.asteroid(this);
 
-    this.add = function(parent) {
+    this.add = function() {
       asteroids.push(this);
-      img = ui.asteroid.add(this);
-      ui.asteroid.update(this, img);
+      ui.add();
       return this;
     };
 
     this.remove = function() {
-      ui.asteroid.remove(this, img);
+      ui.remove();
       return this;
     };
 
@@ -207,9 +190,9 @@ function Game(ui) {
       this.x += velocity.x * t / 1000;
       this.y += velocity.y * t / 1000;
 
-      ui.asteroid.update(this, img);
+      ui.update();
 
-      return Util.dist(this, planet) < PLANET;
+      return vectDist(this, planet) < PLANET;
     };
   }
 
@@ -220,16 +203,16 @@ function Game(ui) {
 
     this._ready = RELOAD; // time to reload and ready
 
-    var img;
+    var ui = gameui.orbit(this);
 
     this.add = function() {
       orbits.push(this);
-      img = ui.orbit.add(this);
+      ui.add();
       return this;
     };
 
     this.remove = function() {
-      ui.orbit.remove(this, img);
+      ui.remove();
       return this;
     };
 
@@ -239,7 +222,7 @@ function Game(ui) {
       this.x = radius * Math.sin(angle);
       this.y = radius * Math.cos(angle);
 
-      ui.orbit.update(this, img);
+      ui.update();
     };
 
     this.first = function() {
@@ -263,21 +246,21 @@ function Game(ui) {
     };
 
     // calculate velocity vector
-    velocity = Util.unitVect({
+    velocity = unitVect({
       x : target.x - from.x,
       y : target.y - from.y
     }, velocity);
 
-    var img;
+    var ui = gameui.bullet(this);
 
-    this.add = function(parent) {
+    this.add = function() {
       bullets.push(this);
-      img = ui.bullet.add(this);
+      ui.add();
       return this;
     };
 
     this.remove = function() {
-      ui.bullet.remove(this, img);
+      ui.remove();
       return this;
     };
 
@@ -285,84 +268,32 @@ function Game(ui) {
       this.x += velocity.x * t / 1000;
       this.y += velocity.y * t / 1000;
 
-      ui.bullet.update(this, img);
+      ui.update();
 
-      return Util.dist(this, target) < 1;
+      return vectDist(this, target) < 1;
     };
+  }
+
+  // unit vector multiplied
+  function unitVect(vect, m) {
+    m = m || 1;
+    var length = Math.sqrt(vect.x * vect.x + vect.y * vect.y);
+    return {
+      x : vect.x / length * m,
+      y : vect.y / length * m
+    };
+  }
+
+  // distance between two point/vector
+  function vectDist(a, b) {
+    var x = b.x - a.x, y = b.y - a.y;
+    return Math.sqrt(x * x + y * y);
   }
 }
 
-// game user interface
+// UI
 Stage(function(root) {
   var Mouse = Stage.Mouse;
-
-  // create a game with ui callbacks
-  var game = new Game({
-    update : function(game) {
-      score.value(game.score);
-      life.value(game.life);
-    },
-    planet : {
-      add : function(obj) {
-        return Stage.image('planet').pin('handle', 0.5).appendTo(space);
-      },
-      update : function(obj, ui) {
-        ui.alpha(this.life);
-      },
-      remove : function(obj, ui) {
-        ui.remove();
-      }
-    },
-    asteroid : {
-      add : function(obj) {
-        return Stage.image('asteroid').pin('handle', 0.5).appendTo(space);
-      },
-      update : function(obj, ui) {
-        ui.offset(obj);
-      },
-      remove : function(obj, ui) {
-        ui.remove();
-      }
-    },
-    orbit : {
-      add : function(obj) {
-        var img = Stage.image('orbit').pin('handle', 0.5).appendTo(space);
-        img.ring = Stage.image('first').pin('align', 0.5).appendTo(img).hide();
-        return img;
-      },
-      update : function(obj, ui) {
-        ui.offset(obj);
-        ui.alpha(100 / (obj._ready + 100));
-        ui.ring.alpha(obj._ready <= 0).visible(obj._first);
-      },
-      remove : function(obj, ui) {
-        ui.remove();
-      }
-    },
-    bullet : {
-      add : function(obj) {
-        return Stage.image('bullet').pin('handle', 0.5).appendTo(space);
-      },
-      update : function(obj, ui) {
-        ui.offset(obj);
-      },
-      remove : function(obj, ui) {
-        ui.remove();
-      }
-    },
-    explode : function(obj) {
-      var explosion = Stage.image('explosion').pin('handle', 0.5).offset(obj)
-          .scale(0.1).appendTo(space);
-      explosion.tween(50).scale(1).then(function() {
-        game.explode(obj);
-      }).tween(200).alpha(0).then(function() {
-        this.remove();
-      });
-    },
-    gameOver : function() {
-      gameOver();
-    }
-  });
 
   // set viewbox
   root.viewbox(150, 150);
@@ -377,14 +308,19 @@ Stage(function(root) {
     });
   }).appendTo(root);
 
-  // active view
-  var activeView = null;
-
-  // open a view
-  function open(view) {
-    activeView && activeView.hide();
-    activeView = view.show();
-  }
+  // an element which views only one child at a time
+  var singleView = Stage.create().appendTo(root);
+  singleView.view = function(active) {
+    if (active.parent() !== this) {
+      active.remove().appendTo(this);
+    }
+    if (!active.visible()) {
+      active.show();
+    }
+    for (var child = this.first(); child; child = child.next()) {
+      active !== child && child.visible() && child.hide();
+    }
+  };
 
   // game home view
   var homeView = Stage.create().on('viewport', function() {
@@ -398,11 +334,6 @@ Stage(function(root) {
   Stage.image('play').pin('align', 0.5).on(Mouse.CLICK, function() {
     startGame();
   }).appendTo(homeView);
-
-  // open home view
-  function viewHome() {
-    open(homeView);
-  }
 
   // game play view
   var playView = Stage.create().on('viewport', function() {
@@ -427,14 +358,96 @@ Stage(function(root) {
     handle : 0
   }).appendTo(root).append(life, score);
 
+  // create a game with ui callbacks
+  var game = new Game({
+    status : function(game) {
+      score.value(game.score);
+      life.value(game.life);
+    },
+    planet : function(obj) {
+      var img = Stage.image('planet').pin('handle', 0.5);
+      return {
+        add : function() {
+          img.appendTo(space);
+          this.update();
+        },
+        update : function() {
+          img.alpha(obj.life);
+        },
+        remove : function() {
+          img.remove();
+        }
+      };
+    },
+    asteroid : function(obj) {
+      var img = Stage.image('asteroid').pin('handle', 0.5);
+      return {
+        add : function() {
+          img.appendTo(space);
+          this.update();
+        },
+        update : function() {
+          img.offset(obj);
+        },
+        remove : function() {
+          img.remove();
+        }
+      };
+    },
+    orbit : function(obj) {
+      var img = Stage.image('orbit').pin('handle', 0.5);
+      var ring = Stage.image('first').pin('align', 0.5).appendTo(img).hide();
+      return {
+        add : function() {
+          img.appendTo(space);
+          this.update();
+        },
+        update : function() {
+          img.offset(obj);
+          img.alpha(100 / (obj._ready + 100));
+          ring.alpha(obj._ready <= 0).visible(obj._first);
+        },
+        remove : function() {
+          img.remove();
+        }
+      };
+    },
+    bullet : function(obj) {
+      var img = Stage.image('bullet').pin('handle', 0.5);
+      return {
+        add : function() {
+          img.appendTo(space);
+          this.update();
+        },
+        update : function() {
+          img.offset(obj);
+        },
+        remove : function() {
+          img.remove();
+        }
+      };
+    },
+    explode : function(obj) {
+      var explosion = Stage.image('explosion').pin('handle', 0.5).offset(obj)
+          .scale(0.1).appendTo(space);
+      explosion.tween(50).scale(1).then(function() {
+        game.explode(obj);
+      }).tween(200).alpha(0).remove();
+    },
+    gameover : function() {
+      gameOver();
+    }
+  });
+
+  // on start game view play and start game
   function startGame() {
     game.start();
-    open(playView);
+    singleView.view(playView);
   }
 
-  // on gameover go back to home
+  // on game over view home
   function gameOver() {
-    viewHome();
+    singleView.view(homeView);
   }
 
   space.on(Mouse.START, function(point) {
@@ -449,6 +462,5 @@ Stage(function(root) {
     game.tick(t);
   });
 
-  viewHome();
-
+  singleView.view(homeView);
 });

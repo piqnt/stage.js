@@ -1,58 +1,61 @@
-function Game() {
-  var cells = [], turn = 0, ready = false;
+// Game logic
+
+function Game(ui) {
+  var cells = [];
+  var turn = -1;
 
   this.ready = function() {
-    return ready;
+    return turn >= 0 && turn < 9;
   };
 
   this.init = function() {
-    console.log('Game.init');
+    console.log('game init');
     cells = [];
     for (var i = -1; i <= 1; i++) {
       cells[i] = [];
       for (var j = -1; j <= 1; j++) {
-        cells[i][j] = {
+        var cell = cells[i][j] = {
           i : i,
           j : j
         };
-        this.uiNewCell(cells[i][j]);
+        cell.ui = ui.cell(cell);
       }
     }
   };
 
   this.start = function() {
-    console.log('Game.start');
+    console.log('game start');
     if (cells.length == 0) {
       this.init();
     }
-    turn = 0, ready = true;
+    turn = 0;
     for (var i = -1; i <= 1; i++) {
       for (var j = -1; j <= 1; j++) {
         cells[i][j].sign = null;
-        this.uiUpdateCell(cells[i][j]);
+        cells[i][j].ui.update();
       }
     }
   };
 
   this.click = function(cell) {
-    console.log('Game.click');
-    if (!ready || cell.sign) {
+    console.log('game click');
+    if (turn < 0 || cell.sign) {
       return;
     }
     cell.sign = (turn++ % 2 == 0) ? 'o' : 'x';
-    this.uiUpdateCell(cell);
+    cell.ui.update();
     var row = test(cell.i, cell.j, cell.sign);
     if (row) {
-      ready = false;
-      this.uiWin(row, cell.sign);
+      turn = -1;
+      ui.win(row, cell.sign);
     } else if (turn >= 9) {
-      ready = false;
-      this.uiDraw(row, cell.sign);
+      turn = -1;
+      ui.draw();
     }
   };
 
   function test(i, j, sign) {
-    console.log('Game.test');
+    console.log('game test');
     if (cells[-1][j].sign == sign && cells[0][j].sign == sign
         && cells[+1][j].sign == sign)
       return [ cells[-1][j], cells[0][j], cells[+1][j] ];
@@ -69,55 +72,59 @@ function Game() {
 
 }
 
+// UI
+
 Stage(function(stage) {
 
   stage.viewbox(50, 50).pin('handle', -0.5);
 
   Stage.image('bg').pin('handle', 0.5).appendTo(stage);
 
-  var game = new Game();
-
-  game.uiNewCell = function(cell) {
-    console.log('Game.uiNewCell');
-    cell.ui = Stage.image('x').appendTo(stage).pin({
-      offsetX : cell.i * 10,
-      offsetY : cell.j * 10,
-      handle : 0.5
-    }).on('click', function() {
-      if (game.ready()) {
-        game.click(cell);
-      } else {
-        game.start();
-      }
-    });
-  };
-
-  game.uiUpdateCell = function(cell) {
-    console.log('Box.uiUpdateCell');
-    cell.ui.image(cell.sign || '-');
-    cell.ui.pin({
-      alpha : 0.8,
-      scale : 1
-    });
-  };
-
-  game.uiWin = function name(row, sign) {
-    console.log('Game.uiWin');
-    for (var i = 0; i < row.length; i++) {
-      var tween = row[i].ui.tween(200).pin({
-        alpha : 1,
-        scaleX : 1.2,
-        scaleY : 1.2
+  var game = new Game({
+    cell : function(obj) {
+      console.log('ui new cell');
+      var img = Stage.image('x').appendTo(stage).pin({
+        offsetX : obj.i * 10,
+        offsetY : obj.j * 10,
+        handle : 0.5
+      }).on('click', function() {
+        if (game.ready()) {
+          game.click(obj);
+        } else {
+          game.start();
+        }
       });
+      return {
+        update : function() {
+          console.log('ui update cell');
+          img.image(obj.sign || '-').pin({
+            alpha : 0.8,
+            scale : 1
+          });
+        },
+        win : function() {
+          img.tween(200).pin({
+            alpha : 1,
+            scale : 1.2,
+          });
+        }
+      };
+    },
+    win : function(row, sign) {
+      console.log('ui win');
+      for (var i = 0; i < row.length; i++) {
+        row[i].ui.win();
+      }
+    },
+    draw : function() {
+      console.log('ui draw');
     }
-  };
-
-  game.uiDraw = function() {
-    console.log('Game.uiDraw');
-  };
+  });
 
   game.start();
 });
+
+// Textures
 
 Stage({
   textures : {
