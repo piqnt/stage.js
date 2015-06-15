@@ -1,3 +1,7 @@
+#### v0.7.1
+* `tween.then()` is deprecated and replaced by `tween.end()`
+* `tween.remove/hide()` are added
+
 #### v0.7.0
 * **images and script urls starting with `./` are resolved as relative**
 

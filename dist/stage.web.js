@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.7.0
+ * Stage.js 0.7.1
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -515,13 +515,35 @@ Tween.prototype.clear = function(forward) {
     return this;
 };
 
-Tween.prototype.then = function(then) {
-    this._next.then = then;
+/**
+ * @deprecated Use end(fn) instead.
+ */
+Tween.prototype.then = function(fn) {
+    this._next.then = fn;
     return this;
 };
 
 Tween.prototype.ease = function(easing) {
     this._next.easing = Easing(easing);
+    return this;
+};
+
+Tween.prototype.end = function(fn) {
+    this._next.then = fn;
+    return this;
+};
+
+Tween.prototype.hide = function() {
+    this.end(function() {
+        this.hide();
+    });
+    return this;
+};
+
+Tween.prototype.remove = function() {
+    this.end(function() {
+        this.remove();
+    });
     return this;
 };
 
