@@ -1,10 +1,12 @@
 Stage(function(stage) {
 
+  var Math = Stage.Math, Mouse = Stage.Mouse;
+
   stage.viewbox(1000, 1000).pin('handle', -0.5);
 
   var clicked = false;
   var logo = Stage.image('pinwheel').appendTo(stage).pin('handle', 0.5).on(
-      Stage.Mouse.CLICK, function() {
+      Mouse.CLICK, function() {
         clicked = true;
         then();
       });

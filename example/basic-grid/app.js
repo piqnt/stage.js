@@ -1,5 +1,7 @@
 Stage(function(stage) {
 
+  var Math = Stage.Math, Mouse = Stage.Mouse;
+
   stage.viewbox(300, 300);
 
   var last = null;
@@ -11,19 +13,19 @@ Stage(function(stage) {
     for (i = 0; i < 9; i++) {
       // colors as frames
       var cell = Stage.anim('rainbow').appendTo(row).pin('pivot', 0.5);
-      cell.on(Stage.Mouse.MOVE, function(point) {
+      cell.on(Mouse.MOVE, function(point) {
         if (this != last) {
           last = this;
           // random frame = random color
-          this.gotoFrame(Stage.Math.random(this.length()));
-          this.tween(Stage.Math.random(2000, 5000)).clear().pin({
-            scaleX : Stage.Math.random(0.9, 1.4),
-            scaleY : Stage.Math.random(0.9, 1.4),
-            skewX : Stage.Math.random(0, 0.4),
-            skewY : Stage.Math.random(0, 0.4),
-            rotation : Stage.Math.random(-Math.PI, Math.PI),
-            pivotX : Stage.Math.random(0.3, 0.7),
-            pivotY : Stage.Math.random(0.3, 0.7)
+          this.gotoFrame(Math.random(this.length()));
+          this.tween(Math.random(2000, 5000)).clear().pin({
+            scaleX : Math.random(0.9, 1.4),
+            scaleY : Math.random(0.9, 1.4),
+            skewX : Math.random(0, 0.4),
+            skewY : Math.random(0, 0.4),
+            rotation : Math.random(-Math.PI, Math.PI),
+            pivotX : Math.random(0.3, 0.7),
+            pivotY : Math.random(0.3, 0.7)
           });
         }
         return true;

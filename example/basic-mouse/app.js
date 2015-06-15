@@ -1,18 +1,20 @@
 Stage(function(stage) {
 
+  var Mouse = Stage.Mouse;
+
   stage.viewbox(300, 100);
 
   var row = Stage.row().appendTo(stage).pin('align', 0.5).spacing(1);
 
-  Stage.anim('rainbow').appendTo(row).on(Stage.Mouse.CLICK, function(point) {
+  Stage.anim('rainbow').appendTo(row).on(Mouse.CLICK, function(point) {
     this.moveFrame(1);
   }).label('click');
 
-  Stage.anim('rainbow').appendTo(row).on(Stage.Mouse.START, function(point) {
+  Stage.anim('rainbow').appendTo(row).on(Mouse.START, function(point) {
     this.moveFrame(1);
   }).label('start');
 
-  Stage.anim('rainbow').appendTo(row).on(Stage.Mouse.END, function(point) {
+  Stage.anim('rainbow').appendTo(row).on(Mouse.END, function(point) {
     this.moveFrame(1);
   }).label('end');
 
@@ -21,7 +23,7 @@ Stage(function(stage) {
   }).appendTo(stage);
 
   var down = false;
-  stage.on(Stage.Mouse.START, function(point) {
+  stage.on(Mouse.START, function(point) {
     down = true;
     cursor.pin({
       offsetX : point.x,
@@ -29,7 +31,7 @@ Stage(function(stage) {
       alpha : 1,
       scale : 1
     });
-  }).on(Stage.Mouse.MOVE, function(point) {
+  }).on(Mouse.MOVE, function(point) {
     if (down) {
       cursor.pin({
         offsetX : point.x,
@@ -38,7 +40,7 @@ Stage(function(stage) {
         scale : 2
       });
     }
-  }).on(Stage.Mouse.END, function(point) {
+  }).on(Mouse.END, function(point) {
     down = false;
     cursor.pin({
       offsetX : point.x,
@@ -46,7 +48,7 @@ Stage(function(stage) {
       alpha : 1,
       scale : 1
     });
-  }).on(Stage.Mouse.CANCEL, function() {
+  }).on(Mouse.CANCEL, function() {
     down = false;
     cursor.pin({
       alpha : 0.6,

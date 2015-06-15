@@ -1,5 +1,7 @@
 Stage(function(stage) {
 
+  var Math = Stage.Math;
+  
   var SHIP = Math.pow(2, 1);
   var BULLET = Math.pow(2, 2);
   var ASTEROID = Math.pow(2, 3);
@@ -343,8 +345,8 @@ Stage(function(stage) {
   // If the body is out of space bounds, wrap it to the other side
   function wrap(body) {
     var p = body.position;
-    p[0] = Stage.Math.rotate(p[0], -spaceWidth / 2, spaceWidth / 2);
-    p[1] = Stage.Math.rotate(p[1], -spaceHeight / 2, spaceHeight / 2);
+    p[0] = Math.rotate(p[0], -spaceWidth / 2, spaceWidth / 2);
+    p[1] = Math.rotate(p[1], -spaceHeight / 2, spaceHeight / 2);
   }
 
   // Returns a random number between -0.5 and 0.5
