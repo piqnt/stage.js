@@ -1,13 +1,15 @@
+var Math = Stage.Math;
+
+// Game logic
+
 function World() {
   this.objects = [];
   this.running = false;
 }
 
-World.prototype.addObj = function(obj) {
+World.prototype.add = function(obj) {
   this.objects.push(obj);
-  obj.world = this;
-  obj.uiAdd(this);
-  return obj;
+  obj.added(this);
 };
 
 World.prototype.size = function(width, height) {
@@ -15,7 +17,6 @@ World.prototype.size = function(width, height) {
   this.height = height;
   this.xMin = -(this.xMax = this.width / 2);
   this.yMin = -(this.yMax = this.height / 2);
-  // this.uiUpdate();
   return this;
 };
 
@@ -23,11 +24,11 @@ World.prototype.run = function(run) {
   this.running = run !== false;
 };
 
-World.prototype.animate = function(t) {
+World.prototype.tick = function(t) {
   if (this.running) {
     t = Math.min(100, t);
     for (var i = 0, n = this.objects.length; i < n; i++) {
-      this.objects[i].animate(t);
+      this.objects[i].tick(t);
     }
   }
 };
@@ -49,16 +50,16 @@ function Drone(vMin, vMax, aMax) {
   this.accY = 0;
   this.accCX = null;
   this.accCY = null;
-  this.running = true;
+  this.uiCreate();
 }
 
-Drone.prototype.run = function(run) {
-  this.running = run !== false;
-  return this;
+Drone.prototype.added = function(world) {
+  this.world = world;
+  this.uiAdd(world);
 };
 
-Drone.prototype.animate = function(t) {
-  if (!this.running || !t) {
+Drone.prototype.tick = function(t) {
+  if (!t) {
     return;
   }
 
@@ -89,7 +90,7 @@ Drone.prototype.animate = function(t) {
   } else if (this.accX !== 0 || this.accY !== 0) {
     var x = this.accX;
     var y = this.accY;
-    var d = M.length(x, y);
+    var d = Math.length(x, y);
     m = (x * this.vy - y * this.vx) / this.v / d * this.aMax;
 
   } else if (this.accMain !== 0 || this.accSide !== 0) {
@@ -98,7 +99,7 @@ Drone.prototype.animate = function(t) {
   }
 
   if (m || n) {
-    m = M.limit(m, -this.aMax, this.aMax);
+    m = Math.limit(m, -this.aMax, this.aMax);
     m = m / this.v;
 
     this.vx += +this.vx * n * t;
@@ -107,14 +108,14 @@ Drone.prototype.animate = function(t) {
     this.vx += +this.vy * m * t;
     this.vy += -this.vx * m * t;
 
-    var v = M.length(this.vx, this.vy);
-    this.v = M.limit(v, this.vMin, this.vMax);
+    var v = Math.length(this.vx, this.vy);
+    this.v = Math.limit(v, this.vMin, this.vMax);
     v = this.v / v;
     this.vx *= v;
     this.vy *= v;
 
     var dir = Math.atan2(this.vy, this.vx);
-    this.rotation = (this.rotation * (200 - t) + M.rotate(this.dir - dir,
+    this.rotation = (this.rotation * (200 - t) + Math.rotate(this.dir - dir,
         -Math.PI, Math.PI)) / 200;
     this.dir = dir;
 
@@ -122,42 +123,36 @@ Drone.prototype.animate = function(t) {
     this.rotation = (this.rotation * (200 - t)) / 200;
   }
 
-  this.x = M.rotate(this.x + this.vx * t, this.world.xMin, this.world.xMax);
-  this.y = M.rotate(this.y + this.vy * t, this.world.yMin, this.world.yMax);
+  this.x = Math.rotate(this.x + this.vx * t, this.world.xMin, this.world.xMax);
+  this.y = Math.rotate(this.y + this.vy * t, this.world.yMin, this.world.yMax);
 
   this.uiUpdate();
 };
 
-Stage({
-  image : {
-    src : "main.png",
-    ratio : 4
-  },
-  textures : {
-    drone : {
-      x : 0,
-      y : 0,
-      width : 16,
-      height : 16
-    }
-  }
-});
+// UI
 
 Stage(function(stage) {
 
-  stage.viewbox(300, 300).pin('handle', -0.5).on('viewport', function() {
-    world.size(this.pin('width'), this.pin('height'));
-  }).tick(function(t) {
-    world.animate(t);
-  });
+  var Mouse = Stage.Mouse;
+  
+  stage.viewbox(300, 300).pin('handle', -0.5);
 
-  // Objects
+  // Create game world
   var world = new World();
   world.ui = stage;
+
   var speed = 100 / 1000;
   var acc = speed * 2 / 1000;
   var drone = new Drone(speed, speed * 2, acc);
-  world.addObj(drone);
+  world.add(drone);
+
+  stage.on('viewport', function() {
+    world.size(this.pin('width'), this.pin('height'));
+  });
+
+  stage.tick(function(t) {
+    world.tick(t);
+  });
 
   // Controls
 
@@ -180,7 +175,7 @@ Stage(function(stage) {
   };
   document.onkeydown = function(e) {
     world.run(true);
-    world.ui.touch();
+    stage.touch();
     e = e || window.event;
     keyboard.down(e.keyCode);
   };
@@ -190,16 +185,16 @@ Stage(function(stage) {
   };
 
   // Mouse
-  stage.on(Stage.Mouse.START, function(point) {
+  stage.on(Mouse.START, function(point) {
     world.run(true);
-    world.ui.touch();
+    stage.touch();
     tilt.watch(true);
     drone.accCX = point.x;
     drone.accCY = point.y;
-  }).on(Stage.Mouse.END, function(point) {
+  }).on(Mouse.END, function(point) {
     tilt.watch(false);
     drone.accCX = drone.accCY = null;
-  }).on(Stage.Mouse.MOVE, function(point) {
+  }).on(Mouse.MOVE, function(point) {
     if (drone.accCX !== null && drone.accCY !== null) {
       drone.accCX = point.x;
       drone.accCY = point.y;
@@ -227,8 +222,8 @@ Stage(function(stage) {
         this.a = a, this.b = b, this.g = g, this.o = o;
         this.time = now;
       }
-      var x = M.rotate(this.g - this.g0, -180, 180) / 180;
-      var y = M.rotate(this.b - this.b0, -180, 180) / 180;
+      var x = Math.rotate(this.g - this.g0, -180, 180) / 180;
+      var y = Math.rotate(this.b - this.b0, -180, 180) / 180;
       var min = 0.05;
       drone.accX = x > min ? 1 : x < -min ? -1 : 0;
       drone.accY = y > min ? 1 : y < -min ? -1 : 0;
@@ -241,55 +236,47 @@ Stage(function(stage) {
   });
 });
 
-Drone.prototype.uiAdd = function(world) {
-  this.ui = (this.ui || Stage.image('drone').pin('handle', 0.5))
-      .appendTo(world.ui);
-  this.ui2 = (this.ui2 || Stage.image('drone').pin('handle', 0.5).pin({
-    alpha : 0.2
-  })).appendTo(world.ui);
+// Extending game logic and adding UI callbacks
+
+Drone.prototype.uiCreate = function() {
+  this.ui = Stage.create().pin('handle', 0.5);
+  this.ui.drone = Stage.image('drone').pin('handle', 0.5).appendTo(this.ui);
+  this.ui.shadow = Stage.image('drone').pin('handle', 0.5).pin({
+    alpha : 0.2,
+    offsetX : 30,
+    offsetY : 30
+  }).appendTo(this.ui);
   this.uiUpdate();
 };
 
-Drone.PIN = {};
-Drone.prototype.uiUpdate = function() {
-  if (!this.ui)
-    return;
-
-  Drone.PIN.rotation = this.dir;
-  Drone.PIN.scaleY = 1 - Math.abs(this.rotation) / Math.PI * 400;
-  Drone.PIN.offsetX = this.x;
-  Drone.PIN.offsetY = this.y;
-  this.ui.pin(Drone.PIN);
-
-  Drone.PIN.offsetX += 30;
-  Drone.PIN.offsetY += 30;
-  this.ui2.pin(Drone.PIN);
+Drone.prototype.uiAdd = function(world) {
+  this.ui.appendTo(world.ui);
 };
 
 Drone.prototype.uiRemove = function() {
-  if (this.ui) {
-    this.ui.remove();
-    this.ui = null;
-  }
-
-  if (this.ui2) {
-    this.ui2.remove();
-    this.ui2 = null;
-  }
+  this.ui.remove();
 };
 
-var M = Stage.Math;
+Drone.prototype.uiUpdate = function() {
+  this.ui.offset(this);
+  var scaley = 1 - Math.abs(this.rotation) / Math.PI * 400;
+  this.ui.drone.rotate(this.dir).scale(1, scaley);
+  this.ui.shadow.rotate(this.dir).scale(1, scaley);
+};
 
-M.limit = function(value, min, max) {
-  if (value > max) {
-    return max;
-  } else if (value < min) {
-    return min;
-  } else {
-    return value;
+// Textures
+
+Stage({
+  image : {
+    src : 'main.png',
+    ratio : 4
+  },
+  textures : {
+    drone : {
+      x : 0,
+      y : 0,
+      width : 16,
+      height : 16
+    }
   }
-};
-
-Date.now = Date.now || function now() {
-  return new Date().getTime();
-};
+});
