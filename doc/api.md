@@ -405,16 +405,21 @@ tween.pin(pinning);
 
 // Set easing for tweening, it can be either a function or an identifier
 // defined as 'name[-mode][(params)]', for example 'quad' or 'poly-in-out(3)'
+// Names: linear, quad, cubic, quart, quint, poly(p), sin/sine, 
+//        exp, circle/circ, bounce, elastic(a, p), back(s)
+// Modes: in, out, in-out, out-in
 tween.ease(easing);
 
-// Available easing names are: linear, quad, cubic, quart, quint, poly(p),
-// sin/sine, exp, circle/circ, bounce, elastic(a, p), back(s)
-// Available easing modes are: in, out, in-out, out-in
-
-// Callback when tweening is over
-tween.then(function() {
+// Callback when tweening ends
+tween.end(function() {
   // this === foo
 });
+
+// Remove this node when tweening ends
+tween.remove();
+
+// Hide this node when tweening ends
+tween.hide();
 
 // Add another tweening to the queue
 var nextTween = tween.tween(duration = 400, delay = 0);
