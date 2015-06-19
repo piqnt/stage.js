@@ -10,7 +10,7 @@ Stage(function(stage) {
   });
 
   stage.on('click', function(point) {
-    box.tween(300).ease('quad-out').offset(0, -200).tween(700).ease('bounce')
-        .offset(0, 0);
+    box.tween(300, true).ease('quad-out').offset(0, -200).tween(700).ease(
+        'bounce').offset(0, 0);
   });
 });

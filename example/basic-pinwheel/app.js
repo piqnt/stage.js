@@ -1,29 +1,17 @@
 Stage(function(stage) {
 
-  var Math = Stage.Math, Mouse = Stage.Mouse;
+  var Math = Stage.Math, Mouse = Stage.Mouse, PI = Math.PI;
 
   stage.viewbox(1000, 1000).pin('handle', -0.5);
 
-  var clicked = false;
-  var logo = Stage.image('pinwheel').appendTo(stage).pin('handle', 0.5).on(
-      Mouse.CLICK, function() {
-        clicked = true;
-        then();
+  Stage.image('pinwheel').appendTo(stage).pin('handle', 0.5).on(
+      Mouse.CLICK,
+      function() {
+        var r = this.pin('rotation') % (Math.PI * 2);
+        this.pin('rotation', r).tween(1000).rotate(r - PI * 2).tween(2000)
+            .rotate(r - PI * 4).ease('sin-out');
       });
 
-  function then() {
-    logo.pin('rotation', logo.pin('rotation') % (Math.PI * 2));
-    if (clicked) {
-      logo.tween(1000).clear().pin('rotation',
-          logo.pin('rotation') - Math.PI * 2).then(then);
-    } else {
-      logo.tween(2000).clear().pin('rotation',
-          logo.pin('rotation') - Math.PI * 2).ease(function(t) {
-        return Math.sin(t * Math.PI / 2);
-      });
-    }
-    clicked = false;
-  }
 });
 
 Stage({

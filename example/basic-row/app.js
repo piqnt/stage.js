@@ -12,7 +12,7 @@ Stage(function(stage) {
     Stage.image(colors[i]).appendTo(row).on(Mouse.MOVE, function(point) {
       if (this != last) {
         last = this;
-        this.tween().clear().pin({
+        this.tween().pin({
           scaleX : Math.random(0.8, 1.6),
           scaleY : Math.random(0.8, 1.6)
         });

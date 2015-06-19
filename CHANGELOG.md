@@ -1,5 +1,11 @@
+#### v0.8.0
+* **default .tween() behavior is changed from append to replace**
+* `.tween(duration, delay)` is changed to `.tween(duration, delay, append = false)`
+* `tween.clear()` is deprecated and no-op
+* `tween.end()` is replaced by `tween.done()`
+
 #### v0.7.1
-* `tween.then()` is deprecated and replaced by `tween.end()`
+* `tween.then()` is replaced by `tween.end()`
 * `tween.remove/hide()` are added
 
 #### v0.7.0

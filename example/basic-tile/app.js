@@ -9,7 +9,7 @@ Stage(function(stage) {
     height : 64,
     align : 0.5
   }).on(Mouse.CLICK, function() {
-    this.tween().clear().pin({
+    this.tween().pin({
       width : Math.random(32, 96),
       height : Math.random(32, 96)
     });

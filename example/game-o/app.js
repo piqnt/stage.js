@@ -933,9 +933,7 @@ Stage(function(stage, display) {
     });
 
     home.on('close', function() {
-      this.tween(200).pin('alpha', 0).then(function() {
-        this.hide();
-      });
+      this.tween(200).pin('alpha', 0).hide();
     });
 
     var bg = Stage.image('homebg').appendTo(home).pin('align', 0.5);
@@ -970,8 +968,8 @@ Stage(function(stage, display) {
 
     for (var i = 0; i < Conf.ups.length; i++) {
       var name = Conf.ups[i];
-      upgrades[name] = Stage.image('option').appendTo(row).attr('name', name).on(
-          Mouse.CLICK, function() {
+      upgrades[name] = Stage.image('option').appendTo(row).attr('name', name)
+          .on(Mouse.CLICK, function() {
             game.upgrade(this.attr('name'));
           });
     }
@@ -1092,9 +1090,7 @@ Stage(function(stage, display) {
     play.on('close', function() {
       display.style && (display.style.cursor = '');
       game.end();
-      this.tween(200).pin('alpha', 0).then(function() {
-        this.hide();
-      });
+      this.tween(200).pin('alpha', 0).hide();
     });
 
     play.tick(function(t) {
@@ -1161,7 +1157,8 @@ Stage(function(stage, display) {
       }, 1000);
     }
 
-    var cursor = Stage.image('cursor').pin('handle', 0.5).appendTo(field).hide();
+    var cursor = Stage.image('cursor').pin('handle', 0.5).appendTo(field)
+        .hide();
 
     var l1 = Stage.create().appendTo(field);
     var l2 = Stage.create().appendTo(field);

@@ -390,14 +390,12 @@ foo = foo.box();
 ```
 
 #### Tweening
-Tweening can only be applied to pinning values.
+Tweening is used to apply smooth transitions to pinning values.
 
 ```javascript
 // Create a tweening entry
-var tween = foo.tween(duration = 400, delay = 0);
-
-// Stop and clear tweening queue
-tween.clear(jumpToEnd = false);
+// When `append` is true new entry is appended to current entries otherwise replaces them
+var tween = foo.tween(duration = 400, delay = 0, append = false);
 
 // Set pinning values and start tweening
 // Pinning shortcut methods, such as `.scale()`, can also be used
@@ -410,8 +408,14 @@ tween.pin(pinning);
 // Modes: in, out, in-out, out-in
 tween.ease(easing);
 
-// Callback when tweening ends
-tween.end(function() {
+// Set duration in milliseconds
+tween.duraion(ms);
+
+// Set delay in milliseconds
+tween.delay(ms);
+
+// Callback when tweening is done
+tween.done(function() {
   // this === foo
 });
 
@@ -421,7 +425,7 @@ tween.remove();
 // Hide this node when tweening ends
 tween.hide();
 
-// Add another tweening to the queue
+// Create and chain a new tweening to this entry
 var nextTween = tween.tween(duration = 400, delay = 0);
 ```
 

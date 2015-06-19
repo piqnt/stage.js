@@ -18,7 +18,7 @@ Stage(function(stage) {
           last = this;
           // random frame = random color
           this.gotoFrame(Math.random(this.length()));
-          this.tween(Math.random(2000, 5000)).clear().pin({
+          this.tween(Math.random(2000, 5000)).pin({
             scaleX : Math.random(0.9, 1.4),
             scaleY : Math.random(0.9, 1.4),
             skewX : Math.random(0, 0.4),

@@ -209,11 +209,11 @@ Stage(function(stage) {
           img.appendTo(board).offset(tile.i * 2 + 1, tile.j * 2 + 1);
         },
         update : function() {
-          img.tween(200).ease('quad-out').clear().offset(tile.i * 2 + 1,
-              tile.j * 2 + 1);
+          img.tween(200).ease('quad-out')
+              .offset(tile.i * 2 + 1, tile.j * 2 + 1);
         },
         remove : function() {
-          img.tween(150).clear().alpha(0).remove();
+          img.tween(150).alpha(0).remove();
         }
       };
     }

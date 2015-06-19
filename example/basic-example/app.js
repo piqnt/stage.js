@@ -13,7 +13,7 @@ Stage(function(stage) {
   // On mouse click...
   box.on('click', function(point) {
     // ...tween scale values of this node
-    this.tween().clear().ease('bounce').pin({
+    this.tween().ease('bounce').pin({
       scaleX : Math.random() + 0.5,
       scaleY : Math.random() + 0.5
     });

@@ -507,7 +507,7 @@ Stage(function(stage) {
 
   function initGame() {
     if (!state.ready) {
-      p2view.tween(100).clear().pin('alpha', 1);
+      p2view.tween(100).pin('alpha', 1);
       restart.hide();
       state.score = 0, state.combo = 1;
       updateStatus();
@@ -538,7 +538,7 @@ Stage(function(stage) {
     }
     physics.gameOver();
     restart.show();
-    p2view.tween(100).clear().pin('alpha', 0.5);
+    p2view.tween(100).pin('alpha', 0.5);
     Timeout.reset();
   }
 

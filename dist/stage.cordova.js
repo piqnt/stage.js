@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.7.1
+ * Stage.js 0.8.0
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -74,6 +74,7 @@ function Easing(token) {
 }
 
 Easing.add = function(data) {
+    // TODO: create a map of all { name-mode : data }
     var names = (data.name || data.mode).split(/\s+/);
     for (var i = 0; i < names.length; i++) {
         var name = names[i];
@@ -160,7 +161,7 @@ Easing.add({
 });
 
 Easing.add({
-    name: "exp",
+    name: "exp expo",
     fn: function(t) {
         return t == 0 ? 0 : Math.pow(2, 10 * (t - 1));
     }
@@ -416,138 +417,167 @@ var Class = require("../core");
 
 var Pin = require("../pin");
 
-Class.prototype.tween = function(duration, delay) {
-    if (!this._tween) {
-        this._tween = new Tween(this);
+Class.prototype.tween = function(duration, delay, append) {
+    if (typeof duration !== "number") {
+        append = duration, delay = 0, duration = 0;
+    } else if (typeof delay !== "number") {
+        append = delay, delay = 0;
     }
-    return this._tween.tween(duration, delay);
+    if (!this._tweens) {
+        this._tweens = [];
+        var ticktime = 0;
+        this.tick(function(elapsed, now, last) {
+            if (!this._tweens.length) {
+                return;
+            }
+            // ignore old elapsed
+            var ignore = ticktime != last;
+            ticktime = now;
+            if (ignore) {
+                return true;
+            }
+            var next = this._tweens[0].tick(this, elapsed, now, last);
+            if (next) {
+                this._tweens.shift();
+            }
+            if (typeof next === "object") {
+                this._tweens.unshift(next);
+            }
+            return true;
+        }, true);
+    }
+    this.touch();
+    if (!append) {
+        this._tweens.length = 0;
+    }
+    var tween = new Tween(this, duration, delay);
+    this._tweens.push(tween);
+    return tween;
 };
 
-var iid = 0;
-
-function Tween(node) {
-    // TODO: reuse head.start/keys/end
-    var tween = this;
-    this._owner = node;
-    this._queue = [];
-    this._next = null;
-    var lastTime = 0;
-    node.tick(function(elapsed, now, last) {
-        if (!tween._queue.length) {
-            return;
-        }
-        // ignore old elapsed
-        var ignore = lastTime != last;
-        lastTime = now;
-        if (ignore) {
-            return true;
-        }
-        var head = tween._queue[0];
-        if (!head.time) {
-            head.time = 1;
-        } else {
-            head.time += elapsed;
-        }
-        if (head.time < head.delay) {
-            return;
-        }
-        if (!head.start) {
-            head.start = {};
-            head.keys = {};
-            for (var key in head.end) {
-                if (typeof (start = node.pin(key)) === "number") {
-                    head.start[key] = start;
-                    head.keys[key] = key;
-                } else if (typeof (startX = node.pin(key + "X")) === "number" && typeof (startY = node.pin(key + "Y")) === "number") {
-                    head.start[key + "X"] = startX;
-                    head.keys[key + "X"] = key;
-                    head.start[key + "Y"] = startY;
-                    head.keys[key + "Y"] = key;
-                }
-            }
-        }
-        var p = (head.time - head.delay) / head.duration;
-        var over = p >= 1;
-        p = p > 1 ? 1 : p;
-        p = typeof head.easing == "function" ? head.easing(p) : p;
-        var q = 1 - p;
-        for (var key in head.keys) {
-            node.pin(key, head.start[key] * q + head.end[head.keys[key]] * p);
-        }
-        if (over) {
-            tween._queue.shift();
-            head.then && head.then.call(node);
-        }
-    }, true);
+function Tween(owner, duration, delay) {
+    this._end = {};
+    this._duration = duration || 400;
+    this._delay = delay || 0;
+    this._owner = owner;
+    this._time = 0;
 }
 
-Tween.prototype.tween = function(duration, delay) {
-    this._next = {
-        id: ++iid,
-        end: {},
-        duration: duration || 400,
-        delay: delay || 0
-    };
-    return this;
-};
-
-Tween.prototype.pin = function(a, b) {
-    if (this._next !== this._queue[this._queue.length - 1]) {
-        this._owner.touch();
-        this._queue.push(this._next);
+Tween.prototype.tick = function(node, elapsed, now, last) {
+    this._time += elapsed;
+    if (this._time < this._delay) {
+        return;
     }
-    var end = this._next.end;
-    if (typeof a === "object") {
-        for (var attr in a) {
-            end[attr] = a[attr];
+    var time = this._time - this._delay;
+    if (!this._start) {
+        this._start = {};
+        for (var key in this._end) {
+            this._start[key] = this._owner.pin(key);
         }
-    } else if (typeof b !== "undefined") {
-        end[a] = b;
     }
+    var p, over;
+    if (time < this._duration) {
+        p = time / this._duration, over = false;
+    } else {
+        p = 1, over = true;
+    }
+    p = typeof this._easing == "function" ? this._easing(p) : p;
+    var q = 1 - p;
+    for (var key in this._end) {
+        this._owner.pin(key, this._start[key] * q + this._end[key] * p);
+    }
+    if (over) {
+        try {
+            this._done && this._done.call(this._owner);
+        } catch (e) {
+            console.log(e);
+        }
+        return this._next || true;
+    }
+};
+
+Tween.prototype.tween = function(duration, delay) {
+    return this._next = new Tween(this._owner, duration, delay);
+};
+
+Tween.prototype.duration = function(duration) {
+    this._duration = duration;
     return this;
 };
 
-Tween.prototype.clear = function(forward) {
-    var tween;
-    while (tween = this._queue.shift()) {
-        forward && this._owner.pin(tween.end);
-    }
-    return this;
-};
-
-/**
- * @deprecated Use end(fn) instead.
- */
-Tween.prototype.then = function(fn) {
-    this._next.then = fn;
+Tween.prototype.delay = function(delay) {
+    this._delay = delay;
     return this;
 };
 
 Tween.prototype.ease = function(easing) {
-    this._next.easing = Easing(easing);
+    this._easing = Easing(easing);
     return this;
 };
 
-Tween.prototype.end = function(fn) {
-    this._next.then = fn;
+Tween.prototype.done = function(fn) {
+    this._done = fn;
     return this;
 };
 
 Tween.prototype.hide = function() {
-    this.end(function() {
+    this.done(function() {
         this.hide();
     });
     return this;
 };
 
 Tween.prototype.remove = function() {
-    this.end(function() {
+    this.done(function() {
         this.remove();
     });
     return this;
 };
 
+Tween.prototype.pin = function(a, b) {
+    if (typeof a === "object") {
+        for (var attr in a) {
+            pinning(this._owner, this._end, attr, a[attr]);
+        }
+    } else if (typeof b !== "undefined") {
+        pinning(this._owner, this._end, a, b);
+    }
+    return this;
+};
+
+function pinning(node, map, key, value) {
+    if (typeof node.pin(key) === "number") {
+        map[key] = value;
+    } else if (typeof node.pin(key + "X") === "number" && typeof node.pin(key + "Y") === "number") {
+        map[key + "X"] = value;
+        map[key + "Y"] = value;
+    }
+}
+
 Pin._add_shortcuts(Tween);
+
+/**
+ * @deprecated Use .done(fn) instead.
+ */
+Tween.prototype.then = function(fn) {
+    this.done(fn);
+    return this;
+};
+
+/**
+ * @deprecated Use .done(fn) instead.
+ */
+Tween.prototype.then = function(fn) {
+    this.done(fn);
+    return this;
+};
+
+/**
+ * @deprecated NOOP
+ */
+Tween.prototype.clear = function(forward) {
+    return this;
+};
 
 module.exports = Tween;
 

@@ -5,14 +5,14 @@ Stage(function(stage) {
   stage.viewbox(500, 300);
 
   stage.on(Mouse.CLICK, function(point) {
-    bar1.tween().clear().pin('width', Math.random(20, 100) | 0);
-    bar2.tween().clear().pin('width', Math.random(20, 100) | 0);
-    bar3.tween().clear().pin('width', Math.random(20, 100) | 0);
-    bar4.tween().clear().pin('width', Math.random(20, 100) | 0);
-    bar5.tween().clear().pin('height', Math.random(20, 100) | 0);
-    bar6.tween().clear().pin('height', Math.random(20, 100) | 0);
-    bar7.tween().clear().pin('height', Math.random(20, 100) | 0);
-    bar8.tween().clear().pin('height', Math.random(20, 100) | 0);
+    bar1.tween().pin('width', Math.random(20, 100) | 0);
+    bar2.tween().pin('width', Math.random(20, 100) | 0);
+    bar3.tween().pin('width', Math.random(20, 100) | 0);
+    bar4.tween().pin('width', Math.random(20, 100) | 0);
+    bar5.tween().pin('height', Math.random(20, 100) | 0);
+    bar6.tween().pin('height', Math.random(20, 100) | 0);
+    bar7.tween().pin('height', Math.random(20, 100) | 0);
+    bar8.tween().pin('height', Math.random(20, 100) | 0);
   });
 
   var bar1 = Stage.image('box').stretch();

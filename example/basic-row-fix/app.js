@@ -13,7 +13,7 @@ Stage(function(stage) {
         function(point) {
           if (this != last) {
             last = this;
-            this.tween().clear().pin({
+            this.tween().pin({
               scaleX : Math.random(0.9, 1.4),
               scaleY : Math.random(0.9, 1.4),
               skewX : Math.random(0, 0.4),
