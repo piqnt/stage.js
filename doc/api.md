@@ -55,15 +55,15 @@ foo.remove(bar);
 foo.empty();
 
 // Get foo's first/last (visible) child
-foo.first(visible = false);
-foo.last(visible = false);
+foo.first(onlyVisible = false);
+foo.last(onlyVisible = false);
 
 // Get immediate parent
 bar.parent();
 
 // Get bar's next/prev (visible) sibling
-bar.next(visible = false);
-bar.prev(visible = false);
+bar.next(onlyVisible = false);
+bar.prev(onlyVisible = false);
 
 // Get bar's visiblity
 bar.visible();
@@ -180,8 +180,11 @@ bar.pin({
   textureAlpha : 1
 });
 
-// Scale to new width/height, if mode is set scale proportionally
-// Valid modes are 'in', 'in-pad', 'out' and 'out-crop'
+// Scale to new width/height, if mode is set scale proportionally, valid modes are:
+// 'in': maximum scale while keeps node edges inside scaleWidth/height
+// 'in-pad': like 'in', but evenly pads node to fill entire scaleWidth/height
+// 'out': minimum scale while keeps node edges outside scaleWidth/height
+// 'out-crop': like 'out', but evenly crops it to scaleWidth/height
 bar.pin({
   scaleMode : mode,
   scaleWidth : width,
@@ -229,6 +232,7 @@ foo.publish(name, args);
 
 #### Mouse and Touch
 Mouse class is used to capture mouse and touch events.
+`click` and `mousecancel` events are syntatic events created using native events.
 
 ```javascript
 // Add click listener to bar
@@ -242,7 +246,7 @@ Stage.Mouse.CLICK = 'click';
 Stage.Mouse.START = 'touchstart mousedown';
 Stage.Mouse.MOVE = 'touchmove mousemove';
 Stage.Mouse.END = 'touchend mouseup';
-Stage.Mouse.CANCEL = 'touchcancel';
+Stage.Mouse.CANCEL = 'touchcancel mousecancel';
 ```
 
 #### Texture
@@ -285,9 +289,9 @@ Stage({
 
 Stage.image('mario:stand');
 
-Stage.anim('mario:walk');
+Stage.anim('mario:walk').play();
 
-Stage.string('mario:number');
+Stage.string('mario:number').value(100);
 ```
 
 If image URL starts with `./` it will be resolved relative to current script URL.
@@ -346,35 +350,46 @@ A row/column is a node which organizes its children as a horizontal/vertical seq
 
 ```javascript
 // Create a new row/column
-var row = Stage.row(childrenVerticalAlign = 0);
-var column = Stage.column(childrenHorizontalAlign = 0);
+var row = Stage.row(childrenAlignY = 0);
+var column = Stage.column(childrenAlignX = 0);
 
 // Make foo a row/column
-foo.row(childrenVerticalAlign = 0);
-foo.column(childrenHorizontalAlign = 0);
+foo.row(childrenAlignY = 0);
+foo.column(childrenAlignX = 0);
 
 // Add spacing between row/column cells
 foo.spacing(space);
 ```
 
 #### String
-String is a row of images, but images are dynamically created using `frames` and `value`.
+String is a row of images which are dynamically selected from `frames` using characters of a string `value` (or items of an array `value`).
 
 ```javascript
-// Create a new string instance
-var string = Stage.string(textures);
+// Create a new string instance with frames
+var string = Stage.string(frames);
 
-// Value is a string or array, each char/item is used to create an image using
-// frames
-string.value(value);
+// Set frames, a string referencing a map in an atlas 
+string.frames("digits");
 
-// Set an array of named textures as frames
-string.frames([texture, ...]);
+// Set frames, a map with textures as values and frame names as keys 
+string.frames({
+  '0' : zeroTexture,
+  '1' : oneTexture,
+  ...
+});
 
-// Use a function to dynamicly create string frames
-string.frames(function(charOrItem) {
+// Set frames, a function which takes a char (or item) and returns a texture
+string.frames(function(char) {
+  // create a texture for char
   return texture;
 });
+
+// Set value, it can be a string (or an array)
+// Characters (or items) are used to select frames and create a row of images
+string.value(value);
+
+// Get assigned value
+string.value();
 ```
 
 #### Box (experimental)
@@ -445,7 +460,7 @@ Stage.preload(function(done) {
   done(error);
 });
 
-// Preload `script.js`
+// Preload and execute a JS file
 // URLs starting with `./` are resolved relative to current script URL
 Stage.preload('script.js');
 
