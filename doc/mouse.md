@@ -1,6 +1,6 @@
 ### Mouse and Touch
 Native mouse and touch events are captured, processed and published to application nodes.
-Published events have relative location, that to top-left corner of each node which receives them.
+Nodes receive mouse events in local coordinate, that is mouse location is specified as distance to top-left of the node.
 
 ```javascript
 // Add click listener to node
@@ -11,7 +11,7 @@ node.on('click', function(point) {
 ```
 
 Instead of native click events, syntatic click events are created and published to nodes.
-In addition to standard event types, syntatic `mousecancel` events type is also supported which is similar to `touchcancel` but is published when `mousedown` is not followed by `mouseup`.
+In addition to standard event types, syntatic `mousecancel` event type is also supported which is similar to `touchcancel` but is published when a `mousedown` is not followed by `mouseup`.
 
 ```javascript
 // Mouse events:
