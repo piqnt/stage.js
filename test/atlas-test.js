@@ -2,7 +2,7 @@ var expect = require('./util/expect');
 var sandboxed = require('sandboxed-module');
 var sinon = require('sinon');
 
-var Stage = require('../lib/node');
+var Stage = require('../lib/tree');
 var Texture = require('../lib/texture');
 var Atlas = require('../lib/atlas');
 
