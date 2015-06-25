@@ -235,6 +235,9 @@ node.pin({
   scaleWidth : width,
   scaleHeight : height
 });
+
+// Shortcut method:
+node.scaleTo(width, height, mode);
 ```
 
 ### Events

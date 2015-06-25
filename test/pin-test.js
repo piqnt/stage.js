@@ -6,7 +6,7 @@ var Pin = require('../lib/pin');
 
 describe('Pin', function() {
 
-  it('_set/_get', function() {
+  it('.set()/.get()', function() {
     var pin = {}, set = {
       alpha : 0.8,
       width : 200,
@@ -15,11 +15,11 @@ describe('Pin', function() {
       scaleY : 3,
     };
     for ( var key in set) {
-      Pin._set(pin, key, set[key]);
+      Pin.prototype.set.call(pin, key, set[key]);
     }
     for ( var key in set) {
       expect(pin['_' + key]).be(set[key]);
-      expect(Pin._get(pin, key)).be(set[key]);
+      expect(Pin.prototype.get.call(pin, key)).be(set[key]);
     }
   });
 
@@ -38,41 +38,41 @@ describe('Pin', function() {
   });
 
   it('.scaleTo()', function() {
-    var foo = Stage.create();
-    var pin = foo.pin();
-    foo.pin({
+    var node = Stage.create();
+    var pin = node.pin();
+    node.pin({
       width : 100,
       height : 100
     });
-    foo.pin()._scaleTo(200, 300);
-    expect(foo.pin('scaleX')).be(2);
-    expect(foo.pin('scaleY')).be(3);
-    expect(foo.pin('width')).be(100);
-    expect(foo.pin('height')).be(100);
+    node.scaleTo(200, 300);
+    expect(node.pin('scaleX')).be(2);
+    expect(node.pin('scaleY')).be(3);
+    expect(node.pin('width')).be(100);
+    expect(node.pin('height')).be(100);
 
-    foo.pin()._scaleTo(200, 300, 'in');
-    expect(foo.pin('scaleX')).be(2);
-    expect(foo.pin('scaleY')).be(2);
-    expect(foo.pin('width')).be(100);
-    expect(foo.pin('height')).be(100);
+    node.scaleTo(200, 300, 'in');
+    expect(node.pin('scaleX')).be(2);
+    expect(node.pin('scaleY')).be(2);
+    expect(node.pin('width')).be(100);
+    expect(node.pin('height')).be(100);
 
-    foo.pin()._scaleTo(200, 300, 'out');
-    expect(foo.pin('scaleX')).be(3);
-    expect(foo.pin('scaleY')).be(3);
-    expect(foo.pin('width')).be(100);
-    expect(foo.pin('height')).be(100);
+    node.scaleTo(200, 300, 'out');
+    expect(node.pin('scaleX')).be(3);
+    expect(node.pin('scaleY')).be(3);
+    expect(node.pin('width')).be(100);
+    expect(node.pin('height')).be(100);
 
-    foo.pin()._scaleTo(200, 400, 'out-crop');
-    expect(foo.pin('scaleX')).be(4);
-    expect(foo.pin('scaleY')).be(4);
-    expect(foo.pin('width')).be(50);
-    expect(foo.pin('height')).be(100);
+    node.scaleTo(200, 400, 'out-crop');
+    expect(node.pin('scaleX')).be(4);
+    expect(node.pin('scaleY')).be(4);
+    expect(node.pin('width')).be(50);
+    expect(node.pin('height')).be(100);
 
-    foo.pin()._scaleTo(200, 400, 'in-pad');
-    expect(foo.pin('scaleX')).be(2);
-    expect(foo.pin('scaleY')).be(2);
-    expect(foo.pin('width')).be(100);
-    expect(foo.pin('height')).be(200);
+    node.scaleTo(200, 400, 'in-pad');
+    expect(node.pin('scaleX')).be(2);
+    expect(node.pin('scaleY')).be(2);
+    expect(node.pin('width')).be(100);
+    expect(node.pin('height')).be(200);
   });
 
 });

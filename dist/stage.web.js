@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.8.0
+ * Stage.js 0.8.1
  * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
@@ -1346,7 +1346,7 @@ Class.prototype.sequence = function(type, align) {
         var first = true;
         while (child = next) {
             next = child.next(true);
-            child._pin.relativeMatrix();
+            child.matrix(true);
             var w = child.pin("boxWidth");
             var h = child.pin("boxHeight");
             if (type == "column") {
@@ -1388,7 +1388,7 @@ Class.prototype.box = function() {
         var child, next = this.first(true);
         while (child = next) {
             next = child.next(true);
-            child._pin.relativeMatrix();
+            child.matrix(true);
             var w = child.pin("boxWidth");
             var h = child.pin("boxHeight");
             width = Math.max(width, w);
@@ -2042,7 +2042,10 @@ Class._init(function() {
     this._pin = new Pin(this);
 });
 
-Class.prototype.matrix = function() {
+Class.prototype.matrix = function(relative) {
+    if (relative === true) {
+        return this._pin.relativeMatrix();
+    }
     return this._pin.absoluteMatrix();
 };
 
@@ -2206,16 +2209,24 @@ Pin.prototype.relativeMatrix = function() {
     return this._relativeMatrix;
 };
 
-Pin.prototype.get = function(a) {
-    return Pin._get(this, a);
+Pin.prototype.get = function(key) {
+    if (typeof getters[key] === "function") {
+        return getters[key](this);
+    }
 };
 
-// TODO: Use get/set or defineProperty instead?
+// TODO: Use defineProperty instead? What about multi-field pinning?
 Pin.prototype.set = function(a, b) {
     if (typeof a === "string") {
-        Pin._set(this, a, b);
+        if (typeof setters[a] === "function" && typeof b !== "undefined") {
+            setters[a](this, b);
+        }
     } else if (typeof a === "object") {
-        for (b in a) Pin._set(this, b, a[b], a);
+        for (b in a) {
+            if (typeof setters[b] === "function" && typeof a[b] !== "undefined") {
+                setters[b](this, a[b], a);
+            }
+        }
     }
     if (this._owner) {
         this._owner._ts_pin = ++iid;
@@ -2224,19 +2235,7 @@ Pin.prototype.set = function(a, b) {
     return this;
 };
 
-Pin._get = function(pin, key) {
-    if (typeof (key = Pin._getters[key]) !== "undefined") {
-        return key.call(Pin._getters, pin);
-    }
-};
-
-Pin._set = function(pin, key, value, all) {
-    if (typeof (key = Pin._setters[key]) !== "undefined" && typeof value !== "undefined") {
-        key.call(Pin._setters, pin, value, all);
-    }
-};
-
-Pin._getters = {
+var getters = {
     alpha: function(pin) {
         return pin._alpha;
     },
@@ -2308,7 +2307,7 @@ Pin._getters = {
     }
 };
 
-Pin._setters = {
+var setters = {
     alpha: function(pin, value) {
         pin._alpha = value;
     },
@@ -2421,32 +2420,32 @@ Pin._setters = {
             } else if (value == "out") {
                 value = "out-crop";
             }
-            pin._scaleTo(all.resizeWidth, all.resizeHeight, value);
+            scaleTo(pin, all.resizeWidth, all.resizeHeight, value);
         }
     },
     resizeWidth: function(pin, value, all) {
         if (!all || !all.resizeMode) {
-            pin._scaleTo(value, null);
+            scaleTo(pin, value, null);
         }
     },
     resizeHeight: function(pin, value, all) {
         if (!all || !all.resizeMode) {
-            pin._scaleTo(null, value);
+            scaleTo(pin, null, value);
         }
     },
     scaleMode: function(pin, value, all) {
         if (all) {
-            pin._scaleTo(all.scaleWidth, all.scaleHeight, value);
+            scaleTo(pin, all.scaleWidth, all.scaleHeight, value);
         }
     },
     scaleWidth: function(pin, value, all) {
         if (!all || !all.scaleMode) {
-            pin._scaleTo(value, null);
+            scaleTo(pin, value, null);
         }
     },
     scaleHeight: function(pin, value, all) {
         if (!all || !all.scaleMode) {
-            pin._scaleTo(null, value);
+            scaleTo(pin, null, value);
         }
     },
     matrix: function(pin, value) {
@@ -2460,11 +2459,10 @@ Pin._setters = {
     }
 };
 
-Pin.prototype._scaleTo = function(width, height, mode) {
+function scaleTo(pin, width, height, mode) {
     var w = typeof width === "number";
     var h = typeof height === "number";
     var m = typeof mode === "string";
-    var pin = this;
     pin._ts_transform = ++iid;
     if (w) {
         pin._scaleX = width / pin._width_;
@@ -2485,9 +2483,15 @@ Pin.prototype._scaleTo = function(width, height, mode) {
             pin._height = height / pin._scaleY;
         }
     }
+}
+
+Class.prototype.scaleTo = function(a, b, c) {
+    if (typeof a === "object") c = b, b = a.y, a = a.x;
+    scaleTo(this._pin, a, b, c);
+    return this;
 };
 
-// Used by Tween class.
+// Used by Tween class
 Pin._add_shortcuts = function(Class) {
     Class.prototype.size = function(w, h) {
         this.pin("width", w);
@@ -2773,7 +2777,7 @@ Root.prototype.viewbox = function(width, height, mode) {
             width: box.width,
             height: box.height
         });
-        this._pin._scaleTo(size.width, size.height, box.mode);
+        this.scaleTo(size.width, size.height, box.mode);
     } else if (size) {
         this.pin({
             width: size.width,

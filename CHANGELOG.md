@@ -1,3 +1,7 @@
+#### v0.8.1
+* `node.scaleTo()` shortcut pinning method is added
+* `node.matrix(true)` returns relative matrix instead of absolute
+
 #### v0.8.0
 * **default .tween() behavior is changed from append to replace**
 * `.tween(duration, delay)` is changed to `.tween(duration, delay, append = false)`
