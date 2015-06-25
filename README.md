@@ -17,10 +17,6 @@ Extensions for other libraries:
     ext/stage-physics.js
     ext/stage-sat.js
 
-Documents:
-
-    doc/api.md
-
 ### License
 Copyright (c) 2015 Ali Shakiba, Piqnt LLC  
 Available under the MIT license
