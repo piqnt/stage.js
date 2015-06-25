@@ -1,4 +1,4 @@
-#### Application
+### Application
 
 ```javascript
 // Create and start an application
@@ -22,7 +22,7 @@ Stage(function(stage, display) {
 });
 ```
 
-#### Tree Model
+### Tree Model
 Every app consists of a tree, tree's root is provided as `stage`.
 
 ```javascript
@@ -97,7 +97,7 @@ foo.visit({
 });
 ```
 
-#### Game Loop
+### Game Loop
 Each rendering cycle consist of ticking and drawing application tree.
 The application and its nodes can be updated on ticking.
 
@@ -110,32 +110,58 @@ but they can also be touched directly.
 
 ```javascript
 // Register a function to be called on ticking
-foo.tick(function(millisecElapsed) {
+node.tick(function(millisecElapsed) {
   return continueGameLoop;
 }, beforeChildren = false);
 
-// Touch foo
-foo.touch();
+// Touch node
+node.touch();
 ```
 
-#### Pin
-Pin or pinning defines how a node is transformed relative to its parent.
-
-When `nameX` equals `nameY`, `name` shorthand can be used instead.
+### Pinning
+Pinning specifies how a node is attached to its parent.
+Pining includes size, transformation, positioning and transparency.
 
 ```javascript
 // Get a pinning value
-bar.pin(name);
+node.pin(name);
+
 // Set a pinning value
-bar.pin(name, value);
+node.pin(name, value);
+
 // Set one or more pinning values
-bar.pin({
-  name : value
+node.pin({
+  name : value,
+  ...
+});
+```
+
+When `nameX` equals `nameY`, `name` shorthand can be used instead.
+
+#### Size
+For some nodes, such as images, strings, rows and columns, size is set automatically.
+
+```javascript
+node.pin({
+  height : height,
+  width : width
 });
 
-// Transformation
-// `rotation` is applied after scale and skew
-bar.pin({
+// Shortcut for setting size:
+node.size(width, height);
+node.width(width);
+node.height(height);
+
+// Shortcut for getting size:
+node.width();
+node.height();
+```
+
+#### Transformation
+Transformation consists of scaling, skewing and rotating. Rotation is applied after scaling and skewing.
+
+```javascript
+node.pin({
   scaleX : 1,
   scaleY : 1,
   skewX : 0,
@@ -143,100 +169,98 @@ bar.pin({
   rotation : 0
 });
 
-// Size
-// For some nodes, such as images, it is set automatically
-bar.pin({
-  height : height,
-  width : width
-});
+// Shortcut for setting transformation:
+node.scale(x, y = x);
+node.scale({ x : x, y : y });
+node.skew(x, y = x);
+node.skew({ x : x, y : y });
+node.rotate(angle);
+```
 
-// Positioning
-// For values defined as ratio of width/height, 0 is top/left and 1 is bottom/right
-bar.pin({
-  // Pin point on parent used for positioning
-  // Defined as ratio of parent's width/height
+#### Positioning
+When positioning, *handle* point on self is positioned at *offset* distance from *align* point on parent.
+Handle and align are defined as ratio of width/height, 0 is top/left and 1 is bottom/right.
+Handle defaults to align value when it is not specified.
+
+```javascript
+node.pin({
   alignX : 0,
   alignY : 0,
-  // Pin point on self used for positioning
-  // Defined as ratio of AABB or base width/height if pivoted
-  // Defaults to align values
   handleX : 0,
   handleY : 0,
-  // Distance from align point on parent to handle point on self in pixel
   offsetX : 0,
-  offsetY : 0,
-  // Relative location on self used as scale/skew/rotation center, see handle
+  offsetY : 0
+});
+
+// Shortcut methods for setting positioning:
+node.offset(x, y);
+node.offset({ x : x, y : y });
+```
+
+By default axis-aligned bounding box (AABB) after transformation is used for positioning, 
+however it is possible to use non-transformed box by setting pivot location. 
+Pivot location is defined as ratio of non-transformed width/height and is used as central point on self for scale, skew and rotation.
+
+```javascript
+node.pin({
   pivotX : 0,
   pivotY : 0
 });
-// To summarize it, child's distance from parent's top-left is:
-// align * parentSize - handle * selfSize + offset
+```
 
-// Transparency
-bar.pin({
-  // Transparency applied to self and children
+#### Transparency
+Transparency can be applied to both node textures and subtree nodes or only node textures.
+
+```javascript
+node.pin({
   alpha : 1,
-  // Transparency applied only to self textures
   textureAlpha : 1
 });
 
-// Scale to new width/height, if mode is set scale proportionally, valid modes are:
-// 'in': maximum scale while keeps node edges inside scaleWidth/height
-// 'in-pad': like 'in', but evenly pads node to fill entire scaleWidth/height
-// 'out': minimum scale while keeps node edges outside scaleWidth/height
-// 'out-crop': like 'out', but evenly crops it to scaleWidth/height
-bar.pin({
+// Shortcut methods for setting transparency:
+node.alpha(alpha);
+node.alpha(alpha, textureAlpha);
+```
+
+#### Scale To
+Scale to new width/height, if mode is set scale proportionally. Valid modes are:
+ - `in`: maximum scale which keeps node edges inside scaleWidth/Height
+ - `in-pad`: like `in`, but evenly pads node to fill entire scaleWidth/Height
+ - `out`: minimum scale which keeps node edges outside scaleWidth/Height
+ - `out-crop`: like `out`, but evenly crops it to scaleWidth/Height
+
+```javascript
+node.pin({
   scaleMode : mode,
   scaleWidth : width,
   scaleHeight : height
 });
 ```
 
-Following shortcut methods are also available for setting pinning values.
-
-```
-foo.size(width, height);
-
-foo.offset(x, y);
-foo.offset({ x : x, y : y });
-
-foo.scale(x, y = x);
-foo.scale({ x : x, y : y });
-
-foo.rotate(angle);
-
-foo.skew(x, y = x);
-foo.skew({ x : x, y : y });
-
-foo.alpha(alpha);
-foo.alpha(alpha, textureAlpha);
-```
-
-
-#### Events
+### Events
 
 ```javascript
-// Register a listener to foo
+// Register a listener to node
 // Event `name` can be one or an array of strings or spaced separated strings
-foo.on(name, listener);
+node.on(name, listener);
 
-// Unregister a listener from foo.
-foo.off(name, listener);
+// Unregister a listener from node.
+node.off(name, listener);
 
-// Get listeners registered to foo
-foo.listeners(name);
+// Get listeners registered to node
+node.listeners(name);
 
 // Call listeners with args, returns number of called listeners
-foo.publish(name, args);
+node.publish(name, args);
 ```
 
-#### Mouse and Touch
+### Mouse and Touch
 Mouse class is used to capture mouse and touch events.
 `click` and `mousecancel` events are syntatic events created using native events.
 
 ```javascript
-// Add click listener to bar
-bar.on(Stage.Mouse.CLICK, function(point) {
+// Add click listener to node
+node.on(Stage.Mouse.CLICK, function(point) {
   // point.x and point.y are relative to this node left and top
   // point.raw is original event
 });
@@ -249,11 +273,11 @@ Stage.Mouse.END = 'touchend mouseup';
 Stage.Mouse.CANCEL = 'touchcancel mousecancel';
 ```
 
-#### Texture
+### Texture
 Textures are drawable objects which are used by tree nodes to draw graphics on the Canvas surface.
 
-#### Texture Atlas
-A texture atlas (sprite sheet) consists of a set of named textures which are referenced by name in the application.
+### Texture Atlas
+A texture atlas (sprite sheet) consists of a set of named textures which are referenced by name in an application.
 
 Atlases are usually created using static image files. Images referenced in atlases are automatically preloaded.
 
@@ -294,9 +318,9 @@ Stage.anim('mario:walk').play();
 Stage.string('mario:number').value(100);
 ```
 
-If image URL starts with `./` it will be resolved relative to current script URL.
+If image src starts with `./` it will be resolved relative to current script URL.
 
-#### Image
+### Image
 An image is a node with one texture.
 
 ```javascript
@@ -312,7 +336,7 @@ image.tile();
 image.stretch();
 ```
 
-#### Animation
+### Animation
 An animation is a node with an array of textures as frames.
 
 ```javascript
@@ -345,7 +369,7 @@ anim.stop(frame = null);
 anim.repeat(repeat, callback = null);
 ```
 
-#### Row and Column
+### Row and Column
 A row/column is a node which organizes its children as a horizontal/vertical sequence.
 
 ```javascript
@@ -353,15 +377,15 @@ A row/column is a node which organizes its children as a horizontal/vertical seq
 var row = Stage.row(childrenAlignY = 0);
 var column = Stage.column(childrenAlignX = 0);
 
-// Make foo a row/column
-foo.row(childrenAlignY = 0);
-foo.column(childrenAlignX = 0);
+// Make node a row/column
+node.row(childrenAlignY = 0);
+node.column(childrenAlignX = 0);
 
 // Add spacing between row/column cells
-foo.spacing(space);
+node.spacing(space);
 ```
 
-#### String
+### String
 String is a row of images which are dynamically selected from `frames` using characters of a string `value` (or items of an array `value`).
 
 ```javascript
@@ -392,7 +416,7 @@ string.value(value);
 string.value();
 ```
 
-#### Box (experimental)
+### Box (experimental)
 A box resizes to wrap its children. It can be applied to tiled/stretched
 images to create variable size components such as windows and buttons.
 
@@ -400,17 +424,17 @@ images to create variable size components such as windows and buttons.
 // Create a new box
 var box = Stage.box();
 
-// Make foo a box
-foo = foo.box();
+// Make node a box
+node = node.box();
 ```
 
-#### Tweening
+### Tweening
 Tweening is used to apply smooth transitions to pinning values.
 
 ```javascript
 // Create a tweening entry
 // When `append` is true new entry is appended to current entries otherwise replaces them
-var tween = foo.tween(duration = 400, delay = 0, append = false);
+var tween = node.tween(duration = 400, delay = 0, append = false);
 
 // Set pinning values and start tweening
 // Pinning shortcut methods, such as `.scale()`, can also be used
@@ -431,7 +455,7 @@ tween.delay(ms);
 
 // Callback when tweening is done
 tween.done(function() {
-  // this === foo
+  // this === node
 });
 
 // Remove this node when tweening ends
@@ -444,7 +468,7 @@ tween.hide();
 var nextTween = tween.tween(duration = 400, delay = 0);
 ```
 
-#### Global Methods
+### Global Methods
 ```javascript
 
 // Create a new app
