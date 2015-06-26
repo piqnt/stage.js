@@ -3,6 +3,8 @@
  */
 (function() {
 
+  Stage.Matter = Viewer;
+
   var Composite = Matter.Composite;
   var Events = Matter.Events;
   var Runner = Matter.Runner || Matter.Engine;
@@ -12,6 +14,7 @@
 
   function Viewer(engine) {
     Viewer._super.call(this);
+    this.label('Matter');
 
     engine.render = {
       controller : {
@@ -173,44 +176,26 @@
     });
   };
 
-  (function() {
-    var origin = Composite.addBody;
-    Composite.addBody = function(composite, body) {
-      var world = composite;
-      while (world.parent)
-        world = world.parent;
-      Events.trigger(world, "addBody", {
-        body : body
-      });
-      return origin.apply(this, arguments);
-    };
-  })();
-
-  (function() {
-    var origin = Composite.removeBody;
-    Composite.removeBody = function(composite, body) {
-      var world = composite;
-      while (world.parent)
-        world = world.parent;
-      Events.trigger(world, "removeBody", {
-        body : body
-      });
-      return origin.apply(this, arguments);
-    };
-  })();
-
-  if (typeof module !== 'undefined') {
-    module.exports = Viewer;
-  } else if (typeof define === 'function' && define.amd) {
-    define([], function() {
-      return Viewer;
+  var addBody = Composite.addBody;
+  Composite.addBody = function(composite, body) {
+    var world = composite;
+    while (world.parent)
+      world = world.parent;
+    Events.trigger(world, "addBody", {
+      body : body
     });
-  } else if (typeof Stage !== 'undefined') {
-    Stage.Matter = Viewer;
-  } else if (typeof window !== 'undefined') {
-  } else if (typeof global !== 'undefined') {
-  } else if (typeof self !== 'undefined') {
-  } else {
-  }
+    return addBody.apply(this, arguments);
+  };
 
-}).call(this);
+  var removeBody = Composite.removeBody;
+  Composite.removeBody = function(composite, body) {
+    var world = composite;
+    while (world.parent)
+      world = world.parent;
+    Events.trigger(world, "removeBody", {
+      body : body
+    });
+    return removeBody.apply(this, arguments);
+  };
+
+})();

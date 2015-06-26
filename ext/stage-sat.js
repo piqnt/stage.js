@@ -3,11 +3,14 @@
  */
 (function() {
 
+  Stage.SAT = Viewer;
+
   Viewer._super = Stage;
   Viewer.prototype = Stage._create(Viewer._super.prototype);
 
   function Viewer(world, options) {
     Viewer._super.call(this);
+    this.label('SAT');
 
     var self = this;
     this.world = world;
@@ -191,18 +194,4 @@
     });
   };
 
-  if (typeof module !== 'undefined') {
-    module.exports = Viewer;
-  } else if (typeof define === 'function' && define.amd) {
-    define([], function() {
-      return Viewer;
-    });
-  } else if (typeof Stage !== 'undefined') {
-    Stage.SAT = Viewer;
-  } else if (typeof window !== 'undefined') {
-  } else if (typeof global !== 'undefined') {
-  } else if (typeof self !== 'undefined') {
-  } else {
-  }
-
-}).call(this);
+})();
