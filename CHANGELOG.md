@@ -16,15 +16,15 @@
 * **images and script urls starting with `./` are resolved as relative**
 
 #### v0.6.7
-* Stage.Math extends native Math 
+* Stage.Math extends native Math
 
 #### v0.6.6
-* lookup atlas by name before textures 
+* lookup atlas by name before textures
 * `node.width/height()` pinning shortcuts return value
 * preloadScript('url') removed
 
 #### v0.6.5
-* preload('url.js') is added
+* **.preload('url.js') is added**
 
 #### v0.6.4
 * pinning shortcuts are added to nodes
@@ -41,25 +41,24 @@
 
 #### v0.5.0
 * atlas spec changed
-* Cut#id renamed to Cut#label
+* **.preload(fn) is added**
+* node.insert/append/prepend() methods accept array
+* node.id() renamed to node.label()
 * Cut.addTexture() removed
-* Image#cropY/cropY removed
-* Anim#gotoLabel removed
+* image.cropY/cropY() is removed
+* anim.gotoLabel() is removed
+* Cut.Anim.FPS is not public anymore
 * drawing() replaced with .canvas()
-* Cut.preload() added
-* Texture renamed to Atlas
-* New Texture class replaced Cut.Out
-* Cut#_cutouts and Cut.cutout() replaced with Cut#_textures and Cut.texture()
+* **Texture renamed to Atlas, new Texture class replaced Cut.Out**
+* node._cutouts and Cut.cutout() replaced with node._textures and Cut.texture()
 * Cut.texture() returns selection object
 * image-loader spec changed
-* Cut.Anim.FPS is not public
-* append/prepend/insert methods accept array
 
 #### v0.4.12
 * root.background method added
 
 #### v0.4.10
-* game loop continues if any tick returns true, but only renders if touched
+* **game loop continues if any tick returns true, but only renders if touched**
 
 #### v0.4.9
 * texture.ratio renamed to texture.ppu
@@ -69,31 +68,33 @@
 
 #### v0.4.3
 * pin set/get is refactored
-* resize in/out is replace with scale in-pad/out-crop 
+* resize in/out is replace with scale in-pad/out-crop
 * default viewbox mode is 'in-pad'
 
 #### v0.4.0
-* `Cut.config` and `Cut.start(configs)` added
+* **CommonJS/Node.js files and project structure**
+* Source files moved to `lib` and platform files to `platform`
+* extension files moved to ext
+* `lib/main` is set as npm `main`
+* texture name is made optional in cutout selector: `"[texture:]cutout"`
+* FastContext support added to Cordova, FastCanvas loader removed
+
+* `Cut.Out.select` is replaced with `Cut.cutout`
+* `Cut.config` and `Cut.start(configs)` are added
 * `Cut.init` and `Loader.loadImage` replaced with `"app-loader"` and `"image-loader"` configs
-* `Loader` merged with `Root`, `Loader.start/pause/resume` replaced with `Cut.start/pause/resume`
+* `Loader` merged with `Root`
+* `Loader.start/pause/resume` replaced with `Cut.start/pause/resume`
 * `root._ratio` replaced with `root.viewport().ratio`
 * `_isCut` replaced with `Cut._ensure`
-* `Cut.Out.select` replace with `Cut.cutout`
 * `Texture` is reorganized
 * `Root`'s `resize` renamed to `viewport`
-* Source files moved to `lib` and platform files to `platform`
-* Assumed CommonJS by default
-* `lib/main` is set as npm `main`
-* extension files moved to ext
-* In cutout selector, texture name is made optional: `"[texture:]cutout"`
-* FastContext support added to Cordova, FastCanvas loader removed
 
 #### v0.3.1
 * Remove `Mouse(..., captureAnyMove)` and use flag instead
 * Refactoring easing class and moving tween/ease to another file
 
 #### v0.3.0
-* Browserified
+* **Browserified**
 * Synthetic `Mouse` clicks instead of browser clicks
 * New `off` method to remove listeners
 * New `data` parameter for `visit` methods
@@ -105,10 +106,10 @@
 
 #### v0.2.0
 * `Mouse` events signature changed from `(rawEvent, point)` to `(point)` where new `point.raw` is old `rawEvent`
-* support pinning shorthands for tweening
-* replaced `spy(true)` with `attr('spy', true)`
-* replaced `Cut.addTexture(...)` with `Cut(...)`
-* using deep listeners count instead of `spy` to optimized mouse event distribution
-* `drawing` signature changed from `([name], width, height, [ratio], callback, [def])` to `([name], width, height, [ratio], [callback])` and `(def, [callback])`
-* `publish` method is replaced with `trigger` which return `this`
 * `viewport` callback signature changed from `(width, height)` to `(viewport)`
+* replaced `Cut.addTexture(...)` with `Cut(...)`
+* replaced `spy(true)` with `attr('spy', true)`
+* support pinning shorthand names for tweening
+* `drawing` signature changed from `([name], width, height, [ratio], callback, [def])` to `([name], width, height, [ratio], [callback])` and `(def, [callback])`
+* node.trigger() method is added, calls .publish() and  returns `this`
+* using deep listeners count instead of `spy` to optimized mouse event distribution
