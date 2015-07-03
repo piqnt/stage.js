@@ -3,65 +3,65 @@ Every app consists of a tree, tree's root is provided as `stage`.
 
 ```javascript
 // Create a new node instance (with no textures)
-var foo = Stage.create();
+var node = Stage.create();
 
-// Append/prepend bar to foo's children (accepts array)
-foo.append(bar);
-foo.prepend(bar);
+// Append/prepend child to parent's children (accepts array)
+parent.append(child);
+parent.prepend(child);
 
-// Append/prepend bar to foo's children
-bar.appendTo(foo);
-bar.prependTo(foo);
+// Append/prepend child to parent's children
+child.appendTo(parent);
+child.prependTo(parent);
 
-// Insert baz after/before bar (accepts array)
-bar.insertNext(baz);
-bar.insertPrev(baz);
+// Insert sibling after/before child (accepts array)
+child.insertNext(sibling);
+child.insertPrev(sibling);
 
-// Insert baz after/before bar
-baz.insertAfter(bar);
-baz.insertBefore(bar);
+// Insert sibling after/before child
+sibling.insertAfter(child);
+sibling.insertBefore(child);
 
-// Remove bar from parent
-bar.remove();
+// Remove child from its parent
+child.remove();
 
-// Remove bar from foo (accepts array)
-foo.remove(bar);
+// Remove child from parent (accepts array)
+parent.remove(child);
 
-// Remove all foo's children
-foo.empty();
+// Remove all of parent's children
+parent.empty();
 
-// Get foo's first/last (visible) child
-foo.first(onlyVisible = false);
-foo.last(onlyVisible = false);
+// Get parent's first/last (visible) child
+parent.first(onlyVisible = false);
+parent.last(onlyVisible = false);
 
 // Get immediate parent
-bar.parent();
+child.parent();
 
-// Get bar's next/prev (visible) sibling
-bar.next(onlyVisible = false);
-bar.prev(onlyVisible = false);
+// Get child's next/prev (visible) sibling
+child.next(onlyVisible = false);
+child.prev(onlyVisible = false);
 
-// Get bar's visiblity
-bar.visible();
-// Set bar's visiblity
-bar.visible(visible);
-bar.hide();
-bar.show();
+// Get node's visiblity
+node.visible();
+// Set node's visiblity
+node.visible(visible);
+node.hide();
+node.show();
 
-// Iterate over foo's children, `child` can not be removed
-for (var child = foo.first(); child; child = child.next()) {
+// Iterate over parent's children, child can not be removed
+for (var child = parent.first(); child; child = child.next()) {
   // use child
 }
 
-// Iterate over foo's children, `child` can be removed
-var child, next = foo.first();
+// Iterate over parent's children, child can be removed
+var child, next = parent.first();
 while (child = next) {
   next = child.next();
   // use child
 }
 
-// Visit foo's sub-tree including foo
-foo.visit({
+// Visit node's sub-tree including node itself
+node.visit({
   start : function(node) {
     return skipChildren;
   },
