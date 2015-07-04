@@ -1,5 +1,7 @@
 ### Events
-Event listeners can be registered and unregistered to nodes, listeners are called when an event is published to a node. Some events are published to multiple nodes, but they are not automatically published to parent or children nodes.
+Event listeners can be registered and unregistered to nodes, listeners are called when an event is published to a node.
+Some events may be published to multiple nodes, but events do not propagate.
+
 
 ```javascript
 // Register a listener to node

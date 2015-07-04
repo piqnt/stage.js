@@ -1,6 +1,6 @@
 ### Pinning
 Pinning specifies how a node is attached to its parent.
-Pining includes size, transformation, positioning and transparency.
+Pinning consists of size, transformation, positioning and transparency.
 
 ```javascript
 // Get a pinning value
