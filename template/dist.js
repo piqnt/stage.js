@@ -1,8 +1,8 @@
 /*
  * Stage.js ${version}
- * Copyright (c) 2015 Ali Shakiba, Piqnt LLC
- * Available under the MIT license
- * @license
+ * 
+ * @copyright 2015 Ali Shakiba, Piqnt LLC
+ * @license The MIT License
  */
 
 ${contents}

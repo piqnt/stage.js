@@ -1,15 +1,20 @@
+#### v0.8.2
+* `render.js` renamed to `loop.js`
+* `node.js` renamed to `tree.js`
+* cordova starts by mousemove
+
 #### v0.8.1
-* `node.scaleTo()` shortcut pinning method is added
+* `node.scaleTo()` shortcut pinning method added
 * `node.matrix(true)` returns relative matrix instead of absolute
 
 #### v0.8.0
-* **default .tween() behavior is changed from append to replace**
-* `.tween(duration, delay)` is changed to `.tween(duration, delay, append = false)`
-* `tween.clear()` is deprecated and no-op
-* `tween.end()` is replaced by `tween.done()`
+* **default `.tween()` behavior changed from append to replace**
+* `.tween(duration, delay)` changed to `.tween(duration, delay, append = false)`
+* `tween.clear()` deprecated and no-op
+* `tween.end()` replaced by `tween.done()`
 
 #### v0.7.1
-* `tween.then()` is replaced by `tween.end()`
+* `tween.then()` replaced by `tween.end()`
 * `tween.remove/hide()` are added
 
 #### v0.7.0
@@ -24,7 +29,7 @@
 * preloadScript('url') removed
 
 #### v0.6.5
-* **.preload('url.js') is added**
+* **.preload('url.js') added**
 
 #### v0.6.4
 * pinning shortcuts are added to nodes
@@ -41,12 +46,12 @@
 
 #### v0.5.0
 * atlas spec changed
-* **.preload(fn) is added**
+* **.preload(fn) added**
 * node.insert/append/prepend() methods accept array
 * node.id() renamed to node.label()
 * Cut.addTexture() removed
-* image.cropY/cropY() is removed
-* anim.gotoLabel() is removed
+* image.cropY/cropY() removed
+* anim.gotoLabel() removed
 * Cut.Anim.FPS is not public anymore
 * drawing() replaced with .canvas()
 * **Texture renamed to Atlas, new Texture class replaced Cut.Out**
@@ -68,26 +73,26 @@
 
 #### v0.4.3
 * pin set/get is refactored
-* resize in/out is replace with scale in-pad/out-crop
+* resize in/out replace with scale in-pad/out-crop
 * default viewbox mode is 'in-pad'
 
 #### v0.4.0
 * **CommonJS/Node.js files and project structure**
 * Source files moved to `lib` and platform files to `platform`
 * extension files moved to ext
-* `lib/main` is set as npm `main`
-* texture name is made optional in cutout selector: `"[texture:]cutout"`
+* `lib/main` set as npm `main`
+* texture name made optional in cutout selector: `"[texture:]cutout"`
 * FastContext support added to Cordova, FastCanvas loader removed
 
-* `Cut.Out.select` is replaced with `Cut.cutout`
+* `Cut.Out.select` replaced with `Cut.cutout`
 * `Cut.config` and `Cut.start(configs)` are added
 * `Cut.init` and `Loader.loadImage` replaced with `"app-loader"` and `"image-loader"` configs
 * `Loader` merged with `Root`
 * `Loader.start/pause/resume` replaced with `Cut.start/pause/resume`
 * `root._ratio` replaced with `root.viewport().ratio`
 * `_isCut` replaced with `Cut._ensure`
-* `Texture` is reorganized
-* `Root`'s `resize` renamed to `viewport`
+* `Texture` reorganized
+* `root.resize()` renamed to `viewport()`
 
 #### v0.3.1
 * Remove `Mouse(..., captureAnyMove)` and use flag instead
@@ -99,17 +104,18 @@
 * New `off` method to remove listeners
 * New `data` parameter for `visit` methods
 * `_listens` renamed to `_flag`
-* `_isFunc`, `_function`, `_options` and `_status` are removed and `_extend`'s signature is changed
+* `_isFunc`, `_function`, `_options` and `_status` are removed 
+* `_extend` signature changed
 
 #### v0.2.1
 * `setImage/Value/Frames/Font` deprecated and replaced by `image/value/frames`
 
 #### v0.2.0
-* `Mouse` events signature changed from `(rawEvent, point)` to `(point)` where new `point.raw` is old `rawEvent`
-* `viewport` callback signature changed from `(width, height)` to `(viewport)`
-* replaced `Cut.addTexture(...)` with `Cut(...)`
-* replaced `spy(true)` with `attr('spy', true)`
-* support pinning shorthand names for tweening
+* mouse event listener signature changed from `(rawEvent, {x, y})` to `({x, y, raw})`
+* `viewport` listener signature changed from `(width, height)` to `({width, height})`
+* `Cut.addTexture(...)` is replaced with `Cut(...)`
+* `spy(true)` is replaced with `attr('spy', true)`
+* tweening support for pinning XY-shorthands added 
 * `drawing` signature changed from `([name], width, height, [ratio], callback, [def])` to `([name], width, height, [ratio], [callback])` and `(def, [callback])`
-* node.trigger() method is added, calls .publish() and  returns `this`
+* node.trigger() method added, calls .publish() and returns `this`
 * using deep listeners count instead of `spy` to optimized mouse event distribution
