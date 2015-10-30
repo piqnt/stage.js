@@ -60,11 +60,11 @@
       self.addRenderable(bodies[i]);
     }
 
-    var runner = Runner.runner(engine);
+    var runner = Runner.create(engine);
     var time = 0;
     this.tick(function(t) {
       time += t;
-      runner(time);
+      Runner.tick(runner, engine, time);
       return true;
     });
   }

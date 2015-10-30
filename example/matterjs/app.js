@@ -39,7 +39,7 @@ World.add(world, Bodies.rectangle(0, height, corner, corner, frame));
 World.add(world, Bodies.rectangle(width, 0, corner, corner, frame));
 World.add(world, Bodies.rectangle(width, height, corner, corner, frame));
 
-var blockId = Body.nextGroupId();
+var blockId = Body.nextGroup();
 for (var i = 0; i <= 10; i++) {
   for (var j = 0; j <= 10; j++) {
     World.add(world, Bodies.rectangle(100 + i * 40, 100 + j * 40, 40, 40, {
