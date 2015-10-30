@@ -18,7 +18,7 @@ tween.pin(pinning);
 tween.ease(easing);
 
 // Set duration in milliseconds
-tween.duraion(ms);
+tween.duration(ms);
 
 // Set delay in milliseconds
 tween.delay(ms);
