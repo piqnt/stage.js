@@ -4,6 +4,11 @@ Stage({
 });
 
 Stage({
+  name : "map-1",
+  image : { src : "map-1.png", ratio : 2 }
+});
+
+Stage({
   image : { src : "main.png", ratio : 4 },
   ppu : 16,
   textures : {
