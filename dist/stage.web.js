@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.8.2
+ * Stage.js 0.8.4
  * 
  * @copyright 2015 Ali Shakiba, Piqnt LLC
  * @license The MIT License
@@ -55,9 +55,9 @@ function Easing(token) {
     if (!match || !match.length) {
         return _identity;
     }
-    easing = _easings[match[1]];
-    mode = _modes[match[3]];
-    params = match[5];
+    var easing = _easings[match[1]];
+    var mode = _modes[match[3]];
+    var params = match[5];
     if (easing && easing.fn) {
         fn = easing.fn;
     } else if (easing && easing.fc) {
