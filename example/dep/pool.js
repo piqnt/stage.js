@@ -1,6 +1,5 @@
 /*
- * ExtraJS
- * Copyright (c) 2013-2014 Ali Shakiba, Piqnt LLC and other contributors
+ * Copyright (c) 2016 Ali Shakiba, Piqnt LLC
  * Available under the MIT license
  * @license
  */
