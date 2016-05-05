@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.8.4
+ * Stage.js 0.8.5
  * 
  * @copyright 2016 Ali Shakiba, Piqnt LLC
  * @license The MIT License
@@ -1449,11 +1449,18 @@ if (typeof FastContext === "undefined") {
     FastContext = window.FastContext;
 }
 
+Class._supported = function() {
+    var elem = document.createElement("canvas");
+    return elem.getContext && elem.getContext("2d") ? true : false;
+}();
+
 window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
     var start = once(function(msg) {
         DEBUG && msg && console.log("Started on " + msg);
-        Class.start();
+        if (Stage._supported) {
+            Class.start();
+        }
     });
     // setTimeout(function() {
     // start('timeout');

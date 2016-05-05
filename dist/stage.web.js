@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.8.4
+ * Stage.js 0.8.5
  * 
  * @copyright 2016 Ali Shakiba, Piqnt LLC
  * @license The MIT License
@@ -1443,9 +1443,16 @@ if (typeof DEBUG === "undefined") DEBUG = true;
 
 var Class = require("../core");
 
+Class._supported = function() {
+    var elem = document.createElement("canvas");
+    return elem.getContext && elem.getContext("2d") ? true : false;
+}();
+
 window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
-    Class.start();
+    if (Class._supported) {
+        Class.start();
+    }
 }, false);
 
 Class.config({
