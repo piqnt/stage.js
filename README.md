@@ -1,4 +1,14 @@
-Stage.js is a 2D HTML5 JavaScript library for cross-platform game development, it is lightweight, fast and open-source.
+### Stage.js
+Stage.js is a 2D JavaScript library for cross-platform HTML5 game development, it is lightweight, fast and open-source.
+
 **[Learn more and browse examples...](http://piqnt.com/stage.js/)**
 
-Stage.js is available under the MIT [license](./LICENSE.md).
+#### Development
+To try examples with a live build run following command and check output for the URL to open in your browser:
+```
+npm run dev
+```
+
+#### License
+Copyright 2016 Ali Shakiba, Piqnt LLC  
+Available under the MIT License
