@@ -16,5 +16,5 @@
     "type": "git",
     "url": "git://github.com/piqnt/stage.js.git"
   },
-  "ignore": [ "example/", "template/", "test/" ]
+  "ignore": [ "example/", "test/" ]
 }
