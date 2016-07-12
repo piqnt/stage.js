@@ -10,5 +10,5 @@ npm run dev
 ```
 
 #### License
-Copyright 2016 Ali Shakiba http://shakiba.me/stage.js
+Copyright 2016 Ali Shakiba http://shakiba.me/stage.js  
 Available under the MIT License
