@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.8.5
+ * Stage.js 0.8.6
  * 
  * @copyright 2016 Ali Shakiba http://shakiba.me/stage.js
  * @license The MIT License
@@ -988,7 +988,7 @@ var extend = require("./util/extend");
 
 var is = require("./util/is");
 
-var await = require("./util/await");
+var _await = require("./util/await");
 
 stats.create = 0;
 
@@ -1063,7 +1063,7 @@ Class.app = function(app, opts) {
     }, opts);
 };
 
-var loading = await();
+var loading = _await();
 
 Class.preload = function(load) {
     if (typeof load === "string") {
@@ -3024,26 +3024,26 @@ module.exports = Class;
 
 },{"./core":8,"./util/is":25}],21:[function(require,module,exports){
 module.exports = function() {
-    var await = 0;
+    var count = 0;
     function fork(fn, n) {
-        await += n = typeof n === "number" && n >= 1 ? n : 1;
+        count += n = typeof n === "number" && n >= 1 ? n : 1;
         return function() {
             fn && fn.apply(this, arguments);
             if (n > 0) {
-                n--, await--, call();
+                n--, count--, call();
             }
         };
     }
     var then = [];
     function call() {
-        if (await === 0) {
+        if (count === 0) {
             while (then.length) {
                 setTimeout(then.shift(), 0);
             }
         }
     }
     fork.then = function(fn) {
-        if (await === 0) {
+        if (count === 0) {
             setTimeout(fn, 0);
         } else {
             then.push(fn);
