@@ -132,7 +132,7 @@
 
     if (obj instanceof p2.Body && obj.shapes.length) {
       if (obj.concavePath && !this.options.debugPolygons) {
-        var texture = this.drawConvex(obj.concavePath);
+        var texture = this.drawConvex(obj.concavePath, obj.render);
         Stage.image(texture).appendTo(obj.ui).pin({
           handle : 0.5,
           offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
@@ -143,32 +143,30 @@
       } else {
         for (var i = 0; i < obj.shapes.length; i++) {
           var shape = obj.shapes[i];
+          var options = shape.render || obj.render;
 
           var texture = null;
           if (shape instanceof p2.Circle) {
-            texture = this.drawCircle(shape.radius);
+            texture = this.drawCircle(shape.radius, options);
 
           } else if (shape instanceof p2.Particle) {
-            texture = this.drawCircle(2 * this.options.get('lineWidth'), {
-              lineColor : "",
-              fillColor : this.options.lineColor
-            });
+            texture = this.drawParticle(options);
 
           } else if (shape instanceof p2.Plane) {
-            texture = this.drawPlane(-10, 10, 10);
+            texture = this.drawPlane(-10, 10, 10, options);
 
           } else if (shape instanceof p2.Line) {
-            texture = this.drawLine(shape.length);
+            texture = this.drawLine(shape.length, options);
 
           } else if (shape instanceof p2.Rectangle) {
-            texture = this.drawRectangle(shape.width, shape.height);
+            texture = this.drawRectangle(shape.width, shape.height, options);
 
           } else if (shape instanceof p2.Capsule) {
-            texture = this.drawCapsule(shape.length, shape.radius);
+            texture = this.drawCapsule(shape.length, shape.radius, options);
 
           } else if (shape instanceof p2.Convex) {
             if (shape.vertices.length) {
-              texture = this.drawConvex(shape.vertices);
+              texture = this.drawConvex(shape.vertices, options);
             }
           }
           Stage.image(texture).appendTo(obj.ui).pin({
@@ -181,7 +179,7 @@
       }
 
     } else if (obj instanceof p2.Spring) {
-      var texture = this.drawSpring(obj.restLength);
+      var texture = this.drawSpring(obj.restLength, obj.render);
       Stage.image(texture).appendTo(obj.ui).pin({
         handle : 0.5
       });
@@ -195,8 +193,9 @@
 
   Viewer.prototype.drawLine = function(length, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth'), lineColor = options
-        .get('lineColor'), fillColor = options.get('fillColor');
+    var lineWidth = options.get('lineWidth');
+    var lineColor = options.get('lineColor');
+    var fillColor = options.get('fillColor');
 
     lineWidth *= 2;
     var ratio = options.ratio;
@@ -218,8 +217,9 @@
 
   Viewer.prototype.drawRectangle = function(w, h, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth'), lineColor = options
-        .get('lineColor'), fillColor = options.get('fillColor');
+    var lineWidth = options.get('lineWidth');
+    var lineColor = options.get('lineColor');
+    var fillColor = options.get('fillColor');
 
     var width = w + 2 * lineWidth;
     var height = h + 2 * lineWidth;
@@ -243,8 +243,44 @@
 
   Viewer.prototype.drawCircle = function(radius, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth'), lineColor = options
-        .get('lineColor'), fillColor = options.get('fillColor');
+    var lineWidth = options.get('lineWidth');
+    var lineColor = options.get('lineColor');
+    var fillColor = options.get('fillColor');
+
+    var width = radius * 2 + lineWidth * 2;
+    var height = radius * 2 + lineWidth * 2;
+    var ratio = options.ratio;
+
+    return Stage.canvas(function(ctx) {
+      this.size(width, height, ratio);
+
+      ctx.scale(ratio, ratio);
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
+      if (fillColor) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+      }
+
+      if (lineColor) {
+        ctx.moveTo(radius + lineWidth, radius + lineWidth);
+        ctx.lineTo(lineWidth, radius + lineWidth);
+
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = lineColor;
+        ctx.stroke();
+      }
+    });
+  };
+
+  Viewer.prototype.drawParticle = function(options) {
+    options = this.options.extend(options);
+
+    var lineWidth = options.get('lineWidth');
+    var lineColor = '';
+    var fillColor = options.get('fillColor') || options.get('lineColor');
+
+    var radius = 2 * options.get('lineWidth');
 
     var width = radius * 2 + lineWidth * 2;
     var height = radius * 2 + lineWidth * 2;
@@ -274,8 +310,9 @@
 
   Viewer.prototype.drawCapsule = function(len, radius, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth'), lineColor = options
-        .get('lineColor'), fillColor = options.get('fillColor');
+    var lineWidth = options.get('lineWidth');
+    var lineColor = options.get('lineColor');
+    var fillColor = options.get('fillColor');
 
     var width = len + 2 * radius + 2 * lineWidth;
     var height = 2 * radius + 2 * lineWidth;
@@ -306,8 +343,9 @@
 
   Viewer.prototype.drawSpring = function(length, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth'), lineColor = options
-        .get('lineColor'), fillColor = options.get('fillColor');
+    var lineWidth = options.get('lineWidth');
+    var lineColor = options.get('lineColor');
+    var fillColor = options.get('fillColor');
 
     length = Math.max(length, lineWidth * 10);
 
@@ -346,8 +384,9 @@
 
   Viewer.prototype.drawPlane = function(x0, x1, max, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth'), lineColor = options
-        .get('lineColor'), fillColor = options.get('fillColor');
+    var lineWidth = options.get('lineWidth');
+    var lineColor = options.get('lineColor');
+    var fillColor = options.get('fillColor');
 
     var ratio = options.ratio;
 
@@ -381,8 +420,9 @@
 
   Viewer.prototype.drawConvex = function(verts, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth'), lineColor = options
-        .get('lineColor'), fillColor = options.get('fillColor');
+    var lineWidth = options.get('lineWidth');
+    var lineColor = options.get('lineColor');
+    var fillColor = options.get('fillColor');
 
     if (!verts.length) {
       return;
