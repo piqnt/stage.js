@@ -1,16 +1,5 @@
-* {
-	margin: 0;
-	padding: 0;
-	border: none;
-}
-
-body,html {
-	height: 100%;
-	width: 100%;
-	font-family: sans-serif;
-}
-
 body {
+  font-family: sans-serif;
 	overflow: hidden;
 }
 
