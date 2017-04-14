@@ -16,5 +16,5 @@ Stage(function(stage) {
 
 Stage({
   name : 'pinwheel',
-  image : 'pinwheel.png',
+  image : './pinwheel.png',
 });

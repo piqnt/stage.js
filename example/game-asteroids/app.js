@@ -361,6 +361,7 @@ Stage(function(stage) {
 
   var ui = {};
 
+  stage.background('#222222');
   stage.on('viewport', function(size) {
     ui.meta.pin({
       scaleMode : 'in-pad',

@@ -192,6 +192,7 @@ function Game(ui) {
 Stage(function(stage, container) {
   var Mouse = Stage.Mouse;
 
+  stage.background('#222222');
   stage.viewbox(1024, 1024, 'out-crop').pin('align', -0.5);
   stage.MAX_ELAPSE = 20;
 

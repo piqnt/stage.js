@@ -268,7 +268,7 @@ Drone.prototype.uiUpdate = function() {
 
 Stage({
   image : {
-    src : 'main.png',
+    src : './main.png',
     ratio : 4
   },
   textures : {

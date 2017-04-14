@@ -29,11 +29,3 @@ var status = (function() {
     el.innerHTML = msg;
   };
 })();
-
-(function() {
-  var link = document.createElement('link');
-  link.type = 'image/x-icon';
-  link.rel = 'shortcut icon';
-  link.href = window.location.href.replace(/\/example\/.*/, '/favicon.ico');
-  document.getElementsByTagName('head')[0].appendChild(link);
-})();

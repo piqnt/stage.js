@@ -166,6 +166,7 @@ function Game(ui, width, height) {
 
 Stage(function(stage) {
 
+  stage.background('#222222');
   stage.viewbox(24, 24);
 
   var width = 8, height = 8;

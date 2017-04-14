@@ -1,6 +1,6 @@
 Stage({
   name : "example",
-  image : { src : "../example.png", ratio : 4 },
+  image : { src : "./example.png", ratio : 4 },
   trim : 0.2,
   textures : {
     dark :   { x : 0*16, y : 0,  width : 16, height : 16 },

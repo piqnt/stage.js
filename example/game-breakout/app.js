@@ -370,6 +370,7 @@ Stage(function(stage) {
 
   stage.MAX_ELAPSE = 100;
 
+  stage.background('#222222');
   stage.viewbox(width * 16, height * 1.12 * 16).pin('offsetY',
       -height * 0.04 * 16).pin('align', -0.5);
 
