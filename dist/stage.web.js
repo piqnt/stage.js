@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.8.8
+ * Stage.js 0.8.9
  * 
  * @copyright 2017 Ali Shakiba http://shakiba.me/stage.js
  * @license The MIT License

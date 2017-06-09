@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.8.8
+ * Stage.js 0.8.9
  * 
  * @copyright 2017 Ali Shakiba http://shakiba.me/stage.js
  * @license The MIT License
@@ -1458,7 +1458,7 @@ window.addEventListener("load", function() {
     DEBUG && console.log("On load.");
     var start = once(function(msg) {
         DEBUG && msg && console.log("Started on " + msg);
-        if (Stage._supported) {
+        if (Class._supported) {
             Class.start();
         }
     });
