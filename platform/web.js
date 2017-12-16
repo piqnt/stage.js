@@ -1,7 +1,9 @@
 module.exports = require('../lib/');
 
+module.exports.internal = {};
+
 require('../lib/canvas');
-require('../lib/image');
+module.exports.internal.Image = require('../lib/image');
 require('../lib/anim');
 require('../lib/str');
 require('../lib/layout');

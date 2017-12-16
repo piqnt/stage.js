@@ -1,5 +1,5 @@
 /*
- * Stage.js 0.8.9
+ * Stage.js 0.8.10
  * 
  * @copyright 2017 Ali Shakiba http://shakiba.me/stage.js
  * @license The MIT License
@@ -7,9 +7,11 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Stage=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = require("../lib/");
 
+module.exports.internal = {};
+
 require("../lib/canvas");
 
-require("../lib/image");
+module.exports.internal.Image = require("../lib/image");
 
 require("../lib/anim");
 
@@ -435,9 +437,17 @@ Class.prototype.tween = function(duration, delay, append) {
             if (ignore) {
                 return true;
             }
-            var next = this._tweens[0].tick(this, elapsed, now, last);
-            if (next) {
+            var head = this._tweens[0];
+            var next = head.tick(this, elapsed, now, last);
+            if (next && head === this._tweens[0]) {
                 this._tweens.shift();
+            }
+            if (typeof next === "function") {
+                try {
+                    next.call(this);
+                } catch (e) {
+                    console.log(e);
+                }
             }
             if (typeof next === "object") {
                 this._tweens.unshift(next);
@@ -476,22 +486,21 @@ Tween.prototype.tick = function(node, elapsed, now, last) {
     }
     var p, over;
     if (time < this._duration) {
-        p = time / this._duration, over = false;
+        p = time / this._duration;
+        over = false;
     } else {
-        p = 1, over = true;
+        p = 1;
+        over = true;
     }
-    p = typeof this._easing == "function" ? this._easing(p) : p;
+    if (typeof this._easing == "function") {
+        p = this._easing(p);
+    }
     var q = 1 - p;
     for (var key in this._end) {
         this._owner.pin(key, this._start[key] * q + this._end[key] * p);
     }
     if (over) {
-        try {
-            this._done && this._done.call(this._owner);
-        } catch (e) {
-            console.log(e);
-        }
-        return this._next || true;
+        return this._next || this._done || true;
     }
 };
 
@@ -554,14 +563,6 @@ function pinning(node, map, key, value) {
 }
 
 Pin._add_shortcuts(Tween);
-
-/**
- * @deprecated Use .done(fn) instead.
- */
-Tween.prototype.then = function(fn) {
-    this.done(fn);
-    return this;
-};
 
 /**
  * @deprecated Use .done(fn) instead.
@@ -1215,6 +1216,8 @@ var repeat = require("./util/repeat");
 
 var create = require("./util/create");
 
+module.exports = Image;
+
 Class.image = function(image) {
     var img = new Image();
     image && img.image(image);
@@ -1591,9 +1594,10 @@ Class.prototype._tick = function(elapsed, now, last) {
     }
     var ticked = false;
     if (this._tickBefore !== null) {
-        for (var i = 0, n = this._tickBefore.length; i < n; i++) {
+        for (var i = 0; i < this._tickBefore.length; i++) {
             stats.tick++;
-            ticked = this._tickBefore[i].call(this, elapsed, now, last) === true || ticked;
+            var tickFn = this._tickBefore[i];
+            ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
         }
     }
     var child, next = this._first;
@@ -1604,9 +1608,10 @@ Class.prototype._tick = function(elapsed, now, last) {
         }
     }
     if (this._tickAfter !== null) {
-        for (var i = 0, n = this._tickAfter.length; i < n; i++) {
+        for (var i = 0; i < this._tickAfter.length; i++) {
             stats.tick++;
-            ticked = this._tickAfter[i].call(this, elapsed, now, last) === true || ticked;
+            var tickFn = this._tickAfter[i];
+            ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
         }
     }
     return ticked;
@@ -1644,14 +1649,24 @@ Class.prototype.untick = function(ticker) {
 };
 
 Class.prototype.timeout = function(fn, time) {
-    this.tick(function timer(t) {
+    this.setTimeout(fn, time);
+};
+
+Class.prototype.setTimeout = function(fn, time) {
+    function timer(t) {
         if ((time -= t) < 0) {
             this.untick(timer);
             fn.call(this);
         } else {
             return true;
         }
-    });
+    }
+    this.tick(timer);
+    return timer;
+};
+
+Class.prototype.clearTimeout = function(timer) {
+    this.untick(timer);
 };
 
 
