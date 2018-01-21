@@ -9,7 +9,7 @@ Stage.js is a 2D HTML5 JavaScript library for cross-platform game development, i
 [中文手册](https://github.com/shakiba/stage.js/wiki/%E4%B8%AD%E6%96%87%E6%89%8B%E5%86%8C)
 
 
-## Introdcution
+## Introduction
 
 Canvas is the graphic component of HTML5 game development, but it only has a drawing API and there is no data model like DOM to compose your application.
 You need to manually draw your application and manage rendering cycles to play it.
