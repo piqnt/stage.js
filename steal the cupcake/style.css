@@ -1,0 +1,47 @@
+  body{
+        background-image: url(background1.jpg);
+      background-size: cover;
+      }
+
+       .button{
+       
+        margin-top: 15px;
+        width: 100px;
+      }
+
+      canvas{
+        background-color: white ;
+      }
+
+      .btn{
+         border-top-right-radius: 20px; 
+        border-top-left-radius:20px ;
+        border-bottom-right-radius:20px ;
+        border-bottom-left-radius: 20px; 
+      }
+
+         h1{
+        text-align: center;
+        color: white;
+        text-decoration: underline;
+        margin-bottom: 30px;
+        margin-top: 20px;
+        font-style: italic;
+      }
+
+      h3{
+        text-align: center;
+        color: white;
+        font-style: italic;
+      }
+
+     h5{
+        color: white;
+        font-style: italic;
+     }
+
+     p{
+      color : white;
+      font-weight: bold;
+
+     }

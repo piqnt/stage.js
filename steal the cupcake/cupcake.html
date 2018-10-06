@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+      
+       <!--   Font Awesome        --> 
+      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+  
+    <link rel="icon" type="img/gif" href="logo1.png">
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+
+    <title>Game Box | Steal the Cupcake</title>
+
+  
+
+
+  </head>
+
+  <body>
+
+ <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="..\index.html"><img src="logo1.png" width="30" height="30" class="d-inline-block align-top" style="margin-right: 10px; margin-left: 10px;" >
+    GAME BOX</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="  false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto ">
+      <li class="nav-item ">
+        <a class="nav-link" href="../index.html">Home </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="..\about.html">About</a>
+      </li>
+  </div>
+</nav>
+
+
+ <div class="container">
+         <div class="row">
+        <div class="col-4 ">
+         
+        </div>
+          
+         <div class="col-4 d-none d-sm-block">
+            <h1 class="d-none d-sm-block"> WELCOME</h1>
+         </div>
+
+         <div class="col-4 d-none d-sm-block">
+             <button class="btn btn-danger" data-toggle="modal"  data-target="#exampleModal" style="margin-top: 30px; float: right; ">Rules</button>
+
+           <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                 <h3 style="color: black;"> RULES</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+             </div>
+              <div class="modal-body" style="color: black;">
+                  <br>
+                  <h6>1.You have to catch as much cupcakes as you can</h6>
+                  <h6>2.Each cupcake gives you +1 Point</h6>
+                  <h6>3.Each fruit gives you +3 points</h6>
+                  <h6>4.you will out if you fall off the tiles.</h6>
+                  <h6>5.Score as much points as you can.</h6>
+                  <br>
+                 
+              </div>
+     
+            </div>
+          </div>
+       </div>
+
+
+         </div>
+
+        
+      </div>
+      </div>
+
+
+       <div class="container">
+        <div class="row ">
+           <div class="col-2 d-none d-sm-block ">
+              <h3 style="text-decoration: underline;">Instructions</h3>
+              <br>
+              <p>1.Move by catcher by using <-- & --> </p>
+              <p>2.Jump the catcher by pressing upper arrow ker</p>
+
+            </div>
+
+           <div class="col-8">
+             <canvas height="400" width="500" style="border: 1px solid blue ;" id = "ctx" class="rounded mx-auto d-block"></canvas>
+           </div>
+           <div class="col-2 ">
+               
+           </div>
+        </div>
+       </div>
+
+
+       <h3 class="d-none d-sm-block"><button id= "restart" class="btn btn-danger button ">Pause</button></h3>
+     
+       <div class ="d-block d-sm-none" style="margin-top: 20px;">
+    
+         <h3><i class="fas fa-arrow-circle-left" id ="left" style="font-size: 30px;"></i>  <i class="fas fa-arrow-circle-up" id ="up" style="font-size: 30px;"></i>  <i class="fas fa-arrow-circle-right" id ="right" style="font-size: 30px;"></i></h3>
+     </div>
+       
+        
+       <script type="text/javascript" src="myjavascript.js"></script>
+      
+     
+
+
+  
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+  </body>
+</html>
+ 	
