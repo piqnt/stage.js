@@ -1,4 +1,4 @@
-#![Stage](https://s3.amazonaws.com/piqnt.com/stage.js/stage.png)
+[![Stage](https://s3.amazonaws.com/piqnt.com/stage.js/stage.png)](http://piqnt.com/stage.js/)
 
 Stage.js is a 2D HTML5 JavaScript library for cross-platform game development, it is lightweight, fast and open-source.
 
