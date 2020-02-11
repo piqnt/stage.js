@@ -11,17 +11,17 @@ Stage.js is a 2D HTML5 JavaScript library for cross-platform game development, i
 
 ## Introduction
 
-Canvas is the graphic component of HTML5 game development, but it only has a drawing API and there is no data model like DOM to compose your application.
+Canvas is the graphic component of HTML5 game development, but it only has a drawing API and there is no data model like the DOM to compose your application.
 You need to manually draw your application and manage rendering cycles to play it.
-Moreover, mouse events are only available at entire Canvas level and they also need to be processed manually.
+Moreover, mouse events are only available at the entire Canvas level and they also need to be processed manually.
 
-Stage.js provides a DOM-like tree data model to compose your application and internally manages rendering cycles and drawing of your application.
+Stage.js provides a DOM-like tree data model to compose your application and internally manages rendering cycles and the drawing of your application.
 It also processes and distributes mouse and touch events to targeted tree nodes.
 A Stage.js application consists of a tree of nodes. Each node is pinned (transformed) against its parent and has zero, one or more image textures.
 
-Each rendering cycle consists of ticking and drawing tree nodes. On ticking nodes adjust themselves to recent updates and then on drawing each node transforms according to its pinning and draws its textures.
+Each rendering cycle consists of ticking and drawing tree nodes. On ticking, nodes adjust themselves to recent updates while on drawing each node transforms according to its pinning and draws its textures.
 
-Rendering is retained and is paused when there is no changed.
+Rendering is retained and is paused when there is no change.
 
 ### Example
 
@@ -61,7 +61,7 @@ Stage({
 ## Installation
 
 #### Download
-Latest builds are available in project [releases page](https://github.com/shakiba/stage.js/releases/latest).
+Latest builds are available in the project [releases page](https://github.com/shakiba/stage.js/releases/latest).
 
 #### NPM
 
@@ -80,7 +80,7 @@ bower install stage-js --save
 
 #### Browser
 
-Include an appropriate build file from `dist` directory in your HTML page before your application, for example:
+Include an appropriate build file from `dist` directory in your HTML page before your application. For example:
 
 ```html
 <script src="path/to/stage.web.min.js"></script>
@@ -108,7 +108,7 @@ See `platform` directory for other available modules.
 
 ### Application
 An application is created by passing a callback function to `Stage()`.
-The library will load, create and initialize all required components and then will call the provided function with the application root node and display container which normally is a Canvas element.
+The library will load, create and initialize all required components and will then call the provided function with the application root node and display the container which is normally a Canvas element.
 
 ```javascript
 // Create and start an application
@@ -132,7 +132,7 @@ Stage(function(stage, display) {
 
 
 ### Tree Model
-Every app consists of a tree, tree's root is provided as `stage`.
+Every app consists of a tree. The tree's root is provided as `stage`.
 
 ```javascript
 // Create a new node instance (with no textures)
@@ -208,13 +208,13 @@ node.visit({
 
 
 ### Game Loop
-Each rendering cycle consists of ticking and redrawing application tree.
+Each rendering cycle consists of ticking and redrawing the application tree.
 Application and its nodes can be updated during ticking.
 Depending on application activities there can be three different follow-ups after ticking:
 
-* If at least one node is touched then entire application tree will be redrawn and game loop will continue.
-* If no node is touched but at least one ticking function returns `true` then game loop will continue but previous drawing will be retained.
-* If no node is touched and no ticking function returns `true` then application will pause until it is touched directly or indirectly.
+* If at least one node is touched then the entire application tree will be redrawn and the game loop will continue.
+* If no node is touched but at least one ticking function returns `true` then the game loop will continue but the previous drawing will be retained.
+* If no node is touched and no ticking function returns `true` then the application will pause until it is touched directly or indirectly.
 
 Nodes can be touched directly by calling `node.touch()` but usually they are touched indirectly by other actions such as pinning or tree manipulation.
 
@@ -289,9 +289,9 @@ node.rotate(angle);
 ```
 
 #### Positioning
-When positioning, *handle* point on self is positioned at *offset* distance from *align* point on parent.
-Handle and align are defined as ratio of width/height, 0 is top/left and 1 is bottom/right.
-Handle defaults to align value when it is not specified.
+When positioning, *handle* point on self is positioned at *offset* distance from *align* point on the parent.
+Handle and align are defined as a ratio of width/height, 0 is top/left and 1 is bottom/right.
+Handle defaults to the align value when it is not specified.
 
 ```javascript
 node.pin({
@@ -308,8 +308,8 @@ node.offset(x, y);
 node.offset({ x : x, y : y });
 ```
 
-By default axis-aligned bounding box (AABB) after transformation is used for positioning, 
-however it is possible to use non-transformed box by setting pivot location. 
+By default an axis-aligned bounding box (AABB) after transformation is used for positioning, 
+however it is possible to use a non-transformed box by setting a pivot location. 
 Pivot location is defined as ratio of non-transformed width/height and is used as central point on self for scale, skew and rotation.
 
 ```javascript
@@ -334,9 +334,9 @@ node.alpha(alpha, textureAlpha);
 ```
 
 #### Scale To
-Scale to new width/height, if mode is set scale proportionally. Valid modes are:
- - `in`: maximum scale which keeps node edges inside scaleWidth/Height
- - `in-pad`: like `in`, but evenly pads node to fill entire scaleWidth/Height
+Scale to a new width/height, if mode is set to scale proportionally. Valid modes are:
+ - `in`: maximum scale which keeps node edges inside the scaleWidth/Height
+ - `in-pad`: like `in`, but evenly pads node to fill the entire scaleWidth/Height
  - `out`: minimum scale which keeps node edges outside scaleWidth/Height
  - `out-crop`: like `out`, but evenly crops it to scaleWidth/Height
 
@@ -376,7 +376,7 @@ node.publish(name, args);
 
 ### Mouse and Touch
 Native mouse and touch events are captured, processed and published to application nodes.
-Nodes receive mouse events in local coordinate, that is mouse location is specified as distance to top-left of the node.
+Nodes receive mouse events in local coordinates, i.e. mouse location is specified as the distance to the top-left of the node.
 
 ```javascript
 // Add click listener to node
@@ -387,7 +387,7 @@ node.on('click', function(point) {
 ```
 
 Instead of native click events, syntatic click events are created and published to nodes.
-In addition to standard event types, syntatic `mousecancel` event type is also supported which is similar to `touchcancel` but is published when a `mousedown` is not followed by `mouseup`.
+In addition to standard event types, a syntactic `mousecancel` event type is also supported which is similar to `touchcancel` but is published when a `mousedown` is not followed by `mouseup`.
 
 ```javascript
 // Mouse events:
@@ -444,7 +444,7 @@ Stage.anim('mario:walk').play();
 Stage.string('mario:number').value(100);
 ```
 
-If image src starts with `./` it will be resolved relative to current script URL.
+If image src starts with `./` it will be resolved relative to the current script URL.
 
 
 ### Image
