@@ -46,3 +46,11 @@ a:hover {
 .dark a {
 	color: #fff;
 }
+
+canvas {
+	background: #fff;
+}
+
+.dark canvas {
+	background: #222;
+}

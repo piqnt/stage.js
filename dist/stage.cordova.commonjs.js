@@ -25,7 +25,7 @@
  * 
  * 
  */
-var Stage =
+exports["Stage"] =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -4015,4 +4015,4 @@ module.exports = function(fn, ctx) {
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=stage.cordova.js.map
+//# sourceMappingURL=stage.cordova.commonjs.js.map

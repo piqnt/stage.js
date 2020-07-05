@@ -637,5 +637,5 @@ npm run dev
 
 
 ## License
-Copyright 2017 Ali Shakiba http://shakiba.me/stage.js  
+Copyright 2020 Ali Shakiba http://shakiba.me/stage.js  
 Available under the MIT License

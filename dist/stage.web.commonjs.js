@@ -25,7 +25,7 @@
  * 
  * 
  */
-var Stage =
+exports["Stage"] =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -109,7 +109,7 @@ var Stage =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 29);
+/******/ 	return __webpack_require__(__webpack_require__.s = 27);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -3784,9 +3784,7 @@ module.exports = Mouse;
 
 
 /***/ }),
-/* 27 */,
-/* 28 */,
-/* 29 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(10);
@@ -3804,26 +3802,20 @@ module.exports.Math = __webpack_require__(8);
 module.exports._extend = __webpack_require__(5);
 module.exports._create = __webpack_require__(1);
 
-__webpack_require__(30);
+__webpack_require__(28);
 
 /***/ }),
-/* 30 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
- * Cordova/PhoneGap loader with FastContext support.
+ * Default loader for web.
  */
 
 if (false)
   {}
 
 var Class = __webpack_require__(0);
-
-var once = __webpack_require__(31);
-
-if (typeof FastContext === 'undefined') {
-  FastContext = window.FastContext;
-}
 
 Class._supported = (function() {
   var elem = document.createElement('canvas');
@@ -3832,38 +3824,10 @@ Class._supported = (function() {
 
 window.addEventListener('load', function() {
    false && false;
-
-  var start = once(function(msg) {
-     false && false;
-    if (Class._supported) {
-      Class.start();
-    }
-    // TODO if not supported
-  });
-
-  // setTimeout(function() {
-  // start('timeout');
-  // }, 3000);
-
-  document.addEventListener('click', function() {
-    start('click');
-  }, false);
-
-  document.addEventListener('mousemove', function() {
-    start('mousemove');
-  }, false);
-
-  document.addEventListener('deviceready', function() {
-    start('deviceready');
-  }, false);
-
-  document.addEventListener('pause', function() {
-    Class.pause();
-  }, false);
-
-  document.addEventListener('resume', function() {
-    Class.resume();
-  }, false);
+  if (Class._supported) {
+    Class.start();
+  }
+  // TODO if not supported
 }, false);
 
 Class.config({
@@ -3897,15 +3861,7 @@ function AppLoader(app, configs) {
     body.insertBefore(canvas, body.firstChild);
   }
 
-  context = canvas.getContext('2d', {
-    fastcontext : true
-  });
-
-  context.isFast = !!context.isFast;
-
-  full = full || context.isFast;
-
-   false && false;
+  context = canvas.getContext('2d');
 
   var devicePixelRatio = window.devicePixelRatio || 1;
   var backingStoreRatio = context.webkitBackingStorePixelRatio
@@ -3924,22 +3880,13 @@ function AppLoader(app, configs) {
   var root = Class.root(requestAnimationFrame, render);
 
   function render() {
-    if (context.isFast) {
-      context.clear();
-      context.setTransform(1, 0, 0, 1, 0, 0);
-    } else {
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, width, height);
-    }
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, width, height);
     root.render(context);
   }
 
   root.background = function(color) {
-    if (context.isFast) {
-      context.setBackgroundColor && context.setBackgroundColor(color);
-    } else {
-      canvas.style.backgroundColor = color;
-    }
+    canvas.style.backgroundColor = color;
     return this;
   };
 
@@ -3984,35 +3931,15 @@ function AppLoader(app, configs) {
 
 function ImageLoader(src, success, error) {
    false && false;
-  var image;
-  if (FastContext) {
-    image = FastContext.createImage(src, loaded, error);
-  } else {
-    image = new Image();
-    image.onload = loaded;
-    image.onerror = error;
-    image.src = src;
-  }
-  function loaded() {
+  var image = new Image();
+  image.onload = function() {
     success(image);
-  }
+  };
+  image.onerror = error;
+  image.src = src;
 }
 
 
-/***/ }),
-/* 31 */
-/***/ (function(module, exports) {
-
-module.exports = function(fn, ctx) {
-  var called = false;
-  return function() {
-    if (!called) {
-      called = true;
-      fn.apply(ctx, arguments);
-    }
-  };
-};
-
 /***/ })
 /******/ ]);
-//# sourceMappingURL=stage.cordova.js.map
+//# sourceMappingURL=stage.web.commonjs.js.map
