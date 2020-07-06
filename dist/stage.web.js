@@ -1,6 +1,6 @@
 /*!
  * 
- * Planck.js v0.9.0
+ * Planck.js v0.9.1
  * 
  * @copyright Copyright (c) 2020 Ali Shakiba http://shakiba.me/stage.js
  * @license The MIT License (MIT)
@@ -3892,9 +3892,29 @@ function AppLoader(app, configs) {
 
   app(root, canvas);
 
-  resize();
-  window.addEventListener('resize', resize, false);
-  window.addEventListener('orientationchange', resize, false);
+  // resize();
+  // window.addEventListener('resize', resize, false);
+  // window.addEventListener('orientationchange', resize, false);
+
+  var lastWidth = -1;
+  var lastHeight = -1;
+  (function resizeLoop() {
+    var width, height;
+    if (full) {
+      // screen.availWidth/Height?
+      width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
+      height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
+    } else {
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+    }
+    if (lastWidth !== width || lastHeight !== height) {
+      lastWidth = width;
+      lastHeight = height;
+      resize();
+    }
+    requestAnimationFrame(resizeLoop);
+  })();
 
   function resize() {
 
