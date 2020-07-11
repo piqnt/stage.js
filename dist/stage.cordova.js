@@ -1,9 +1,9 @@
 /*!
  * 
- * Planck.js v0.9.1
+ * Planck.js v0.9.2
  * 
- * @copyright Copyright (c) 2020 Ali Shakiba http://shakiba.me/stage.js
- * @license The MIT License (MIT)
+ * @copyright Copyright (c) 2020 Ali Shakiba http://shakiba.me/stage.js  
+ * @license The MIT License (MIT)  
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -2487,11 +2487,12 @@ function Root(request, render) {
   this.label('Root');
 
   var paused = true;
+  var stopped = true;
 
   var self = this;
   var lastTime = 0;
   var loop = function(now) {
-    if (paused === true) {
+    if (paused === true || stopped === true) {
       return;
     }
 
@@ -2516,6 +2517,7 @@ function Root(request, render) {
   };
 
   this.start = function() {
+    stopped = false;
     return this.resume();
   };
 
@@ -2540,6 +2542,10 @@ function Root(request, render) {
   this.touch = function() {
     this.resume();
     return this.touch_root();
+  };
+  this.stop = function() {
+    stopped = true;
+    return this;
   };
 };
 
@@ -3227,15 +3233,15 @@ Class.prototype.tween = function(duration, delay, append) {
         this._tweens.shift();
       }
 
-      if (typeof next === 'function') {
-        try {
-          next.call(this);
-        } catch (e) {
-          console.log(e);
+      if (Array.isArray(next)) {
+        for (var i = 0; i < next.length; i++) {
+          try {
+            next[i].call(this);
+          } catch (e) {
+            console.log(e);
+          }
         }
-      }
-
-      if (typeof next === 'object') {
+      } else if (typeof next === 'object') {
         this._tweens.unshift(next);
       }
 
@@ -3297,7 +3303,11 @@ Tween.prototype.tick = function(node, elapsed, now, last) {
   }
 
   if (over) {
-    return this._next || this._done || true;
+    var actions = [this._hide, this._remove, this._done];
+    actions = actions.filter(function( element ) {
+      return typeof element === 'function';
+    });
+    return this._next || actions;
   }
 };
 
@@ -3326,16 +3336,16 @@ Tween.prototype.done = function(fn) {
 };
 
 Tween.prototype.hide = function() {
-  this.done(function() {
+  this._hide = function() {
     this.hide();
-  });
+  };
   return this;
 };
 
 Tween.prototype.remove = function() {
-  this.done(function() {
+  this._remove = function() {
     this.remove();
-  });
+  };
   return this;
 };
 
@@ -3378,6 +3388,7 @@ Tween.prototype.clear = function(forward) {
 };
 
 module.exports = Tween;
+
 
 /***/ }),
 /* 25 */

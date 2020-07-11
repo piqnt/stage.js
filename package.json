@@ -1,8 +1,14 @@
 {
   "name": "stage-js",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
+  "author": "Ali Shakiba (http://shakiba.me/stage.js)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/shakiba/stage.js.git"
+  },
   "keywords": [
     "html5",
     "game",
@@ -15,11 +21,6 @@
     "web",
     "mobile"
   ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/shakiba/stage.js.git"
-  },
   "main": "lib/index.js",
   "files": [
     "dist/",
