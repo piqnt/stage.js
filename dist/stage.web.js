@@ -1,6 +1,6 @@
 /*!
  * 
- * Planck.js v0.9.2
+ * Planck.js v0.9.3
  * 
  * @copyright Copyright (c) 2020 Ali Shakiba http://shakiba.me/stage.js  
  * @license The MIT License (MIT)  
@@ -25,8 +25,17 @@
  * 
  * 
  */
-var Stage =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["Stage"] = factory();
+	else
+		root["Stage"] = factory();
+})(window, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -3975,4 +3984,5 @@ function ImageLoader(src, success, error) {
 
 /***/ })
 /******/ ]);
+});
 //# sourceMappingURL=stage.web.js.map

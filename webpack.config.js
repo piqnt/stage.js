@@ -23,6 +23,7 @@ module.exports = [
       path: path.resolve(__dirname, 'dist'),
       filename: '[name].min.js',
       library: 'Stage',
+      libraryTarget: 'umd',
     },
     devtool: 'source-map',
     optimization: {
@@ -45,6 +46,7 @@ module.exports = [
       path: path.resolve(__dirname, 'dist'),
       filename: '[name].js',
       library: 'Stage',
+      libraryTarget: 'umd',
     },
     devtool: 'source-map',
     optimization: {
@@ -52,29 +54,6 @@ module.exports = [
     },
     plugins: [
       // function
-      new webpack.BannerPlugin(licenseBanner),
-      new webpack.DefinePlugin({
-        DEBUG: JSON.stringify(false),
-        ASSERT: JSON.stringify(false),
-      }),
-    ],
-  },
-  {
-    entry: {
-      'stage.web': './platform/web.js',
-      'stage.cordova': './platform/cordova.js',
-    },
-    output: {
-      path: path.resolve(__dirname, 'dist'),
-      filename: '[name].commonjs.js',
-      library: 'Stage',
-      libraryTarget: 'commonjs'
-    },
-    devtool: 'source-map',
-    optimization: {
-      minimize: false
-    },
-    plugins: [
       new webpack.BannerPlugin(licenseBanner),
       new webpack.DefinePlugin({
         DEBUG: JSON.stringify(false),
