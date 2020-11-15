@@ -1,6 +1,6 @@
 /*!
  * 
- * Planck.js v0.9.3
+ * Stage.js v0.9.4
  * 
  * @copyright Copyright (c) 2020 Ali Shakiba http://shakiba.me/stage.js  
  * @license The MIT License (MIT)  

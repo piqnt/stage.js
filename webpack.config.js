@@ -8,7 +8,7 @@ const pkg = require('./package.json');
 const license = fs.readFileSync('./LICENSE.md', 'utf8');
 
 const licenseBanner = `
-Planck.js v${pkg.version}
+Stage.js v${pkg.version}
 
 ${license}
 `;
