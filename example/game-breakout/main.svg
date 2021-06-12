@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="256" height="256">
+    <defs>
+        <filter id="a" color-interpolation-filters="sRGB">
+            <feTurbulence baseFrequency=".061" numOctaves="4" result="result1"/>
+            <feComposite in2="SourceGraphic" operator="in"/>
+        </filter>
+    </defs>
+    <g transform="translate(0 -796.362)">
+        <g id="b" transform="matrix(.9375 0 0 .875 -14.615 123.506)">
+            <rect y="1027.266" x="-120.944" height="34.286" width="32" style="fill-opacity:1;stroke:none" ry="3.153" rx="3.153"/>
+            <rect style="fill:#000;fill-opacity:.0757098;stroke:none;filter:url(#a)" width="320" height="342.858" x="-264.944" y="872.98" ry="31.532" rx="31.532" transform="matrix(.1 0 0 .1 -94.45 939.968)"/>
+        </g>
+        <use xlink:href="#b" transform="translate(64)" width="256" height="256" style="fill:#fff"/>
+        <use x="0" y="0" xlink:href="#b" id="c" transform="translate(129 -1)" width="256" height="256" style="fill:#ff6d5e;fill-opacity:1"/>
+        <use x="0" y="0" xlink:href="#b" id="d" transform="translate(161 -1)" width="256" height="256" style="fill:#7cee68;fill-opacity:1"/>
+        <use x="0" y="0" xlink:href="#b" id="e" transform="translate(193 -1)" width="256" height="256" style="fill:#4d86eb;fill-opacity:1"/>
+        <use x="0" y="0" xlink:href="#b" id="f" transform="translate(225 -1)" width="256" height="256" style="fill:#ffdc00;fill-opacity:1"/>
+        <use x="0" y="0" xlink:href="#b" id="g" transform="translate(257 -1)" width="256" height="256" style="fill:#e99eff;fill-opacity:1"/>
+        <path style="fill:#f9f9f9;fill-opacity:1;stroke:none" d="M35.386 136.685c0 9.02-7.312 16.332-16.332 16.332s-16.332-7.312-16.332-16.332 7.312-16.332 16.332-16.332 16.332 7.313 16.332 16.332z" transform="translate(79.25 949.593) scale(.45922)"/>
+        <path style="fill:#f2f2f2;fill-opacity:1;stroke:none" d="M7.208 1006.737c3.482-.914 9.077-1.875 16.292-1.875 7.215 0 13.056 1.042 16.292 1.875 3.058.788 6.708 2.927 6.708 6.563 0 3.635-2.992 6.562-6.708 6.562H7.208c-3.716 0-6.708-2.927-6.708-6.562 0-3.636 3.654-5.761 6.708-6.563z"/>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x=".109" y="1003.52"><tspan x=".109" y="1003.52">0</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="16.11" y="1003.52"><tspan x="16.11" y="1003.52">1</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="32.111" y="1003.52"><tspan x="32.111" y="1003.52">2</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="48.112" y="1003.52"><tspan x="48.112" y="1003.52">3</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="64.113" y="1003.52"><tspan x="64.113" y="1003.52">4</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="80.115" y="1003.52"><tspan x="80.115" y="1003.52">5</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="96.116" y="1003.52"><tspan x="96.116" y="1003.52">6</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="112.117" y="1003.52"><tspan x="112.117" y="1003.52">7</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="128.118" y="1003.52"><tspan x="128.118" y="1003.52">8</tspan></text>
+        <text xml:space="preserve" style="font-size:20px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0;word-spacing:0;writing-mode:lr-tb;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="144.119" y="1003.52"><tspan x="144.119" y="1003.52">9</tspan></text>
+        <g transform="translate(7.772 -2.174)">
+            <rect rx="2.406" transform="translate(0 796.362)" y="147.174" x="184.228" height="62" width="63" style="fill:#000;fill-opacity:.17407407;stroke:none" ry="2.406"/>
+            <path transform="translate(173.04 863.58) scale(.69113)" d="M61.766 148.511c6.645 0 12.032 5.387 12.032 12.033 0 6.645-5.387 12.032-12.032 12.032-6.645 0-12.032-5.387-12.032-12.032 0 0 0 0 0 0" style="fill:none;stroke:#eaeaea;stroke-width:2.89383005999999998;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"/>
+            <path d="m203.639 977.782 3.413-4.934 4.934 3.413" style="fill:none;stroke:#eaeaea;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"/>
+            <text xml:space="preserve" style="font-size:28.08362007px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;line-height:125%;letter-spacing:0;word-spacing:0;fill:#f2f2f2;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="88.351" y="1011.607" transform="scale(.99025 1.00984)"><tspan x="88.351" y="1011.607">+</tspan></text>
+            <text xml:space="preserve" style="font-size:31.21483231px;font-style:normal;font-variant:normal;font-weight:700;font-stretch:normal;line-height:125%;letter-spacing:0;word-spacing:0;fill:#f2f2f2;fill-opacity:1;stroke:none;font-family:Nunito;-inkscape-font-specification:Nunito Bold" x="96.561" y="1124.84" transform="scale(1.10066 .90854)"><tspan x="96.561" y="1124.84">-</tspan></text>
+        </g>
+        <path d="M53.02 1006.737c2.347-.914 6.65-1.875 10.98-1.875s8.799 1.042 10.98 1.875c2.06.788 4.52 2.927 4.52 6.563 0 3.635-2.016 6.562-4.52 6.562H53.02c-2.504 0-4.52-2.927-4.52-6.562 0-3.636 2.462-5.761 4.52-6.563z" style="fill:#f2f2f2;fill-opacity:1;stroke:none"/>
+        <use xlink:href="#c" transform="translate(160.47 556.654) scale(.4706)" width="256" height="256"/>
+        <use xlink:href="#d" transform="translate(161.412 556.654) scale(.4706)" width="256" height="256"/>
+        <use xlink:href="#e" transform="translate(162.352 556.654) scale(.4706)" width="256" height="256"/>
+        <use xlink:href="#f" transform="translate(163.293 556.654) scale(.4706)" width="256" height="256"/>
+        <use xlink:href="#g" transform="translate(164.234 556.654) scale(.4706)" width="256" height="256"/>
+    </g>
+</svg>
