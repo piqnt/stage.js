@@ -33,7 +33,7 @@
   "devDependencies": {
     "expect.js": "*",
     "express": "^4.17.1",
-    "mocha": "^6.2.3",
+    "mocha": "^10.2.0",
     "nodemon": "^1.19.1",
     "sandboxed-module": "^2.0.0",
     "serve-index": "^1.9.1",
