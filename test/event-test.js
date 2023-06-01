@@ -1,8 +1,8 @@
 var expect = require('./util/expect');
 var sinon = require('sinon');
 
-var Stage = require('../lib/tree');
-require('../lib/event');
+var Stage = require('../src/tree');
+require('../src/event');
 
 describe('Event', function() {
 

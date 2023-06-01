@@ -1,3 +1,5 @@
+import Stage from '../../src';
+
 var Math = Stage.Math;
 
 // Game logic

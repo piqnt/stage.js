@@ -1,3 +1,6 @@
+import Stage from '../../src';
+import '../common/texture';
+
 Stage(function(stage) {
 
   stage.viewbox(1000, 1000).pin('handle', -0.5);

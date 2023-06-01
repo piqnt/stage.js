@@ -2,9 +2,9 @@ var expect = require('./util/expect');
 var sandboxed = require('sandboxed-module');
 var sinon = require('sinon');
 
-var Stage = require('../lib/tree');
-var Texture = require('../lib/texture');
-var Atlas = require('../lib/atlas');
+var Stage = require('../src/tree');
+var Texture = require('../src/texture');
+var Atlas = require('../src/atlas');
 
 var mario = {
   x : 1,
@@ -107,7 +107,7 @@ it('Atlas', function() {
 
 describe('Stage.texture()', function() {
   it('atlas.textures', function() {
-    var Stage = sandboxed.require('../lib/');
+    var Stage = sandboxed.require('../src/');
 
     Stage.atlas({
       name : 'name',
@@ -140,7 +140,7 @@ describe('Stage.texture()', function() {
   });
 
   it('atlas.cutouts', function() {
-    var Stage = sandboxed.require('../lib/');
+    var Stage = sandboxed.require('../src/');
 
     Stage.atlas({
       name : "main",

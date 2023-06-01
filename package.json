@@ -1,6 +1,6 @@
 {
   "name": "stage-js",
-  "version": "0.9.4",
+  "version": "1.0.0-dev",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
   "author": "Ali Shakiba (http://shakiba.me/stage.js)",
@@ -21,31 +21,35 @@
     "web",
     "mobile"
   ],
-  "main": "lib/index.js",
+  "type": "module",
+  "main": "./dist/stage.umd.cjs",
+  "module": "./dist/stage.js",
+  "exports": {
+    ".": {
+      "import": "./dist/stage.js",
+      "require": "./dist/stage.umd.cjs"
+    }
+  },
   "files": [
+    "src/",
     "dist/",
-    "doc/",
-    "ext/",
-    "lib/",
-    "platform/",
     "test/"
   ],
+  "dependencies": {
+    "is": "^3.3.0"
+  },
   "devDependencies": {
-    "expect.js": "*",
-    "express": "^4.17.1",
+    "expect.js": "^0.3.1",
+    "glob": "^10.2.6",
     "mocha": "^6.2.3",
-    "nodemon": "^1.19.1",
     "sandboxed-module": "^2.0.0",
-    "serve-index": "^1.9.1",
     "sinon": "^9.0.2",
-    "webpack": "^4.33.0",
-    "webpack-cli": "^3.3.3",
-    "webpack-dev-middleware": "^3.7.0"
+    "vite": "^4.3.8",
+    "vite-plugin-pages": "^0.30.1"
   },
   "scripts": {
-    "test": "mocha test/*.js",
-    "build": "webpack -p",
-    "watch": "webpack --watch",
-    "dev": "nodemon server.js"
+    "dev": "vite",
+    "build": "vite build",
+    "test": "mocha test/*.js"
   }
 }

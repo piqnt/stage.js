@@ -1,3 +1,5 @@
+import Stage from '../../src';
+
 // Game logic
 
 function Game(ui) {

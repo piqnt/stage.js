@@ -1,3 +1,6 @@
+import Stage from '../../src';
+import imageUrl from './sample.png';
+
 // Create new app
 Stage(function(stage) {
 
@@ -22,7 +25,7 @@ Stage(function(stage) {
 
 // Adding a texture
 Stage({
-  image : 'sample.png',
+  image : imageUrl,
   textures : {
     box : { x : 0, y : 0, width : 30, height : 30 }
   }

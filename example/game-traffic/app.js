@@ -1,3 +1,9 @@
+import Stage from '../../src';
+import bezier from '../common/bezier';
+
+import './textures';
+
+
 var actions = {};
 var levels = {};
 
@@ -242,8 +248,7 @@ Stage(function(stage, container) {
     }
   });
 
-  stage.on(Mouse.CLICK, function(ev, point) {
-    console.log(point.x + ":" + point.y);
+  stage.on(Mouse.CLICK, function() {
     game.click();
   });
 

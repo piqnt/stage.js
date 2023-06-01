@@ -1,3 +1,8 @@
+import Stage from '../../src';
+import '../common/stage-p2';
+import './texture';
+import Timeout from '../common/timeout';
+
 var P2DEBUG = false;
 
 function Physics(ui, width, height) {
@@ -10,8 +15,10 @@ function Physics(ui, width, height) {
 
   world.solver.stiffness = Number.MAX_VALUE;
 
-  var ballMater = new p2.Material();
-  var wallMater = brickMater = paddleMater = new p2.Material();
+  var ballMater, wallMater, brickMater, paddleMater;
+
+  ballMater = new p2.Material();
+  wallMater = brickMater = paddleMater = new p2.Material();
 
   world.addContactMaterial(new p2.ContactMaterial(ballMater, wallMater, {
     restitution : 1.0,

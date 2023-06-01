@@ -1,3 +1,6 @@
+import Stage from '../../src';
+import './textures';
+
 var Math = Stage.Math, Mouse = Stage.Mouse;
 
 function Game(ui, width, height) {
@@ -41,7 +44,7 @@ function Game(ui, width, height) {
 
   function collapseDown() {
     do {
-      moved = false;
+      var moved = false;
       for (var i = 0; i < tiles.length; i++) {
         var tile = tiles[i];
         if (tile.j + 1 < height && tile.move(tile.i, tile.j + 1)) {
@@ -54,7 +57,7 @@ function Game(ui, width, height) {
 
   function collapseLeft() {
     do {
-      moved = false;
+      var moved = false;
       for (var i = 0; i < width - 1; i++) {
         var empty = true;
         for (var j = 0; j < height && empty; j++) {
@@ -117,6 +120,7 @@ function Game(ui, width, height) {
       return;
     }
     list.push(this);
+    var next
     if (next = getTile(this.i + 1, this.j)) {
       next.match(list, search, color);
     }

@@ -617,10 +617,6 @@ Stage.preload(function(done) {
   done(error);
 });
 
-// Preload and execute a JS file
-// URLs starting with `./` are resolved relative to current script URL
-Stage.preload(src);
-
 // Pause playing all applications
 Stage.pause();
 

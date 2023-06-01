@@ -31,7 +31,7 @@ expect.Assertion.prototype.list = function(obj, fn) {
   return this;
 };
 
-module.exports = expect;
+export default expect;
 
 Array.prototype.pluck = function(key) {
   return this.map(function(obj) {

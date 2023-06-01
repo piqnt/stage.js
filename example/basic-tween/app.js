@@ -1,3 +1,6 @@
+import Stage from '../../src';
+import '../common/texture';
+
 Stage(function(stage) {
 
   var Mouse = Stage.Mouse;

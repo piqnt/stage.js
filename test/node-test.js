@@ -2,7 +2,7 @@ var expect = require('./util/expect');
 var sinon = require('sinon');
 var memo = require('./util/memo');
 
-var Stage = require('../lib/tree');
+var Stage = require('../src/tree');
 
 it('label', function() {
   var foo = Stage.create();

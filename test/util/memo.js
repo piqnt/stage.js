@@ -1,4 +1,4 @@
-module.exports = function(create) {
+export default function(create) {
   var memo = {};
   function fn(key) {
     if (Array.isArray(key)) {

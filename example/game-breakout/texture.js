@@ -1,3 +1,5 @@
+import Stage from '../../src';
+
 Stage({
   image : { src : './bg.png', ratio : 2 },
   textures : {

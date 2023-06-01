@@ -1,3 +1,13 @@
+import Stage from '../../src';
+import Pool from '../common/pool';
+import Randomize from '../common/randomize';
+
+import './textures'
+
+if (typeof TOP !== 'number') {
+  var TOP = 0;
+}
+
 var Conf = {};
 
 Conf.width = 240;
@@ -260,8 +270,9 @@ function Game() {
 
     while (lastDot + Conf.dotSpace <= this.dist) {
       lastDot += Conf.dotSpace;
-      if (obj = randomPattern.test() && randomPattern.random()) {
-        var added = obj(lastDot + Conf.width);
+      var pattern = randomPattern.test() && randomPattern.random();
+      if (pattern) {
+        var added = pattern.call(randomPattern, lastDot + Conf.width);
         added = added * (1 + this.dist * 0.00002 * Math.random(0.8, 1.25));
         randomPattern.test(-added);
       }
@@ -269,9 +280,12 @@ function Game() {
 
     while (lastItem + Conf.itemSpace <= this.dist) {
       lastItem += Conf.itemSpace;
-      if (obj = randomEnemy.test() && randomEnemy.random() || randomCoin.test()
-          && randomCoin.random()) {
-        obj(lastItem + Conf.width, Math.random(Conf.min, Conf.max));
+      var enemy = randomEnemy.test() && randomEnemy.random();
+      var coin = randomCoin.test() && randomCoin.random();
+      if (enemy) {
+        enemy.call(randomEnemy, lastItem + Conf.width, Math.random(Conf.min, Conf.max));
+      } else if (coin) {
+        coin.call(randomCoin, lastItem + Conf.width, Math.random(Conf.min, Conf.max));
       }
     }
 
@@ -878,7 +892,6 @@ function Game() {
 
 // UI
 Stage(function(stage, display) {
-  TOP = typeof TOP === 'number' ? TOP : 0;
   var Mouse = Stage.Mouse;
 
   var game = new Game();

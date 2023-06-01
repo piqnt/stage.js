@@ -1,3 +1,11 @@
+#### next
+* use es modules and vite
+* remove script loader `preload(url)`
+* remove relative path resolver for texture image loader
+* remove cordova/fastcontext loader and build, use web by default
+* remove _create, _extend functions with js functions
+* rename lib to src, make folder structre flat
+
 #### v0.8.2
 * `render.js` renamed to `loop.js`
 * `node.js` renamed to `tree.js`

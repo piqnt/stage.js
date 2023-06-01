@@ -1,8 +1,8 @@
 var expect = require('./util/expect');
 var sinon = require('sinon');
 
-var Stage = require('../lib/tree');
-var Pin = require('../lib/pin');
+var Stage = require('../src/tree');
+var Pin = require('../src/pin');
 
 describe('Pin', function() {
 

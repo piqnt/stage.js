@@ -1,3 +1,5 @@
+import Stage from '../../src/index.js';
+
 Stage({
   image : { src : "./main.png", ratio : 8 },
   ppu : 16,

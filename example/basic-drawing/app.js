@@ -1,3 +1,5 @@
+import Stage from '../../src';
+
 Stage(function(stage) {
 
   stage.viewbox(200, 200).on('click', function() {

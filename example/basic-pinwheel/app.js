@@ -1,3 +1,6 @@
+import Stage from '../../src';
+import '../common/texture';
+
 Stage(function(stage) {
 
   var Math = Stage.Math, Mouse = Stage.Mouse, PI = Math.PI;

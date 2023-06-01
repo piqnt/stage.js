@@ -1,7 +1,7 @@
 var expect = require('./util/expect');
 var sinon = require('sinon');
 
-var Stage = require('../lib/');
+var Stage = require('../src/');
 
 it('static methods', function() {
   expect(Stage.config).be.a('function');

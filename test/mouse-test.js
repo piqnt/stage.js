@@ -3,12 +3,12 @@ var sinon = require('sinon');
 var sandboxed = require('sandboxed-module');
 var memo = require('./util/memo');
 
-var Stage = require('../lib/');
+var Stage = require('../src/');
 
 it('Mouse', function() {
   var event, elem, elemOn, doc, docOn, win, winOn;
 
-  var Mouse = sandboxed.require('../lib/addon/mouse', {
+  var Mouse = sandboxed.require('../src/mouse', {
     locals : {
       document : doc = {
         addEventListener : docOn = sinon.stub()
