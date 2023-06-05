@@ -26,9 +26,7 @@ Stage.Matrix = Matrix;
 Stage.Texture = Texture;
 Stage.Mouse = Mouse;
 Stage.Math = Math;
-
-Stage.internal = {};
-Stage.internal.Image = Image;
+Stage.Image = Image;
 
 import './loader';
 

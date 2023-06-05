@@ -11,10 +11,12 @@ export default {
     }),
   ],
   build: {
+    minify: false,
     lib: {
       entry: path.resolve(__dirname, 'src/index.js'),
       name: 'Stage',
       fileName: 'stage',
+      formats: ['es', 'umd', 'cjs'],
     }
   }
 }

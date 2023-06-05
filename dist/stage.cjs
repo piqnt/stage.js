@@ -1,3 +1,4 @@
+"use strict";
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
 }
@@ -2947,6 +2948,4 @@ Stage.Texture = Texture;
 Stage.Mouse = Mouse;
 Stage.Math = math;
 Stage.Image = Image$1;
-export {
-  Stage as default
-};
+module.exports = Stage;

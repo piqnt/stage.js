@@ -4,7 +4,9 @@
 * remove relative path resolver for texture image loader
 * remove cordova/fastcontext loader and build, use web by default
 * remove _create, _extend functions with js functions
-* rename lib to src, make folder structre flat
+* rename lib to src, make folder structure flat
+* typescript definition
+* Stage.internal.* is moved to Stage.*
 
 #### v0.8.2
 * `render.js` renamed to `loop.js`

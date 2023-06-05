@@ -22,13 +22,6 @@ function Image() {
   this._image = null;
 };
 
-/**
- * @deprecated Use image
- */
-Image.prototype.setImage = function(a, b, c) {
-  return this.image(a, b, c);
-};
-
 Image.prototype.image = function(image) {
   this._image = Stage.texture(image).one();
   this.pin('width', this._image ? this._image.width : 0);
@@ -58,8 +51,7 @@ Image.prototype._repeat = function(stretch, inner) {
     this._mo_stretch = this._pin._ts_transform;
     var width = this.pin('width');
     var height = this.pin('height');
-    this._textures.length = repeat(this._image, width, height, stretch, inner,
-        insert);
+    this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
   });
 
   function insert(i, sx, sy, sw, sh, dx, dy, dw, dh) {
