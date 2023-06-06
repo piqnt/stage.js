@@ -78,3 +78,5 @@ Str.prototype.value = function(value) {
   this._textures.length = value.length;
   return this;
 };
+
+export default Str;

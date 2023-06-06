@@ -132,3 +132,5 @@ Anim.prototype.stop = function(frame) {
   }
   return this;
 };
+
+export default Anim;

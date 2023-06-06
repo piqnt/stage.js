@@ -6,6 +6,7 @@
 * remove _create, _extend functions with js functions
 * rename lib to src, make folder structure flat
 * typescript definition
+* all classes are exported under Stage
 * Stage.internal.* is moved to Stage.*
 
 #### v0.8.2

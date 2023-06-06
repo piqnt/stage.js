@@ -2951,5 +2951,10 @@
   Stage.Mouse = Mouse;
   Stage.Math = math;
   Stage.Image = Image$1;
+  Stage.Tween = Tween;
+  Stage.Root = Root;
+  Stage.Pin = Pin;
+  Stage.Str = Str;
+  Stage.Anim = Anim;
   return Stage;
 });

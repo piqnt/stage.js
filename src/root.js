@@ -132,3 +132,5 @@ Root.prototype.viewbox = function(width, height, mode) {
 
   return this;
 };
+
+export default Root;

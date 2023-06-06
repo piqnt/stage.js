@@ -9,16 +9,16 @@ listenable(Stage.prototype, function(obj, name, on) {
   obj._flag(name, on);
 });
 
-import './pin';
+import Pin from './pin';
 import './loop';
-import './root';
+import Root from './root';
 
 import './canvas';
 import Image from './image';
-import './anim';
-import './str';
+import Anim from './anim';
+import Str from './str';
 import './layout';
-import './tween';
+import Tween from './tween';
 import Mouse from './mouse';
 import Math from './util/math';
 
@@ -27,6 +27,11 @@ Stage.Texture = Texture;
 Stage.Mouse = Mouse;
 Stage.Math = Math;
 Stage.Image = Image;
+Stage.Tween = Tween;
+Stage.Root = Root;
+Stage.Pin = Pin;
+Stage.Str = Str;
+Stage.Anim = Anim;
 
 import './loader';
 

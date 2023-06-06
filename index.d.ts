@@ -5,7 +5,7 @@ type AppDefinition = (root: Stage, canvas: Element) => void;
 interface TextureDefinition {
 }
 
-type ImageType = HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | VideoFrame;
+type ImageType = HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas;
 
 type Ticker = (t: number, dt: number) => boolean | void
 
@@ -20,11 +20,12 @@ interface Visitor<D> {
 
 export class Stage {
   constructor();
-  constructor(app: AppDefinition);
-  constructor(texture: TextureDefinition);
 
   static app(app: (root: Stage) => void, opts: object): void;
-  static atlas(def: TextureDefinition): Texture;
+  constructor(app: AppDefinition);
+
+  constructor(texture: TextureDefinition);
+  static atlas(def: TextureDefinition): Stage.Texture;
 
   static config(key: string, value: any): void;
   static config(map: Record<string, any>): void;
@@ -38,65 +39,65 @@ export class Stage {
   static root(
     request: (loop: (time: number) => void) => void,
     render: (root: Stage) => void,
-  ): Stage;
+  ): Stage.Root;
 
   render(context: CanvasRenderingContext2D): void;
-  touch(): Stage;
+  touch(): this;
   toString(): string;
 
-  appendTo(parent: Stage): Stage;
-  prependTo(parent: Stage): Stage;
+  appendTo(parent: Stage): this;
+  prependTo(parent: Stage): this;
 
-  append(child: Stage | Stage[]): Stage;
-  prepend(child: Stage | Stage[]): Stage;
+  append(child: Stage | Stage[]): this;
+  prepend(child: Stage | Stage[]): this;
 
-  insertNext(sibling: Stage, child: Stage | Stage[]): Stage;
-  insertPrev(sibling: Stage, child: Stage | Stage[]): Stage;
+  insertNext(sibling: Stage, child: Stage | Stage[]): this;
+  insertPrev(sibling: Stage, child: Stage | Stage[]): this;
 
-  insertAfter(sibling: Stage): Stage;
-  insertBefore(sibling: Stage): Stage;
+  insertAfter(sibling: Stage): this;
+  insertBefore(sibling: Stage): this;
 
-  remove(child: Stage | Stage[]): Stage;
-  remove(): Stage;
-  empty(): Stage;
+  remove(child: Stage | Stage[]): this;
+  remove(): this;
+  empty(): this;
 
-  parent(): Stage;
+  parent(): this;
 
-  first(visible?: boolean): Stage;
-  last(visible?: boolean): Stage;
+  first(visible?: boolean): this;
+  last(visible?: boolean): this;
 
-  next(visible?: boolean): Stage;
-  prev(visible?: boolean): Stage;
+  next(visible?: boolean): this;
+  prev(visible?: boolean): this;
 
   visible(): boolean;
-  visible(visible: boolean): Stage;
-  hide(): Stage;
-  show(): Stage;
+  visible(visible: boolean): this;
+  hide(): this;
+  show(): this;
   visit<D>(visitor: Visitor<D>, data: D): boolean | void;
 
   tick(ticker: Ticker, before?: boolean): void;
   untick(ticker: Ticker): void;
 
-  pin(a: string, b: any): Stage;
+  pin(a: string, b: any): this;
   pin(a: string): any;
 
-  pin(a: Record<string, any>): Stage;
+  pin(a: Record<string, any>): this;
   pin(): Record<string, any>;
 
-  size(w: number, h: number): Stage;
-  width(w: number): Stage;
-  height(h: number): Stage;
-  scale(a: number, b: number): Stage;
-  skew(a: number, b: number): Stage;
-  rotate(a: number): Stage;
-  offset(a: number, b: number): Stage;
+  size(w: number, h: number): this;
+  width(w: number): this;
+  height(h: number): this;
+  scale(a: number, b: number): this;
+  skew(a: number, b: number): this;
+  rotate(a: number): this;
+  offset(a: number, b: number): this;
 
-  scaleTo(a: number, b: number, mode: string): Stage;
+  scaleTo(a: number, b: number, mode: string): this;
 
-  padding(pad: number): Stage;
-  spacing(space: number): Stage;
+  padding(pad: number): this;
+  spacing(space: number): this;
 
-  alpha(a: number, ta: number): Stage;
+  alpha(a: number, ta: number): this;
 
   matrix(relative?: boolean): Stage.Matrix;
 
@@ -104,39 +105,36 @@ export class Stage {
   tween(duration: number, append: boolean): Stage.Tween;
   tween(append: boolean): Stage.Tween;
 
-  on(type: string, listener: (...args: unknown[]) => void): Stage;
-  off(type: string, listener: (...args: unknown[]) => void): Stage;
+  on(type: string, listener: (...args: unknown[]) => void): this;
+  off(type: string, listener: (...args: unknown[]) => void): this;
   publish(name: string, ...args: unknown[]): number;
   listeners(type: string): unknown[];
 
-  id(): string;
-  id(id: string): Stage;
-
   label(): string;
-  label(label: string): Stage;
+  label(label: string): this;
 
   attr(name: string): unknown;
-  attr(name: string, value: unknown): Stage;
+  attr(name: string, value: unknown): this;
 
   static create(): Stage;
 
   static box(): Stage;
-  box(): Stage;
+  box(): this;
 
   static column(align: number): Stage;
-  column(align: number): Stage;
+  column(align: number): this;
 
   static layer(): Stage;
-  layer(): Stage;
+  layer(): this;
 
   static row(align: number): Stage;
-  row(align: number): Stage;
+  row(align: number): this;
 
-  // static sequence(type: 'row' | 'column', align: number): Stage;
-  // sequence(type: 'row' | 'column', align: number): Stage;
+  // static sequence(type: 'row' | 'column', align: number): this;
+  // sequence(type: 'row' | 'column', align: number): this;
 
-  static anim(frames: string | Stage.Texture[], fps: number): Stage;
-  static string(frames: string | Stage.Texture[]): Stage;
+  static anim(frames: string | Stage.Texture[], fps: number): Stage.Anim;
+  static string(frames: string | Stage.Texture[]): Stage.Str;
 
   static canvas(): Stage;
   static canvas(plotter: Plotter): Stage;
@@ -150,15 +148,84 @@ export class Stage {
   setTimeout(fn: () => unknown, time: number): any;
   clearTimeout(timer: any): void;
 
-  hitTest(hit: { x: number, y: number }): boolean;
-
-  static Anim: {
-    FPS: number;
-  };
+  // hitTest(hit: { x: number, y: number }): boolean;
 }
 
 export namespace Stage {
+  class Root extends Stage {
+    constructor(
+      request: (loop: (time: number) => void) => void,
+      render: (root: Stage) => void,
+    );
+    background(color: string): this;
+    viewbox(width: number, height: number, mode: string): this;
+    viewport(width: number, height: number, ratio: any): this;
+  }
+
+  class Image extends Stage {
+    constructor(texture: Texture);
+    image(texture: Texture): this;
+    stretch(inner: any): this;
+    tile(inner: any): this;
+  }
+
+  class Anim extends Stage {
+    static FPS: number;
+    constructor();
+    fps(fps: number): this;
+    frames(frames: any): this;
+    gotoFrame(frame: any, resize: any): this;
+    length(): number;
+    moveFrame(move: any): this;
+    play(frame: any): this;
+    repeat(repeat: any, callback: any): this;
+    setFrames(a: any, b: any, c: any): this;
+    stop(frame: any): this;
+  }
+
+  class Str extends Stage {
+    constructor();
+    frames(frames: any): this;
+    setFont(a: any, b: any, c: any): this;
+    setValue(a: any, b: any, c: any): this;
+    value(value: any): this;
+  }
+
+  class Pin {
+    constructor(owner: any);
+    absoluteMatrix(): Matrix;
+    get(key: any): any;
+    relativeMatrix(): Matrix;
+    reset(): void;
+    set(a: any, b: any): this;
+    toString(): string;
+  }
+
   class Tween {
+    constructor(owner: any, duration: any, delay: any);
+    clear(forward: any): this;
+    delay(delay: any): this;
+    done(fn: any): this;
+    duration(duration: any): this;
+    ease(easing: any): this;
+
+    hide(): this;
+    remove(): this;
+    then(fn: any): this;
+    tween(duration: any, delay: any): this;
+    tick(node: any, elapsed: any, now: any, last: any): this;
+
+    pin(a: string, b: any): this;
+    pin(a: Record<string, any>): this;  
+
+    size(w: number, h: number): this;
+    width(w: number): this;
+    height(h: number): this;
+    scale(a: number, b: number): this;
+    skew(a: number, b: number): this;
+    rotate(a: number): this;
+    offset(a: number, b: number): this;
+    alpha(a: number, ta: number): this;
   }
 
   class Matrix {
@@ -169,35 +236,35 @@ export namespace Stage {
     e: number;
     f: number;
     constructor(a: number, b: number, c: number, d: number, e: number, f: number);
-    clone(): Matrix;
-    concat(m: Matrix): Matrix;
-    identity(): Matrix;
-    inverse(): Matrix;
-    map(p: number, q: number): Matrix;
-    mapX(x: number, y: number): Matrix;
-    mapY(x: number, y: number): Matrix;
+    clone(): this;
+    concat(m: Matrix): this;
+    identity(): this;
+    inverse(): this;
+    map(p: number, q: number): this;
+    mapX(x: number, y: number): this;
+    mapY(x: number, y: number): this;
     reset(a: number, b: number, c: number, d: number, e: number, f: number): Matrix;
-    reverse(): Matrix;
-    rotate(angle: number): Matrix;
-    scale(x: number, y: number): Matrix;
-    skew(x: number, y: number): Matrix;
+    reverse(): this;
+    rotate(angle: number): this;
+    scale(x: number, y: number): this;
+    skew(x: number, y: number): this;
     toString(): string;
-    translate(x: number, y: number): Matrix;
+    translate(x: number, y: number): this;
   }
 
   class Texture {
     constructor();
     constructor(image: ImageType, ratio: number);
 
-    src(image: ImageType, ratio: number): Texture;
+    src(image: ImageType, ratio: number): this;
 
-    src(x: number, y: number): Texture;
-    src(x: number, y: number, w: number, h: number): Texture;
+    src(x: number, y: number): this;
+    src(x: number, y: number, w: number, h: number): this;
 
-    dest(x: number, y: number): Texture;
-    dest(x: number, y: number, w: number, h: number): Texture;
+    dest(x: number, y: number): this;
+    dest(x: number, y: number, w: number, h: number): this;
 
-    pipe(): Texture;
+    pipe(): this;
 
     draw(context: CanvasRenderingContext2D): void;
     draw(context: CanvasRenderingContext2D, dw: number, dh: number): void;
@@ -212,13 +279,6 @@ export namespace Stage {
     MOVE: string;
     START: string;
     subscribe(stage: Stage, elem: Element): void;
-  }
-
-  class Image extends Stage {
-    constructor(texture: Texture);
-    image(texture: Texture): Image;
-    stretch(inner: any): Image;
-    tile(inner: any): Image;
   }
 
   interface Math {
