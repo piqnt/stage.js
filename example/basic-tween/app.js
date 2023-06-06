@@ -3,8 +3,6 @@ import '../common/texture';
 
 var stage = Stage.mount();
 
-var Mouse = Stage.Mouse;
-
 stage.viewbox(400, 100);
 
 var x = 50;
@@ -16,7 +14,7 @@ var eager = Stage.string('digit').appendTo(stage).pin('align', 0.5)
 var lazy = Stage.string('digit').appendTo(stage).pin('align', 0.5).alpha(0.4)
     .offset(x, +20).value(0);
 
-stage.on(Mouse.CLICK, function(point) {
+stage.on(Stage.Mouse.CLICK, function(point) {
   x = -x;
   result.tween(600).pin('offsetX', x).done(function() {
     this.value(this.value() + 1);

@@ -1,4 +1,4 @@
-import Stage from '../../src/index.js';
+import Stage from '../../src';
 
 /**
  * Matter.js viewer

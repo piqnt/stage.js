@@ -1,4 +1,4 @@
-import Stage from '../../src/index.js';
+import Stage from '../../src';
 import './textures.js';
 
 // Game logic
@@ -7,8 +7,8 @@ function Game(gameui) {
   // self
   var game = this;
 
-  // use enhanced Stage.Math
-  var Math = Stage.Math;
+  // use enhanced Stage.math
+  var math = Stage.math;
 
   // constant values
   var PLANET = 6; // planet collision radius
@@ -57,7 +57,7 @@ function Game(gameui) {
   this.tick = function(t) {
 
     // avoid jumps
-    t = Math.min(t, 100);
+    t = math.min(t, 100);
 
     // total time
     time += t;
@@ -97,14 +97,14 @@ function Game(gameui) {
 
     // if it's time to add next asteroid
     if ((nextAsteroidTime -= t) < 0) {
-      nextAsteroidTime = Math.random(2, 3) * 180 / (time / 1000 + 180) * 1000;
+      nextAsteroidTime = math.random(2, 3) * 180 / (time / 1000 + 180) * 1000;
       // create an asteroid at a random angle and radius
-      var a = Math.random(0, 2 * Math.PI);
-      var r = Math.random(120, 180);
-      var velocity = Math.random(0.7, 1.7) * (4 + time * 0.00001);
+      var a = math.random(0, 2 * math.PI);
+      var r = math.random(120, 180);
+      var velocity = math.random(0.7, 1.7) * (4 + time * 0.00001);
       new Asteroid({
-        x : r * Math.sin(a),
-        y : r * Math.cos(a)
+        x : r * math.sin(a),
+        y : r * math.cos(a)
       }, velocity).add();
     }
 
@@ -159,7 +159,7 @@ function Game(gameui) {
     };
 
     this.tick = function(t, time) {
-      this.life = Math.min(1, Math.max(0, Math.pow(game.life / LIFE, 2)));
+      this.life = math.min(1, math.max(0, math.pow(game.life / LIFE, 2)));
       ui.update();
     };
   }
@@ -218,10 +218,10 @@ function Game(gameui) {
     };
 
     this.tick = function(t, time) {
-      this._ready = Math.max(0, this._ready - t);
+      this._ready = math.max(0, this._ready - t);
       var angle = -freq * time / 1000 + offset;
-      this.x = radius * Math.sin(angle);
-      this.y = radius * Math.cos(angle);
+      this.x = radius * math.sin(angle);
+      this.y = radius * math.cos(angle);
 
       ui.update();
     };
@@ -278,7 +278,7 @@ function Game(gameui) {
   // unit vector multiplied
   function unitVect(vect, m) {
     m = m || 1;
-    var length = Math.sqrt(vect.x * vect.x + vect.y * vect.y);
+    var length = math.sqrt(vect.x * vect.x + vect.y * vect.y);
     return {
       x : vect.x / length * m,
       y : vect.y / length * m
@@ -288,13 +288,12 @@ function Game(gameui) {
   // distance between two point/vector
   function vectDist(a, b) {
     var x = b.x - a.x, y = b.y - a.y;
-    return Math.sqrt(x * x + y * y);
+    return math.sqrt(x * x + y * y);
   }
 }
 
 // UI
 var root = Stage.mount();
-var Mouse = Stage.Mouse;
 
 // set viewbox
 root.viewbox(150, 150);
@@ -332,7 +331,7 @@ var homeView = Stage.create().on('viewport', function() {
 }).hide().appendTo(root);
 
 // start button
-Stage.sprite('play').pin('align', 0.5).on(Mouse.CLICK, function() {
+Stage.sprite('play').pin('align', 0.5).on(Stage.Mouse.CLICK, function() {
   startGame();
 }).appendTo(homeView);
 
@@ -451,7 +450,7 @@ function gameOver() {
   singleView.view(homeView);
 }
 
-space.on(Mouse.START, function(point) {
+space.on(Stage.Mouse.START, function(point) {
   game.shoot({
     x : point.x,
     y : point.y

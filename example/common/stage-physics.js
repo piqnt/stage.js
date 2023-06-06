@@ -19,9 +19,9 @@
       lineWidth : 2,
       lineColor : '#000000',
       fillColor : function() {
-        var red = Stage.Math.random(192, 256) | 0;
-        var green = Stage.Math.random(192, 256) | 0;
-        var blue = Stage.Math.random(192, 256) | 0;
+        var red = Stage.math.random(192, 256) | 0;
+        var green = Stage.math.random(192, 256) | 0;
+        var blue = Stage.math.random(192, 256) | 0;
         return '#' + red.toString(16) + green.toString(16) + blue.toString(16);
       },
       ratio : 1,

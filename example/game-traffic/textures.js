@@ -1,4 +1,4 @@
-import Stage from '../../src/';
+import Stage from '../../src';
 
 import bgPng from "./bg.png";
 import map1Png from "./map-1.png";

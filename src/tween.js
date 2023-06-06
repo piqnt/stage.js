@@ -1,6 +1,6 @@
-import Easing from './easing';
-import Stage from './core';
-import Pin from './pin';
+import { Easing } from './easing';
+import { Stage } from './core';
+import { Pin } from './pin';
 
 Stage.prototype.tween = function(duration, delay, append) {
   if (typeof duration !== 'number') {
@@ -57,7 +57,7 @@ Stage.prototype.tween = function(duration, delay, append) {
   return tween;
 };
 
-function Tween(owner, duration, delay) {
+export function Tween(owner, duration, delay) {
   this._end = {};
   this._duration = duration || 400;
   this._delay = delay || 0;
@@ -185,5 +185,3 @@ Tween.prototype.then = function(fn) {
 Tween.prototype.clear = function(forward) {
   return this;
 };
-
-export default Tween;

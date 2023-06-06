@@ -1,17 +1,16 @@
 import is from 'is';
 
-import Stage from './core';
-import './pin';
-import './loop';
+import { Stage } from './core';
+import { texture } from './atlas';
 
-Stage.string = function(frames) {
+export const string = function(frames) {
   return new Str().frames(frames);
 };
 
 Str._super = Stage;
 Str.prototype = Object.create(Str._super.prototype);
 
-function Str() {
+export function Str() {
   Str._super.call(this);
   this.label('String');
   this._textures = [];
@@ -27,7 +26,7 @@ Str.prototype.setFont = function(a, b, c) {
 Str.prototype.frames = function(frames) {
   this._textures = [];
   if (typeof frames == 'string') {
-    frames = Stage.texture(frames);
+    frames = texture(frames);
     this._item = function(value) {
       return frames.one(value);
     };
@@ -78,5 +77,3 @@ Str.prototype.value = function(value) {
   this._textures.length = value.length;
   return this;
 };
-
-export default Str;

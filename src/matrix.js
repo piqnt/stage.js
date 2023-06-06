@@ -1,4 +1,4 @@
-function Matrix(a, b, c, d, e, f) {
+export function Matrix(a, b, c, d, e, f) {
   this.reset(a, b, c, d, e, f);
 };
 
@@ -165,5 +165,3 @@ Matrix.prototype.mapY = function(x, y) {
     y = x.y, x = x.x;
   return this.b * x + this.d * y + this.f;
 };
-
-export default Matrix;

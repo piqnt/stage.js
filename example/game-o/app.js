@@ -110,7 +110,7 @@ Sound.play = function(name) {
 };
 
 function Game() {
-  var Math = Stage.Math;
+  var math = Stage.math;
 
   var game = this;
   this.data = Data.load();
@@ -122,7 +122,7 @@ function Game() {
     upgrades[name] = upgrades[name] || 0;
   }
 
-  upgrades.flags = Math.max(upgrades.flags || 0, 2);
+  upgrades.flags = math.max(upgrades.flags || 0, 2);
 
   var stats = this.data.stats = this.data.stats || {};
   stats.coins = stats.coins || 0;
@@ -142,7 +142,7 @@ function Game() {
   };
 
   this.price = function(name) {
-    return Math.pow(10, (upgrades[name] || 0) + 2);
+    return math.pow(10, (upgrades[name] || 0) + 2);
   };
 
   var objects = [];
@@ -163,7 +163,7 @@ function Game() {
   this.dist = 0;
 
   this.tick = function(t) {
-    t = Math.min(t, 100);
+    t = math.min(t, 100);
     for (i = inserted.length - 1; i >= 0; i--) {
       obj = inserted[i];
       if (obj.x + (obj.radius || 0) < this.dist + Conf.width) {
@@ -202,28 +202,28 @@ function Game() {
 
       dx = obj.x - px;
       dy = obj.y - py;
-      dxy = Math.length(dx, dy);
+      dxy = math.length(dx, dy);
 
       if (this.player.pull && obj.pull) {
         f = this.player.pull * obj.pull;
         f = f * 5000 / dxy / dxy / dxy;
-        r = Math.min(1, f * t / 1000);
+        r = math.min(1, f * t / 1000);
         obj.x -= dx * r;
         obj.y -= dy * r;
       }
 
       if (this.player.push && obj.push) {
         f = this.player.push * obj.push;
-        f = f * 0.3 / (1 + Math.pow(1.1, (dxy - 10 * (f + 1))));
+        f = f * 0.3 / (1 + math.pow(1.1, (dxy - 10 * (f + 1))));
 
-        r = Math.min(1, f * t / 1000);
+        r = math.min(1, f * t / 1000);
         obj.x += dx * r;
         obj.y += dy * r;
       }
 
       dx = obj.x - px;
       dy = obj.y - py;
-      dxy = Math.length(dx, dy);
+      dxy = math.length(dx, dy);
 
       if (dxy < obj.radius + this.player.radius && obj.collide && obj.collide()) {
         obj.remove();
@@ -247,11 +247,11 @@ function Game() {
       if (pointer.fresh) {
         dx = pointer.x - px;
         dy = pointer.y - py;
-        dxy = Math.length(dx, dy);
+        dxy = math.length(dx, dy);
         if (dxy < 0.1) {
           pointer.fresh = false;
         }
-        dxy = Math.max(1, dxy / this.player.speed / t);
+        dxy = math.max(1, dxy / this.player.speed / t);
         px += dx / dxy;
         py += dy / dxy;
       }
@@ -273,7 +273,7 @@ function Game() {
       var pattern = randomPattern.test() && randomPattern.random();
       if (pattern) {
         var added = pattern.call(randomPattern, lastDot + Conf.width);
-        added = added * (1 + this.dist * 0.00002 * Math.random(0.8, 1.25));
+        added = added * (1 + this.dist * 0.00002 * math.random(0.8, 1.25));
         randomPattern.test(-added);
       }
     }
@@ -283,9 +283,9 @@ function Game() {
       var enemy = randomEnemy.test() && randomEnemy.random();
       var coin = randomCoin.test() && randomCoin.random();
       if (enemy) {
-        enemy.call(randomEnemy, lastItem + Conf.width, Math.random(Conf.min, Conf.max));
+        enemy.call(randomEnemy, lastItem + Conf.width, math.random(Conf.min, Conf.max));
       } else if (coin) {
-        coin.call(randomCoin, lastItem + Conf.width, Math.random(Conf.min, Conf.max));
+        coin.call(randomCoin, lastItem + Conf.width, math.random(Conf.min, Conf.max));
       }
     }
 
@@ -449,7 +449,7 @@ function Game() {
   }
 
   Dot.prototype.collide = function() {
-    game.energy = Math.min(1.5, game.energy + 0.01);
+    game.energy = math.min(1.5, game.energy + 0.01);
     game.uiEnergy(game.energy);
     this.uiEat();
     return true;
@@ -474,7 +474,7 @@ function Game() {
   }
 
   Power.prototype.collide = function() {
-    game.power = Math.max(game.player.power, game.power);
+    game.power = math.max(game.player.power, game.power);
     this.uiEat();
     return true;
   };
@@ -578,23 +578,23 @@ function Game() {
   // randomize
 
   var randomEnemy = new Randomize().spacing(function() {
-    return Math.random(5, 50) / Conf.itemSpace * 10;
+    return math.random(5, 50) / Conf.itemSpace * 10;
   });
 
   randomEnemy.add(function(x) {
-    var y = Math.random(-1, 1) * (Conf.height / 2 - 10);
+    var y = math.random(-1, 1) * (Conf.height / 2 - 10);
     return game.newEnemy('box', x, y);
   });
 
   randomEnemy.add(function(x) {
-    var d = Math.random() >= 0.5 ? 1 : -1;
+    var d = math.random() >= 0.5 ? 1 : -1;
     var y = d * Conf.height / 2;
-    var vy = -d * game.speed / 2 * Math.random(0.7, 1.4);
+    var vy = -d * game.speed / 2 * math.random(0.7, 1.4);
     return game.newEnemy('tri', x + 400 * game.speed, y - 400 * vy, 0, vy);
   });
 
   var randomCoin = new Randomize().spacing(function() {
-    return Math.random(20, 100) / Conf.itemSpace * 10;
+    return math.random(20, 100) / Conf.itemSpace * 10;
   });
 
   randomCoin.add(function(x, y) {
@@ -652,7 +652,7 @@ function Game() {
   });
 
   var randomPower = new Randomize().spacing(function() {
-    return Math.random(100, 400);
+    return math.random(100, 400);
   });
 
   randomPower.add(function(x, y) {
@@ -664,9 +664,9 @@ function Game() {
   });
 
   randomPattern.range = function(min, max) {
-    var h = Math.random(min, max) * (Conf.max - Conf.min);
-    var c = Math.random(Conf.min + h / 2, Conf.max - h / 2);
-    h *= (Math.random() >= 0.5 ? 1 : -1);
+    var h = math.random(min, max) * (Conf.max - Conf.min);
+    var c = math.random(Conf.min + h / 2, Conf.max - h / 2);
+    h *= (math.random() >= 0.5 ? 1 : -1);
     var a = c - h / 2, b = c + h / 2;
     return {
       a : a,
@@ -678,8 +678,8 @@ function Game() {
 
   // straight
   randomPattern.add(function(x) {
-    var n = Math.random(40, 50);
-    var y = Math.random(Conf.min, Conf.max);
+    var n = math.random(40, 50);
+    var y = math.random(Conf.min, Conf.max);
 
     var added = 0;
     for (var i = 0; i < n; i++) {
@@ -694,7 +694,7 @@ function Game() {
 
   // step
   randomPattern.add(function(x) {
-    var n = Math.random(20, 40) | 0;
+    var n = math.random(20, 40) | 0;
     var ab = randomPattern.range(0.2, 0.7);
 
     var added = 0;
@@ -710,8 +710,8 @@ function Game() {
 
   // stairs
   randomPattern.add(function(x) {
-    var p = Math.random(3, 6) | 0;
-    var q = Math.random(5, 15) | 0;
+    var p = math.random(3, 6) | 0;
+    var q = math.random(5, 15) | 0;
     var n = p * q;
     var ab = randomPattern.range(0.3, 0.7);
 
@@ -730,8 +730,8 @@ function Game() {
 
   // saw
   randomPattern.add(function(x) {
-    var p = Math.random(2, 6) | 0;
-    var q = Math.random(7, 13) | 0;
+    var p = math.random(2, 6) | 0;
+    var q = math.random(7, 13) | 0;
     var n = p * q;
     var ab = randomPattern.range(0.1, 0.6);
 
@@ -751,14 +751,14 @@ function Game() {
 
   // wave
   randomPattern.add(function(x) {
-    var n = Math.random(40, 60);
-    var a = Conf.dotSpace / Math.random(10, 30), b = Math.random(10, 30);
-    var y = Math.random(Conf.min + b, Conf.max - b);
+    var n = math.random(40, 60);
+    var a = Conf.dotSpace / math.random(10, 30), b = math.random(10, 30);
+    var y = math.random(Conf.min + b, Conf.max - b);
 
     var added = 0;
     for (var i = 0; i < n; i++) {
       added++;
-      game.newDot(x + i * Conf.dotSpace, y + b * Math.sin(i * a));
+      game.newDot(x + i * Conf.dotSpace, y + b * math.sin(i * a));
     }
     return this.__lastadded = added;
 
@@ -768,16 +768,16 @@ function Game() {
 
   // wave xy
   randomPattern.add(function(x) {
-    var n = Math.random(40, 60);
-    var a = Conf.dotSpace / Math.random(10, 40), b = Math.random(10, 30);
-    var c = Conf.dotSpace / Math.random(10, 40), d = Math.random(10, 30);
-    var y = Math.random(Conf.min + b, Conf.max - b);
+    var n = math.random(40, 60);
+    var a = Conf.dotSpace / math.random(10, 40), b = math.random(10, 30);
+    var c = Conf.dotSpace / math.random(10, 40), d = math.random(10, 30);
+    var y = math.random(Conf.min + b, Conf.max - b);
 
     var added = 0;
     for (var i = 0; i < n; i++) {
       added++;
-      game.newDot(x + i * Conf.dotSpace + d * Math.cos(i * c), y + b
-          * Math.sin(i * a));
+      game.newDot(x + i * Conf.dotSpace + d * math.cos(i * c), y + b
+          * math.sin(i * a));
     }
     return this.__lastadded = added;
 
@@ -787,9 +787,9 @@ function Game() {
 
   // zigzag
   randomPattern.add(function(x) {
-    var n = Math.random(40, 60);
-    var a = Conf.dotSpace / Math.random(10, 40), b = Math.random(10, 30);
-    var y = Math.random(Conf.min + b, Conf.max - b);
+    var n = math.random(40, 60);
+    var a = Conf.dotSpace / math.random(10, 40), b = math.random(10, 30);
+    var y = math.random(Conf.min + b, Conf.max - b);
 
     var added = 0;
     for (var i = 0; i < n; i++) {
@@ -804,10 +804,10 @@ function Game() {
 
   // zigzag xy
   randomPattern.add(function(x) {
-    var n = Math.random(40, 60);
-    var a = Conf.dotSpace / Math.random(10, 40), b = Math.random(10, 30);
-    var c = Conf.dotSpace / Math.random(10, 40), d = Math.random(10, 30);
-    var y = Math.random(Conf.min + b, Conf.max - b);
+    var n = math.random(40, 60);
+    var a = Conf.dotSpace / math.random(10, 40), b = math.random(10, 30);
+    var c = Conf.dotSpace / math.random(10, 40), d = math.random(10, 30);
+    var y = math.random(Conf.min + b, Conf.max - b);
 
     var added = 0;
     for (var i = 0; i < n; i++) {
@@ -823,8 +823,8 @@ function Game() {
 
   // rect
   randomPattern.add(function(x) {
-    var n = Math.random(3, 8), m = n;
-    var y = Math.random(Conf.min, Conf.max - m * Conf.dotSpace);
+    var n = math.random(3, 8), m = n;
+    var y = math.random(Conf.min, Conf.max - m * Conf.dotSpace);
 
     var added = 0;
     for (var i = 0; i < n; i++) {
@@ -841,15 +841,15 @@ function Game() {
 
   // spray
   randomPattern.add(function(x) {
-    var n = Math.random(40, 60);
-    var max = Math.min(1, game.dist / 100000);
-    var min = Math.min(1, game.dist / 200000);
+    var n = math.random(40, 60);
+    var max = math.min(1, game.dist / 100000);
+    var min = math.min(1, game.dist / 200000);
     var ab = randomPattern.range(min * 0.5, max * 0.7);
 
     var added = 0;
     for (var i = 0; i < n; i++) {
       added++;
-      game.newDot(x + i * Conf.dotSpace, Math.random(ab.a, ab.b));
+      game.newDot(x + i * Conf.dotSpace, math.random(ab.a, ab.b));
     }
     return this.__lastadded = added;
 
@@ -859,15 +859,15 @@ function Game() {
 
   // flower
   randomPattern.add(function(x) {
-    var n = Math.random(40, 60);
-    var f = Math.random(0.2, 0.9) * Math.PI;
+    var n = math.random(40, 60);
+    var f = math.random(0.2, 0.9) * math.PI;
     var c = 5;
 
     var added = 0;
     for (var i = 0; i < n; i++) {
       added++;
-      game.newDot(x + c * Math.sqrt(i + 1) * Math.sin(i * f), c
-          * Math.sqrt(i + 1) * Math.cos(i * f));
+      game.newDot(x + c * math.sqrt(i + 1) * math.sin(i * f), c
+          * math.sqrt(i + 1) * math.cos(i * f));
     }
     return this.__lastadded = added;
 
@@ -876,7 +876,7 @@ function Game() {
   });
 
   function zigzag(t) {
-    t = Math.rotate(t, -Math.PI, Math.PI) / Math.PI * 2;
+    t = math.rotate(t, -math.PI, math.PI) / math.PI * 2;
     if (t > 1) {
       t = 2 - t;
     } else if (t < -1) {
@@ -886,7 +886,7 @@ function Game() {
   }
 
   function zagzig(t) {
-    return zigzag(t + Math.PI / 2);
+    return zigzag(t + math.PI / 2);
   }
 }
 

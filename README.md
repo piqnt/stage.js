@@ -2,17 +2,44 @@
 
 Stage.js is a 2D rendering and layout library for HTML5 Canvas. It is lightweight, fast and optimized for web and mobile game development.
 
-Features:
-- A tree data model similar to DOM
-- Managing optimized rendering cycles, and game loop
-- Handling mouse events on Canvas and delivering them to target nodes
-- Positioning of elements, and layout
-- Texture atlas definition and image preloading
+### Features
+- Tree data model, similar to DOM
+- Managed and optimized rendering and game loop
+- Mouse events processing and delivering them to target components
+- Positioning and layout
+- Texture atlas and image preloading
 
-[**Check out examples and demos!**](http://piqnt.com/stage.js/)
+[**Examples and Demos!**](http://piqnt.com/stage.js/)
 
 [中文手册](https://github.com/shakiba/stage.js/wiki/%E4%B8%AD%E6%96%87%E6%89%8B%E5%86%8C)
 
+
+
+## Install
+
+
+#### CDN
+
+```html
+<script src="path/to/stage.min.js"></script>
+<script>
+  const stage = Stage.mount();
+</script>
+```
+
+#### NPM
+
+```
+npm install --save stage-js
+```
+
+```js
+var Stage = require('stage-js');
+```
+
+```js
+import Stage from 'stage-js';
+```
 
 ### Example
 
@@ -45,32 +72,6 @@ box.on('click', function(point) {
     scaleY : Math.random() + 0.5
   });
 });
-```
-
-## Usage
-
-
-#### CDN
-
-```html
-<script src="path/to/stage.min.js"></script>
-<script>
-  const stage = Stage.mount();
-</script>
-```
-
-#### NPM
-
-```
-npm install stage-js --save
-```
-
-```js
-var Stage = require('stage-js');
-```
-
-```js
-import Stage from 'stage-js';
 ```
 
 

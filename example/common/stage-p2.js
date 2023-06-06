@@ -25,9 +25,9 @@ function Viewer(world, options) {
     lineWidth : 0.025,
     lineColor : '#000000',
     fillColor : function() {
-      var red = Stage.Math.random(192, 256) | 0;
-      var green = Stage.Math.random(192, 256) | 0;
-      var blue = Stage.Math.random(192, 256) | 0;
+      var red = Stage.math.random(192, 256) | 0;
+      var green = Stage.math.random(192, 256) | 0;
+      var blue = Stage.math.random(192, 256) | 0;
       return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
     },
     ratio : 128,
@@ -112,7 +112,7 @@ Viewer.prototype.step = function(t) {
 
     var a = Math.atan2(dx, dy) + Math.PI / 2;
 
-    var s = Stage.Math.length(dx, dy) / spring.restLength;
+    var s = Stage.math.length(dx, dy) / spring.restLength;
 
     spring.ui.pin({
       offsetX : x,

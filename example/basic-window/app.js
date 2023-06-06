@@ -3,7 +3,7 @@ import '../common/texture';
 
 var stage = Stage.mount();
 
-var Math = Stage.Math, Mouse = Stage.Mouse;
+var math = Stage.math;
 
 stage.viewbox(300, 200);
 
@@ -17,13 +17,13 @@ var text = Stage.string('digit').value('0123456789').appendTo(column);
 var row = Stage.row().appendTo(column).spacing(1);
 
 Stage.sprite('red').box().stretch().appendTo(row).append(
-    Stage.string('digit').value('1')).on(Mouse.CLICK, function() {
-  var range = Math.pow(10, Math.random(0, 10) | 0);
-  text.value(Math.random(0, range) | 0);
+    Stage.string('digit').value('1')).on(Stage.Mouse.CLICK, function() {
+  var range = math.pow(10, math.random(0, 10) | 0);
+  text.value(math.random(0, range) | 0);
 });
 
 Stage.sprite('blue').box().stretch().appendTo(row).append(
-    Stage.string('digit').value('2')).on(Mouse.CLICK, function() {
-  var range = Math.pow(10, Math.random(0, 10) | 0);
-  text.value(Math.random(0, range) | 0);
+    Stage.string('digit').value('2')).on(Stage.Mouse.CLICK, function() {
+  var range = math.pow(10, math.random(0, 10) | 0);
+  text.value(math.random(0, range) | 0);
 });

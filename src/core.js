@@ -1,6 +1,6 @@
 import is from 'is';
 import stats from './util/stats';
-import Pin from './pin';
+import { Pin } from './pin';
 
 var iid = 0;
 stats.create = 0;
@@ -11,7 +11,7 @@ function Stage() {
   this._pin = new Pin(this);
 }
 
-Stage.create = function() {
+export const create = function() {
   return new Stage();
 };
 
@@ -524,4 +524,6 @@ Stage.prototype.trigger = function(name, args) {
   return this;
 };
 
-export default Stage;
+export {
+  Stage
+};

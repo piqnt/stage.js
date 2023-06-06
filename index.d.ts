@@ -7,6 +7,8 @@ type Drawable = Plotter | HTMLImageElement | SVGImageElement | HTMLVideoElement 
 
 type Ticker = (t: number, dt: number) => boolean | void
 
+type Frame = string;
+
 interface Visitor<D> {
   start(child: Stage.Stage, data: D): boolean | void;
   end(child: Stage.Stage, data: D): boolean | void;
@@ -23,21 +25,22 @@ export namespace Stage {
 
   function create(): Stage.Stage;
 
+  function sprite(frame?: Frame): Stage.Sprite;
+  function anim(frames: Frame | Frame[], fps: number): Stage.Anim;
+  function string(frames: string | Record<string, Stage.Texture> | ((char: string) => Stage.Texture)): Stage.Str;
+
   function column(align: number): Stage.Stage;
   function row(align: number): Stage.Stage;
-  function layer(): Stage.Stage;
-  function box(): Stage.Stage;
 
-  function sprite(frame?: any): Stage.Sprite;
-  function anim(frames: string | Stage.Texture[], fps: number): Stage.Anim;
-  function string(frames: string | Stage.Texture[]): Stage.Str;
+  function layer(): Stage.Stage; // resizes to fill parent
+  function box(): Stage.Stage; // resizes to fit children
 
   function texture(query: string): Stage.Texture | Stage.Texture[];
   function canvas(plotter: Plotter): Stage.Texture;
   function canvas(type: string, plotter: Plotter): Stage.Texture;
   function canvas(type: string, attributes: Record<string, string>, plotter: Plotter): Stage.Texture;
 
-  export interface Stage {
+  class Stage {
     appendTo(parent: Stage.Stage): this;
     prependTo(parent: Stage.Stage): this;
   
@@ -105,9 +108,9 @@ export namespace Stage {
   
     row(align: number): this;
     column(align: number): this;
-  
-    box(): this;
-    layer(): this;
+
+    layer(): this; // resizes to fill parent
+    box(): this; // resizes to fit children
   
     timeout(fn: () => unknown, time: number): void;
     setTimeout(fn: () => unknown, time: number): any;
@@ -129,16 +132,18 @@ export namespace Stage {
   class Root extends Stage.Stage {
     constructor(
       request: (loop: (time: number) => void) => void,
-      render: (root: Stage.Stage) => void,
+      render: (root: this) => void,
     );
     background(color: string): this;
-    viewbox(width: number, height: number, mode: string): this;
-    viewport(width: number, height: number, ratio: any): this;
+    viewbox(width: number, height: number, mode: 'in' | 'out' | 'out-crop' | 'in-pad'): this;
+
+    viewport(): { width: number, height: number, ratio: number };
+    viewport(width: number, height: number, ratio: number): this;
   }
 
   class Sprite extends Stage.Stage {
-    constructor(texture: Texture);
-    image(texture: Texture): this;
+    constructor(frame: any);
+    image(frame: any): this;
     stretch(inner: any): this;
     tile(inner: any): this;
   }
@@ -255,10 +260,16 @@ export namespace Stage {
     subscribe(stage: Stage.Stage, elem: Element): void;
   }
 
-  interface Math {
+  interface math {
+
     random(min: number, max: number): number;
-    rotate(num: number, min: number, max: number): number;
+    random(max: number): number;
+
+    modulo(num: number, min: number, max: number): number;
+    modulo(num: number, max: number): number;
+
+    clamp(num: number, min: number, max: number): number;
+
     length(x: number, y: number): number;
-    limit(num: number, min: number, max: number): number;
   }
 }

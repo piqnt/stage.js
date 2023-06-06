@@ -1,19 +1,55 @@
-import Stage from './core';
-import Mouse from './mouse';
-import './loop';
+import { Stage } from './core';
+import { Mouse } from './mouse';
 
 import stats from './util/stats';
 
 if (typeof DEBUG === 'undefined')
   DEBUG = true;
 
-Stage.mount = function(configs) {
-  configs = configs || {};
-  var canvas = configs.canvas, context = null, full = false;
-  var width = 0, height = 0, ratio = 1;
+var _stages = [];
 
-  if (typeof canvas === 'string') {
-    canvas = document.getElementById(canvas);
+export const pause = function() {
+  for (var i = _stages.length - 1; i >= 0; i--) {
+    _stages[i].pause();
+  }
+};
+
+export const resume = function() {
+  for (var i = _stages.length - 1; i >= 0; i--) {
+    _stages[i].resume();
+  }
+};
+
+export const mount = function(configs = {}) {
+  var root = new Root();
+  root.mount(configs);
+  Mouse.subscribe(root, root.dom);
+  return root;
+};
+
+Root._super = Stage;
+Root.prototype = Object.create(Root._super.prototype);
+
+export function Root() {
+  Root._super.call(this);
+  this.label('Root');
+}
+
+Root.prototype.mount = function(configs = {}) {
+  var canvas;
+  var context = null;
+
+  var fullpage = false;
+  var drawingWidth = 0;
+  var drawingHeight = 0;
+  var pixelRatio = 1;
+
+  var mounted = false;
+
+  var paused = true;
+
+  if (typeof configs.canvas === 'string') {
+    canvas = document.getElementById(configs.canvas);
   }
 
   if (!canvas) {
@@ -22,7 +58,7 @@ Stage.mount = function(configs) {
   }
 
   if (!canvas) {
-    full = true;
+    fullpage = true;
     DEBUG && console.log('Creating Canvas...');
     canvas = document.createElement('canvas');
     canvas.style.position = 'absolute';
@@ -33,13 +69,15 @@ Stage.mount = function(configs) {
     body.insertBefore(canvas, body.firstChild);
   }
 
+  this.dom = canvas;
+
   context = canvas.getContext('2d');
 
   var devicePixelRatio = window.devicePixelRatio || 1;
   var backingStoreRatio = context.webkitBackingStorePixelRatio
       || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio
       || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
-  ratio = devicePixelRatio / backingStoreRatio;
+  pixelRatio = devicePixelRatio / backingStoreRatio;
 
   var requestAnimationFrame = window.requestAnimationFrame
       || window.msRequestAnimationFrame || window.mozRequestAnimationFrame
@@ -48,123 +86,9 @@ Stage.mount = function(configs) {
         return window.setTimeout(callback, 1000 / 60);
       };
 
-  DEBUG && console.log('Creating stage...');
-  var root = new Root(requestAnimationFrame, render);
-  root.dom = canvas;
-
-  function render() {
-    if (width > 0 && height > 0) {
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, width, height);
-      root.render(context);
-    }
-  }
-
-  root.background = function(color) {
-    canvas.style.backgroundColor = color;
-    return this;
-  };
-
-  // resize();
-  // window.addEventListener('resize', resize, false);
-  // window.addEventListener('orientationchange', resize, false);
-
-  var lastWidth = -1;
-  var lastHeight = -1;
-  (function resizeLoop() {
-    var width, height;
-    if (full) {
-      // screen.availWidth/Height?
-      width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
-      height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
-    } else {
-      width = canvas.clientWidth;
-      height = canvas.clientHeight;
-    }
-    if (lastWidth !== width || lastHeight !== height) {
-      lastWidth = width;
-      lastHeight = height;
-      resize();
-    }
-    requestAnimationFrame(resizeLoop);
-  })();
-
-  function resize() {
-
-    if (full) {
-      // screen.availWidth/Height?
-      width = (window.innerWidth > 0 ? window.innerWidth : screen.width);
-      height = (window.innerHeight > 0 ? window.innerHeight : screen.height);
-
-      canvas.style.width = width + 'px';
-      canvas.style.height = height + 'px';
-
-    } else {
-      width = canvas.clientWidth;
-      height = canvas.clientHeight;
-    }
-
-    width *= ratio;
-    height *= ratio;
-
-    if (canvas.width === width && canvas.height === height) {
-      return;
-    }
-
-    canvas.width = width;
-    canvas.height = height;
-
-    DEBUG && console.log('Resize: ' + width + ' x ' + height + ' / ' + ratio);
-
-    root.viewport(width, height, ratio);
-
-    render();
-  }
-
-  Mouse.subscribe(root, canvas);
-
-  _stages.push(root);
-  root.start();
-  return root;
-};
-
-var _stages = [];
-var _paused = false;
-
-// todo: replace this with a proper event system
-Stage.pause = function() {
-  if (!_paused) {
-    _paused = true;
-    for (var i = _stages.length - 1; i >= 0; i--) {
-      _stages[i].pause();
-    }
-  }
-};
-
-// todo: replace this with a proper event system
-Stage.resume = function() {
-  if (_paused) {
-    _paused = false;
-    for (var i = _stages.length - 1; i >= 0; i--) {
-      _stages[i].resume();
-    }
-  }
-};
-
-Root._super = Stage;
-Root.prototype = Object.create(Root._super.prototype);
-
-function Root(request, render) {
-  Root._super.call(this);
-  this.label('Root');
-
-  var paused = true;
-  var stopped = true;
-
-  var self = this;
   var lastTime = 0;
-  var loop = function(now) {
-    if (paused === true || stopped === true) {
+  var renderLoop = (now) => {
+    if (!mounted || paused) {
       return;
     }
 
@@ -172,13 +96,13 @@ function Root(request, render) {
     var elapsed = now - last;
     lastTime = now;
 
-    var ticked = self._tick(elapsed, now, last);
-    if (self._mo_touch != self._ts_touch) {
-      self._mo_touch = self._ts_touch;
-      render(self);
-      request(loop);
+    var ticked = this._tick(elapsed, now, last);
+    if (this._mo_touch != this._ts_touch) {
+      this._mo_touch = this._ts_touch;
+      onRender(this);
+      requestAnimationFrame(renderLoop);
     } else if (ticked) {
-      request(loop);
+      requestAnimationFrame(renderLoop);
     } else {
       paused = true;
     }
@@ -186,16 +110,77 @@ function Root(request, render) {
     stats.fps = elapsed ? 1000 / elapsed : 0;
   };
 
-  this.start = function() {
-    stopped = false;
-    return this.resume();
+  var onRender = () => {
+    if (drawingWidth > 0 && drawingHeight > 0) {
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, drawingWidth, drawingHeight);
+      this.render(context);
+    }
+  }
+
+  // resize();
+  // window.addEventListener('resize', resize, false);
+  // window.addEventListener('orientationchange', resize, false);
+
+  var lastWidth = -1;
+  var lastHeight = -1;
+  var resizeLoop = () => {
+    if (!mounted) {
+      return;
+    }
+    var newWidth, newHeight;
+    if (fullpage) {
+      // screen.availWidth/Height?
+      newWidth = (window.innerWidth > 0 ? window.innerWidth : screen.width);
+      newHeight = (window.innerHeight > 0 ? window.innerHeight : screen.height);
+    } else {
+      newWidth = canvas.clientWidth;
+      newHeight = canvas.clientHeight;
+    }
+    if (lastWidth !== newWidth || lastHeight !== newHeight) {
+      lastWidth = newWidth;
+      lastHeight = newHeight;
+      onResize();
+    }
+    requestAnimationFrame(resizeLoop);
   };
+
+  var onResize = () => {
+    if (fullpage) {
+      // screen.availWidth/Height?
+      drawingWidth = (window.innerWidth > 0 ? window.innerWidth : screen.width);
+      drawingHeight = (window.innerHeight > 0 ? window.innerHeight : screen.height);
+
+      canvas.style.width = drawingWidth + 'px';
+      canvas.style.height = drawingHeight + 'px';
+
+    } else {
+      drawingWidth = canvas.clientWidth;
+      drawingHeight = canvas.clientHeight;
+    }
+
+    drawingWidth *= pixelRatio;
+    drawingHeight *= pixelRatio;
+
+    if (canvas.width === drawingWidth && canvas.height === drawingHeight) {
+      return;
+    }
+
+    canvas.width = drawingWidth;
+    canvas.height = drawingHeight;
+
+    DEBUG && console.log('Resize: ' + drawingWidth + ' x ' + drawingHeight + ' / ' + pixelRatio);
+
+    this.viewport(drawingWidth, drawingHeight, pixelRatio);
+
+    onRender();
+  }
 
   this.resume = function() {
     if (paused) {
       this.publish('resume');
       paused = false;
-      request(loop);
+      requestAnimationFrame(renderLoop);
     }
     return this;
   };
@@ -213,17 +198,30 @@ function Root(request, render) {
     this.resume();
     return this.touch_root();
   };
-  this.stop = function() {
-    stopped = true;
+
+  this.unmount = function() {
+    mounted = false;
+    var index = _stages.indexOf(this);
+    if (index >= 0) {
+      _stages.splice(index, 1);
+    }
     return this;
   };
+
+  mounted = true;
+  _stages.push(this);
+  resizeLoop();
+  requestAnimationFrame(renderLoop);
 };
 
 Root.prototype.background = function(color) {
-  // to be implemented by loaders
+  canvas.style.backgroundColor = color;
   return this;
 };
 
+/**
+ * Set/get available rendering viewport.
+ */
 Root.prototype.viewport = function(width, height, ratio) {
   if (typeof width === 'undefined') {
     return Object.assign({}, this._viewport);
@@ -246,6 +244,9 @@ Root.prototype.viewport = function(width, height, ratio) {
   return this;
 };
 
+/**
+ * Like css object-fit, scales and positions the viewbox within the viewport.
+ */
 // TODO: static/fixed viewbox
 Root.prototype.viewbox = function(width, height, mode) {
   if (typeof width === 'number' && typeof height === 'number') {
@@ -256,22 +257,20 @@ Root.prototype.viewbox = function(width, height, mode) {
     };
   }
 
-  var box = this._viewbox;
-  var size = this._viewport;
-  if (size && box) {
+  var viewbox = this._viewbox;
+  var viewport = this._viewport;
+  if (viewport && viewbox) {
     this.pin({
-      width : box.width,
-      height : box.height
+      width : viewbox.width,
+      height : viewbox.height
     });
-    this.scaleTo(size.width, size.height, box.mode);
-  } else if (size) {
+    this.scaleTo(viewport.width, viewport.height, viewbox.mode);
+  } else if (viewport) {
     this.pin({
-      width : size.width,
-      height : size.height
+      width : viewport.width,
+      height : viewport.height
     });
   }
 
   return this;
 };
-
-export default Root;

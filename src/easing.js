@@ -5,7 +5,7 @@ var _cache = {};
 var _modes = {};
 var _easings = {};
 
-function Easing(token) {
+export function Easing(token) {
   if (typeof token === 'function') {
     return token;
   }
@@ -181,5 +181,3 @@ Easing.add({
     };
   }
 });
-
-export default Easing;

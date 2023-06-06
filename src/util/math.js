@@ -1,8 +1,6 @@
 var native = Math;
 
-const math = Object.create(Math);
-
-export default math;
+export const math = Object.create(Math);
 
 math.random = function(min, max) {
   if (typeof min === 'undefined') {
@@ -13,7 +11,7 @@ math.random = function(min, max) {
   return min == max ? min : native.random() * (max - min) + min;
 };
 
-math.rotate = function(num, min, max) {
+math.modulo = function(num, min, max) {
   if (typeof min === 'undefined') {
     max = 1, min = 0;
   } else if (typeof max === 'undefined') {
@@ -28,7 +26,7 @@ math.rotate = function(num, min, max) {
   }
 };
 
-math.limit = function(num, min, max) {
+math.clamp = function(num, min, max) {
   if (num < min) {
     return min;
   } else if (num > max) {

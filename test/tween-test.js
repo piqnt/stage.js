@@ -1,7 +1,7 @@
 var expect = require('./util/expect');
 var sinon = require('sinon');
 
-var Stage = require('../src');
+var Stage = require('../src/');
 var Tween = require('../src/tween');
 
 describe('Tween', function() {

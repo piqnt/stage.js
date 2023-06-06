@@ -1,7 +1,6 @@
-import Stage from './core';
-import Texture from './texture';
+import { Texture } from './texture';
 
-Stage.canvas = function(type, attributes, plotter) {
+export const canvas = function(type, attributes, plotter) {
   if (typeof type === 'string') {
     if (typeof attributes === 'object') {
     } else {

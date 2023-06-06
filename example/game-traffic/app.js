@@ -7,7 +7,7 @@ var actions = {};
 var levels = {};
 
 levels[1] = function() {
-  var Math = Stage.Math;
+  var math = Stage.math;
 
   var runway = [ [ -66, -111 ], [ 132, -2 ] ];
   var station1 = [ 52, 120 ];
@@ -16,11 +16,11 @@ levels[1] = function() {
   var station4 = [ -78, -91 ];
 
   var path = function() {
-    return [ actions.enter([ -500, Math.random(-200, 200) ]),
+    return [ actions.enter([ -500, math.random(-200, 200) ]),
         actions.land(runway), actions.taxi(station1), actions.taxi(station2),
         actions.delay(1000), actions.taxi(station3), actions.taxi(station4),
         actions.stop(), actions.taxi(runway[0]),
-        actions.takeoff(runway, [ 500, Math.random(-300, 300) ]) ];
+        actions.takeoff(runway, [ 500, math.random(-300, 300) ]) ];
   };
 
   return {
@@ -28,7 +28,7 @@ levels[1] = function() {
       plane.queue(path());
     },
     delay : function() {
-      return Math.random() * 3000 + 5000;
+      return math.random() * 3000 + 5000;
     }
   };
 };
@@ -290,7 +290,6 @@ function travel(fn, e) {
 }
 
 var stage = Stage.mount();
-var Mouse = Stage.Mouse;
 
 stage.background('#222222');
 stage.viewbox(1024, 1024, 'out-crop').pin('align', -0.5);
@@ -310,7 +309,7 @@ var game = new Game({
   },
   plane : function(obj) {
     var ui = Stage.sprite('plane').pin('handle', 0.5);
-    ui.on(Mouse.CLICK, function() {
+    ui.on(Stage.Mouse.CLICK, function() {
       return obj.click();
     });
     return {
@@ -342,7 +341,7 @@ var game = new Game({
   }
 });
 
-stage.on(Mouse.CLICK, function() {
+stage.on(Stage.Mouse.CLICK, function() {
   game.click();
 });
 

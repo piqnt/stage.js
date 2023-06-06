@@ -71,7 +71,7 @@ Mouse.subscribe = function(stage, elem) {
   }
 };
 
-function Mouse(stage, elem) {
+export function Mouse(stage, elem) {
   if (!(this instanceof Mouse)) {
     // old-style mouse subscription
     return;
@@ -199,5 +199,3 @@ function locateElevent(el, ev, loc) {
   loc.y -= el.clientTop | 0;
   return loc;
 };
-
-export default Mouse;

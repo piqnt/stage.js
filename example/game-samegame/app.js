@@ -1,7 +1,8 @@
 import Stage from '../../src';
 import './textures';
 
-var Math = Stage.Math, Mouse = Stage.Mouse;
+var math = Stage.math;
+var Mouse = Stage.Mouse;
 
 function Game(ui, width, height) {
 
@@ -16,7 +17,7 @@ function Game(ui, width, height) {
     tilesMap = {}, tiles = [];
     for (var i = 0; i < width; i++) {
       for (var j = 0; j < height; j++) {
-        new Tile((Math.random() * colors + 1 | 0)).insert(i, j);
+        new Tile((math.random() * colors + 1 | 0)).insert(i, j);
       }
     }
   };

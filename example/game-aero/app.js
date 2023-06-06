@@ -1,6 +1,6 @@
 import Stage from '../../src';
 
-var Math = Stage.Math;
+var math = Stage.math;
 
 // Textures
 await Stage.atlas({
@@ -44,7 +44,7 @@ World.prototype.run = function(run) {
 
 World.prototype.tick = function(t) {
   if (this.running) {
-    t = Math.min(100, t);
+    t = math.min(100, t);
     for (var i = 0, n = this.objects.length; i < n; i++) {
       this.objects[i].tick(t);
     }
@@ -92,10 +92,10 @@ Drone.prototype.tick = function(t) {
     var v2 = this.v * this.v;
     var d = b * b - 4 * v2 * (v2 + inn * 2 / t);
     if (d >= 0) {
-      d = Math.sqrt(d);
+      d = math.sqrt(d);
       var m1 = (b - d) / 2 / v2 * this.v / t;
       var m2 = (-b - d) / 2 / v2 * this.v / t;
-      m = Math.abs(m1) <= Math.abs(m2) ? -m1 : m2;
+      m = math.abs(m1) <= math.abs(m2) ? -m1 : m2;
     }
     // var x = this.accCY - this.y;
     // var y = -(this.accCX - this.x);
@@ -108,7 +108,7 @@ Drone.prototype.tick = function(t) {
   } else if (this.accX !== 0 || this.accY !== 0) {
     var x = this.accX;
     var y = this.accY;
-    var d = Math.length(x, y);
+    var d = math.length(x, y);
     m = (x * this.vy - y * this.vx) / this.v / d * this.aMax;
 
   } else if (this.accMain !== 0 || this.accSide !== 0) {
@@ -117,7 +117,7 @@ Drone.prototype.tick = function(t) {
   }
 
   if (m || n) {
-    m = Math.limit(m, -this.aMax, this.aMax);
+    m = math.limit(m, -this.aMax, this.aMax);
     m = m / this.v;
 
     this.vx += +this.vx * n * t;
@@ -126,23 +126,23 @@ Drone.prototype.tick = function(t) {
     this.vx += +this.vy * m * t;
     this.vy += -this.vx * m * t;
 
-    var v = Math.length(this.vx, this.vy);
-    this.v = Math.limit(v, this.vMin, this.vMax);
+    var v = math.length(this.vx, this.vy);
+    this.v = math.limit(v, this.vMin, this.vMax);
     v = this.v / v;
     this.vx *= v;
     this.vy *= v;
 
-    var dir = Math.atan2(this.vy, this.vx);
-    this.rotation = (this.rotation * (200 - t) + Math.rotate(this.dir - dir,
-        -Math.PI, Math.PI)) / 200;
+    var dir = math.atan2(this.vy, this.vx);
+    this.rotation = (this.rotation * (200 - t) + math.rotate(this.dir - dir,
+        -math.PI, math.PI)) / 200;
     this.dir = dir;
 
   } else {
     this.rotation = (this.rotation * (200 - t)) / 200;
   }
 
-  this.x = Math.rotate(this.x + this.vx * t, this.world.xMin, this.world.xMax);
-  this.y = Math.rotate(this.y + this.vy * t, this.world.yMin, this.world.yMax);
+  this.x = math.rotate(this.x + this.vx * t, this.world.xMin, this.world.xMax);
+  this.y = math.rotate(this.y + this.vy * t, this.world.yMin, this.world.yMax);
 
   this.uiUpdate();
 };
@@ -170,7 +170,7 @@ Drone.prototype.uiRemove = function() {
 
 Drone.prototype.uiUpdate = function() {
   this.ui.offset(this);
-  var scaley = 1 - Math.abs(this.rotation) / Math.PI * 400;
+  var scaley = 1 - math.abs(this.rotation) / math.PI * 400;
   this.ui.drone.rotate(this.dir).scale(1, scaley);
   this.ui.shadow.rotate(this.dir).scale(1, scaley);
 };
@@ -268,8 +268,8 @@ var tilt = {
       this.a = a, this.b = b, this.g = g, this.o = o;
       this.time = now;
     }
-    var x = Math.rotate(this.g - this.g0, -180, 180) / 180;
-    var y = Math.rotate(this.b - this.b0, -180, 180) / 180;
+    var x = math.rotate(this.g - this.g0, -180, 180) / 180;
+    var y = math.rotate(this.b - this.b0, -180, 180) / 180;
     var min = 0.05;
     drone.accX = x > min ? 1 : x < -min ? -1 : 0;
     drone.accY = y > min ? 1 : y < -min ? -1 : 0;

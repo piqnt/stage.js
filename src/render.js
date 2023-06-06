@@ -1,5 +1,4 @@
-import Stage from './core';
-import './pin';
+import { Stage } from './core';
 import stats from './util/stats';
 
 Stage.prototype._textures = null;

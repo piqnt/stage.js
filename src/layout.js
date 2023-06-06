@@ -1,9 +1,7 @@
-import Stage from './core';
-import './pin';
-import './loop';
+import { Stage, create } from './core';
 
-Stage.row = function(align) {
-  return Stage.create().row(align).label('Row');
+export const row = function(align) {
+  return create().row(align).label('Row');
 };
 
 Stage.prototype.row = function(align) {
@@ -11,8 +9,8 @@ Stage.prototype.row = function(align) {
   return this;
 };
 
-Stage.column = function(align) {
-  return Stage.create().column(align).label('Row');
+export const column = function(align) {
+  return create().column(align).label('Row');
 };
 
 Stage.prototype.column = function(align) {
@@ -20,8 +18,8 @@ Stage.prototype.column = function(align) {
   return this;
 };
 
-Stage.sequence = function(type, align) {
-  return Stage.create().sequence(type, align).label('Sequence');
+sequence = function(type, align) {
+  return create().sequence(type, align).label('Sequence');
 };
 
 Stage.prototype.sequence = function(type, align) {
@@ -74,8 +72,8 @@ Stage.prototype.sequence = function(type, align) {
   return this;
 };
 
-Stage.box = function() {
-  return Stage.create().box().label('Box');
+export const box = function() {
+  return create().box().label('Box');
 };
 
 Stage.prototype.box = function() {
@@ -106,8 +104,8 @@ Stage.prototype.box = function() {
   return this;
 };
 
-Stage.layer = function() {
-  return Stage.create().layer().label('Layer');
+export const layer = function() {
+  return create().layer().label('Layer');
 };
 
 Stage.prototype.layer = function() {

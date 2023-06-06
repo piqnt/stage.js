@@ -1,4 +1,4 @@
-import Stage from '../../src/';
+import Stage from '../../src';
 import image from './example.png';
 
 await Stage.atlas({

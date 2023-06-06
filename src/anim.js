@@ -1,10 +1,8 @@
-import Stage from './core';
-import './pin';
-import './loop';
+import { Stage } from './core';
+import { texture } from './atlas';
+import { math } from './util/math';
 
-import math from './util/math';
-
-Stage.anim = function(frames, fps) {
+export const anim = function(frames, fps) {
   var anim = new Anim();
   anim.frames(frames).gotoFrame(0);
   fps && anim.fps(fps);
@@ -15,17 +13,15 @@ Anim._super = Stage;
 Anim.prototype = Object.create(Anim._super.prototype);
 
 // TODO: replace with atlas fps or texture time
-Stage.Anim = {
-  FPS : 15
-};
+const FPS = 15;
 
-function Anim() {
+export function Anim() {
   Anim._super.call(this);
   this.label('Anim');
 
   this._textures = [];
 
-  this._fps = Stage.Anim.FPS;
+  this._fps = FPS;
   this._ft = 1000 / this._fps;
 
   this._time = -1;
@@ -67,7 +63,7 @@ Anim.prototype.fps = function(fps) {
   if (typeof fps === 'undefined') {
     return this._fps;
   }
-  this._fps = fps > 0 ? fps : Stage.Anim.FPS;
+  this._fps = fps > 0 ? fps : FPS;
   this._ft = 1000 / this._fps;
   return this;
 };
@@ -81,7 +77,7 @@ Anim.prototype.setFrames = function(a, b, c) {
 
 Anim.prototype.frames = function(frames) {
   this._index = 0;
-  this._frames = Stage.texture(frames).array();
+  this._frames = texture(frames).array();
   this.touch();
   return this;
 };
@@ -91,7 +87,7 @@ Anim.prototype.length = function() {
 };
 
 Anim.prototype.gotoFrame = function(frame, resize) {
-  this._index = math.rotate(frame, this._frames.length) | 0;
+  this._index = math.modulo(frame, this._frames.length) | 0;
   resize = resize || !this._textures[0];
   this._textures[0] = this._frames[this._index];
   if (resize) {
@@ -132,5 +128,3 @@ Anim.prototype.stop = function(frame) {
   }
   return this;
 };
-
-export default Anim;

@@ -1,4 +1,4 @@
-import Stage from '../../src/index.js';
+import Stage from '../../src';
 
 await Stage.atlas({
   image : { src : './media/bg.png', ratio : 8 },

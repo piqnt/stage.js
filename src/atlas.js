@@ -1,11 +1,8 @@
 import is from 'is';
+import { Texture } from './texture';
 
 if (typeof DEBUG === 'undefined')
   DEBUG = true;
-
-import Stage from './core';
-import Texture from './texture';
-
 
 var NO_TEXTURE = new class extends Texture {
   constructor() {
@@ -49,7 +46,7 @@ var _atlases_arr = [];
 // TODO: print subquery not found error
 // TODO: index textures
 
-Stage.atlas = async function(def) {
+export const atlas = async function(def) {
   var atlas = is.fn(def.draw) ? def : new Atlas(def);
   if (def.name) {
     _atlases_map[def.name] = atlas;
@@ -78,7 +75,7 @@ Stage.atlas = async function(def) {
 Atlas._super = Texture;
 Atlas.prototype = Object.create(Atlas._super.prototype);
 
-function Atlas(def) {
+export function Atlas(def) {
   Atlas._super.call(this);
 
   var atlas = this;
@@ -213,7 +210,7 @@ function Selection(result, find, make) {
   };
 }
 
-Stage.texture = function(query) {
+export const texture = function(query) {
   if (!is.string(query)) {
     return new Selection(query);
   }
@@ -246,5 +243,3 @@ function deprecated(hash, name, msg) {
     console.log(msg ? msg.replace('%name', name) : '\'' + name
         + '\' field of texture atlas is deprecated.');
 };
-
-export default Atlas;

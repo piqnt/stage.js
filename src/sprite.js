@@ -1,10 +1,7 @@
-import Stage from './core';
-import './pin';
-import './loop';
+import { texture } from './atlas';
+import { Stage } from './core';
 
-export default Sprite;
-
-Stage.sprite = function(query) {
+export const sprite = function(query) {
   var sprite = new Sprite();
   query && sprite.image(query);
   return sprite;
@@ -13,15 +10,15 @@ Stage.sprite = function(query) {
 Sprite._super = Stage;
 Sprite.prototype = Object.create(Sprite._super.prototype);
 
-function Sprite() {
+export function Sprite() {
   Sprite._super.call(this);
   this.label('Sprite');
   this._textures = [];
   this._image = null;
 };
 
-Sprite.prototype.image = function(query) {
-  this._image = Stage.texture(query).one();
+Sprite.prototype.image = function(frame) {
+  this._image = texture(frame).one();
   this.pin('width', this._image ? this._image.width : 0);
   this.pin('height', this._image ? this._image.height : 0);
   this._textures[0] = this._image.pipe();

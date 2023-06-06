@@ -3,7 +3,7 @@ import '../common/texture';
 
 var stage = Stage.mount();
 
-  var Math = Stage.Math, Mouse = Stage.Mouse;
+var math = Stage.math;
 
 stage.viewbox(200, 200);
 
@@ -11,10 +11,10 @@ Stage.sprite('box').stretch().appendTo(stage).pin({
   width : 64,
   height : 64,
   align : 0.5
-}).on(Mouse.CLICK, function() {
+}).on(Stage.Mouse.CLICK, function() {
   this.tween().pin({
-    width : Math.random(32, 96),
-    height : Math.random(32, 96)
+    width : math.random(32, 96),
+    height : math.random(32, 96)
   });
   return true;
 });

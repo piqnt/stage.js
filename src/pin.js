@@ -1,8 +1,8 @@
-import Matrix from './matrix';
+import { Matrix } from './matrix';
 
 var iid = 0;
 
-function Pin(owner) {
+export function Pin(owner) {
 
   this._owner = owner;
   this._parent = null;
@@ -581,5 +581,3 @@ Pin._add_shortcuts = function(prototype) {
     return this;
   };
 };
-
-export default Pin;

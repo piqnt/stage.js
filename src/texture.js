@@ -1,7 +1,7 @@
 import stats from './util/stats';
-import math from './util/math';
+import { math } from './util/math';
 
-function Texture(texture, ratio) {
+export function Texture(texture, ratio) {
   if (typeof texture === 'object') {
     this.src(texture, ratio);
   }
@@ -69,8 +69,8 @@ Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
   var dw = this._dw, dh = this._dh;
 
   if (typeof x3 !== 'undefined') {
-    x1 = math.limit(x1, 0, this._sw), x2 = math.limit(x2, 0, this._sw - x1);
-    y1 = math.limit(y1, 0, this._sh), y2 = math.limit(y2, 0, this._sh - y1);
+    x1 = math.clamp(x1, 0, this._sw), x2 = math.clamp(x2, 0, this._sw - x1);
+    y1 = math.clamp(y1, 0, this._sh), y2 = math.clamp(y2, 0, this._sh - y1);
     sx += x1, sy += y1, sw = x2, sh = y2;
     dx = x3, dy = y3, dw = x4, dh = y4;
 
@@ -99,5 +99,3 @@ Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
     }
   }
 };
-
-export default Texture;
