@@ -1,67 +1,72 @@
 [![Stage](https://s3.amazonaws.com/piqnt.com/stage.js/stage.png)](http://piqnt.com/stage.js/)
 
-Stage.js is a 2D HTML5 JavaScript library for cross-platform game development, it is lightweight, fast and open-source.
+Stage.js is a 2D rendering and layout library for HTML5 Canvas. It is lightweight, fast and optimized for web and mobile game development.
+
+Features:
+- A tree data model similar to DOM
+- Managing optimized rendering cycles, and game loop
+- Handling mouse events on Canvas and delivering them to target nodes
+- Positioning of elements, and layout
+- Texture atlas definition and image preloading
 
 [**Check out examples and demos!**](http://piqnt.com/stage.js/)
-
-[Install](#installation) · [Usage](#usage) · [Resources](#resources) · [API Doc](#api-doc) · [Development](#development) · [License](#license)
 
 [中文手册](https://github.com/shakiba/stage.js/wiki/%E4%B8%AD%E6%96%87%E6%89%8B%E5%86%8C)
 
 
-## Introduction
+## V1 (alpha) Upgrade and Breaking Changes
 
-Canvas is the graphic component of HTML5 game development, but it only has a drawing API and there is no data model like the DOM to compose your application.
-You need to manually draw your application and manage rendering cycles to play it.
-Moreover, mouse events are only available at the entire Canvas level and they also need to be processed manually.
+- `Stage` is not callable anymore
+  - `Stage({ }})` is replaced by `await Stage.atlas({ })`
+  - `Stage(function(stage, element))` is replaced by `stage = Stage.mount()`
+  - `Stage()` is replaced by `Stage.create()`
 
-Stage.js provides a DOM-like tree data model to compose your application and internally manages rendering cycles and the drawing of your application.
-It also processes and distributes mouse and touch events to targeted tree nodes.
-A Stage.js application consists of a tree of nodes. Each node is pinned (transformed) against its parent and has zero, one or more image textures.
-
-Each rendering cycle consists of ticking and drawing tree nodes. On ticking, nodes adjust themselves to recent updates while on drawing each node transforms according to its pinning and draws its textures.
-
-Rendering is retained and is paused when there is no change.
+- Relative path image url resolving is removed
 
 ### Example
 
 ```js
-// Create new app
-Stage(function(stage) {
-
-  // Set view box
-  stage.viewbox(300, 200);
-
-  // Create an image and append it to stage
-  var box = Stage.image('box').appendTo(stage);
-
-  // Align box to center
-  box.pin('align', 0.5);
-
-  // On mouse click...
-  box.on('click', function(point) {
-    // ...tween scale values of this node
-    this.tween().ease('bounce').pin({
-      scaleX : Math.random() + 0.5,
-      scaleY : Math.random() + 0.5
-    });
-  });
-});
-
-// Adding a texture
-Stage({
+// Define and preload a texture
+await Stage.atlas({
   image : 'sample.png',
   textures : {
     box : { x : 0, y : 0, width : 30, height : 30 }
   }
 });
+
+// Create and mount a new app
+const stage = Stage.mount();
+
+// Set view box
+stage.viewbox(300, 200);
+
+// Create an image and append it to stage
+var box = Stage.image('box').appendTo(stage);
+
+// Align box to center
+box.pin('align', 0.5);
+
+// On mouse click...
+box.on('click', function(point) {
+  // ...tween scale values of this node
+  this.tween().ease('bounce').pin({
+    scaleX : Math.random() + 0.5,
+    scaleY : Math.random() + 0.5
+  });
+});
 ```
 
+## Usage
 
-## Installation
 
-#### Download
-Latest builds are available in the project [releases page](https://github.com/shakiba/stage.js/releases/latest).
+#### CDN
+
+```html
+<script src="path/to/stage.min.js"></script>
+<script>
+  const stage = Stage.mount();
+</script>
+```
 
 #### NPM
 
@@ -69,32 +74,13 @@ Latest builds are available in the project [releases page](https://github.com/sh
 npm install stage-js --save
 ```
 
-#### Bower
-
+```js
+var Stage = require('stage-js');
 ```
-bower install stage-js --save
-```
-
-
-## Usage
-
-#### Browser
-
-Include an appropriate build file from `dist` directory in your HTML page before your application. For example:
-
-```html
-<script src="path/to/stage.web.min.js"></script>
-<script src="path/to/your-app.js"></script>
-```
-
-#### Browserify, CommonJS, Node.js
-Generally it is preferred to directly include a browser build file in HTML pages, however it is also possible to use CommonJS require instead, for example:
 
 ```js
-var Stage = require('stage-js/platform/web');
+import Stage from 'stage-js';
 ```
-
-See `platform` directory for other available modules.
 
 
 ## Resources
@@ -107,27 +93,27 @@ See `platform` directory for other available modules.
 ## API Doc
 
 ### Application
-An application is created by passing a callback function to `Stage()`.
-The library will load, create and initialize all required components and will then call the provided function with the application root node and display the container which is normally a Canvas element.
+An application is created by calling `Stage.mount()`.
+This will set up root node with a canvas elmenet and returns the root node.
 
 ```javascript
 // Create and start an application
-Stage(function(stage, display) {
+let stage = Stage.mount();
 
-  // Set viewbox for stage, see pinning for valid modes
-  stage.viewbox(width, height, mode = 'in-pad');
+// Set viewbox for stage, see pinning for valid modes
+stage.viewbox(width, height, mode = 'in-pad');
 
-  // Listen to view port resize events
-  stage.on('viewport', function(viewport) {
-    // `viewport` attributes are `width`, `height` and `ratio`
-  });
-
-  // Pause playing
-  stage.pause();
-
-  // Resume playing
-  stage.resume();
+// Listen to view port resize events
+stage.on('viewport', function(viewport) {
+  // `viewport` attributes are `width`, `height` and `ratio`
 });
+
+// Pause playing
+stage.pause();
+
+// Resume playing
+stage.resume();
+
 ```
 
 
@@ -409,7 +395,7 @@ Atlases are usually created using static image files. Images referenced in atlas
 
 ```javascript
 // Adding texture atlas
-Stage({
+Stage.atlas({
   name : 'mario', // optional
   image : {
     src : 'mario.png',
@@ -604,18 +590,11 @@ var nextTween = tween.tween(duration = 400, delay = 0);
 ### Global Methods
 ```javascript
 
-// Create a new app
-Stage(function(stage, display) { });
+// Mount and start a new app
+let stage = Stage.mount();
 
 // Create and preload a texture atlas
-Stage({ });
-
-// A function to be called before starting any app
-// Can be used for preloading application assets
-Stage.preload(function(done) {
-  // Call `done` when loaded or failed
-  done(error);
-});
+Stage.atlas({});
 
 // Pause playing all applications
 Stage.pause();
@@ -633,5 +612,5 @@ npm run dev
 
 
 ## License
-Copyright 2020 Ali Shakiba http://shakiba.me/stage.js  
+Copyright 2023 Ali Shakiba http://shakiba.me/stage.js  
 Available under the MIT License

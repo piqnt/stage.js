@@ -293,175 +293,174 @@ function Game(gameui) {
 }
 
 // UI
-Stage(function(root) {
-  var Mouse = Stage.Mouse;
+var root = Stage.mount();
+var Mouse = Stage.Mouse;
 
-  // set viewbox
-  root.viewbox(150, 150);
+// set viewbox
+root.viewbox(150, 150);
 
-  // add the background
-  Stage.image('background').pin('align', 0.5).on('viewport', function() {
-    // on viewport change scale it to fill root
-    this.pin({
-      scaleMode : 'out',
-      scaleWidth : root.width(),
-      scaleHeight : root.height()
-    });
-  }).appendTo(root);
-
-  // an element which views only one child at a time
-  var singleView = Stage.create().appendTo(root);
-  singleView.view = function(active) {
-    if (active.parent() !== this) {
-      active.remove().appendTo(this);
-    }
-    if (!active.visible()) {
-      active.show();
-    }
-    for (var child = this.first(); child; child = child.next()) {
-      active !== child && child.visible() && child.hide();
-    }
-  };
-
-  // game home view
-  var homeView = Stage.create().on('viewport', function() {
-    this.pin({
-      width : root.width(),
-      height : root.height()
-    });
-  }).hide().appendTo(root);
-
-  // start button
-  Stage.image('play').pin('align', 0.5).on(Mouse.CLICK, function() {
-    startGame();
-  }).appendTo(homeView);
-
-  // game play view
-  var playView = Stage.create().on('viewport', function() {
-    this.pin({
-      width : root.width(),
-      height : root.height()
-    });
-  }).hide().appendTo(root);
-
-  var space = Stage.create().pin('align', 0.5).appendTo(playView);
-
-  // score number
-  var score = Stage.string('digit').scale(0.8);
-
-  // life number
-  var life = Stage.string('digit').scale(0.8);
-
-  // place score and life in a row on top-left
-  Stage.row().spacing(2).pin({
-    offset : 2,
-    align : 0,
-    handle : 0
-  }).appendTo(root).append(life, score);
-
-  // create a game with ui callbacks
-  var game = new Game({
-    status : function(game) {
-      score.value(game.score);
-      life.value(game.life);
-    },
-    planet : function(obj) {
-      var img = Stage.image('planet').pin('handle', 0.5);
-      return {
-        add : function() {
-          img.appendTo(space);
-          this.update();
-        },
-        update : function() {
-          img.alpha(obj.life);
-        },
-        remove : function() {
-          img.remove();
-        }
-      };
-    },
-    asteroid : function(obj) {
-      var img = Stage.image('asteroid').pin('handle', 0.5);
-      return {
-        add : function() {
-          img.appendTo(space);
-          this.update();
-        },
-        update : function() {
-          img.offset(obj);
-        },
-        remove : function() {
-          img.remove();
-        }
-      };
-    },
-    orbit : function(obj) {
-      var img = Stage.image('orbit').pin('handle', 0.5);
-      var ring = Stage.image('first').pin('align', 0.5).appendTo(img).hide();
-      return {
-        add : function() {
-          img.appendTo(space);
-          this.update();
-        },
-        update : function() {
-          img.offset(obj);
-          img.alpha(100 / (obj._ready + 100));
-          ring.alpha(obj._ready <= 0).visible(obj._first);
-        },
-        remove : function() {
-          img.remove();
-        }
-      };
-    },
-    bullet : function(obj) {
-      var img = Stage.image('bullet').pin('handle', 0.5);
-      return {
-        add : function() {
-          img.appendTo(space);
-          this.update();
-        },
-        update : function() {
-          img.offset(obj);
-        },
-        remove : function() {
-          img.remove();
-        }
-      };
-    },
-    explode : function(obj) {
-      var explosion = Stage.image('explosion').pin('handle', 0.5).offset(obj)
-          .scale(0.1).appendTo(space);
-      explosion.tween(50).scale(1).then(function() {
-        game.explode(obj);
-      }).tween(200).alpha(0).remove();
-    },
-    gameover : function() {
-      gameOver();
-    }
+// add the background
+Stage.image('background').pin('align', 0.5).on('viewport', function() {
+  // on viewport change scale it to fill root
+  this.pin({
+    scaleMode : 'out',
+    scaleWidth : root.width(),
+    scaleHeight : root.height()
   });
+}).appendTo(root);
 
-  // on start game view play and start game
-  function startGame() {
-    game.start();
-    singleView.view(playView);
+// an element which views only one child at a time
+var singleView = Stage.create().appendTo(root);
+singleView.view = function(active) {
+  if (active.parent() !== this) {
+    active.remove().appendTo(this);
   }
-
-  // on game over view home
-  function gameOver() {
-    singleView.view(homeView);
+  if (!active.visible()) {
+    active.show();
   }
+  for (var child = this.first(); child; child = child.next()) {
+    active !== child && child.visible() && child.hide();
+  }
+};
 
-  space.on(Mouse.START, function(point) {
-    game.shoot({
-      x : point.x,
-      y : point.y
-    });
-  }).attr('spy', true);
-
-  // game loop
-  space.tick(function(t) {
-    game.tick(t);
+// game home view
+var homeView = Stage.create().on('viewport', function() {
+  this.pin({
+    width : root.width(),
+    height : root.height()
   });
+}).hide().appendTo(root);
 
-  singleView.view(homeView);
+// start button
+Stage.image('play').pin('align', 0.5).on(Mouse.CLICK, function() {
+  startGame();
+}).appendTo(homeView);
+
+// game play view
+var playView = Stage.create().on('viewport', function() {
+  this.pin({
+    width : root.width(),
+    height : root.height()
+  });
+}).hide().appendTo(root);
+
+var space = Stage.create().pin('align', 0.5).appendTo(playView);
+
+// score number
+var score = Stage.string('digit').scale(0.8);
+
+// life number
+var life = Stage.string('digit').scale(0.8);
+
+// place score and life in a row on top-left
+Stage.row().spacing(2).pin({
+  offset : 2,
+  align : 0,
+  handle : 0
+}).appendTo(root).append(life, score);
+
+// create a game with ui callbacks
+var game = new Game({
+  status : function(game) {
+    score.value(game.score);
+    life.value(game.life);
+  },
+  planet : function(obj) {
+    var img = Stage.image('planet').pin('handle', 0.5);
+    return {
+      add : function() {
+        img.appendTo(space);
+        this.update();
+      },
+      update : function() {
+        img.alpha(obj.life);
+      },
+      remove : function() {
+        img.remove();
+      }
+    };
+  },
+  asteroid : function(obj) {
+    var img = Stage.image('asteroid').pin('handle', 0.5);
+    return {
+      add : function() {
+        img.appendTo(space);
+        this.update();
+      },
+      update : function() {
+        img.offset(obj);
+      },
+      remove : function() {
+        img.remove();
+      }
+    };
+  },
+  orbit : function(obj) {
+    var img = Stage.image('orbit').pin('handle', 0.5);
+    var ring = Stage.image('first').pin('align', 0.5).appendTo(img).hide();
+    return {
+      add : function() {
+        img.appendTo(space);
+        this.update();
+      },
+      update : function() {
+        img.offset(obj);
+        img.alpha(100 / (obj._ready + 100));
+        ring.alpha(obj._ready <= 0).visible(obj._first);
+      },
+      remove : function() {
+        img.remove();
+      }
+    };
+  },
+  bullet : function(obj) {
+    var img = Stage.image('bullet').pin('handle', 0.5);
+    return {
+      add : function() {
+        img.appendTo(space);
+        this.update();
+      },
+      update : function() {
+        img.offset(obj);
+      },
+      remove : function() {
+        img.remove();
+      }
+    };
+  },
+  explode : function(obj) {
+    var explosion = Stage.image('explosion').pin('handle', 0.5).offset(obj)
+        .scale(0.1).appendTo(space);
+    explosion.tween(50).scale(1).then(function() {
+      game.explode(obj);
+    }).tween(200).alpha(0).remove();
+  },
+  gameover : function() {
+    gameOver();
+  }
 });
+
+// on start game view play and start game
+function startGame() {
+  game.start();
+  singleView.view(playView);
+}
+
+// on game over view home
+function gameOver() {
+  singleView.view(homeView);
+}
+
+space.on(Mouse.START, function(point) {
+  game.shoot({
+    x : point.x,
+    y : point.y
+  });
+}).attr('spy', true);
+
+// game loop
+space.tick(function(t) {
+  game.tick(t);
+});
+
+singleView.view(homeView);

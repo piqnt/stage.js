@@ -1,11 +1,5 @@
-import Stage from './core';
-
 if (typeof DEBUG === 'undefined')
   DEBUG = true;
-
-Stage._load(function(stage, elem) {
-  Mouse.subscribe(stage, elem);
-});
 
 // TODO: capture mouse
 

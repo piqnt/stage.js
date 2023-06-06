@@ -1,13 +1,21 @@
 #### next
-* use es modules and vite
-* remove script loader `preload(url)`
-* remove relative path resolver for texture image loader
-* remove cordova/fastcontext loader and build, use web by default
+* use ES modules
+* typescript definition added
+* lib directory renamed to src, and folder structure flattened
+* all classes are exported under Stage namespace
+* added Stage.mount()
+* Stage is not callable
+* removed Stage.internal
+* removed Stage() (use other functions to create components)
+* removed Stage({ }), and await Stage.atlas({ }) preloads images
+* removed Stage(function(root, canvas))
+* removed Stage.app(callback)
+* removed script loader `preload(url)`
+* removed relative path resolver for texture images
+* removed cordova/fastcontext loader and build removed
+* removed different platform builds (web, cordova)
+* removed Stage.config()
 * remove _create, _extend functions with js functions
-* rename lib to src, make folder structure flat
-* typescript definition
-* all classes are exported under Stage
-* Stage.internal.* is moved to Stage.*
 
 #### v0.8.2
 * `render.js` renamed to `loop.js`

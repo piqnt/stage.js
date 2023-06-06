@@ -169,7 +169,7 @@ function pinning(node, map, key, value) {
   }
 }
 
-Pin._add_shortcuts(Tween);
+Pin._add_shortcuts(Tween.prototype);
 
 /**
  * @deprecated Use .done(fn) instead.

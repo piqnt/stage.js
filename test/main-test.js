@@ -4,8 +4,6 @@ var sinon = require('sinon');
 var Stage = require('../src/');
 
 it('static methods', function() {
-  expect(Stage.config).be.a('function');
-  expect(Stage.preload).be.a('function');
   expect(Stage.start).be.a('function');
   expect(Stage.pause).be.a('function');
   expect(Stage.resume).be.a('function');

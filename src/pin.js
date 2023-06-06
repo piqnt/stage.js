@@ -1,35 +1,6 @@
-import Stage from './core';
 import Matrix from './matrix';
 
 var iid = 0;
-
-Stage._init(function() {
-  this._pin = new Pin(this);
-});
-
-Stage.prototype.matrix = function(relative) {
-  if (relative === true) {
-    return this._pin.relativeMatrix();
-  }
-  return this._pin.absoluteMatrix();
-};
-
-Stage.prototype.pin = function(a, b) {
-  if (typeof a === 'object') {
-    this._pin.set(a);
-    return this;
-
-  } else if (typeof a === 'string') {
-    if (typeof b === 'undefined') {
-      return this._pin.get(a);
-    } else {
-      this._pin.set(a, b);
-      return this;
-    }
-  } else if (typeof a === 'undefined') {
-    return this._pin;
-  }
-};
 
 function Pin(owner) {
 
@@ -516,6 +487,10 @@ var setters = {
   }
 };
 
+Pin.prototype.scaleTo = function(width, height, mode) {
+  scaleTo(this, width, height, mode);
+};
+
 function scaleTo(pin, width, height, mode) {
   var w = typeof width === 'number';
   var h = typeof height === 'number';
@@ -540,24 +515,16 @@ function scaleTo(pin, width, height, mode) {
       pin._height = height / pin._scaleY;
     }
   }
-};
-
-Stage.prototype.scaleTo = function(a, b, c) {
-  if (typeof a === 'object')
-    c = b, b = a.y, a = a.x;
-  scaleTo(this._pin, a, b, c);
-  return this;
-};
-
-// Used by Tween Stage
-Pin._add_shortcuts = function(Stage) {
-  Stage.prototype.size = function(w, h) {
+}
+// Used by Tween and Stage
+Pin._add_shortcuts = function(prototype) {
+  prototype.size = function(w, h) {
     this.pin('width', w);
     this.pin('height', h);
     return this;
   };
 
-  Stage.prototype.width = function(w) {
+  prototype.width = function(w) {
     if (typeof w === 'undefined') {
       return this.pin('width');
     }
@@ -565,7 +532,7 @@ Pin._add_shortcuts = function(Stage) {
     return this;
   };
 
-  Stage.prototype.height = function(h) {
+  prototype.height = function(h) {
     if (typeof h === 'undefined') {
       return this.pin('height');
     }
@@ -573,7 +540,7 @@ Pin._add_shortcuts = function(Stage) {
     return this;
   };
 
-  Stage.prototype.offset = function(a, b) {
+  prototype.offset = function(a, b) {
     if (typeof a === 'object')
       b = a.y, a = a.x;
     this.pin('offsetX', a);
@@ -581,12 +548,12 @@ Pin._add_shortcuts = function(Stage) {
     return this;
   };
 
-  Stage.prototype.rotate = function(a) {
+  prototype.rotate = function(a) {
     this.pin('rotation', a);
     return this;
   };
 
-  Stage.prototype.skew = function(a, b) {
+  prototype.skew = function(a, b) {
     if (typeof a === 'object')
       b = a.y, a = a.x;
     else if (typeof b === 'undefined')
@@ -596,7 +563,7 @@ Pin._add_shortcuts = function(Stage) {
     return this;
   };
 
-  Stage.prototype.scale = function(a, b) {
+  prototype.scale = function(a, b) {
     if (typeof a === 'object')
       b = a.y, a = a.x;
     else if (typeof b === 'undefined')
@@ -606,7 +573,7 @@ Pin._add_shortcuts = function(Stage) {
     return this;
   };
 
-  Stage.prototype.alpha = function(a, ta) {
+  prototype.alpha = function(a, ta) {
     this.pin('alpha', a);
     if (typeof ta !== 'undefined') {
       this.pin('textureAlpha', ta);
@@ -614,7 +581,5 @@ Pin._add_shortcuts = function(Stage) {
     return this;
   };
 };
-
-Pin._add_shortcuts(Stage);
 
 export default Pin;

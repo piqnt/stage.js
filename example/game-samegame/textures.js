@@ -1,6 +1,6 @@
 import Stage from '../../src';
 
-Stage({
+await Stage.atlas({
   image : { src : "./main.png", ratio : 32 },
   textures : {
     "easy"   : { x : 0,   y : 0,  width : 2,  height : 2 },

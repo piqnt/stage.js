@@ -7,6 +7,31 @@ import Stage from './core';
 import Texture from './texture';
 
 
+var NO_TEXTURE = new class extends Texture {
+  x = y = width = height = 0
+  pipe = src = dest = function() {
+    return this;
+  };
+  draw = function() {
+  };
+};
+
+var NO_SELECTION = new Selection(NO_TEXTURE);
+
+function preloadImage(src) {
+  DEBUG && console.log('Loading image: ' + src);
+  return new Promise(function(resolve, reject) {
+    const image = new Image();
+    image.onload = function() {
+      resolve(image);
+    };
+    image.onerror = function(error) {
+      reject(error);
+    };
+    image.src = src;
+  });
+}
+
 // name : atlas
 var _atlases_map = {};
 // [atlas]
@@ -15,7 +40,7 @@ var _atlases_arr = [];
 // TODO: print subquery not found error
 // TODO: index textures
 
-Stage.atlas = function(def) {
+Stage.atlas = async function(def) {
   var atlas = is.fn(def.draw) ? def : new Atlas(def);
   if (def.name) {
     _atlases_map[def.name] = atlas;
@@ -33,20 +58,10 @@ Stage.atlas = function(def) {
     url = def.image.src || def.image.url;
     ratio = def.image.ratio || ratio;
   }
-  url && Stage.preload(function(done) {
-    DEBUG && console.log('Loading atlas: ' + url);
-    var imageloader = Stage.config('image-loader');
-
-    imageloader(url, function(image) {
-      DEBUG && console.log('Image loaded: ' + url);
-      atlas.src(image, ratio);
-      done();
-
-    }, function(err) {
-      DEBUG && console.log('Error loading atlas: ' + url, err);
-      done();
-    });
-  });
+  if (url) {
+    const image = await preloadImage(url);
+    atlas.src(image, ratio);
+  }
 
   return atlas;
 };
@@ -144,23 +159,12 @@ function Atlas(def) {
       return new Selection(found, find, make);
     }
   };
-
 };
-
-var nfTexture = new Texture();
-nfTexture.x = nfTexture.y = nfTexture.width = nfTexture.height = 0;
-nfTexture.pipe = nfTexture.src = nfTexture.dest = function() {
-  return this;
-};
-nfTexture.draw = function() {
-};
-
-var nfSelection = new Selection(nfTexture);
 
 function Selection(result, find, make) {
   function link(result, subquery) {
     if (!result) {
-      return nfTexture;
+      return NO_TEXTURE;
 
     } else if (is.fn(result.draw)) {
       return result;
@@ -222,7 +226,7 @@ Stage.texture = function(query) {
 
   if (!result) {
     console.error('Texture not found: ' + query);
-    result = nfSelection;
+    result = NO_SELECTION;
   }
 
   return result;

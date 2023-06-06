@@ -1,13 +1,13 @@
 import Stage from '../../src';
 
-Stage({
+await Stage.atlas({
   image : { src : './bg.png', ratio : 2 },
   textures : {
     'board' : { x : 0, y : 0,  width : 320, height : 416 }
   }
 });
 
-Stage({
+await Stage.atlas({
   image : { src : './main.png', ratio : 2 },
   map : function(tex) {
     tex.y = 256 - (tex.y + tex.height);

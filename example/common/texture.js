@@ -1,8 +1,7 @@
 import Stage from '../../src/';
 import image from './example.png';
 
-
-Stage({
+await Stage.atlas({
   name : 'example',
   image : { src : image, ratio : 4 },
   trim : 0.2,

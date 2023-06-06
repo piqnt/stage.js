@@ -360,242 +360,241 @@ function Physics(ui, width, height) {
 
 }
 
-Stage(function(stage) {
+var stage = Stage.mount();
 
-  var Mouse = Stage.Mouse;
-  var STORE_KEY = 'breakout-v1';
+var Mouse = Stage.Mouse;
+var STORE_KEY = 'breakout-v1';
 
-  var width = 20, height = 26;
+var width = 20, height = 26;
 
-  var state = {
-    score : 0,
-    combo : 1,
-    max : 0,
-    ready : false,
-    playing : false
-  };
+var state = {
+  score : 0,
+  combo : 1,
+  max : 0,
+  ready : false,
+  playing : false
+};
 
-  stage.MAX_ELAPSE = 100;
+stage.MAX_ELAPSE = 100;
 
-  stage.background('#222222');
-  stage.viewbox(width * 16, height * 1.12 * 16).pin('offsetY',
-      -height * 0.04 * 16).pin('align', -0.5);
+stage.background('#222222');
+stage.viewbox(width * 16, height * 1.12 * 16).pin('offsetY',
+    -height * 0.04 * 16).pin('align', -0.5);
 
-  var pscale = 16;
+var pscale = 16;
 
-  var physics = new Physics({
-    newBall : function(body) {
-      body.ui = Stage.image('ball', 10).pin({
-        'handle' : 0.5,
-        'scale' : 1 / pscale
-      });
-    },
-    newDrop : function(body, name) {
-      body.ui = Stage.image(name).pin({
-        'handle' : 0.5,
-        'scale' : 1 / pscale
-      });
-      body.ui.dropName = name;
-    },
-    newBrick : function(body, name) {
-      body.ui = Stage.image('b' + name).pin({
-        'handle' : 0.5,
-        'scale' : 1 / pscale
-      });
-      body.ui.drop = function() {
-        this.tween(70).alpha(0).remove();
-      };
-    },
-    hitBrick : function(brick) {
-      !physics.findBrick() && addRow();
-      state.score += state.combo;
-      // state.combo++;
-      updateScore();
-      dropDown(brick);
-    },
-    hitPaddle : function() {
-      // state.combo = 1;
-    },
-    hitBottom : function() {
-      !physics.findBall() && gameOver();
-    },
-    catchDrop : function(drop) {
-      var name = drop.ui.dropName;
-      if (name == '+') {
-        physics.addBall();
+var physics = new Physics({
+  newBall : function(body) {
+    body.ui = Stage.image('ball', 10).pin({
+      'handle' : 0.5,
+      'scale' : 1 / pscale
+    });
+  },
+  newDrop : function(body, name) {
+    body.ui = Stage.image(name).pin({
+      'handle' : 0.5,
+      'scale' : 1 / pscale
+    });
+    body.ui.dropName = name;
+  },
+  newBrick : function(body, name) {
+    body.ui = Stage.image('b' + name).pin({
+      'handle' : 0.5,
+      'scale' : 1 / pscale
+    });
+    body.ui.drop = function() {
+      this.tween(70).alpha(0).remove();
+    };
+  },
+  hitBrick : function(brick) {
+    !physics.findBrick() && addRow();
+    state.score += state.combo;
+    // state.combo++;
+    updateScore();
+    dropDown(brick);
+  },
+  hitPaddle : function() {
+    // state.combo = 1;
+  },
+  hitBottom : function() {
+    !physics.findBall() && gameOver();
+  },
+  catchDrop : function(drop) {
+    var name = drop.ui.dropName;
+    if (name == '+') {
+      physics.addBall();
 
-      } else if (name == '-') {
-        Timeout.set(function() {
-          physics.miniPaddle();
-        }, 1);
-        Timeout.set(function() {
-          physics.fullPaddle();
-        }, 7500, 'mini');
-      }
-    },
-    miniPaddle : function(body) {
-      body.ui = Stage.image('paddleMini').pin({
-        'handle' : 0.5,
-        'scale' : 1 / pscale
-      });
-    },
-    fullPaddle : function(body) {
-      body.ui = Stage.image('paddleFull').pin({
-        'handle' : 0.5,
-        'scale' : 1 / pscale
-      });
-    },
-    gameOver : function() {
-      gameOver();
-    },
-    paddleSpeed : function() {
-      return 20;
-    },
-    dropSpeed : function() {
-      return -6;
-    },
-    ballSpeed : function() {
-      return (13 + state.score * 0.05);
+    } else if (name == '-') {
+      Timeout.set(function() {
+        physics.miniPaddle();
+      }, 1);
+      Timeout.set(function() {
+        physics.fullPaddle();
+      }, 7500, 'mini');
     }
-  }, width, height);
+  },
+  miniPaddle : function(body) {
+    body.ui = Stage.image('paddleMini').pin({
+      'handle' : 0.5,
+      'scale' : 1 / pscale
+    });
+  },
+  fullPaddle : function(body) {
+    body.ui = Stage.image('paddleFull').pin({
+      'handle' : 0.5,
+      'scale' : 1 / pscale
+    });
+  },
+  gameOver : function() {
+    gameOver();
+  },
+  paddleSpeed : function() {
+    return 20;
+  },
+  dropSpeed : function() {
+    return -6;
+  },
+  ballSpeed : function() {
+    return (13 + state.score * 0.05);
+  }
+}, width, height);
 
-  var board = Stage.image('board').appendTo(stage).pin('handle', 0.5).attr(
-      'spy', true);
+var board = Stage.image('board').appendTo(stage).pin('handle', 0.5).attr(
+    'spy', true);
 
-  var p2view = new Stage.P2(physics.world, {
-    lineWidth : 1 / pscale,
-    lineColor : '#888',
-    ratio : 4 * pscale,
-    debug : P2DEBUG
-  }).attr('spy', true).pin({
-    'align' : 0.5,
-    'scale' : pscale
-  }).appendTo(board);
+var p2view = new Stage.P2(physics.world, {
+  lineWidth : 1 / pscale,
+  lineColor : '#888',
+  ratio : 4 * pscale,
+  debug : P2DEBUG
+}).attr('spy', true).pin({
+  'align' : 0.5,
+  'scale' : pscale
+}).appendTo(board);
 
-  p2view.on([ Mouse.START, Mouse.MOVE ], function(point) {
-    physics.movePaddle(point.x);
-  });
+p2view.on([ Mouse.START, Mouse.MOVE ], function(point) {
+  physics.movePaddle(point.x);
+});
 
-  var maxscore = Stage.string('d_').appendTo(board).pin({
-    alignX : 1,
-    alignY : 1,
-    offsetX : -1.5 * 16,
-    offsetY : -0.5 * 16
-  });
+var maxscore = Stage.string('d_').appendTo(board).pin({
+  alignX : 1,
+  alignY : 1,
+  offsetX : -1.5 * 16,
+  offsetY : -0.5 * 16
+});
 
-  var myscore = Stage.string('d_').appendTo(board).pin({
-    alignX : 0,
-    alignY : 1,
-    offsetX : 1.5 * 16,
-    offsetY : -0.5 * 16
-  });
+var myscore = Stage.string('d_').appendTo(board).pin({
+  alignX : 0,
+  alignY : 1,
+  offsetX : 1.5 * 16,
+  offsetY : -0.5 * 16
+});
 
-  var restart = Stage.image('restart').appendTo(board).pin({
-    align : 0.5,
-  });
+var restart = Stage.image('restart').appendTo(board).pin({
+  align : 0.5,
+});
 
-  stage.on(Mouse.CLICK, function() {
-    if (!state.playing) {
-      startGame();
-    }
-  });
+stage.on(Mouse.CLICK, function() {
+  if (!state.playing) {
+    startGame();
+  }
+});
 
-  stage.tick(function(t) {
-    if (state.playing) {
-      physics.tick(t);
-    }
-  });
+stage.tick(function(t) {
+  if (state.playing) {
+    physics.tick(t);
+  }
+});
 
+try {
+  state.max = localStorage.getItem(STORE_KEY) || 0;
+} catch (e) {
+}
+
+initGame();
+
+function initGame() {
+  if (!state.ready) {
+    p2view.tween(100).pin('alpha', 1);
+    restart.hide();
+    state.score = 0, state.combo = 1;
+    updateStatus();
+    physics.initGame();
+    addRow() + addRow() + addRow();
+  }
+  state.ready = true;
+}
+
+function startGame() {
+  initGame();
+  state.ready = false;
+  physics.startGame();
+  Timeout.loop(function() {
+    addRow();
+    return nextTime();
+  }, nextTime());
+  state.playing = true;
+}
+
+function gameOver() {
+  state.playing = false;
+  updateStatus();
+  state.max = Math.max(state.max, state.score);
   try {
-    state.max = localStorage.getItem(STORE_KEY) || 0;
+    localStorage.setItem(STORE_KEY, state.max);
   } catch (e) {
   }
+  physics.gameOver();
+  restart.show();
+  p2view.tween(100).pin('alpha', 0.5);
+  Timeout.reset();
+}
 
-  initGame();
+function updateStatus() {
+  updateScore();
+}
 
-  function initGame() {
-    if (!state.ready) {
-      p2view.tween(100).pin('alpha', 1);
-      restart.hide();
-      state.score = 0, state.combo = 1;
-      updateStatus();
-      physics.initGame();
-      addRow() + addRow() + addRow();
+function updateScore() {
+  myscore.setValue(state.score);
+  maxscore.setValue(state.max);
+}
+
+function nextTime() {
+  return 8000 - 20 * state.score;
+}
+
+function addRow() {
+  var row = [];
+  for (var i = 0; i < 7; i++) {
+    if (Math.random() < 0.1) {
+      row.push({
+        type : 'none'
+      });
+      continue;
     }
-    state.ready = true;
-  }
-
-  function startGame() {
-    initGame();
-    state.ready = false;
-    physics.startGame();
-    Timeout.loop(function() {
-      addRow();
-      return nextTime();
-    }, nextTime());
-    state.playing = true;
-  }
-
-  function gameOver() {
-    state.playing = false;
-    updateStatus();
-    state.max = Math.max(state.max, state.score);
-    try {
-      localStorage.setItem(STORE_KEY, state.max);
-    } catch (e) {
-    }
-    physics.gameOver();
-    restart.show();
-    p2view.tween(100).pin('alpha', 0.5);
-    Timeout.reset();
-  }
-
-  function updateStatus() {
-    updateScore();
-  }
-
-  function updateScore() {
-    myscore.setValue(state.score);
-    maxscore.setValue(state.max);
-  }
-
-  function nextTime() {
-    return 8000 - 20 * state.score;
-  }
-
-  function addRow() {
-    var row = [];
-    for (var i = 0; i < 7; i++) {
-      if (Math.random() < 0.1) {
-        row.push({
-          type : 'none'
-        });
-        continue;
-      }
-      var color = [ 'b', 'r', 'y', 'g', 'p' ][Math.random() * 5 | 0];
-      var one = state.score + 1, four = Math.max(0, state.score * 1.1 - 60);
-      if (Math.random() < one / (four + one)) {
-        row.push({
-          type : 'normal',
-          color : color
-        });
-      } else {
-        row.push({
-          type : 'small',
-          color : color
-        });
-      }
-    }
-    physics.addRow(row);
-  }
-
-  function dropDown(brick) {
-    var random = Math.random();
-    if (random < 0.06) {
-      physics.dropDown(brick, '+');
-    } else if (random < 0.1) {
-      physics.dropDown(brick, '-');
+    var color = [ 'b', 'r', 'y', 'g', 'p' ][Math.random() * 5 | 0];
+    var one = state.score + 1, four = Math.max(0, state.score * 1.1 - 60);
+    if (Math.random() < one / (four + one)) {
+      row.push({
+        type : 'normal',
+        color : color
+      });
+    } else {
+      row.push({
+        type : 'small',
+        color : color
+      });
     }
   }
+  physics.addRow(row);
+}
 
-});
+function dropDown(brick) {
+  var random = Math.random();
+  if (random < 0.06) {
+    physics.dropDown(brick, '+');
+  } else if (random < 0.1) {
+    physics.dropDown(brick, '-');
+  }
+}
+

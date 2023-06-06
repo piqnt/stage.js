@@ -37,6 +37,7 @@
     "test/"
   ],
   "dependencies": {
+    "@vue/compiler-sfc": "^3.3.4",
     "is": "^3.3.0"
   },
   "devDependencies": {

@@ -4,17 +4,17 @@ import bgPng from "./bg.png";
 import map1Png from "./map-1.png";
 import mainPng from "./main.png";
 
-Stage({
+await Stage.atlas({
   name : "bg",
   image : { src : bgPng, ratio : 2 }
 });
 
-Stage({
+await Stage.atlas({
   name : "map-1",
   image : { src : map1Png, ratio : 2 }
 });
 
-Stage({
+await Stage.atlas({
   image : { src : mainPng, ratio : 4 },
   ppu : 16,
   textures : {

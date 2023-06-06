@@ -3,7 +3,6 @@ import bezier from '../common/bezier';
 
 import './textures';
 
-
 var actions = {};
 var levels = {};
 
@@ -195,72 +194,6 @@ function Game(ui) {
   }
 }
 
-Stage(function(stage, container) {
-  var Mouse = Stage.Mouse;
-
-  stage.background('#222222');
-  stage.viewbox(1024, 1024, 'out-crop').pin('align', -0.5);
-  stage.MAX_ELAPSE = 20;
-
-  Stage.image('bg').appendTo(stage).pin('handle', 0.5);
-
-  var map;
-
-  var game = new Game({
-    map : function(l) {
-      map && stage.remove(map);
-      map = Stage.image('map-' + l).pin({
-        'align' : 0,
-        'handle' : 0.5
-      }).appendTo(stage);
-    },
-    plane : function(obj) {
-      var ui = Stage.image('plane').pin('handle', 0.5);
-      ui.on(Mouse.CLICK, function() {
-        return obj.click();
-      });
-      return {
-        add : function() {
-          ui.appendTo(stage);
-        },
-        update : function() {
-          ui.offset(obj).rotate(obj.a);
-        },
-        remove : function(obj) {
-          ui.remove();
-        }
-      };
-    },
-    timeout : function(fn, delay) {
-      stage.timeout(fn, delay);
-    },
-    explode : function(obj) {
-      Stage.image('explode').appendTo(stage).pin({
-        handle : 0.5,
-        offsetX : obj.x,
-        offsetY : obj.y,
-        alpha : 0.1
-      }).tween(100).pin({
-        alpha : 1
-      }).tween(500).pin({
-        alpha : 0
-      }).remove();
-    }
-  });
-
-  stage.on(Mouse.CLICK, function() {
-    game.click();
-  });
-
-  stage.tick(function(t) {
-    game.tick(t);
-    return true;
-  });
-
-  game.start(1);
-
-});
-
 actions.enter = function(enter) {
   return (function(t, item) {
     item.x = enter[0];
@@ -355,3 +288,67 @@ function travel(fn, e) {
     return prog >= 1;
   };
 }
+
+var stage = Stage.mount();
+var Mouse = Stage.Mouse;
+
+stage.background('#222222');
+stage.viewbox(1024, 1024, 'out-crop').pin('align', -0.5);
+stage.MAX_ELAPSE = 20;
+
+Stage.image('bg').appendTo(stage).pin('handle', 0.5);
+
+var map;
+
+var game = new Game({
+  map : function(l) {
+    map && stage.remove(map);
+    map = Stage.image('map-' + l).pin({
+      'align' : 0,
+      'handle' : 0.5
+    }).appendTo(stage);
+  },
+  plane : function(obj) {
+    var ui = Stage.image('plane').pin('handle', 0.5);
+    ui.on(Mouse.CLICK, function() {
+      return obj.click();
+    });
+    return {
+      add : function() {
+        ui.appendTo(stage);
+      },
+      update : function() {
+        ui.offset(obj).rotate(obj.a);
+      },
+      remove : function(obj) {
+        ui.remove();
+      }
+    };
+  },
+  timeout : function(fn, delay) {
+    stage.timeout(fn, delay);
+  },
+  explode : function(obj) {
+    Stage.image('explode').appendTo(stage).pin({
+      handle : 0.5,
+      offsetX : obj.x,
+      offsetY : obj.y,
+      alpha : 0.1
+    }).tween(100).pin({
+      alpha : 1
+    }).tween(500).pin({
+      alpha : 0
+    }).remove();
+  }
+});
+
+stage.on(Mouse.CLICK, function() {
+  game.click();
+});
+
+stage.tick(function(t) {
+  game.tick(t);
+  return true;
+});
+
+game.start(1);

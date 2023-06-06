@@ -891,475 +891,475 @@ function Game() {
 }
 
 // UI
-Stage(function(stage, display) {
-  var Mouse = Stage.Mouse;
+var stage = Stage.mount();
+var display = stage.dom;
+var Mouse = Stage.Mouse;
 
-  var game = new Game();
+var game = new Game();
 
-  stage.on('viewport', function(viewport) {
+stage.on('viewport', function(viewport) {
+  this.pin({
+    width : Conf.width,
+    height : Conf.height * 1.2,
+    scaleMode : 'in-pad',
+    scaleWidth : viewport.width,
+    scaleHeight : viewport.height - TOP,
+    offsetY : TOP
+  });
+});
+
+function open(view) {
+  if (typeof view == 'string') {
+    view = stage[view];
+  }
+  if (open.view === view) {
+    return;
+  }
+  open.view && open.view.trigger('close');
+  open.view = view.trigger('open');
+}
+
+(function() {// home screen
+  var home = stage.home = Stage.create().appendTo(stage).hide().pin({
+    align : 0.5
+  });
+
+  home.on('viewport', function() {
     this.pin({
-      width : Conf.width,
-      height : Conf.height * 1.2,
-      scaleMode : 'in-pad',
-      scaleWidth : viewport.width,
-      scaleHeight : viewport.height - TOP,
-      offsetY : TOP
+      width : this.parent().pin('width'),
+      height : this.parent().pin('height')
+    });
+
+    bg.pin({
+      scaleMode : 'out',
+      scaleWidth : this.pin('width'),
+      scaleHeight : this.pin('height')
     });
   });
 
-  function open(view) {
-    if (typeof view == 'string') {
-      view = stage[view];
-    }
-    if (open.view === view) {
-      return;
-    }
-    open.view && open.view.trigger('close');
-    open.view = view.trigger('open');
+  game.uiUpgrade = function() {
+    refresh();
+  };
+
+  home.on('open', function() {
+    refresh();
+    this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
+  });
+
+  home.on('close', function() {
+    this.tween(200).pin('alpha', 0).hide();
+  });
+
+  var bg = Stage.image('homebg').appendTo(home).pin('align', 0.5);
+
+  var menu = Stage.column(0).appendTo(home).pin('align', 0.5).spacing(4);
+
+  var tombstone = Stage.image('tombstone').appendTo(menu);
+
+  var row = Stage.row().appendTo(menu).spacing(4);
+  var flags = [];
+  for (var i = 0; i < 6; i++) {
+    var flag = Stage.image('play').appendTo(row).on(Mouse.CLICK,
+        startFrom(i - 1));
+    flags.push(flag);
   }
 
-  (function() {// home screen
-    var home = stage.home = Stage.create().appendTo(stage).hide().pin({
-      align : 0.5
-    });
-
-    home.on('viewport', function() {
-      this.pin({
-        width : this.parent().pin('width'),
-        height : this.parent().pin('height')
-      });
-
-      bg.pin({
-        scaleMode : 'out',
-        scaleWidth : this.pin('width'),
-        scaleHeight : this.pin('height')
-      });
-    });
-
-    game.uiUpgrade = function() {
-      refresh();
-    };
-
-    home.on('open', function() {
-      refresh();
-      this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
-    });
-
-    home.on('close', function() {
-      this.tween(200).pin('alpha', 0).hide();
-    });
-
-    var bg = Stage.image('homebg').appendTo(home).pin('align', 0.5);
-
-    var menu = Stage.column(0).appendTo(home).pin('align', 0.5).spacing(4);
-
-    var tombstone = Stage.image('tombstone').appendTo(menu);
-
-    var row = Stage.row().appendTo(menu).spacing(4);
-    var flags = [];
-    for (var i = 0; i < 6; i++) {
-      var flag = Stage.image('play').appendTo(row).on(Mouse.CLICK,
-          startFrom(i - 1));
-      flags.push(flag);
-    }
-
-    function startFrom(flag) {
-      return function() {
-        if (flag == game.data.upgrades.flags) {
-          game.upgrade('flags');
-        } else if (game.startFrom(flag)) {
-          open('play');
-        }
-        return true;
-      };
-      return null;
-    }
-
-    var row = Stage.row().appendTo(menu).spacing(4);
-
-    var upgrades = {};
-
-    for (var i = 0; i < Conf.ups.length; i++) {
-      var name = Conf.ups[i];
-      upgrades[name] = Stage.image('option').appendTo(row).attr('name', name)
-          .on(Mouse.CLICK, function() {
-            game.upgrade(this.attr('name'));
-          });
-    }
-
-    function refresh() {
-      for (var i = 0; i < flags.length; i++) {
-        var button = flags[i].empty().pin('alpha', 0.9);
-        if (i <= game.data.upgrades.flags) {
-          var value = Format.k(game.data.flags[i - 1]);
-          value = i > 0 ? (value || '-') : 0;
-          Stage.string('d').appendTo(button).pin({
-            alignY : 0.5,
-            alignX : 0.45,
-            handle : 0.5,
-            scale : 0.8,
-          }).value(value);
-          continue;
-        }
-        var price = game.price('flags');
-        if (i == game.data.upgrades.flags + 1) {
-          Stage.string('d').value(Format.coin(price)).pin({
-            alignY : 0.5,
-            alignX : 0.4,
-            handle : 0.5,
-            alpha : 0.8,
-            scale : 0.6
-          }).appendTo(button);
-        }
-        for (var child = button.first(); child; child = child.next()) {
-          child.pin('alpha', price <= game.data.stats.coins ? 1 : 0.5);
-        }
+  function startFrom(flag) {
+    return function() {
+      if (flag == game.data.upgrades.flags) {
+        game.upgrade('flags');
+      } else if (game.startFrom(flag)) {
+        open('play');
       }
+      return true;
+    };
+    return null;
+  }
 
-      tombstone.empty();
-      Stage.string('d').appendTo(tombstone).pin({
-        alignX : 0.5,
-        alignY : 1,
-        offsetX : -2,
-        offsetY : -6,
-        alpha : 0.6,
-        scale : 0.8
-      }).value(0 + '-' + Format.k(game.data.stats.dist));
+  var row = Stage.row().appendTo(menu).spacing(4);
 
-      Stage.string('d').appendTo(tombstone).pin({
-        alignX : 0.5,
-        alignY : 0,
-        offsetX : -4,
-        offsetY : 10.5,
-        alpha : 0.5,
-        scale : 0.7
-      }).value(Format.coin(game.data.stats.coins));
+  var upgrades = {};
 
-      for (var i = 0; i < Conf.ups.length; i++) {
-        var name = Conf.ups[i];
-        var price = game.price(name);
-        var level = game.data.upgrades[name] || 0;
-        var button = upgrades[name].empty().pin('alpha', 0.9);
-        // image
-        Stage.image('up_' + name).pin('align', 0.5).appendTo(button);
-        // price
+  for (var i = 0; i < Conf.ups.length; i++) {
+    var name = Conf.ups[i];
+    upgrades[name] = Stage.image('option').appendTo(row).attr('name', name)
+        .on(Mouse.CLICK, function() {
+          game.upgrade(this.attr('name'));
+        });
+  }
+
+  function refresh() {
+    for (var i = 0; i < flags.length; i++) {
+      var button = flags[i].empty().pin('alpha', 0.9);
+      if (i <= game.data.upgrades.flags) {
+        var value = Format.k(game.data.flags[i - 1]);
+        value = i > 0 ? (value || '-') : 0;
+        Stage.string('d').appendTo(button).pin({
+          alignY : 0.5,
+          alignX : 0.45,
+          handle : 0.5,
+          scale : 0.8,
+        }).value(value);
+        continue;
+      }
+      var price = game.price('flags');
+      if (i == game.data.upgrades.flags + 1) {
         Stage.string('d').value(Format.coin(price)).pin({
-          align : 1,
-          offsetX : -1.6,
-          offsetY : -1.4,
+          alignY : 0.5,
+          alignX : 0.4,
+          handle : 0.5,
           alpha : 0.8,
           scale : 0.6
         }).appendTo(button);
-        // level
-        if (level <= 6) {
-          Stage.string('up').pin({
-            alignX : 0,
-            alignY : 0,
-            offsetX : 1.6,
-            offsetY : 1.4,
-            alpha : 0.8,
-            scale : 0.6
-          }).appendTo(button).value(level);
-        }
-
-        for (var child = button.first(); child; child = child.next()) {
-          child.pin('alpha', price <= game.data.stats.coins ? 1 : 0.5);
-        }
+      }
+      for (var child = button.first(); child; child = child.next()) {
+        child.pin('alpha', price <= game.data.stats.coins ? 1 : 0.5);
       }
     }
-  })();
 
-  (function() { // play screen
-    var play = stage.play = Stage.create().appendTo(stage).hide().pin({
-      align : 0.5
-    });
-
-    play.on('viewport', function() {
-      this.pin({
-        width : this.parent().pin('width'),
-        height : this.parent().pin('height')
-      });
-
-      bg.pin({
-        scaleMode : 'out',
-        scaleWidth : this.pin('width'),
-        scaleHeight : this.pin('height')
-      });
-
-      var toph = TOP / this.pin('scaleX') / this.parent().pin('scaleX');
-      top.pin({
-        width : this.pin('width'),
-        height : toph,
-        offsetY : -toph
-      });
-    });
-
-    play.on('open', function() {
-      display.style && (display.style.cursor = 'none');
-      game.start();
-      this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
-    });
-
-    play.on('close', function() {
-      display.style && (display.style.cursor = '');
-      game.end();
-      this.tween(200).pin('alpha', 0).hide();
-    });
-
-    play.tick(function(t) {
-      game.tick(t);
-    }, true);
-
-    var bg = Stage.image('playbg').appendTo(play).pin('align', 0.5);
-
-    var border = Stage.image('border').stretch().appendTo(play).pin({
-      width : Conf.width,
-      height : Conf.height,
-      align : 0.5,
-      alpha : 0.5
-    });
-
-    var top = Stage.image('shadow').stretch().appendTo(play);
-
-    var field = Stage.create().appendTo(play).attr('spy', true).pin({
-      width : Conf.width,
-      height : Conf.height,
+    tombstone.empty();
+    Stage.string('d').appendTo(tombstone).pin({
       alignX : 0.5,
-      alignY : 0.5,
-      handleY : 0
-    });
+      alignY : 1,
+      offsetX : -2,
+      offsetY : -6,
+      alpha : 0.6,
+      scale : 0.8
+    }).value(0 + '-' + Format.k(game.data.stats.dist));
 
-    var energy = Stage.image('energy').stretch().appendTo(play).pin({
-      alignX : 0,
-      alignY : 0,
-      offsetX : 3,
-      offsetY : 2
-    });
-
-    var dist = Stage.string('d').appendTo(play).pin({
-      alignX : 0,
-      alignY : 0,
-      offsetX : 3,
-      offsetY : 9
-    });
-
-    var coins = Stage.string('d').appendTo(play).pin({
-      alignX : 1,
-      alignY : 0,
-      offsetX : -3,
-      offsetY : 3
-    });
-
-    var lastCoin = Stage.column(0.5).appendTo(play).pin({
+    Stage.string('d').appendTo(tombstone).pin({
       alignX : 0.5,
       alignY : 0,
-      offsetX : 10,
-      offsetY : 2
-    }).append(Stage.image(), Stage.string('d').pin('scale', 0.8)).hide();
+      offsetX : -4,
+      offsetY : 10.5,
+      alpha : 0.5,
+      scale : 0.7
+    }).value(Format.coin(game.data.stats.coins));
 
-    var lastCoinTimeout = null;
-
-    function setLastCoin(value, scale) {
-      lastCoin.first().image('coin_' + value).pin('scale', scale || 1);
-      lastCoin.last().value(Format.coin(value)).visible(value > 100);
-
-      lastCoin.show();
-      clearTimeout(lastCoinTimeout);
-      lastCoinTimeout = setTimeout(function() {
-        lastCoin.hide();
-      }, 1000);
-    }
-
-    var cursor = Stage.image('cursor').pin('handle', 0.5).appendTo(field)
-        .hide();
-
-    var l1 = Stage.create().appendTo(field);
-    var l2 = Stage.create().appendTo(field);
-    var l3 = Stage.create().appendTo(field);
-
-    field.on([ Mouse.MOVE, Mouse.START ], function(point) {
-      cursor.offset(point).visible(game.pointer(point.x, point.y));
-    });
-
-    var tilt = Tilt(function(x, y) {
-      // game.move(x, y);
-    });
-
-    function randomize(list) {
-      // shuffle
-      for (var i = list.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = list[i];
-        list[i] = list[j];
-        list[j] = temp;
+    for (var i = 0; i < Conf.ups.length; i++) {
+      var name = Conf.ups[i];
+      var price = game.price(name);
+      var level = game.data.upgrades[name] || 0;
+      var button = upgrades[name].empty().pin('alpha', 0.9);
+      // image
+      Stage.image('up_' + name).pin('align', 0.5).appendTo(button);
+      // price
+      Stage.string('d').value(Format.coin(price)).pin({
+        align : 1,
+        offsetX : -1.6,
+        offsetY : -1.4,
+        alpha : 0.8,
+        scale : 0.6
+      }).appendTo(button);
+      // level
+      if (level <= 6) {
+        Stage.string('up').pin({
+          alignX : 0,
+          alignY : 0,
+          offsetX : 1.6,
+          offsetY : 1.4,
+          alpha : 0.8,
+          scale : 0.6
+        }).appendTo(button).value(level);
       }
-      i = 0;
-      return function() {
-        return list[i++ % list.length];
-      };
+
+      for (var child = button.first(); child; child = child.next()) {
+        child.pin('alpha', price <= game.data.stats.coins ? 1 : 0.5);
+      }
     }
+  }
+})();
 
-    var bgcolors = randomize([ '#f2f2f2', '#e1e1e1', '#ff5a82', '#ff5555',
-        '#db4cf4', '#ff4edc', '#7d7de8', '#a163ff', '#5ba2dd', '#00b2de',
-        '#56dc8b', '#62d962', '#a0f667', '#d6ff36', '#ecff24', '#fffe34',
-        '#ffda3e', '#ffb843' ]);
+(function() { // play screen
+  var play = stage.play = Stage.create().appendTo(stage).hide().pin({
+    align : 0.5
+  });
 
-    game.uiStart = function() {
-      DEBUG && console.log('app start');
-      stage.background(bgcolors());
-      tilt.start();
+  play.on('viewport', function() {
+    this.pin({
+      width : this.parent().pin('width'),
+      height : this.parent().pin('height')
+    });
+
+    bg.pin({
+      scaleMode : 'out',
+      scaleWidth : this.pin('width'),
+      scaleHeight : this.pin('height')
+    });
+
+    var toph = TOP / this.pin('scaleX') / this.parent().pin('scaleX');
+    top.pin({
+      width : this.pin('width'),
+      height : toph,
+      offsetY : -toph
+    });
+  });
+
+  play.on('open', function() {
+    display.style && (display.style.cursor = 'none');
+    game.start();
+    this.pin('alpha', 0).show().tween(200).pin('alpha', 1);
+  });
+
+  play.on('close', function() {
+    display.style && (display.style.cursor = '');
+    game.end();
+    this.tween(200).pin('alpha', 0).hide();
+  });
+
+  play.tick(function(t) {
+    game.tick(t);
+  }, true);
+
+  var bg = Stage.image('playbg').appendTo(play).pin('align', 0.5);
+
+  var border = Stage.image('border').stretch().appendTo(play).pin({
+    width : Conf.width,
+    height : Conf.height,
+    align : 0.5,
+    alpha : 0.5
+  });
+
+  var top = Stage.image('shadow').stretch().appendTo(play);
+
+  var field = Stage.create().appendTo(play).attr('spy', true).pin({
+    width : Conf.width,
+    height : Conf.height,
+    alignX : 0.5,
+    alignY : 0.5,
+    handleY : 0
+  });
+
+  var energy = Stage.image('energy').stretch().appendTo(play).pin({
+    alignX : 0,
+    alignY : 0,
+    offsetX : 3,
+    offsetY : 2
+  });
+
+  var dist = Stage.string('d').appendTo(play).pin({
+    alignX : 0,
+    alignY : 0,
+    offsetX : 3,
+    offsetY : 9
+  });
+
+  var coins = Stage.string('d').appendTo(play).pin({
+    alignX : 1,
+    alignY : 0,
+    offsetX : -3,
+    offsetY : 3
+  });
+
+  var lastCoin = Stage.column(0.5).appendTo(play).pin({
+    alignX : 0.5,
+    alignY : 0,
+    offsetX : 10,
+    offsetY : 2
+  }).append(Stage.image(), Stage.string('d').pin('scale', 0.8)).hide();
+
+  var lastCoinTimeout = null;
+
+  function setLastCoin(value, scale) {
+    lastCoin.first().image('coin_' + value).pin('scale', scale || 1);
+    lastCoin.last().value(Format.coin(value)).visible(value > 100);
+
+    lastCoin.show();
+    clearTimeout(lastCoinTimeout);
+    lastCoinTimeout = setTimeout(function() {
+      lastCoin.hide();
+    }, 1000);
+  }
+
+  var cursor = Stage.image('cursor').pin('handle', 0.5).appendTo(field)
+      .hide();
+
+  var l1 = Stage.create().appendTo(field);
+  var l2 = Stage.create().appendTo(field);
+  var l3 = Stage.create().appendTo(field);
+
+  field.on([ Mouse.MOVE, Mouse.START ], function(point) {
+    cursor.offset(point).visible(game.pointer(point.x, point.y));
+  });
+
+  var tilt = Tilt(function(x, y) {
+    // game.move(x, y);
+  });
+
+  function randomize(list) {
+    // shuffle
+    for (var i = list.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = list[i];
+      list[i] = list[j];
+      list[j] = temp;
+    }
+    i = 0;
+    return function() {
+      return list[i++ % list.length];
     };
+  }
 
-    game.uiMove = function(dist, time, d, t) {
-      cursor.pin('offsetX', cursor.pin('offsetX') + d);
-      field.pin('offsetX', -dist);
+  var bgcolors = randomize([ '#f2f2f2', '#e1e1e1', '#ff5a82', '#ff5555',
+      '#db4cf4', '#ff4edc', '#7d7de8', '#a163ff', '#5ba2dd', '#00b2de',
+      '#56dc8b', '#62d962', '#a0f667', '#d6ff36', '#ecff24', '#fffe34',
+      '#ffda3e', '#ffb843' ]);
+
+  game.uiStart = function() {
+    DEBUG && console.log('app start');
+    stage.background(bgcolors());
+    tilt.start();
+  };
+
+  game.uiMove = function(dist, time, d, t) {
+    cursor.pin('offsetX', cursor.pin('offsetX') + d);
+    field.pin('offsetX', -dist);
+  };
+
+  game.uiEnd = function() {
+    DEBUG && console.log('app end');
+    setTimeout(function() {
+      open('home');
+      stage.background('#000');
+    }, 1000);
+    tilt.stop();
+  };
+
+  game.setDist = function(d) {
+    dist.value(Format.k(d));
+  };
+
+  game.uiEnergy = function(e) {
+    energy.pin('width', (Math.max(0, e) * 100 | 0) / 100 * 40);
+  };
+
+  game.uiCoins = function(n) {
+    coins.value(Format.coin(n));
+  };
+
+  game.uiNewPlayer = function(obj) {
+    DEBUG && console.log('player create');
+    obj.ui = Stage.anim(obj.name).pin('handle', 0.5).appendTo(l3);
+    obj.uiXY = function() {
+      this.ui.offset(this);
     };
-
-    game.uiEnd = function() {
-      DEBUG && console.log('app end');
-      setTimeout(function() {
-        open('home');
-        stage.background('#000');
-      }, 1000);
-      tilt.stop();
+    obj.uiLive = function(anim, callback, freeze) {
+      DEBUG && console.log('player live');
+      this.freeze = !!freeze;
+      !this.freeze && Sound.play('start');
+      // cursor.show();
+      this.ui.frames(this.name).show();
+      !this.freeze && this.ui.play();
+      callback && callback();
     };
-
-    game.setDist = function(d) {
-      dist.value(Format.k(d));
-    };
-
-    game.uiEnergy = function(e) {
-      energy.pin('width', (Math.max(0, e) * 100 | 0) / 100 * 40);
-    };
-
-    game.uiCoins = function(n) {
-      coins.value(Format.coin(n));
-    };
-
-    game.uiNewPlayer = function(obj) {
-      DEBUG && console.log('player create');
-      obj.ui = Stage.anim(obj.name).pin('handle', 0.5).appendTo(l3);
-      obj.uiXY = function() {
-        this.ui.offset(this);
-      };
-      obj.uiLive = function(anim, callback, freeze) {
-        DEBUG && console.log('player live');
-        this.freeze = !!freeze;
-        !this.freeze && Sound.play('start');
-        // cursor.show();
-        this.ui.frames(this.name).show();
-        !this.freeze && this.ui.play();
+    obj.uiDie = function(anim, callback) {
+      DEBUG && console.log('player die');
+      if (anim) {
+        !this.freeze && Sound.play('die');
+        cursor.hide();
+        this.ui.frames('die').play().repeat(1, callback);
+      } else {
         callback && callback();
-      };
-      obj.uiDie = function(anim, callback) {
-        DEBUG && console.log('player die');
-        if (anim) {
-          !this.freeze && Sound.play('die');
-          cursor.hide();
-          this.ui.frames('die').play().repeat(1, callback);
-        } else {
-          callback && callback();
-        }
-      };
+      }
     };
+  };
 
-    game.uiNewDot = function(obj) {
-      obj.ui = Stage.image('dot').pin('handle', 0.5).appendTo(l1).hide();
-      obj.uiEnter = function() {
-        this.ui.show();
-      };
-      obj.uiXY = function() {
-        this.ui.offset(this);
-      };
-      obj.onCheckOut = function() {
-      };
-      obj.onCheckIn = function() {
-        this.ui.hide();
-      };
-      obj.uiRemove = function() {
-        this.ui.remove();
-        this.ui = null;
-      };
-      obj.uiEat = function(e) {
-        Sound.play('dot');
-      };
+  game.uiNewDot = function(obj) {
+    obj.ui = Stage.image('dot').pin('handle', 0.5).appendTo(l1).hide();
+    obj.uiEnter = function() {
+      this.ui.show();
     };
-
-    game.uiNewPower = function(obj) {
-      obj.ui = Stage.image('power').pin('handle', 0.5).appendTo(l2).hide();
-      obj.uiEnter = function() {
-        this.ui.show();
-      };
-      obj.uiXY = function() {
-        this.ui.offset(this);
-      };
-      obj.uiEat = function() {
-        Sound.play('power');
-      };
-      obj.uiRemove = function() {
-        this.ui.remove();
-        this.ui = null;
-      };
+    obj.uiXY = function() {
+      this.ui.offset(this);
     };
-
-    game.uiNewEnemy = function(obj) {
-      obj.ui = Stage.anim(obj.name + '_live').pin('handle', 0.5).appendTo(l2)
-          .hide();
-      obj.uiEnter = function() {
-        this.ui.show();
-      };
-      obj.uiMode = function(weak) {
-        if (weak == 0) {
-          this.ui.frames(this.name + '_live').play();
-        } else if (weak == -1) {
-          this.ui.frames(this.name + '_dead').gotoFrame(0).pin({
-            'alpha' : 0.8,
-            'rotation' : 0
-          });
-        } else if (weak == 1) {
-          this.ui.frames(this.name + '_weak').play();
-        } else {
-          this.ui.frames(this.name + '_mix').play();
-        }
-      };
-      obj.uiXY = function() {
-        this.ui.offset(this);
-        if (this.vx || this.vy) {
-          this.ui.pin('rotation', Math.atan2(this.vx, this.vy) - Math.PI / 2);
-        }
-      };
-      obj.uiRemove = function() {
-        this.ui.remove();
-        this.ui = null;
-      };
-      obj.uiEat = function() {
-        Sound.play('enemy');
-      };
+    obj.onCheckOut = function() {
     };
-
-    game.uiNewCoin = function(obj) {
-      obj.scale = Conf.coinsScale[obj.value] || 1;
-      obj.ui = Stage.image('coin_' + obj.value).pin('handle', 0.5).appendTo(l2)
-          .pin('scale', obj.scale).hide();
-      obj.uiEnter = function() {
-        this.ui.show();
-      };
-      obj.uiXY = function() {
-        this.ui.offset(this);
-      };
-      obj.uiRemove = function() {
-        this.ui.remove();
-        this.ui = null;
-      };
-      obj.uiEat = function() {
-        setLastCoin(this.value, this.scale);
-        Sound.play('coin');
-      };
+    obj.onCheckIn = function() {
+      this.ui.hide();
     };
-  })();
+    obj.uiRemove = function() {
+      this.ui.remove();
+      this.ui = null;
+    };
+    obj.uiEat = function(e) {
+      Sound.play('dot');
+    };
+  };
 
-  open('home');
-});
+  game.uiNewPower = function(obj) {
+    obj.ui = Stage.image('power').pin('handle', 0.5).appendTo(l2).hide();
+    obj.uiEnter = function() {
+      this.ui.show();
+    };
+    obj.uiXY = function() {
+      this.ui.offset(this);
+    };
+    obj.uiEat = function() {
+      Sound.play('power');
+    };
+    obj.uiRemove = function() {
+      this.ui.remove();
+      this.ui = null;
+    };
+  };
+
+  game.uiNewEnemy = function(obj) {
+    obj.ui = Stage.anim(obj.name + '_live').pin('handle', 0.5).appendTo(l2)
+        .hide();
+    obj.uiEnter = function() {
+      this.ui.show();
+    };
+    obj.uiMode = function(weak) {
+      if (weak == 0) {
+        this.ui.frames(this.name + '_live').play();
+      } else if (weak == -1) {
+        this.ui.frames(this.name + '_dead').gotoFrame(0).pin({
+          'alpha' : 0.8,
+          'rotation' : 0
+        });
+      } else if (weak == 1) {
+        this.ui.frames(this.name + '_weak').play();
+      } else {
+        this.ui.frames(this.name + '_mix').play();
+      }
+    };
+    obj.uiXY = function() {
+      this.ui.offset(this);
+      if (this.vx || this.vy) {
+        this.ui.pin('rotation', Math.atan2(this.vx, this.vy) - Math.PI / 2);
+      }
+    };
+    obj.uiRemove = function() {
+      this.ui.remove();
+      this.ui = null;
+    };
+    obj.uiEat = function() {
+      Sound.play('enemy');
+    };
+  };
+
+  game.uiNewCoin = function(obj) {
+    obj.scale = Conf.coinsScale[obj.value] || 1;
+    obj.ui = Stage.image('coin_' + obj.value).pin('handle', 0.5).appendTo(l2)
+        .pin('scale', obj.scale).hide();
+    obj.uiEnter = function() {
+      this.ui.show();
+    };
+    obj.uiXY = function() {
+      this.ui.offset(this);
+    };
+    obj.uiRemove = function() {
+      this.ui.remove();
+      this.ui = null;
+    };
+    obj.uiEat = function() {
+      setLastCoin(this.value, this.scale);
+      Sound.play('coin');
+    };
+  };
+})();
+
+open('home');
 
 function Tilt(fn) {
   var time = 0, active = false;

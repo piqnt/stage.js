@@ -1,11 +1,11 @@
 import Stage from '../../src/index.js';
 
-Stage({
+await Stage.atlas({
   image : { src : './media/bg.png', ratio : 8 },
   name : 'background'
 });
 
-Stage({
+await Stage.atlas({
   image : { src : './media/main.png', ratio : 8 },
   textures : {
     'planet' :    { x : 0,     y : 0,    width : 12,   height : 12 },
@@ -18,7 +18,7 @@ Stage({
   }
 });
 
-Stage({
+await Stage.atlas({
   image : { src : './media/digit.png', ratio : 8 },
   ppu : 8,
   textures : {

@@ -168,62 +168,61 @@ function Game(ui, width, height) {
 
 }
 
-Stage(function(stage) {
+var stage = Stage.mount();
 
-  stage.background('#222222');
-  stage.viewbox(24, 24);
+stage.background('#222222');
+stage.viewbox(24, 24);
 
-  var width = 8, height = 8;
+var width = 8, height = 8;
 
-  var board = Stage.create().appendTo(stage).pin({
-    width : width * 2,
-    height : height * 2,
-    align : 0.5
-  });
-
-  Stage.image('easy').appendTo(board).pin({
-    alignX : 1,
-    alignY : 1,
-    handleY : 0,
-    offsetX : -2,
-    offsetY : 0.5
-  }).on(Mouse.CLICK, function() {
-    game.start(4);
-  });
-
-  Stage.image('hard').appendTo(board).pin({
-    alignX : 1,
-    alignY : 1,
-    handleY : 0,
-    offsetX : 0.1,
-    offsetY : 0.5
-  }).on(Mouse.CLICK, function() {
-    game.start(5);
-  });
-
-  // create game with ui callbacks
-  var game = new Game({
-    tile : function(tile) {
-      var img = Stage.image('tile-' + tile.color).pin({
-        handle : 0.5
-      }).on(Mouse.CLICK, function(point) {
-        game.click(tile);
-      });
-      return {
-        add : function() {
-          img.appendTo(board).offset(tile.i * 2 + 1, tile.j * 2 + 1);
-        },
-        update : function() {
-          img.tween(200).ease('quad-out')
-              .offset(tile.i * 2 + 1, tile.j * 2 + 1);
-        },
-        remove : function() {
-          img.tween(150).alpha(0).remove();
-        }
-      };
-    }
-  }, width, height);
-
-  game.start();
-
+var board = Stage.create().appendTo(stage).pin({
+  width : width * 2,
+  height : height * 2,
+  align : 0.5
 });
+
+Stage.image('easy').appendTo(board).pin({
+  alignX : 1,
+  alignY : 1,
+  handleY : 0,
+  offsetX : -2,
+  offsetY : 0.5
+}).on(Mouse.CLICK, function() {
+  game.start(4);
+});
+
+Stage.image('hard').appendTo(board).pin({
+  alignX : 1,
+  alignY : 1,
+  handleY : 0,
+  offsetX : 0.1,
+  offsetY : 0.5
+}).on(Mouse.CLICK, function() {
+  game.start(5);
+});
+
+// create game with ui callbacks
+var game = new Game({
+  tile : function(tile) {
+    var img = Stage.image('tile-' + tile.color).pin({
+      handle : 0.5
+    }).on(Mouse.CLICK, function(point) {
+      game.click(tile);
+    });
+    return {
+      add : function() {
+        img.appendTo(board).offset(tile.i * 2 + 1, tile.j * 2 + 1);
+      },
+      update : function() {
+        img.tween(200).ease('quad-out')
+            .offset(tile.i * 2 + 1, tile.j * 2 + 1);
+      },
+      remove : function() {
+        img.tween(150).alpha(0).remove();
+      }
+    };
+  }
+}, width, height);
+
+game.start();
+

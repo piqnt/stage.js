@@ -1,5 +1,22 @@
 import Stage from '../../src';
 
+await Stage.atlas({
+  textures : {
+    text : function(d) {
+      d += '';
+      return Stage.canvas(function(ctx) {
+        var ratio = 2;
+        this.size(16, 24, ratio);
+        ctx.scale(ratio, ratio);
+        ctx.font = 'bold 24px monospace';
+        ctx.fillStyle = '#ddd';
+        ctx.textBaseline = 'top';
+        ctx.fillText(d, 0, 1);
+      });
+    }
+  }
+});
+
 function Physics(ui) {
   var pl = planck, Vec2 = pl.Vec2;
 
@@ -350,105 +367,88 @@ function Physics(ui) {
   this.ratio = 64;
 }
 
-Stage(function(stage) {
-  var activeKeys = {};
-  var KEY_NAMES = {
-    32 : 'fire',
-    37 : 'right',
-    38 : 'up',
-    39 : 'left',
-    40 : 'down'
-  };
+var stage = Stage.mount();
+var activeKeys = {};
+var KEY_NAMES = {
+  32 : 'fire',
+  37 : 'right',
+  38 : 'up',
+  39 : 'left',
+  40 : 'down'
+};
 
-  var physics = new Physics({
-    startGame: startGame,
-    endGame: endGame,
-    updateStatus: updateStatus,
-    activeKeys: activeKeys
-  });
-
-  var world, meta, status, gameover;
-
-  stage.background('#222222');
-  stage.on('viewport', function(size) {
-    meta.pin({
-      scaleMode : 'in-pad',
-      scaleWidth : size.width,
-      scaleHeight : size.height
-    });
-    world.pin({
-      scaleMode : 'in-pad',
-      scaleWidth : size.width,
-      scaleHeight : size.height
-    });
-  });
-
-  world = new Stage
-    .planck(physics.world, { ratio: 80 })
-    .pin({
-      handle : -0.5,
-      width : physics.spaceWidth,
-      height : physics.spaceHeight
-    })
-    .appendTo(stage);
-
-  stage.tick(physics.tick);
-
-  meta = Stage
-    .create()
-    .pin({ width : 1000, height : 1000 })
-    .appendTo(stage);
-
-  status = Stage
-    .string('text')
-    .pin({ align : 0, offset : 20 })
-    .appendTo(meta);
-
-  gameover = Stage
-    .string('text')
-    .value('Game Over!')
-    .pin({ align : 0.5, scale : 1.6 })
-    .appendTo(meta);
-
-  function startGame() {
-    gameover.hide();
-  }
-
-  function endGame() {
-    gameover.show();
-  }
-
-  function updateStatus() {
-    status.value('Level: ' + physics.state.level + ' Lives: ' + physics.state.lives);
-  }
-
-  document.onkeydown = function(evt) {
-    if (physics.state.gameover){
-      physics.start();
-    }
-    activeKeys[KEY_NAMES[evt.keyCode]] = true;
-  };
-
-  document.onkeyup = function(evt) {
-    activeKeys[KEY_NAMES[evt.keyCode]] = false;
-  };
-
-  physics.start();
+var physics = new Physics({
+  startGame: startGame,
+  endGame: endGame,
+  updateStatus: updateStatus,
+  activeKeys: activeKeys
 });
 
-Stage({
-  textures : {
-    text : function(d) {
-      d += '';
-      return Stage.canvas(function(ctx) {
-        var ratio = 2;
-        this.size(16, 24, ratio);
-        ctx.scale(ratio, ratio);
-        ctx.font = 'bold 24px monospace';
-        ctx.fillStyle = '#ddd';
-        ctx.textBaseline = 'top';
-        ctx.fillText(d, 0, 1);
-      });
-    }
-  }
+var world, meta, status, gameover;
+
+stage.background('#222222');
+stage.on('viewport', function(size) {
+  meta.pin({
+    scaleMode : 'in-pad',
+    scaleWidth : size.width,
+    scaleHeight : size.height
+  });
+  world.pin({
+    scaleMode : 'in-pad',
+    scaleWidth : size.width,
+    scaleHeight : size.height
+  });
 });
+
+world = new Stage
+  .planck(physics.world, { ratio: 80 })
+  .pin({
+    handle : -0.5,
+    width : physics.spaceWidth,
+    height : physics.spaceHeight
+  })
+  .appendTo(stage);
+
+stage.tick(physics.tick);
+
+meta = Stage
+  .create()
+  .pin({ width : 1000, height : 1000 })
+  .appendTo(stage);
+
+status = Stage
+  .string('text')
+  .pin({ align : 0, offset : 20 })
+  .appendTo(meta);
+
+gameover = Stage
+  .string('text')
+  .value('Game Over!')
+  .pin({ align : 0.5, scale : 1.6 })
+  .appendTo(meta);
+
+function startGame() {
+  gameover.hide();
+}
+
+function endGame() {
+  gameover.show();
+}
+
+function updateStatus() {
+  status.value('Level: ' + physics.state.level + ' Lives: ' + physics.state.lives);
+}
+
+document.onkeydown = function(evt) {
+  if (physics.state.gameover){
+    physics.start();
+  }
+  activeKeys[KEY_NAMES[evt.keyCode]] = true;
+};
+
+document.onkeyup = function(evt) {
+  activeKeys[KEY_NAMES[evt.keyCode]] = false;
+};
+
+physics.start();
+
