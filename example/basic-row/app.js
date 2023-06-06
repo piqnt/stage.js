@@ -12,7 +12,7 @@ var colors = [ 'green', 'blue', 'purple', 'red', 'orange', 'yellow' ];
 
 var row = Stage.row(0.5).appendTo(stage).pin('align', 0.5).spacing(1);
 for (var i = 0; i < colors.length; i++) {
-  Stage.image(colors[i]).appendTo(row).on(Mouse.MOVE, function(point) {
+  Stage.sprite(colors[i]).appendTo(row).on(Mouse.MOVE, function(point) {
     if (this != last) {
       last = this;
       this.tween().pin({

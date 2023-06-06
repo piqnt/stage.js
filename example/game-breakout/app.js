@@ -385,20 +385,20 @@ var pscale = 16;
 
 var physics = new Physics({
   newBall : function(body) {
-    body.ui = Stage.image('ball', 10).pin({
+    body.ui = Stage.sprite('ball', 10).pin({
       'handle' : 0.5,
       'scale' : 1 / pscale
     });
   },
   newDrop : function(body, name) {
-    body.ui = Stage.image(name).pin({
+    body.ui = Stage.sprite(name).pin({
       'handle' : 0.5,
       'scale' : 1 / pscale
     });
     body.ui.dropName = name;
   },
   newBrick : function(body, name) {
-    body.ui = Stage.image('b' + name).pin({
+    body.ui = Stage.sprite('b' + name).pin({
       'handle' : 0.5,
       'scale' : 1 / pscale
     });
@@ -434,13 +434,13 @@ var physics = new Physics({
     }
   },
   miniPaddle : function(body) {
-    body.ui = Stage.image('paddleMini').pin({
+    body.ui = Stage.sprite('paddleMini').pin({
       'handle' : 0.5,
       'scale' : 1 / pscale
     });
   },
   fullPaddle : function(body) {
-    body.ui = Stage.image('paddleFull').pin({
+    body.ui = Stage.sprite('paddleFull').pin({
       'handle' : 0.5,
       'scale' : 1 / pscale
     });
@@ -459,7 +459,7 @@ var physics = new Physics({
   }
 }, width, height);
 
-var board = Stage.image('board').appendTo(stage).pin('handle', 0.5).attr(
+var board = Stage.sprite('board').appendTo(stage).pin('handle', 0.5).attr(
     'spy', true);
 
 var p2view = new Stage.P2(physics.world, {
@@ -490,7 +490,7 @@ var myscore = Stage.string('d_').appendTo(board).pin({
   offsetY : -0.5 * 16
 });
 
-var restart = Stage.image('restart').appendTo(board).pin({
+var restart = Stage.sprite('restart').appendTo(board).pin({
   align : 0.5,
 });
 

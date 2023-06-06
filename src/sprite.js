@@ -2,26 +2,26 @@ import Stage from './core';
 import './pin';
 import './loop';
 
-export default Image;
+export default Sprite;
 
-Stage.image = function(image) {
-  var img = new Image();
-  image && img.image(image);
-  return img;
+Stage.sprite = function(query) {
+  var sprite = new Sprite();
+  query && sprite.image(query);
+  return sprite;
 };
 
-Image._super = Stage;
-Image.prototype = Object.create(Image._super.prototype);
+Sprite._super = Stage;
+Sprite.prototype = Object.create(Sprite._super.prototype);
 
-function Image() {
-  Image._super.call(this);
-  this.label('Image');
+function Sprite() {
+  Sprite._super.call(this);
+  this.label('Sprite');
   this._textures = [];
   this._image = null;
 };
 
-Image.prototype.image = function(image) {
-  this._image = Stage.texture(image).one();
+Sprite.prototype.image = function(query) {
+  this._image = Stage.texture(query).one();
   this.pin('width', this._image ? this._image.width : 0);
   this.pin('height', this._image ? this._image.height : 0);
   this._textures[0] = this._image.pipe();
@@ -29,17 +29,17 @@ Image.prototype.image = function(image) {
   return this;
 };
 
-Image.prototype.tile = function(inner) {
+Sprite.prototype.tile = function(inner) {
   this._repeat(false, inner);
   return this;
 };
 
-Image.prototype.stretch = function(inner) {
+Sprite.prototype.stretch = function(inner) {
   this._repeat(true, inner);
   return this;
 };
 
-Image.prototype._repeat = function(stretch, inner) {
+Sprite.prototype._repeat = function(stretch, inner) {
   var self = this;
   this.untick(this._repeatTicker);
   this.tick(this._repeatTicker = function() {

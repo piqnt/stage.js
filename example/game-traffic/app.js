@@ -296,20 +296,20 @@ stage.background('#222222');
 stage.viewbox(1024, 1024, 'out-crop').pin('align', -0.5);
 stage.MAX_ELAPSE = 20;
 
-Stage.image('bg').appendTo(stage).pin('handle', 0.5);
+Stage.sprite('bg').appendTo(stage).pin('handle', 0.5);
 
 var map;
 
 var game = new Game({
   map : function(l) {
     map && stage.remove(map);
-    map = Stage.image('map-' + l).pin({
+    map = Stage.sprite('map-' + l).pin({
       'align' : 0,
       'handle' : 0.5
     }).appendTo(stage);
   },
   plane : function(obj) {
-    var ui = Stage.image('plane').pin('handle', 0.5);
+    var ui = Stage.sprite('plane').pin('handle', 0.5);
     ui.on(Mouse.CLICK, function() {
       return obj.click();
     });
@@ -329,7 +329,7 @@ var game = new Game({
     stage.timeout(fn, delay);
   },
   explode : function(obj) {
-    Stage.image('explode').appendTo(stage).pin({
+    Stage.sprite('explode').appendTo(stage).pin({
       handle : 0.5,
       offsetX : obj.x,
       offsetY : obj.y,

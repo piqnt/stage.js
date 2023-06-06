@@ -13,7 +13,7 @@ var Math = Stage.Math, Mouse = Stage.Mouse, PI = Math.PI;
 stage.viewbox(1000, 1000).pin('handle', -0.5);
 
 Stage
-  .image('pinwheel')
+  .sprite('pinwheel')
   .appendTo(stage)
   .pin('handle', 0.5).on(
     Mouse.CLICK,

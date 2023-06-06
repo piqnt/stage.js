@@ -1,9 +1,9 @@
 import stats from './util/stats';
 import math from './util/math';
 
-function Texture(image, ratio) {
-  if (typeof image === 'object') {
-    this.src(image, ratio);
+function Texture(texture, ratio) {
+  if (typeof texture === 'object') {
+    this.src(texture, ratio);
   }
 }
 
@@ -12,20 +12,20 @@ Texture.prototype.pipe = function() {
 };
 
 /**
- * Signatures: (image), (x, y, w, h), (w, h)
+ * Signatures: (texture), (x, y, w, h), (w, h)
  */
 Texture.prototype.src = function(x, y, w, h) {
   if (typeof x === 'object') {
-    var image = x, ratio = y || 1;
+    var drawable = x, ratio = y || 1;
 
-    this._image = image;
+    this._image = drawable;
     this._sx = this._dx = 0;
     this._sy = this._dy = 0;
-    this._sw = this._dw = image.width / ratio;
-    this._sh = this._dh = image.height / ratio;
+    this._sw = this._dw = drawable.width / ratio;
+    this._sh = this._dh = drawable.height / ratio;
 
-    this.width = image.width / ratio;
-    this.height = image.height / ratio;
+    this.width = drawable.width / ratio;
+    this.height = drawable.height / ratio;
 
     this.ratio = ratio;
 
@@ -58,8 +58,8 @@ Texture.prototype.dest = function(x, y, w, h) {
 };
 
 Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
-  var image = this._image;
-  if (image === null || typeof image !== 'object') {
+  var drawable = this._image;
+  if (drawable === null || typeof drawable !== 'object') {
     return;
   }
 
@@ -85,17 +85,17 @@ Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
   sx *= ratio, sy *= ratio, sw *= ratio, sh *= ratio;
 
   try {
-    if (typeof image.draw === 'function') {
-      image.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
+    if (typeof drawable.draw === 'function') {
+      drawable.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
     } else {
       stats.draw++;
-      context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
+      context.drawImage(drawable, sx, sy, sw, sh, dx, dy, dw, dh);
     }
   } catch (ex) {
-    if (!image._draw_failed) {
-      console.log('Unable to draw: ', image);
+    if (!drawable._draw_failed) {
+      console.log('Unable to draw: ', drawable);
       console.log(ex);
-      image._draw_failed = true;
+      drawable._draw_failed = true;
     }
   }
 };

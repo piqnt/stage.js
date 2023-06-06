@@ -950,16 +950,16 @@ function open(view) {
     this.tween(200).pin('alpha', 0).hide();
   });
 
-  var bg = Stage.image('homebg').appendTo(home).pin('align', 0.5);
+  var bg = Stage.sprite('homebg').appendTo(home).pin('align', 0.5);
 
   var menu = Stage.column(0).appendTo(home).pin('align', 0.5).spacing(4);
 
-  var tombstone = Stage.image('tombstone').appendTo(menu);
+  var tombstone = Stage.sprite('tombstone').appendTo(menu);
 
   var row = Stage.row().appendTo(menu).spacing(4);
   var flags = [];
   for (var i = 0; i < 6; i++) {
-    var flag = Stage.image('play').appendTo(row).on(Mouse.CLICK,
+    var flag = Stage.sprite('play').appendTo(row).on(Mouse.CLICK,
         startFrom(i - 1));
     flags.push(flag);
   }
@@ -982,7 +982,7 @@ function open(view) {
 
   for (var i = 0; i < Conf.ups.length; i++) {
     var name = Conf.ups[i];
-    upgrades[name] = Stage.image('option').appendTo(row).attr('name', name)
+    upgrades[name] = Stage.sprite('option').appendTo(row).attr('name', name)
         .on(Mouse.CLICK, function() {
           game.upgrade(this.attr('name'));
         });
@@ -1041,8 +1041,8 @@ function open(view) {
       var price = game.price(name);
       var level = game.data.upgrades[name] || 0;
       var button = upgrades[name].empty().pin('alpha', 0.9);
-      // image
-      Stage.image('up_' + name).pin('align', 0.5).appendTo(button);
+      // sprite
+      Stage.sprite('up_' + name).pin('align', 0.5).appendTo(button);
       // price
       Stage.string('d').value(Format.coin(price)).pin({
         align : 1,
@@ -1111,16 +1111,16 @@ function open(view) {
     game.tick(t);
   }, true);
 
-  var bg = Stage.image('playbg').appendTo(play).pin('align', 0.5);
+  var bg = Stage.sprite('playbg').appendTo(play).pin('align', 0.5);
 
-  var border = Stage.image('border').stretch().appendTo(play).pin({
+  var border = Stage.sprite('border').stretch().appendTo(play).pin({
     width : Conf.width,
     height : Conf.height,
     align : 0.5,
     alpha : 0.5
   });
 
-  var top = Stage.image('shadow').stretch().appendTo(play);
+  var top = Stage.sprite('shadow').stretch().appendTo(play);
 
   var field = Stage.create().appendTo(play).attr('spy', true).pin({
     width : Conf.width,
@@ -1130,7 +1130,7 @@ function open(view) {
     handleY : 0
   });
 
-  var energy = Stage.image('energy').stretch().appendTo(play).pin({
+  var energy = Stage.sprite('energy').stretch().appendTo(play).pin({
     alignX : 0,
     alignY : 0,
     offsetX : 3,
@@ -1156,12 +1156,12 @@ function open(view) {
     alignY : 0,
     offsetX : 10,
     offsetY : 2
-  }).append(Stage.image(), Stage.string('d').pin('scale', 0.8)).hide();
+  }).append(Stage.sprite(), Stage.string('d').pin('scale', 0.8)).hide();
 
   var lastCoinTimeout = null;
 
   function setLastCoin(value, scale) {
-    lastCoin.first().image('coin_' + value).pin('scale', scale || 1);
+    lastCoin.first().sprite('coin_' + value).pin('scale', scale || 1);
     lastCoin.last().value(Format.coin(value)).visible(value > 100);
 
     lastCoin.show();
@@ -1171,7 +1171,7 @@ function open(view) {
     }, 1000);
   }
 
-  var cursor = Stage.image('cursor').pin('handle', 0.5).appendTo(field)
+  var cursor = Stage.sprite('cursor').pin('handle', 0.5).appendTo(field)
       .hide();
 
   var l1 = Stage.create().appendTo(field);
@@ -1265,7 +1265,7 @@ function open(view) {
   };
 
   game.uiNewDot = function(obj) {
-    obj.ui = Stage.image('dot').pin('handle', 0.5).appendTo(l1).hide();
+    obj.ui = Stage.sprite('dot').pin('handle', 0.5).appendTo(l1).hide();
     obj.uiEnter = function() {
       this.ui.show();
     };
@@ -1287,7 +1287,7 @@ function open(view) {
   };
 
   game.uiNewPower = function(obj) {
-    obj.ui = Stage.image('power').pin('handle', 0.5).appendTo(l2).hide();
+    obj.ui = Stage.sprite('power').pin('handle', 0.5).appendTo(l2).hide();
     obj.uiEnter = function() {
       this.ui.show();
     };
@@ -1340,7 +1340,7 @@ function open(view) {
 
   game.uiNewCoin = function(obj) {
     obj.scale = Conf.coinsScale[obj.value] || 1;
-    obj.ui = Stage.image('coin_' + obj.value).pin('handle', 0.5).appendTo(l2)
+    obj.ui = Stage.sprite('coin_' + obj.value).pin('handle', 0.5).appendTo(l2)
         .pin('scale', obj.scale).hide();
     obj.uiEnter = function() {
       this.ui.show();

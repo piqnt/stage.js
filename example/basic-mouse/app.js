@@ -21,7 +21,7 @@ Stage.anim('rainbow').appendTo(row).on(Mouse.END, function(point) {
   this.moveFrame(1);
 }).label('end');
 
-var cursor = Stage.image('circle').pin({
+var cursor = Stage.sprite('circle').pin({
   handle : 0.5
 }).appendTo(stage);
 

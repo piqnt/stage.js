@@ -157,8 +157,8 @@ PlanckViewer.prototype.drawJoint = function(joint, options) {
     ctx.stroke();
   });
 
-  var image = Stage.image(texture).stretch();
-  return image;
+  var sprite = Stage.sprite(texture).stretch();
+  return sprite;
 };
 
 PlanckViewer.prototype.drawCircle = function(shape, options) {
@@ -186,9 +186,9 @@ PlanckViewer.prototype.drawCircle = function(shape, options) {
     ctx.strokeStyle = options.strokeStyle;
     ctx.stroke();
   });
-  var image = Stage.image(texture)
+  var sprite = Stage.sprite(texture)
     .offset(shape.m_p.x - cx, shape.m_p.y - cy);
-  var node = Stage.create().append(image);
+  var node = Stage.create().append(sprite);
   return node;
 };
 
@@ -222,10 +222,10 @@ PlanckViewer.prototype.drawEdge = function(edge, options) {
   var minX = Math.min(v1.x, v2.x);
   var minY = Math.min(v1.y, v2.y);
 
-  var image = Stage.image(texture);
-  image.rotate(Math.atan2(dy, dx));
-  image.offset(minX - lw, minY - lw);
-  var node = Stage.create().append(image);
+  var sprite = Stage.sprite(texture);
+  sprite.rotate(Math.atan2(dy, dx));
+  sprite.offset(minX - lw, minY - lw);
+  var node = Stage.create().append(sprite);
   return node;
 };
 
@@ -284,9 +284,9 @@ PlanckViewer.prototype.drawPolygon = function(shape, options) {
     ctx.stroke();
   });
 
-  var image = Stage.image(texture);
-  image.offset(minX - lw, minY - lw);
-  var node = Stage.create().append(image);
+  var sprite = Stage.sprite(texture);
+  sprite.offset(minX - lw, minY - lw);
+  var node = Stage.create().append(sprite);
   return node;
 };
 
@@ -346,8 +346,8 @@ PlanckViewer.prototype.drawChain = function(shape, options) {
     ctx.stroke();
   });
 
-  var image = Stage.image(texture);
-  image.offset(minX - lw, minY - lw);
-  var node = Stage.create().append(image);
+  var sprite = Stage.sprite(texture);
+  sprite.offset(minX - lw, minY - lw);
+  var node = Stage.create().append(sprite);
   return node;
 };

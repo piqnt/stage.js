@@ -1,4 +1,10 @@
 "use strict";
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
 }
@@ -278,130 +284,12 @@ is.bigint = function(value) {
 };
 var is_1 = is;
 const is$1 = /* @__PURE__ */ getDefaultExportFromCjs(is_1);
-const stats = {};
-function _await() {
-  var count = 0;
-  function fork(fn, n) {
-    count += n = typeof n === "number" && n >= 1 ? n : 1;
-    return function() {
-      fn && fn.apply(this, arguments);
-      if (n > 0) {
-        n--, count--, call();
-      }
-    };
-  }
-  var then = [];
-  function call() {
-    if (count === 0) {
-      while (then.length) {
-        setTimeout(then.shift(), 0);
-      }
-    }
-  }
-  fork.then = function(fn) {
-    if (count === 0) {
-      setTimeout(fn, 0);
-    } else {
-      then.push(fn);
-    }
-  };
-  return fork;
-}
-stats.create = 0;
-function Stage(arg) {
-  if (!(this instanceof Stage)) {
-    if (is$1.fn(arg)) {
-      return Stage.app.apply(Stage, arguments);
-    } else if (is$1.object(arg)) {
-      return Stage.atlas.apply(Stage, arguments);
-    } else {
-      return arg;
-    }
-  }
-  stats.create++;
-  for (var i = 0; i < _init.length; i++) {
-    _init[i].call(this);
-  }
-}
-var _init = [];
-Stage._init = function(fn) {
-  _init.push(fn);
-};
-var _load = [];
-Stage._load = function(fn) {
-  _load.push(fn);
-};
-var _config = {};
-Stage.config = function() {
-  if (arguments.length === 1 && is$1.string(arguments[0])) {
-    return _config[arguments[0]];
-  }
-  if (arguments.length === 1 && is$1.object(arguments[0])) {
-    Object.assign(_config, arguments[0]);
-  }
-  if (arguments.length === 2 && is$1.string(arguments[0])) {
-    _config[arguments[1]];
-  }
-};
-var _app_queue = [];
-var _stages = [];
-var _loaded = false;
-var _paused = false;
-Stage.app = function(app, opts) {
-  if (!_loaded) {
-    _app_queue.push(arguments);
-    return;
-  }
-  console.log("Creating app...");
-  var loader = Stage.config("app-loader");
-  loader(function(stage, canvas) {
-    console.log("Initing app...");
-    for (var i = 0; i < _load.length; i++) {
-      _load[i].call(this, stage, canvas);
-    }
-    app(stage, canvas);
-    _stages.push(stage);
-    console.log("Starting app...");
-    stage.start();
-  }, opts);
-};
-var loading = _await();
-Stage.preload = function(load) {
-  if (typeof load !== "function") {
-    return;
-  }
-  load(loading());
-};
-Stage.start = function(config) {
-  console.log("Starting...");
-  Stage.config(config);
-  loading.then(function() {
-    console.log("Loading apps...");
-    _loaded = true;
-    while (_app_queue.length) {
-      var args = _app_queue.shift();
-      Stage.app.apply(Stage, args);
-    }
-  });
-};
-Stage.pause = function() {
-  if (!_paused) {
-    _paused = true;
-    for (var i = _stages.length - 1; i >= 0; i--) {
-      _stages[i].pause();
-    }
-  }
-};
-Stage.resume = function() {
-  if (_paused) {
-    _paused = false;
-    for (var i = _stages.length - 1; i >= 0; i--) {
-      _stages[i].resume();
-    }
-  }
-};
-Stage.create = function() {
-  return new Stage();
+const stats = {
+  create: 0,
+  tick: 0,
+  node: 0,
+  draw: 0,
+  fps: 0
 };
 function Matrix(a, b, c, d, e, f) {
   this.reset(a, b, c, d, e, f);
@@ -544,299 +432,508 @@ Matrix.prototype.mapY = function(x, y) {
     y = x.y, x = x.x;
   return this.b * x + this.d * y + this.f;
 };
-var native = Math;
-const math = Object.create(Math);
-math.random = function(min, max) {
-  if (typeof min === "undefined") {
-    max = 1, min = 0;
-  } else if (typeof max === "undefined") {
-    max = min, min = 0;
-  }
-  return min == max ? min : native.random() * (max - min) + min;
-};
-math.rotate = function(num, min, max) {
-  if (typeof min === "undefined") {
-    max = 1, min = 0;
-  } else if (typeof max === "undefined") {
-    max = min, min = 0;
-  }
-  if (max > min) {
-    num = (num - min) % (max - min);
-    return num + (num < 0 ? max : min);
-  } else {
-    num = (num - max) % (min - max);
-    return num + (num <= 0 ? min : max);
-  }
-};
-math.limit = function(num, min, max) {
-  if (num < min) {
-    return min;
-  } else if (num > max) {
-    return max;
-  } else {
-    return num;
-  }
-};
-math.length = function(x, y) {
-  return native.sqrt(x * x + y * y);
-};
-function Texture(image, ratio) {
-  if (typeof image === "object") {
-    this.src(image, ratio);
-  }
-}
-Texture.prototype.pipe = function() {
-  return new Texture(this);
-};
-Texture.prototype.src = function(x, y, w, h) {
-  if (typeof x === "object") {
-    var image = x, ratio = y || 1;
-    this._image = image;
-    this._sx = this._dx = 0;
-    this._sy = this._dy = 0;
-    this._sw = this._dw = image.width / ratio;
-    this._sh = this._dh = image.height / ratio;
-    this.width = image.width / ratio;
-    this.height = image.height / ratio;
-    this.ratio = ratio;
-  } else {
-    if (typeof w === "undefined") {
-      w = x, h = y;
-    } else {
-      this._sx = x, this._sy = y;
-    }
-    this._sw = this._dw = w;
-    this._sh = this._dh = h;
-    this.width = w;
-    this.height = h;
-  }
-  return this;
-};
-Texture.prototype.dest = function(x, y, w, h) {
-  this._dx = x, this._dy = y;
-  this._dx = x, this._dy = y;
-  if (typeof w !== "undefined") {
-    this._dw = w, this._dh = h;
-    this.width = w, this.height = h;
-  }
-  return this;
-};
-Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
-  var image = this._image;
-  if (image === null || typeof image !== "object") {
-    return;
-  }
-  var sx = this._sx, sy = this._sy;
-  var sw = this._sw, sh = this._sh;
-  var dx = this._dx, dy = this._dy;
-  var dw = this._dw, dh = this._dh;
-  if (typeof x3 !== "undefined") {
-    x1 = math.limit(x1, 0, this._sw), x2 = math.limit(x2, 0, this._sw - x1);
-    y1 = math.limit(y1, 0, this._sh), y2 = math.limit(y2, 0, this._sh - y1);
-    sx += x1, sy += y1, sw = x2, sh = y2;
-    dx = x3, dy = y3, dw = x4, dh = y4;
-  } else if (typeof x2 !== "undefined") {
-    dx = x1, dy = y1, dw = x2, dh = y2;
-  } else if (typeof x1 !== "undefined") {
-    dw = x1, dh = y1;
-  }
-  var ratio = this.ratio || 1;
-  sx *= ratio, sy *= ratio, sw *= ratio, sh *= ratio;
-  try {
-    if (typeof image.draw === "function") {
-      image.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
-    } else {
-      stats.draw++;
-      context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
-    }
-  } catch (ex) {
-    if (!image._draw_failed) {
-      console.log("Unable to draw: ", image);
-      console.log(ex);
-      image._draw_failed = true;
-    }
-  }
-};
-var _atlases_map = {};
-var _atlases_arr = [];
-Stage.atlas = function(def) {
-  var atlas = is$1.fn(def.draw) ? def : new Atlas(def);
-  if (def.name) {
-    _atlases_map[def.name] = atlas;
-  }
-  _atlases_arr.push(atlas);
-  deprecated(def, "imagePath");
-  deprecated(def, "imageRatio");
-  var url = def.imagePath;
-  var ratio = def.imageRatio || 1;
-  if (is$1.string(def.image)) {
-    url = def.image;
-  } else if (is$1.hash(def.image)) {
-    url = def.image.src || def.image.url;
-    ratio = def.image.ratio || ratio;
-  }
-  url && Stage.preload(function(done) {
-    console.log("Loading atlas: " + url);
-    var imageloader = Stage.config("image-loader");
-    imageloader(url, function(image) {
-      console.log("Image loaded: " + url);
-      atlas.src(image, ratio);
-      done();
-    }, function(err) {
-      console.log("Error loading atlas: " + url, err);
-      done();
-    });
-  });
-  return atlas;
-};
-Atlas._super = Texture;
-Atlas.prototype = Object.create(Atlas._super.prototype);
-function Atlas(def) {
-  Atlas._super.call(this);
-  var atlas = this;
-  deprecated(def, "filter");
-  deprecated(def, "cutouts");
-  deprecated(def, "sprites");
-  deprecated(def, "factory");
-  var map = def.map || def.filter;
-  var ppu = def.ppu || def.ratio || 1;
-  var trim = def.trim || 0;
-  var textures = def.textures;
-  var factory = def.factory;
-  var cutouts = def.cutouts || def.sprites;
-  function make(def2) {
-    if (!def2 || is$1.fn(def2.draw)) {
-      return def2;
-    }
-    def2 = Object.assign({}, def2);
-    if (is$1.fn(map)) {
-      def2 = map(def2);
-    }
-    if (ppu != 1) {
-      def2.x *= ppu, def2.y *= ppu;
-      def2.width *= ppu, def2.height *= ppu;
-      def2.top *= ppu, def2.bottom *= ppu;
-      def2.left *= ppu, def2.right *= ppu;
-    }
-    if (trim != 0) {
-      def2.x += trim, def2.y += trim;
-      def2.width -= 2 * trim, def2.height -= 2 * trim;
-      def2.top -= trim, def2.bottom -= trim;
-      def2.left -= trim, def2.right -= trim;
-    }
-    var texture = atlas.pipe();
-    texture.top = def2.top, texture.bottom = def2.bottom;
-    texture.left = def2.left, texture.right = def2.right;
-    texture.src(def2.x, def2.y, def2.width, def2.height);
-    return texture;
-  }
-  function find(query) {
-    if (textures) {
-      if (is$1.fn(textures)) {
-        return textures(query);
-      } else if (is$1.hash(textures)) {
-        return textures[query];
-      }
-    }
-    if (cutouts) {
-      var result = null, n = 0;
-      for (var i = 0; i < cutouts.length; i++) {
-        if (string.startsWith(cutouts[i].name, query)) {
-          if (n === 0) {
-            result = cutouts[i];
-          } else if (n === 1) {
-            result = [result, cutouts[i]];
-          } else {
-            result.push(cutouts[i]);
-          }
-          n++;
-        }
-      }
-      if (n === 0 && is$1.fn(factory)) {
-        result = function(subquery) {
-          return factory(query + (subquery ? subquery : ""));
-        };
-      }
-      return result;
-    }
-  }
-  this.select = function(query) {
-    if (!query) {
-      return new Selection(this.pipe());
-    }
-    var found = find(query);
-    if (found) {
-      return new Selection(found, find, make);
-    }
-  };
-}
-var nfTexture = new Texture();
-nfTexture.x = nfTexture.y = nfTexture.width = nfTexture.height = 0;
-nfTexture.pipe = nfTexture.src = nfTexture.dest = function() {
-  return this;
-};
-nfTexture.draw = function() {
-};
-var nfSelection = new Selection(nfTexture);
-function Selection(result, find, make) {
-  function link(result2, subquery) {
-    if (!result2) {
-      return nfTexture;
-    } else if (is$1.fn(result2.draw)) {
-      return result2;
-    } else if (is$1.hash(result2) && is$1.number(result2.width) && is$1.number(result2.height) && is$1.fn(make)) {
-      return make(result2);
-    } else if (is$1.hash(result2) && is$1.defined(subquery)) {
-      return link(result2[subquery]);
-    } else if (is$1.fn(result2)) {
-      return link(result2(subquery));
-    } else if (is$1.array(result2)) {
-      return link(result2[0]);
-    } else if (is$1.string(result2) && is$1.fn(find)) {
-      return link(find(result2));
-    }
-  }
-  this.one = function(subquery) {
-    return link(result, subquery);
-  };
-  this.array = function(arr) {
-    var array = is$1.array(arr) ? arr : [];
-    if (is$1.array(result)) {
-      for (var i = 0; i < result.length; i++) {
-        array[i] = link(result[i]);
-      }
-    } else {
-      array[0] = link(result);
-    }
-    return array;
-  };
-}
-Stage.texture = function(query) {
-  if (!is$1.string(query)) {
-    return new Selection(query);
-  }
-  var result = null, atlas, i;
-  if ((i = query.indexOf(":")) > 0 && query.length > i + 1) {
-    atlas = _atlases_map[query.slice(0, i)];
-    result = atlas && atlas.select(query.slice(i + 1));
-  }
-  if (!result && (atlas = _atlases_map[query])) {
-    result = atlas.select();
-  }
-  for (i = 0; !result && i < _atlases_arr.length; i++) {
-    result = _atlases_arr[i].select(query);
-  }
-  if (!result) {
-    console.error("Texture not found: " + query);
-    result = nfSelection;
-  }
-  return result;
-};
-function deprecated(hash, name, msg) {
-  if (name in hash)
-    console.log(msg ? msg.replace("%name", name) : "'" + name + "' field of texture atlas is deprecated.");
-}
 var iid$1 = 0;
+function Pin(owner) {
+  this._owner = owner;
+  this._parent = null;
+  this._relativeMatrix = new Matrix();
+  this._absoluteMatrix = new Matrix();
+  this.reset();
+}
+Pin.prototype.reset = function() {
+  this._textureAlpha = 1;
+  this._alpha = 1;
+  this._width = 0;
+  this._height = 0;
+  this._scaleX = 1;
+  this._scaleY = 1;
+  this._skewX = 0;
+  this._skewY = 0;
+  this._rotation = 0;
+  this._pivoted = false;
+  this._pivotX = null;
+  this._pivotY = null;
+  this._handled = false;
+  this._handleX = 0;
+  this._handleY = 0;
+  this._aligned = false;
+  this._alignX = 0;
+  this._alignY = 0;
+  this._offsetX = 0;
+  this._offsetY = 0;
+  this._boxX = 0;
+  this._boxY = 0;
+  this._boxWidth = this._width;
+  this._boxHeight = this._height;
+  this._ts_translate = ++iid$1;
+  this._ts_transform = ++iid$1;
+  this._ts_matrix = ++iid$1;
+};
+Pin.prototype._update = function() {
+  this._parent = this._owner._parent && this._owner._parent._pin;
+  if (this._handled && this._mo_handle != this._ts_transform) {
+    this._mo_handle = this._ts_transform;
+    this._ts_translate = ++iid$1;
+  }
+  if (this._aligned && this._parent && this._mo_align != this._parent._ts_transform) {
+    this._mo_align = this._parent._ts_transform;
+    this._ts_translate = ++iid$1;
+  }
+  return this;
+};
+Pin.prototype.toString = function() {
+  return this._owner + " (" + (this._parent ? this._parent._owner : null) + ")";
+};
+Pin.prototype.absoluteMatrix = function() {
+  this._update();
+  var ts = Math.max(
+    this._ts_transform,
+    this._ts_translate,
+    this._parent ? this._parent._ts_matrix : 0
+  );
+  if (this._mo_abs == ts) {
+    return this._absoluteMatrix;
+  }
+  this._mo_abs = ts;
+  var abs2 = this._absoluteMatrix;
+  abs2.reset(this.relativeMatrix());
+  this._parent && abs2.concat(this._parent._absoluteMatrix);
+  this._ts_matrix = ++iid$1;
+  return abs2;
+};
+Pin.prototype.relativeMatrix = function() {
+  this._update();
+  var ts = Math.max(
+    this._ts_transform,
+    this._ts_translate,
+    this._parent ? this._parent._ts_transform : 0
+  );
+  if (this._mo_rel == ts) {
+    return this._relativeMatrix;
+  }
+  this._mo_rel = ts;
+  var rel2 = this._relativeMatrix;
+  rel2.identity();
+  if (this._pivoted) {
+    rel2.translate(-this._pivotX * this._width, -this._pivotY * this._height);
+  }
+  rel2.scale(this._scaleX, this._scaleY);
+  rel2.skew(this._skewX, this._skewY);
+  rel2.rotate(this._rotation);
+  if (this._pivoted) {
+    rel2.translate(this._pivotX * this._width, this._pivotY * this._height);
+  }
+  if (this._pivoted) {
+    this._boxX = 0;
+    this._boxY = 0;
+    this._boxWidth = this._width;
+    this._boxHeight = this._height;
+  } else {
+    var p, q;
+    if (rel2.a > 0 && rel2.c > 0 || rel2.a < 0 && rel2.c < 0) {
+      p = 0, q = rel2.a * this._width + rel2.c * this._height;
+    } else {
+      p = rel2.a * this._width, q = rel2.c * this._height;
+    }
+    if (p > q) {
+      this._boxX = q;
+      this._boxWidth = p - q;
+    } else {
+      this._boxX = p;
+      this._boxWidth = q - p;
+    }
+    if (rel2.b > 0 && rel2.d > 0 || rel2.b < 0 && rel2.d < 0) {
+      p = 0, q = rel2.b * this._width + rel2.d * this._height;
+    } else {
+      p = rel2.b * this._width, q = rel2.d * this._height;
+    }
+    if (p > q) {
+      this._boxY = q;
+      this._boxHeight = p - q;
+    } else {
+      this._boxY = p;
+      this._boxHeight = q - p;
+    }
+  }
+  this._x = this._offsetX;
+  this._y = this._offsetY;
+  this._x -= this._boxX + this._handleX * this._boxWidth;
+  this._y -= this._boxY + this._handleY * this._boxHeight;
+  if (this._aligned && this._parent) {
+    this._parent.relativeMatrix();
+    this._x += this._alignX * this._parent._width;
+    this._y += this._alignY * this._parent._height;
+  }
+  rel2.translate(this._x, this._y);
+  return this._relativeMatrix;
+};
+Pin.prototype.get = function(key) {
+  if (typeof getters[key] === "function") {
+    return getters[key](this);
+  }
+};
+Pin.prototype.set = function(a, b) {
+  if (typeof a === "string") {
+    if (typeof setters[a] === "function" && typeof b !== "undefined") {
+      setters[a](this, b);
+    }
+  } else if (typeof a === "object") {
+    for (b in a) {
+      if (typeof setters[b] === "function" && typeof a[b] !== "undefined") {
+        setters[b](this, a[b], a);
+      }
+    }
+  }
+  if (this._owner) {
+    this._owner._ts_pin = ++iid$1;
+    this._owner.touch();
+  }
+  return this;
+};
+var getters = {
+  alpha: function(pin) {
+    return pin._alpha;
+  },
+  textureAlpha: function(pin) {
+    return pin._textureAlpha;
+  },
+  width: function(pin) {
+    return pin._width;
+  },
+  height: function(pin) {
+    return pin._height;
+  },
+  boxWidth: function(pin) {
+    return pin._boxWidth;
+  },
+  boxHeight: function(pin) {
+    return pin._boxHeight;
+  },
+  // scale : function(pin) {
+  // },
+  scaleX: function(pin) {
+    return pin._scaleX;
+  },
+  scaleY: function(pin) {
+    return pin._scaleY;
+  },
+  // skew : function(pin) {
+  // },
+  skewX: function(pin) {
+    return pin._skewX;
+  },
+  skewY: function(pin) {
+    return pin._skewY;
+  },
+  rotation: function(pin) {
+    return pin._rotation;
+  },
+  // pivot : function(pin) {
+  // },
+  pivotX: function(pin) {
+    return pin._pivotX;
+  },
+  pivotY: function(pin) {
+    return pin._pivotY;
+  },
+  // offset : function(pin) {
+  // },
+  offsetX: function(pin) {
+    return pin._offsetX;
+  },
+  offsetY: function(pin) {
+    return pin._offsetY;
+  },
+  // align : function(pin) {
+  // },
+  alignX: function(pin) {
+    return pin._alignX;
+  },
+  alignY: function(pin) {
+    return pin._alignY;
+  },
+  // handle : function(pin) {
+  // },
+  handleX: function(pin) {
+    return pin._handleX;
+  },
+  handleY: function(pin) {
+    return pin._handleY;
+  }
+};
+var setters = {
+  alpha: function(pin, value) {
+    pin._alpha = value;
+  },
+  textureAlpha: function(pin, value) {
+    pin._textureAlpha = value;
+  },
+  width: function(pin, value) {
+    pin._width_ = value;
+    pin._width = value;
+    pin._ts_transform = ++iid$1;
+  },
+  height: function(pin, value) {
+    pin._height_ = value;
+    pin._height = value;
+    pin._ts_transform = ++iid$1;
+  },
+  scale: function(pin, value) {
+    pin._scaleX = value;
+    pin._scaleY = value;
+    pin._ts_transform = ++iid$1;
+  },
+  scaleX: function(pin, value) {
+    pin._scaleX = value;
+    pin._ts_transform = ++iid$1;
+  },
+  scaleY: function(pin, value) {
+    pin._scaleY = value;
+    pin._ts_transform = ++iid$1;
+  },
+  skew: function(pin, value) {
+    pin._skewX = value;
+    pin._skewY = value;
+    pin._ts_transform = ++iid$1;
+  },
+  skewX: function(pin, value) {
+    pin._skewX = value;
+    pin._ts_transform = ++iid$1;
+  },
+  skewY: function(pin, value) {
+    pin._skewY = value;
+    pin._ts_transform = ++iid$1;
+  },
+  rotation: function(pin, value) {
+    pin._rotation = value;
+    pin._ts_transform = ++iid$1;
+  },
+  pivot: function(pin, value) {
+    pin._pivotX = value;
+    pin._pivotY = value;
+    pin._pivoted = true;
+    pin._ts_transform = ++iid$1;
+  },
+  pivotX: function(pin, value) {
+    pin._pivotX = value;
+    pin._pivoted = true;
+    pin._ts_transform = ++iid$1;
+  },
+  pivotY: function(pin, value) {
+    pin._pivotY = value;
+    pin._pivoted = true;
+    pin._ts_transform = ++iid$1;
+  },
+  offset: function(pin, value) {
+    pin._offsetX = value;
+    pin._offsetY = value;
+    pin._ts_translate = ++iid$1;
+  },
+  offsetX: function(pin, value) {
+    pin._offsetX = value;
+    pin._ts_translate = ++iid$1;
+  },
+  offsetY: function(pin, value) {
+    pin._offsetY = value;
+    pin._ts_translate = ++iid$1;
+  },
+  align: function(pin, value) {
+    this.alignX(pin, value);
+    this.alignY(pin, value);
+  },
+  alignX: function(pin, value) {
+    pin._alignX = value;
+    pin._aligned = true;
+    pin._ts_translate = ++iid$1;
+    this.handleX(pin, value);
+  },
+  alignY: function(pin, value) {
+    pin._alignY = value;
+    pin._aligned = true;
+    pin._ts_translate = ++iid$1;
+    this.handleY(pin, value);
+  },
+  handle: function(pin, value) {
+    this.handleX(pin, value);
+    this.handleY(pin, value);
+  },
+  handleX: function(pin, value) {
+    pin._handleX = value;
+    pin._handled = true;
+    pin._ts_translate = ++iid$1;
+  },
+  handleY: function(pin, value) {
+    pin._handleY = value;
+    pin._handled = true;
+    pin._ts_translate = ++iid$1;
+  },
+  resizeMode: function(pin, value, all) {
+    if (all) {
+      if (value == "in") {
+        value = "in-pad";
+      } else if (value == "out") {
+        value = "out-crop";
+      }
+      scaleTo(pin, all.resizeWidth, all.resizeHeight, value);
+    }
+  },
+  resizeWidth: function(pin, value, all) {
+    if (!all || !all.resizeMode) {
+      scaleTo(pin, value, null);
+    }
+  },
+  resizeHeight: function(pin, value, all) {
+    if (!all || !all.resizeMode) {
+      scaleTo(pin, null, value);
+    }
+  },
+  scaleMode: function(pin, value, all) {
+    if (all) {
+      scaleTo(pin, all.scaleWidth, all.scaleHeight, value);
+    }
+  },
+  scaleWidth: function(pin, value, all) {
+    if (!all || !all.scaleMode) {
+      scaleTo(pin, value, null);
+    }
+  },
+  scaleHeight: function(pin, value, all) {
+    if (!all || !all.scaleMode) {
+      scaleTo(pin, null, value);
+    }
+  },
+  matrix: function(pin, value) {
+    this.scaleX(pin, value.a);
+    this.skewX(pin, value.c / value.d);
+    this.skewY(pin, value.b / value.a);
+    this.scaleY(pin, value.d);
+    this.offsetX(pin, value.e);
+    this.offsetY(pin, value.f);
+    this.rotation(pin, 0);
+  }
+};
+Pin.prototype.scaleTo = function(width, height, mode) {
+  scaleTo(this, width, height, mode);
+};
+function scaleTo(pin, width, height, mode) {
+  var w = typeof width === "number";
+  var h = typeof height === "number";
+  var m = typeof mode === "string";
+  pin._ts_transform = ++iid$1;
+  if (w) {
+    pin._scaleX = width / pin._width_;
+    pin._width = pin._width_;
+  }
+  if (h) {
+    pin._scaleY = height / pin._height_;
+    pin._height = pin._height_;
+  }
+  if (w && h && m) {
+    if (mode == "out" || mode == "out-crop") {
+      pin._scaleX = pin._scaleY = Math.max(pin._scaleX, pin._scaleY);
+    } else if (mode == "in" || mode == "in-pad") {
+      pin._scaleX = pin._scaleY = Math.min(pin._scaleX, pin._scaleY);
+    }
+    if (mode == "out-crop" || mode == "in-pad") {
+      pin._width = width / pin._scaleX;
+      pin._height = height / pin._scaleY;
+    }
+  }
+}
+Pin._add_shortcuts = function(prototype) {
+  prototype.size = function(w, h) {
+    this.pin("width", w);
+    this.pin("height", h);
+    return this;
+  };
+  prototype.width = function(w) {
+    if (typeof w === "undefined") {
+      return this.pin("width");
+    }
+    this.pin("width", w);
+    return this;
+  };
+  prototype.height = function(h) {
+    if (typeof h === "undefined") {
+      return this.pin("height");
+    }
+    this.pin("height", h);
+    return this;
+  };
+  prototype.offset = function(a, b) {
+    if (typeof a === "object")
+      b = a.y, a = a.x;
+    this.pin("offsetX", a);
+    this.pin("offsetY", b);
+    return this;
+  };
+  prototype.rotate = function(a) {
+    this.pin("rotation", a);
+    return this;
+  };
+  prototype.skew = function(a, b) {
+    if (typeof a === "object")
+      b = a.y, a = a.x;
+    else if (typeof b === "undefined")
+      b = a;
+    this.pin("skewX", a);
+    this.pin("skewY", b);
+    return this;
+  };
+  prototype.scale = function(a, b) {
+    if (typeof a === "object")
+      b = a.y, a = a.x;
+    else if (typeof b === "undefined")
+      b = a;
+    this.pin("scaleX", a);
+    this.pin("scaleY", b);
+    return this;
+  };
+  prototype.alpha = function(a, ta) {
+    this.pin("alpha", a);
+    if (typeof ta !== "undefined") {
+      this.pin("textureAlpha", ta);
+    }
+    return this;
+  };
+};
+var iid = 0;
+stats.create = 0;
+function Stage() {
+  stats.create++;
+  this._pin = new Pin(this);
+}
+Stage.create = function() {
+  return new Stage();
+};
+Stage.prototype.matrix = function(relative) {
+  if (relative === true) {
+    return this._pin.relativeMatrix();
+  }
+  return this._pin.absoluteMatrix();
+};
+Stage.prototype.pin = function(a, b) {
+  if (typeof a === "object") {
+    this._pin.set(a);
+    return this;
+  } else if (typeof a === "string") {
+    if (typeof b === "undefined") {
+      return this._pin.get(a);
+    } else {
+      this._pin.set(a, b);
+      return this;
+    }
+  } else if (typeof a === "undefined") {
+    return this._pin;
+  }
+};
+Stage.prototype.scaleTo = function(a, b, c) {
+  if (typeof a === "object")
+    c = b, b = a.y, a = a.x;
+  this._pin.scaleTo(a, b, c);
+  return this;
+};
+Pin._add_shortcuts(Stage.prototype);
 Stage.prototype._label = "";
 Stage.prototype._visible = true;
 Stage.prototype._parent = null;
@@ -871,8 +968,8 @@ Stage.prototype.visible = function(visible) {
     return this._visible;
   }
   this._visible = visible;
-  this._parent && (this._parent._ts_children = ++iid$1);
-  this._ts_pin = ++iid$1;
+  this._parent && (this._parent._ts_children = ++iid);
+  this._ts_pin = ++iid;
   this.touch();
   return this;
 };
@@ -1002,8 +1099,8 @@ function append(parent, child) {
     parent._first = child;
   }
   child._parent._flag(child, true);
-  child._ts_parent = ++iid$1;
-  parent._ts_children = ++iid$1;
+  child._ts_parent = ++iid;
+  parent._ts_children = ++iid;
   parent.touch();
 }
 function prepend(parent, child) {
@@ -1020,8 +1117,8 @@ function prepend(parent, child) {
     parent._last = child;
   }
   child._parent._flag(child, true);
-  child._ts_parent = ++iid$1;
-  parent._ts_children = ++iid$1;
+  child._ts_parent = ++iid;
+  parent._ts_children = ++iid;
   parent.touch();
 }
 function insertBefore(self, next) {
@@ -1036,7 +1133,7 @@ function insertBefore(self, next) {
   self._prev = prev;
   self._next = next;
   self._parent._flag(self, true);
-  self._ts_parent = ++iid$1;
+  self._ts_parent = ++iid;
   self.touch();
 }
 function insertAfter(self, prev) {
@@ -1051,7 +1148,7 @@ function insertAfter(self, prev) {
   self._prev = prev;
   self._next = next;
   self._parent._flag(self, true);
-  self._ts_parent = ++iid$1;
+  self._ts_parent = ++iid;
   self.touch();
 }
 Stage.prototype.remove = function(child, more) {
@@ -1081,11 +1178,11 @@ Stage.prototype.remove = function(child, more) {
       this._parent._last = this._prev;
     }
     this._parent._flag(this, false);
-    this._parent._ts_children = ++iid$1;
+    this._parent._ts_children = ++iid;
     this._parent.touch();
   }
   this._prev = this._next = this._parent = null;
-  this._ts_parent = ++iid$1;
+  this._ts_parent = ++iid;
   return this;
 };
 Stage.prototype.empty = function() {
@@ -1096,12 +1193,12 @@ Stage.prototype.empty = function() {
     this._flag(child, false);
   }
   this._first = this._last = null;
-  this._ts_children = ++iid$1;
+  this._ts_children = ++iid;
   this.touch();
   return this;
 };
 Stage.prototype.touch = function() {
-  this._ts_touch = ++iid$1;
+  this._ts_touch = ++iid;
   this._parent && this._parent.touch();
   return this;
 };
@@ -1145,563 +1242,378 @@ function _ensure(obj) {
   }
   throw "Invalid node: " + obj;
 }
-function listenable(prototype, callback) {
-  prototype._listeners = null;
-  prototype.on = prototype.listen = function(types, listener) {
-    if (!types || !types.length || typeof listener !== "function") {
-      return this;
-    }
-    if (this._listeners === null) {
-      this._listeners = {};
-    }
-    var isarray = typeof types !== "string" && typeof types.join === "function";
-    if (types = (isarray ? types.join(" ") : types).match(/\S+/g)) {
-      for (var i = 0; i < types.length; i++) {
-        var type = types[i];
-        this._listeners[type] = this._listeners[type] || [];
-        this._listeners[type].push(listener);
-        if (typeof callback === "function") {
-          callback(this, type, true);
-        }
+Stage.prototype._listeners = null;
+Stage.prototype._event_callback = function(name, on) {
+  this._flag(name, on);
+};
+Stage.prototype.on = function(types, listener) {
+  if (!types || !types.length || typeof listener !== "function") {
+    return this;
+  }
+  if (this._listeners === null) {
+    this._listeners = {};
+  }
+  var isarray = typeof types !== "string" && typeof types.join === "function";
+  if (types = (isarray ? types.join(" ") : types).match(/\S+/g)) {
+    for (var i = 0; i < types.length; i++) {
+      var type = types[i];
+      this._listeners[type] = this._listeners[type] || [];
+      this._listeners[type].push(listener);
+      if (typeof this._event_callback === "function") {
+        this._event_callback(type, true);
       }
     }
-    return this;
-  };
-  prototype.off = function(types, listener) {
-    if (!types || !types.length || typeof listener !== "function") {
-      return this;
-    }
-    if (this._listeners === null) {
-      return this;
-    }
-    var isarray = typeof types !== "string" && typeof types.join === "function";
-    if (types = (isarray ? types.join(" ") : types).match(/\S+/g)) {
-      for (var i = 0; i < types.length; i++) {
-        var type = types[i], all = this._listeners[type], index;
-        if (all && (index = all.indexOf(listener)) >= 0) {
-          all.splice(index, 1);
-          if (!all.length) {
-            delete this._listeners[type];
-          }
-          if (typeof callback === "function") {
-            callback(this, type, false);
-          }
-        }
-      }
-    }
-    return this;
-  };
-  prototype.listeners = function(type) {
-    return this._listeners && this._listeners[type];
-  };
-  prototype.publish = function(name, args) {
-    var listeners = this.listeners(name);
-    if (!listeners || !listeners.length) {
-      return 0;
-    }
-    for (var l = 0; l < listeners.length; l++) {
-      listeners[l].apply(this, args);
-    }
-    return listeners.length;
-  };
-  prototype.trigger = function(name, args) {
-    this.publish(name, args);
-    return this;
-  };
-}
-var iid = 0;
-Stage._init(function() {
-  this._pin = new Pin(this);
-});
-Stage.prototype.matrix = function(relative) {
-  if (relative === true) {
-    return this._pin.relativeMatrix();
-  }
-  return this._pin.absoluteMatrix();
-};
-Stage.prototype.pin = function(a, b) {
-  if (typeof a === "object") {
-    this._pin.set(a);
-    return this;
-  } else if (typeof a === "string") {
-    if (typeof b === "undefined") {
-      return this._pin.get(a);
-    } else {
-      this._pin.set(a, b);
-      return this;
-    }
-  } else if (typeof a === "undefined") {
-    return this._pin;
-  }
-};
-function Pin(owner) {
-  this._owner = owner;
-  this._parent = null;
-  this._relativeMatrix = new Matrix();
-  this._absoluteMatrix = new Matrix();
-  this.reset();
-}
-Pin.prototype.reset = function() {
-  this._textureAlpha = 1;
-  this._alpha = 1;
-  this._width = 0;
-  this._height = 0;
-  this._scaleX = 1;
-  this._scaleY = 1;
-  this._skewX = 0;
-  this._skewY = 0;
-  this._rotation = 0;
-  this._pivoted = false;
-  this._pivotX = null;
-  this._pivotY = null;
-  this._handled = false;
-  this._handleX = 0;
-  this._handleY = 0;
-  this._aligned = false;
-  this._alignX = 0;
-  this._alignY = 0;
-  this._offsetX = 0;
-  this._offsetY = 0;
-  this._boxX = 0;
-  this._boxY = 0;
-  this._boxWidth = this._width;
-  this._boxHeight = this._height;
-  this._ts_translate = ++iid;
-  this._ts_transform = ++iid;
-  this._ts_matrix = ++iid;
-};
-Pin.prototype._update = function() {
-  this._parent = this._owner._parent && this._owner._parent._pin;
-  if (this._handled && this._mo_handle != this._ts_transform) {
-    this._mo_handle = this._ts_transform;
-    this._ts_translate = ++iid;
-  }
-  if (this._aligned && this._parent && this._mo_align != this._parent._ts_transform) {
-    this._mo_align = this._parent._ts_transform;
-    this._ts_translate = ++iid;
   }
   return this;
 };
-Pin.prototype.toString = function() {
-  return this._owner + " (" + (this._parent ? this._parent._owner : null) + ")";
+Stage.prototype.off = function(types, listener) {
+  if (!types || !types.length || typeof listener !== "function") {
+    return this;
+  }
+  if (this._listeners === null) {
+    return this;
+  }
+  var isarray = typeof types !== "string" && typeof types.join === "function";
+  if (types = (isarray ? types.join(" ") : types).match(/\S+/g)) {
+    for (var i = 0; i < types.length; i++) {
+      var type = types[i], all = this._listeners[type], index2;
+      if (all && (index2 = all.indexOf(listener)) >= 0) {
+        all.splice(index2, 1);
+        if (!all.length) {
+          delete this._listeners[type];
+        }
+        if (typeof this._event_callback === "function") {
+          this._event_callback(type, false);
+        }
+      }
+    }
+  }
+  return this;
 };
-Pin.prototype.absoluteMatrix = function() {
-  this._update();
-  var ts = Math.max(
-    this._ts_transform,
-    this._ts_translate,
-    this._parent ? this._parent._ts_matrix : 0
-  );
-  if (this._mo_abs == ts) {
-    return this._absoluteMatrix;
-  }
-  this._mo_abs = ts;
-  var abs2 = this._absoluteMatrix;
-  abs2.reset(this.relativeMatrix());
-  this._parent && abs2.concat(this._parent._absoluteMatrix);
-  this._ts_matrix = ++iid;
-  return abs2;
+Stage.prototype.listeners = function(type) {
+  return this._listeners && this._listeners[type];
 };
-Pin.prototype.relativeMatrix = function() {
-  this._update();
-  var ts = Math.max(
-    this._ts_transform,
-    this._ts_translate,
-    this._parent ? this._parent._ts_transform : 0
-  );
-  if (this._mo_rel == ts) {
-    return this._relativeMatrix;
+Stage.prototype.publish = function(name, args) {
+  var listeners = this.listeners(name);
+  if (!listeners || !listeners.length) {
+    return 0;
   }
-  this._mo_rel = ts;
-  var rel2 = this._relativeMatrix;
-  rel2.identity();
-  if (this._pivoted) {
-    rel2.translate(-this._pivotX * this._width, -this._pivotY * this._height);
+  for (var l = 0; l < listeners.length; l++) {
+    listeners[l].apply(this, args);
   }
-  rel2.scale(this._scaleX, this._scaleY);
-  rel2.skew(this._skewX, this._skewY);
-  rel2.rotate(this._rotation);
-  if (this._pivoted) {
-    rel2.translate(this._pivotX * this._width, this._pivotY * this._height);
+  return listeners.length;
+};
+Stage.prototype.trigger = function(name, args) {
+  this.publish(name, args);
+  return this;
+};
+var native = Math;
+const math = Object.create(Math);
+math.random = function(min, max) {
+  if (typeof min === "undefined") {
+    max = 1, min = 0;
+  } else if (typeof max === "undefined") {
+    max = min, min = 0;
   }
-  if (this._pivoted) {
-    this._boxX = 0;
-    this._boxY = 0;
-    this._boxWidth = this._width;
-    this._boxHeight = this._height;
+  return min == max ? min : native.random() * (max - min) + min;
+};
+math.rotate = function(num, min, max) {
+  if (typeof min === "undefined") {
+    max = 1, min = 0;
+  } else if (typeof max === "undefined") {
+    max = min, min = 0;
+  }
+  if (max > min) {
+    num = (num - min) % (max - min);
+    return num + (num < 0 ? max : min);
   } else {
-    var p, q;
-    if (rel2.a > 0 && rel2.c > 0 || rel2.a < 0 && rel2.c < 0) {
-      p = 0, q = rel2.a * this._width + rel2.c * this._height;
-    } else {
-      p = rel2.a * this._width, q = rel2.c * this._height;
-    }
-    if (p > q) {
-      this._boxX = q;
-      this._boxWidth = p - q;
-    } else {
-      this._boxX = p;
-      this._boxWidth = q - p;
-    }
-    if (rel2.b > 0 && rel2.d > 0 || rel2.b < 0 && rel2.d < 0) {
-      p = 0, q = rel2.b * this._width + rel2.d * this._height;
-    } else {
-      p = rel2.b * this._width, q = rel2.d * this._height;
-    }
-    if (p > q) {
-      this._boxY = q;
-      this._boxHeight = p - q;
-    } else {
-      this._boxY = p;
-      this._boxHeight = q - p;
-    }
-  }
-  this._x = this._offsetX;
-  this._y = this._offsetY;
-  this._x -= this._boxX + this._handleX * this._boxWidth;
-  this._y -= this._boxY + this._handleY * this._boxHeight;
-  if (this._aligned && this._parent) {
-    this._parent.relativeMatrix();
-    this._x += this._alignX * this._parent._width;
-    this._y += this._alignY * this._parent._height;
-  }
-  rel2.translate(this._x, this._y);
-  return this._relativeMatrix;
-};
-Pin.prototype.get = function(key) {
-  if (typeof getters[key] === "function") {
-    return getters[key](this);
+    num = (num - max) % (min - max);
+    return num + (num <= 0 ? min : max);
   }
 };
-Pin.prototype.set = function(a, b) {
-  if (typeof a === "string") {
-    if (typeof setters[a] === "function" && typeof b !== "undefined") {
-      setters[a](this, b);
-    }
-  } else if (typeof a === "object") {
-    for (b in a) {
-      if (typeof setters[b] === "function" && typeof a[b] !== "undefined") {
-        setters[b](this, a[b], a);
-      }
-    }
-  }
-  if (this._owner) {
-    this._owner._ts_pin = ++iid;
-    this._owner.touch();
-  }
-  return this;
-};
-var getters = {
-  alpha: function(pin) {
-    return pin._alpha;
-  },
-  textureAlpha: function(pin) {
-    return pin._textureAlpha;
-  },
-  width: function(pin) {
-    return pin._width;
-  },
-  height: function(pin) {
-    return pin._height;
-  },
-  boxWidth: function(pin) {
-    return pin._boxWidth;
-  },
-  boxHeight: function(pin) {
-    return pin._boxHeight;
-  },
-  // scale : function(pin) {
-  // },
-  scaleX: function(pin) {
-    return pin._scaleX;
-  },
-  scaleY: function(pin) {
-    return pin._scaleY;
-  },
-  // skew : function(pin) {
-  // },
-  skewX: function(pin) {
-    return pin._skewX;
-  },
-  skewY: function(pin) {
-    return pin._skewY;
-  },
-  rotation: function(pin) {
-    return pin._rotation;
-  },
-  // pivot : function(pin) {
-  // },
-  pivotX: function(pin) {
-    return pin._pivotX;
-  },
-  pivotY: function(pin) {
-    return pin._pivotY;
-  },
-  // offset : function(pin) {
-  // },
-  offsetX: function(pin) {
-    return pin._offsetX;
-  },
-  offsetY: function(pin) {
-    return pin._offsetY;
-  },
-  // align : function(pin) {
-  // },
-  alignX: function(pin) {
-    return pin._alignX;
-  },
-  alignY: function(pin) {
-    return pin._alignY;
-  },
-  // handle : function(pin) {
-  // },
-  handleX: function(pin) {
-    return pin._handleX;
-  },
-  handleY: function(pin) {
-    return pin._handleY;
+math.limit = function(num, min, max) {
+  if (num < min) {
+    return min;
+  } else if (num > max) {
+    return max;
+  } else {
+    return num;
   }
 };
-var setters = {
-  alpha: function(pin, value) {
-    pin._alpha = value;
-  },
-  textureAlpha: function(pin, value) {
-    pin._textureAlpha = value;
-  },
-  width: function(pin, value) {
-    pin._width_ = value;
-    pin._width = value;
-    pin._ts_transform = ++iid;
-  },
-  height: function(pin, value) {
-    pin._height_ = value;
-    pin._height = value;
-    pin._ts_transform = ++iid;
-  },
-  scale: function(pin, value) {
-    pin._scaleX = value;
-    pin._scaleY = value;
-    pin._ts_transform = ++iid;
-  },
-  scaleX: function(pin, value) {
-    pin._scaleX = value;
-    pin._ts_transform = ++iid;
-  },
-  scaleY: function(pin, value) {
-    pin._scaleY = value;
-    pin._ts_transform = ++iid;
-  },
-  skew: function(pin, value) {
-    pin._skewX = value;
-    pin._skewY = value;
-    pin._ts_transform = ++iid;
-  },
-  skewX: function(pin, value) {
-    pin._skewX = value;
-    pin._ts_transform = ++iid;
-  },
-  skewY: function(pin, value) {
-    pin._skewY = value;
-    pin._ts_transform = ++iid;
-  },
-  rotation: function(pin, value) {
-    pin._rotation = value;
-    pin._ts_transform = ++iid;
-  },
-  pivot: function(pin, value) {
-    pin._pivotX = value;
-    pin._pivotY = value;
-    pin._pivoted = true;
-    pin._ts_transform = ++iid;
-  },
-  pivotX: function(pin, value) {
-    pin._pivotX = value;
-    pin._pivoted = true;
-    pin._ts_transform = ++iid;
-  },
-  pivotY: function(pin, value) {
-    pin._pivotY = value;
-    pin._pivoted = true;
-    pin._ts_transform = ++iid;
-  },
-  offset: function(pin, value) {
-    pin._offsetX = value;
-    pin._offsetY = value;
-    pin._ts_translate = ++iid;
-  },
-  offsetX: function(pin, value) {
-    pin._offsetX = value;
-    pin._ts_translate = ++iid;
-  },
-  offsetY: function(pin, value) {
-    pin._offsetY = value;
-    pin._ts_translate = ++iid;
-  },
-  align: function(pin, value) {
-    this.alignX(pin, value);
-    this.alignY(pin, value);
-  },
-  alignX: function(pin, value) {
-    pin._alignX = value;
-    pin._aligned = true;
-    pin._ts_translate = ++iid;
-    this.handleX(pin, value);
-  },
-  alignY: function(pin, value) {
-    pin._alignY = value;
-    pin._aligned = true;
-    pin._ts_translate = ++iid;
-    this.handleY(pin, value);
-  },
-  handle: function(pin, value) {
-    this.handleX(pin, value);
-    this.handleY(pin, value);
-  },
-  handleX: function(pin, value) {
-    pin._handleX = value;
-    pin._handled = true;
-    pin._ts_translate = ++iid;
-  },
-  handleY: function(pin, value) {
-    pin._handleY = value;
-    pin._handled = true;
-    pin._ts_translate = ++iid;
-  },
-  resizeMode: function(pin, value, all) {
-    if (all) {
-      if (value == "in") {
-        value = "in-pad";
-      } else if (value == "out") {
-        value = "out-crop";
-      }
-      scaleTo(pin, all.resizeWidth, all.resizeHeight, value);
-    }
-  },
-  resizeWidth: function(pin, value, all) {
-    if (!all || !all.resizeMode) {
-      scaleTo(pin, value, null);
-    }
-  },
-  resizeHeight: function(pin, value, all) {
-    if (!all || !all.resizeMode) {
-      scaleTo(pin, null, value);
-    }
-  },
-  scaleMode: function(pin, value, all) {
-    if (all) {
-      scaleTo(pin, all.scaleWidth, all.scaleHeight, value);
-    }
-  },
-  scaleWidth: function(pin, value, all) {
-    if (!all || !all.scaleMode) {
-      scaleTo(pin, value, null);
-    }
-  },
-  scaleHeight: function(pin, value, all) {
-    if (!all || !all.scaleMode) {
-      scaleTo(pin, null, value);
-    }
-  },
-  matrix: function(pin, value) {
-    this.scaleX(pin, value.a);
-    this.skewX(pin, value.c / value.d);
-    this.skewY(pin, value.b / value.a);
-    this.scaleY(pin, value.d);
-    this.offsetX(pin, value.e);
-    this.offsetY(pin, value.f);
-    this.rotation(pin, 0);
-  }
+math.length = function(x, y) {
+  return native.sqrt(x * x + y * y);
 };
-function scaleTo(pin, width, height, mode) {
-  var w = typeof width === "number";
-  var h = typeof height === "number";
-  var m = typeof mode === "string";
-  pin._ts_transform = ++iid;
-  if (w) {
-    pin._scaleX = width / pin._width_;
-    pin._width = pin._width_;
-  }
-  if (h) {
-    pin._scaleY = height / pin._height_;
-    pin._height = pin._height_;
-  }
-  if (w && h && m) {
-    if (mode == "out" || mode == "out-crop") {
-      pin._scaleX = pin._scaleY = Math.max(pin._scaleX, pin._scaleY);
-    } else if (mode == "in" || mode == "in-pad") {
-      pin._scaleX = pin._scaleY = Math.min(pin._scaleX, pin._scaleY);
-    }
-    if (mode == "out-crop" || mode == "in-pad") {
-      pin._width = width / pin._scaleX;
-      pin._height = height / pin._scaleY;
-    }
+function Texture(texture, ratio) {
+  if (typeof texture === "object") {
+    this.src(texture, ratio);
   }
 }
-Stage.prototype.scaleTo = function(a, b, c) {
-  if (typeof a === "object")
-    c = b, b = a.y, a = a.x;
-  scaleTo(this._pin, a, b, c);
+Texture.prototype.pipe = function() {
+  return new Texture(this);
+};
+Texture.prototype.src = function(x, y, w, h) {
+  if (typeof x === "object") {
+    var drawable = x, ratio = y || 1;
+    this._image = drawable;
+    this._sx = this._dx = 0;
+    this._sy = this._dy = 0;
+    this._sw = this._dw = drawable.width / ratio;
+    this._sh = this._dh = drawable.height / ratio;
+    this.width = drawable.width / ratio;
+    this.height = drawable.height / ratio;
+    this.ratio = ratio;
+  } else {
+    if (typeof w === "undefined") {
+      w = x, h = y;
+    } else {
+      this._sx = x, this._sy = y;
+    }
+    this._sw = this._dw = w;
+    this._sh = this._dh = h;
+    this.width = w;
+    this.height = h;
+  }
   return this;
 };
-Pin._add_shortcuts = function(Stage2) {
-  Stage2.prototype.size = function(w, h) {
-    this.pin("width", w);
-    this.pin("height", h);
-    return this;
-  };
-  Stage2.prototype.width = function(w) {
-    if (typeof w === "undefined") {
-      return this.pin("width");
-    }
-    this.pin("width", w);
-    return this;
-  };
-  Stage2.prototype.height = function(h) {
-    if (typeof h === "undefined") {
-      return this.pin("height");
-    }
-    this.pin("height", h);
-    return this;
-  };
-  Stage2.prototype.offset = function(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
-    this.pin("offsetX", a);
-    this.pin("offsetY", b);
-    return this;
-  };
-  Stage2.prototype.rotate = function(a) {
-    this.pin("rotation", a);
-    return this;
-  };
-  Stage2.prototype.skew = function(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
-    else if (typeof b === "undefined")
-      b = a;
-    this.pin("skewX", a);
-    this.pin("skewY", b);
-    return this;
-  };
-  Stage2.prototype.scale = function(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
-    else if (typeof b === "undefined")
-      b = a;
-    this.pin("scaleX", a);
-    this.pin("scaleY", b);
-    return this;
-  };
-  Stage2.prototype.alpha = function(a, ta) {
-    this.pin("alpha", a);
-    if (typeof ta !== "undefined") {
-      this.pin("textureAlpha", ta);
-    }
-    return this;
-  };
+Texture.prototype.dest = function(x, y, w, h) {
+  this._dx = x, this._dy = y;
+  this._dx = x, this._dy = y;
+  if (typeof w !== "undefined") {
+    this._dw = w, this._dh = h;
+    this.width = w, this.height = h;
+  }
+  return this;
 };
-Pin._add_shortcuts(Stage);
+Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
+  var drawable = this._image;
+  if (drawable === null || typeof drawable !== "object") {
+    return;
+  }
+  var sx = this._sx, sy = this._sy;
+  var sw = this._sw, sh = this._sh;
+  var dx = this._dx, dy = this._dy;
+  var dw = this._dw, dh = this._dh;
+  if (typeof x3 !== "undefined") {
+    x1 = math.limit(x1, 0, this._sw), x2 = math.limit(x2, 0, this._sw - x1);
+    y1 = math.limit(y1, 0, this._sh), y2 = math.limit(y2, 0, this._sh - y1);
+    sx += x1, sy += y1, sw = x2, sh = y2;
+    dx = x3, dy = y3, dw = x4, dh = y4;
+  } else if (typeof x2 !== "undefined") {
+    dx = x1, dy = y1, dw = x2, dh = y2;
+  } else if (typeof x1 !== "undefined") {
+    dw = x1, dh = y1;
+  }
+  var ratio = this.ratio || 1;
+  sx *= ratio, sy *= ratio, sw *= ratio, sh *= ratio;
+  try {
+    if (typeof drawable.draw === "function") {
+      drawable.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
+    } else {
+      stats.draw++;
+      context.drawImage(drawable, sx, sy, sw, sh, dx, dy, dw, dh);
+    }
+  } catch (ex) {
+    if (!drawable._draw_failed) {
+      console.log("Unable to draw: ", drawable);
+      console.log(ex);
+      drawable._draw_failed = true;
+    }
+  }
+};
+var NO_TEXTURE = new class extends Texture {
+  constructor() {
+    super();
+    __publicField(this, "pipe", function() {
+      return this;
+    });
+    __publicField(this, "src", function() {
+      return this;
+    });
+    __publicField(this, "dest", function() {
+      return this;
+    });
+    __publicField(this, "draw", function() {
+    });
+    this.x = this.y = this.width = this.height = 0;
+  }
+}();
+var NO_SELECTION = new Selection(NO_TEXTURE);
+function preloadImage(src) {
+  console.log("Loading image: " + src);
+  return new Promise(function(resolve, reject) {
+    const image = new Image();
+    image.onload = function() {
+      resolve(image);
+    };
+    image.onerror = function(error) {
+      reject(error);
+    };
+    image.src = src;
+  });
+}
+var _atlases_map = {};
+var _atlases_arr = [];
+Stage.atlas = async function(def) {
+  var atlas = is$1.fn(def.draw) ? def : new Atlas(def);
+  if (def.name) {
+    _atlases_map[def.name] = atlas;
+  }
+  _atlases_arr.push(atlas);
+  deprecated(def, "imagePath");
+  deprecated(def, "imageRatio");
+  var url = def.imagePath;
+  var ratio = def.imageRatio || 1;
+  if (is$1.string(def.image)) {
+    url = def.image;
+  } else if (is$1.hash(def.image)) {
+    url = def.image.src || def.image.url;
+    ratio = def.image.ratio || ratio;
+  }
+  if (url) {
+    const image = await preloadImage(url);
+    atlas.src(image, ratio);
+  }
+  return atlas;
+};
+Atlas._super = Texture;
+Atlas.prototype = Object.create(Atlas._super.prototype);
+function Atlas(def) {
+  Atlas._super.call(this);
+  var atlas = this;
+  deprecated(def, "filter");
+  deprecated(def, "cutouts");
+  deprecated(def, "sprites");
+  deprecated(def, "factory");
+  var map = def.map || def.filter;
+  var ppu = def.ppu || def.ratio || 1;
+  var trim = def.trim || 0;
+  var textures = def.textures;
+  var factory = def.factory;
+  var cutouts = def.cutouts || def.sprites;
+  function make(def2) {
+    if (!def2 || is$1.fn(def2.draw)) {
+      return def2;
+    }
+    def2 = Object.assign({}, def2);
+    if (is$1.fn(map)) {
+      def2 = map(def2);
+    }
+    if (ppu != 1) {
+      def2.x *= ppu, def2.y *= ppu;
+      def2.width *= ppu, def2.height *= ppu;
+      def2.top *= ppu, def2.bottom *= ppu;
+      def2.left *= ppu, def2.right *= ppu;
+    }
+    if (trim != 0) {
+      def2.x += trim, def2.y += trim;
+      def2.width -= 2 * trim, def2.height -= 2 * trim;
+      def2.top -= trim, def2.bottom -= trim;
+      def2.left -= trim, def2.right -= trim;
+    }
+    var texture = atlas.pipe();
+    texture.top = def2.top, texture.bottom = def2.bottom;
+    texture.left = def2.left, texture.right = def2.right;
+    texture.src(def2.x, def2.y, def2.width, def2.height);
+    return texture;
+  }
+  function find(query) {
+    if (textures) {
+      if (is$1.fn(textures)) {
+        return textures(query);
+      } else if (is$1.hash(textures)) {
+        return textures[query];
+      }
+    }
+    if (cutouts) {
+      var result = null, n = 0;
+      for (var i = 0; i < cutouts.length; i++) {
+        if (string.startsWith(cutouts[i].name, query)) {
+          if (n === 0) {
+            result = cutouts[i];
+          } else if (n === 1) {
+            result = [result, cutouts[i]];
+          } else {
+            result.push(cutouts[i]);
+          }
+          n++;
+        }
+      }
+      if (n === 0 && is$1.fn(factory)) {
+        result = function(subquery) {
+          return factory(query + (subquery ? subquery : ""));
+        };
+      }
+      return result;
+    }
+  }
+  this.select = function(query) {
+    if (!query) {
+      return new Selection(this.pipe());
+    }
+    var found = find(query);
+    if (found) {
+      return new Selection(found, find, make);
+    }
+  };
+}
+function Selection(result, find, make) {
+  function link(result2, subquery) {
+    if (!result2) {
+      return NO_TEXTURE;
+    } else if (is$1.fn(result2.draw)) {
+      return result2;
+    } else if (is$1.hash(result2) && is$1.number(result2.width) && is$1.number(result2.height) && is$1.fn(make)) {
+      return make(result2);
+    } else if (is$1.hash(result2) && is$1.defined(subquery)) {
+      return link(result2[subquery]);
+    } else if (is$1.fn(result2)) {
+      return link(result2(subquery));
+    } else if (is$1.array(result2)) {
+      return link(result2[0]);
+    } else if (is$1.string(result2) && is$1.fn(find)) {
+      return link(find(result2));
+    }
+  }
+  this.one = function(subquery) {
+    return link(result, subquery);
+  };
+  this.array = function(arr) {
+    var array = is$1.array(arr) ? arr : [];
+    if (is$1.array(result)) {
+      for (var i = 0; i < result.length; i++) {
+        array[i] = link(result[i]);
+      }
+    } else {
+      array[0] = link(result);
+    }
+    return array;
+  };
+}
+Stage.texture = function(query) {
+  if (!is$1.string(query)) {
+    return new Selection(query);
+  }
+  var result = null, atlas, i;
+  if ((i = query.indexOf(":")) > 0 && query.length > i + 1) {
+    atlas = _atlases_map[query.slice(0, i)];
+    result = atlas && atlas.select(query.slice(i + 1));
+  }
+  if (!result && (atlas = _atlases_map[query])) {
+    result = atlas.select();
+  }
+  for (i = 0; !result && i < _atlases_arr.length; i++) {
+    result = _atlases_arr[i].select(query);
+  }
+  if (!result) {
+    console.error("Texture not found: " + query);
+    result = NO_SELECTION;
+  }
+  return result;
+};
+function deprecated(hash, name, msg) {
+  if (name in hash)
+    console.log(msg ? msg.replace("%name", name) : "'" + name + "' field of texture atlas is deprecated.");
+}
 Stage.prototype._textures = null;
 Stage.prototype._alpha = 1;
 Stage.prototype.render = function(context) {
@@ -1811,11 +1723,271 @@ Stage.prototype.setTimeout = function(fn, time) {
 Stage.prototype.clearTimeout = function(timer) {
   this.untick(timer);
 };
+Mouse.CLICK = "click";
+Mouse.START = "touchstart mousedown";
+Mouse.MOVE = "touchmove mousemove";
+Mouse.END = "touchend mouseup";
+Mouse.CANCEL = "touchcancel mousecancel";
+Mouse.subscribe = function(stage, elem) {
+  if (stage.mouse) {
+    return;
+  }
+  stage.mouse = new Mouse(stage, elem);
+  elem.addEventListener("touchstart", handleStart);
+  elem.addEventListener("touchend", handleEnd);
+  elem.addEventListener("touchmove", handleMove);
+  elem.addEventListener("touchcancel", handleCancel);
+  elem.addEventListener("mousedown", handleStart);
+  elem.addEventListener("mouseup", handleEnd);
+  elem.addEventListener("mousemove", handleMove);
+  document.addEventListener("mouseup", handleCancel);
+  window.addEventListener("blur", handleCancel);
+  var clicklist = [], cancellist = [];
+  function handleStart(event) {
+    event.preventDefault();
+    stage.mouse.locate(event);
+    stage.mouse.publish(event.type, event);
+    stage.mouse.lookup("click", clicklist);
+    stage.mouse.lookup("mousecancel", cancellist);
+  }
+  function handleMove(event) {
+    event.preventDefault();
+    stage.mouse.locate(event);
+    stage.mouse.publish(event.type, event);
+  }
+  function handleEnd(event) {
+    event.preventDefault();
+    stage.mouse.publish(event.type, event);
+    if (clicklist.length) {
+      stage.mouse.publish("click", event, clicklist);
+    }
+    cancellist.length = 0;
+  }
+  function handleCancel(event) {
+    if (cancellist.length) {
+      stage.mouse.publish("mousecancel", event, cancellist);
+    }
+    clicklist.length = 0;
+  }
+};
+function Mouse(stage, elem) {
+  if (!(this instanceof Mouse)) {
+    return;
+  }
+  var ratio = stage.viewport().ratio || 1;
+  stage.on("viewport", function(size) {
+    ratio = size.ratio || ratio;
+  });
+  this.x = 0;
+  this.y = 0;
+  this.toString = function() {
+    return (this.x | 0) + "x" + (this.y | 0);
+  };
+  this.locate = function(event) {
+    locateElevent(elem, event, this);
+    this.x *= ratio;
+    this.y *= ratio;
+  };
+  this.lookup = function(type, collect) {
+    this.type = type;
+    this.root = stage;
+    this.event = null;
+    collect.length = 0;
+    this.collect = collect;
+    this.root.visit(this.visitor, this);
+  };
+  this.publish = function(type, event, targets) {
+    this.type = type;
+    this.root = stage;
+    this.event = event;
+    this.collect = false;
+    this.timeStamp = Date.now();
+    if (type !== "mousemove" && type !== "touchmove") {
+      console.log(this.type + " " + this);
+    }
+    if (targets) {
+      while (targets.length)
+        if (this.visitor.end(targets.shift(), this))
+          break;
+      targets.length = 0;
+    } else {
+      this.root.visit(this.visitor, this);
+    }
+  };
+  this.visitor = {
+    reverse: true,
+    visible: true,
+    start: function(node, mouse) {
+      return !node._flag(mouse.type);
+    },
+    end: function(node, mouse) {
+      rel.raw = mouse.event;
+      rel.type = mouse.type;
+      rel.timeStamp = mouse.timeStamp;
+      rel.abs.x = mouse.x;
+      rel.abs.y = mouse.y;
+      var listeners = node.listeners(mouse.type);
+      if (!listeners) {
+        return;
+      }
+      node.matrix().inverse().map(mouse, rel);
+      if (!(node === mouse.root || node.attr("spy") || node.hitTest(rel))) {
+        return;
+      }
+      if (mouse.collect) {
+        mouse.collect.push(node);
+      }
+      if (mouse.event) {
+        var cancel = false;
+        for (var l = 0; l < listeners.length; l++) {
+          cancel = listeners[l].call(node, rel) ? true : cancel;
+        }
+        return cancel;
+      }
+    }
+  };
+}
+var rel = {}, abs = {};
+defineValue(rel, "clone", function(obj) {
+  obj = obj || {}, obj.x = this.x, obj.y = this.y;
+  return obj;
+});
+defineValue(rel, "toString", function() {
+  return (this.x | 0) + "x" + (this.y | 0) + " (" + this.abs + ")";
+});
+defineValue(rel, "abs", abs);
+defineValue(abs, "clone", function(obj) {
+  obj = obj || {}, obj.x = this.x, obj.y = this.y;
+  return obj;
+});
+defineValue(abs, "toString", function() {
+  return (this.x | 0) + "x" + (this.y | 0);
+});
+function defineValue(obj, name, value) {
+  Object.defineProperty(obj, name, {
+    value
+  });
+}
+function locateElevent(el, ev, loc) {
+  if (ev.touches && ev.touches.length) {
+    loc.x = ev.touches[0].clientX;
+    loc.y = ev.touches[0].clientY;
+  } else {
+    loc.x = ev.clientX;
+    loc.y = ev.clientY;
+  }
+  var rect = el.getBoundingClientRect();
+  loc.x -= rect.left;
+  loc.y -= rect.top;
+  loc.x -= el.clientLeft | 0;
+  loc.y -= el.clientTop | 0;
+  return loc;
+}
+Stage.mount = function(configs) {
+  configs = configs || {};
+  var canvas = configs.canvas, context = null, full = false;
+  var width = 0, height = 0, ratio = 1;
+  if (typeof canvas === "string") {
+    canvas = document.getElementById(canvas);
+  }
+  if (!canvas) {
+    canvas = document.getElementById("cutjs") || document.getElementById("stage");
+  }
+  if (!canvas) {
+    full = true;
+    console.log("Creating Canvas...");
+    canvas = document.createElement("canvas");
+    canvas.style.position = "absolute";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    var body = document.body;
+    body.insertBefore(canvas, body.firstChild);
+  }
+  context = canvas.getContext("2d");
+  var devicePixelRatio = window.devicePixelRatio || 1;
+  var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+  ratio = devicePixelRatio / backingStoreRatio;
+  var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
+    return window.setTimeout(callback, 1e3 / 60);
+  };
+  console.log("Creating stage...");
+  var root = new Root(requestAnimationFrame, render);
+  root.dom = canvas;
+  function render() {
+    if (width > 0 && height > 0) {
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, width, height);
+      root.render(context);
+    }
+  }
+  root.background = function(color) {
+    canvas.style.backgroundColor = color;
+    return this;
+  };
+  var lastWidth = -1;
+  var lastHeight = -1;
+  (function resizeLoop() {
+    var width2, height2;
+    if (full) {
+      width2 = window.innerWidth > 0 ? window.innerWidth : screen.width;
+      height2 = window.innerHeight > 0 ? window.innerHeight : screen.height;
+    } else {
+      width2 = canvas.clientWidth;
+      height2 = canvas.clientHeight;
+    }
+    if (lastWidth !== width2 || lastHeight !== height2) {
+      lastWidth = width2;
+      lastHeight = height2;
+      resize();
+    }
+    requestAnimationFrame(resizeLoop);
+  })();
+  function resize() {
+    if (full) {
+      width = window.innerWidth > 0 ? window.innerWidth : screen.width;
+      height = window.innerHeight > 0 ? window.innerHeight : screen.height;
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+    } else {
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+    }
+    width *= ratio;
+    height *= ratio;
+    if (canvas.width === width && canvas.height === height) {
+      return;
+    }
+    canvas.width = width;
+    canvas.height = height;
+    console.log("Resize: " + width + " x " + height + " / " + ratio);
+    root.viewport(width, height, ratio);
+    render();
+  }
+  Mouse.subscribe(root, canvas);
+  _stages.push(root);
+  root.start();
+  return root;
+};
+var _stages = [];
+var _paused = false;
+Stage.pause = function() {
+  if (!_paused) {
+    _paused = true;
+    for (var i = _stages.length - 1; i >= 0; i--) {
+      _stages[i].pause();
+    }
+  }
+};
+Stage.resume = function() {
+  if (_paused) {
+    _paused = false;
+    for (var i = _stages.length - 1; i >= 0; i--) {
+      _stages[i].resume();
+    }
+  }
+};
 Root._super = Stage;
 Root.prototype = Object.create(Root._super.prototype);
-Stage.root = function(request, render) {
-  return new Root(request, render);
-};
 function Root(request, render) {
   Root._super.call(this);
   this.label("Root");
@@ -1827,7 +1999,6 @@ function Root(request, render) {
     if (paused === true || stopped === true) {
       return;
     }
-    stats.tick = stats.node = stats.draw = 0;
     var last = lastTime || now;
     var elapsed = now - last;
     lastTime = now;
@@ -1920,19 +2091,19 @@ Root.prototype.viewbox = function(width, height, mode) {
   }
   return this;
 };
-Stage.canvas = function(type, attributes, drawFn) {
+Stage.canvas = function(type, attributes, plotter) {
   if (typeof type === "string") {
     if (typeof attributes === "object")
       ;
     else {
       if (typeof attributes === "function") {
-        drawFn = attributes;
+        plotter = attributes;
       }
       attributes = {};
     }
   } else {
     if (typeof type === "function") {
-      drawFn = type;
+      plotter = type;
     }
     attributes = {};
     type = "2d";
@@ -1950,18 +2121,57 @@ Stage.canvas = function(type, attributes, drawFn) {
     this.src(canvas, ratio);
     return this;
   };
-  texture.canvas = function(fn) {
-    if (typeof fn === "function") {
-      fn.call(this, context);
-    } else if (typeof fn === "undefined" && typeof drawFn === "function") {
-      drawFn.call(this, context);
-    }
-    return this;
-  };
-  if (typeof drawFn === "function") {
-    drawFn.call(texture, context);
+  if (typeof plotter === "function") {
+    plotter.call(texture, context);
   }
   return texture;
+};
+Stage.sprite = function(query) {
+  var sprite = new Sprite();
+  query && sprite.image(query);
+  return sprite;
+};
+Sprite._super = Stage;
+Sprite.prototype = Object.create(Sprite._super.prototype);
+function Sprite() {
+  Sprite._super.call(this);
+  this.label("Sprite");
+  this._textures = [];
+  this._image = null;
+}
+Sprite.prototype.image = function(query) {
+  this._image = Stage.texture(query).one();
+  this.pin("width", this._image ? this._image.width : 0);
+  this.pin("height", this._image ? this._image.height : 0);
+  this._textures[0] = this._image.pipe();
+  this._textures.length = 1;
+  return this;
+};
+Sprite.prototype.tile = function(inner) {
+  this._repeat(false, inner);
+  return this;
+};
+Sprite.prototype.stretch = function(inner) {
+  this._repeat(true, inner);
+  return this;
+};
+Sprite.prototype._repeat = function(stretch, inner) {
+  var self = this;
+  this.untick(this._repeatTicker);
+  this.tick(this._repeatTicker = function() {
+    if (this._mo_stretch == this._pin._ts_transform) {
+      return;
+    }
+    this._mo_stretch = this._pin._ts_transform;
+    var width = this.pin("width");
+    var height = this.pin("height");
+    this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
+  });
+  function insert(i, sx, sy, sw, sh, dx, dy, dw, dh) {
+    var repeat2 = self._textures.length > i ? self._textures[i] : self._textures[i] = self._image.pipe();
+    repeat2.src(sx, sy, sw, sh);
+    repeat2.dest(dx, dy, dw, dh);
+  }
 };
 function repeat(img, owidth, oheight, stretch, inner, insert) {
   var width = img.width;
@@ -2054,53 +2264,6 @@ function repeat(img, owidth, oheight, stretch, inner, insert) {
   }
   return i;
 }
-Stage.image = function(image) {
-  var img = new Image$1();
-  image && img.image(image);
-  return img;
-};
-Image$1._super = Stage;
-Image$1.prototype = Object.create(Image$1._super.prototype);
-function Image$1() {
-  Image$1._super.call(this);
-  this.label("Image");
-  this._textures = [];
-  this._image = null;
-}
-Image$1.prototype.image = function(image) {
-  this._image = Stage.texture(image).one();
-  this.pin("width", this._image ? this._image.width : 0);
-  this.pin("height", this._image ? this._image.height : 0);
-  this._textures[0] = this._image.pipe();
-  this._textures.length = 1;
-  return this;
-};
-Image$1.prototype.tile = function(inner) {
-  this._repeat(false, inner);
-  return this;
-};
-Image$1.prototype.stretch = function(inner) {
-  this._repeat(true, inner);
-  return this;
-};
-Image$1.prototype._repeat = function(stretch, inner) {
-  var self = this;
-  this.untick(this._repeatTicker);
-  this.tick(this._repeatTicker = function() {
-    if (this._mo_stretch == this._pin._ts_transform) {
-      return;
-    }
-    this._mo_stretch = this._pin._ts_transform;
-    var width = this.pin("width");
-    var height = this.pin("height");
-    this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
-  });
-  function insert(i, sx, sy, sw, sh, dx, dy, dw, dh) {
-    var repeat2 = self._textures.length > i ? self._textures[i] : self._textures[i] = self._image.pipe();
-    repeat2.src(sx, sy, sw, sh);
-    repeat2.dest(dx, dy, dw, dh);
-  }
-};
 Stage.anim = function(frames, fps) {
   var anim = new Anim();
   anim.frames(frames).gotoFrame(0);
@@ -2252,11 +2415,11 @@ Str.prototype.value = function(value) {
   this._spacing = this._spacing || 0;
   var width = 0, height = 0;
   for (var i = 0; i < value.length; i++) {
-    var image = this._textures[i] = this._item(value[i]);
+    var texture = this._textures[i] = this._item(value[i]);
     width += i > 0 ? this._spacing : 0;
-    image.dest(width, 0);
-    width = width + image.width;
-    height = Math.max(height, image.height);
+    texture.dest(width, 0);
+    width = width + texture.width;
+    height = Math.max(height, texture.height);
   }
   this.pin("width", width);
   this.pin("height", height);
@@ -2671,7 +2834,7 @@ function pinning(node, map, key, value) {
     map[key + "Y"] = value;
   }
 }
-Pin._add_shortcuts(Tween);
+Pin._add_shortcuts(Tween.prototype);
 Tween.prototype.then = function(fn) {
   this.done(fn);
   return this;
@@ -2679,278 +2842,18 @@ Tween.prototype.then = function(fn) {
 Tween.prototype.clear = function(forward) {
   return this;
 };
-Stage._load(function(stage, elem) {
-  Mouse.subscribe(stage, elem);
-});
-Mouse.CLICK = "click";
-Mouse.START = "touchstart mousedown";
-Mouse.MOVE = "touchmove mousemove";
-Mouse.END = "touchend mouseup";
-Mouse.CANCEL = "touchcancel mousecancel";
-Mouse.subscribe = function(stage, elem) {
-  if (stage.mouse) {
-    return;
-  }
-  stage.mouse = new Mouse(stage, elem);
-  elem.addEventListener("touchstart", handleStart);
-  elem.addEventListener("touchend", handleEnd);
-  elem.addEventListener("touchmove", handleMove);
-  elem.addEventListener("touchcancel", handleCancel);
-  elem.addEventListener("mousedown", handleStart);
-  elem.addEventListener("mouseup", handleEnd);
-  elem.addEventListener("mousemove", handleMove);
-  document.addEventListener("mouseup", handleCancel);
-  window.addEventListener("blur", handleCancel);
-  var clicklist = [], cancellist = [];
-  function handleStart(event) {
-    event.preventDefault();
-    stage.mouse.locate(event);
-    stage.mouse.publish(event.type, event);
-    stage.mouse.lookup("click", clicklist);
-    stage.mouse.lookup("mousecancel", cancellist);
-  }
-  function handleMove(event) {
-    event.preventDefault();
-    stage.mouse.locate(event);
-    stage.mouse.publish(event.type, event);
-  }
-  function handleEnd(event) {
-    event.preventDefault();
-    stage.mouse.publish(event.type, event);
-    if (clicklist.length) {
-      stage.mouse.publish("click", event, clicklist);
-    }
-    cancellist.length = 0;
-  }
-  function handleCancel(event) {
-    if (cancellist.length) {
-      stage.mouse.publish("mousecancel", event, cancellist);
-    }
-    clicklist.length = 0;
-  }
+const index = {
+  ...Stage,
+  Stage,
+  Matrix,
+  Texture,
+  Mouse,
+  Math: math,
+  Sprite,
+  Tween,
+  Root,
+  Pin,
+  Str,
+  Anim
 };
-function Mouse(stage, elem) {
-  if (!(this instanceof Mouse)) {
-    return;
-  }
-  var ratio = stage.viewport().ratio || 1;
-  stage.on("viewport", function(size) {
-    ratio = size.ratio || ratio;
-  });
-  this.x = 0;
-  this.y = 0;
-  this.toString = function() {
-    return (this.x | 0) + "x" + (this.y | 0);
-  };
-  this.locate = function(event) {
-    locateElevent(elem, event, this);
-    this.x *= ratio;
-    this.y *= ratio;
-  };
-  this.lookup = function(type, collect) {
-    this.type = type;
-    this.root = stage;
-    this.event = null;
-    collect.length = 0;
-    this.collect = collect;
-    this.root.visit(this.visitor, this);
-  };
-  this.publish = function(type, event, targets) {
-    this.type = type;
-    this.root = stage;
-    this.event = event;
-    this.collect = false;
-    this.timeStamp = Date.now();
-    if (type !== "mousemove" && type !== "touchmove") {
-      console.log(this.type + " " + this);
-    }
-    if (targets) {
-      while (targets.length)
-        if (this.visitor.end(targets.shift(), this))
-          break;
-      targets.length = 0;
-    } else {
-      this.root.visit(this.visitor, this);
-    }
-  };
-  this.visitor = {
-    reverse: true,
-    visible: true,
-    start: function(node, mouse) {
-      return !node._flag(mouse.type);
-    },
-    end: function(node, mouse) {
-      rel.raw = mouse.event;
-      rel.type = mouse.type;
-      rel.timeStamp = mouse.timeStamp;
-      rel.abs.x = mouse.x;
-      rel.abs.y = mouse.y;
-      var listeners = node.listeners(mouse.type);
-      if (!listeners) {
-        return;
-      }
-      node.matrix().inverse().map(mouse, rel);
-      if (!(node === mouse.root || node.attr("spy") || node.hitTest(rel))) {
-        return;
-      }
-      if (mouse.collect) {
-        mouse.collect.push(node);
-      }
-      if (mouse.event) {
-        var cancel = false;
-        for (var l = 0; l < listeners.length; l++) {
-          cancel = listeners[l].call(node, rel) ? true : cancel;
-        }
-        return cancel;
-      }
-    }
-  };
-}
-var rel = {}, abs = {};
-defineValue(rel, "clone", function(obj) {
-  obj = obj || {}, obj.x = this.x, obj.y = this.y;
-  return obj;
-});
-defineValue(rel, "toString", function() {
-  return (this.x | 0) + "x" + (this.y | 0) + " (" + this.abs + ")";
-});
-defineValue(rel, "abs", abs);
-defineValue(abs, "clone", function(obj) {
-  obj = obj || {}, obj.x = this.x, obj.y = this.y;
-  return obj;
-});
-defineValue(abs, "toString", function() {
-  return (this.x | 0) + "x" + (this.y | 0);
-});
-function defineValue(obj, name, value) {
-  Object.defineProperty(obj, name, {
-    value
-  });
-}
-function locateElevent(el, ev, loc) {
-  if (ev.touches && ev.touches.length) {
-    loc.x = ev.touches[0].clientX;
-    loc.y = ev.touches[0].clientY;
-  } else {
-    loc.x = ev.clientX;
-    loc.y = ev.clientY;
-  }
-  var rect = el.getBoundingClientRect();
-  loc.x -= rect.left;
-  loc.y -= rect.top;
-  loc.x -= el.clientLeft | 0;
-  loc.y -= el.clientTop | 0;
-  return loc;
-}
-window.addEventListener("load", function() {
-  console.log("On load.");
-  Stage.start();
-}, false);
-Stage.config({
-  "app-loader": AppLoader,
-  "image-loader": ImageLoader
-});
-function AppLoader(app, configs) {
-  configs = configs || {};
-  var canvas = configs.canvas, context = null, full = false;
-  var width = 0, height = 0, ratio = 1;
-  if (typeof canvas === "string") {
-    canvas = document.getElementById(canvas);
-  }
-  if (!canvas) {
-    canvas = document.getElementById("cutjs") || document.getElementById("stage");
-  }
-  if (!canvas) {
-    full = true;
-    console.log("Creating Canvas...");
-    canvas = document.createElement("canvas");
-    canvas.style.position = "absolute";
-    canvas.style.top = "0";
-    canvas.style.left = "0";
-    var body = document.body;
-    body.insertBefore(canvas, body.firstChild);
-  }
-  context = canvas.getContext("2d");
-  var devicePixelRatio = window.devicePixelRatio || 1;
-  var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
-  ratio = devicePixelRatio / backingStoreRatio;
-  var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
-    return window.setTimeout(callback, 1e3 / 60);
-  };
-  console.log("Creating stage...");
-  var root = Stage.root(requestAnimationFrame, render);
-  function render() {
-    if (width > 0 && height > 0) {
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, width, height);
-      root.render(context);
-    }
-  }
-  root.background = function(color) {
-    canvas.style.backgroundColor = color;
-    return this;
-  };
-  app(root, canvas);
-  var lastWidth = -1;
-  var lastHeight = -1;
-  (function resizeLoop() {
-    var width2, height2;
-    if (full) {
-      width2 = window.innerWidth > 0 ? window.innerWidth : screen.width;
-      height2 = window.innerHeight > 0 ? window.innerHeight : screen.height;
-    } else {
-      width2 = canvas.clientWidth;
-      height2 = canvas.clientHeight;
-    }
-    if (lastWidth !== width2 || lastHeight !== height2) {
-      lastWidth = width2;
-      lastHeight = height2;
-      resize();
-    }
-    requestAnimationFrame(resizeLoop);
-  })();
-  function resize() {
-    if (full) {
-      width = window.innerWidth > 0 ? window.innerWidth : screen.width;
-      height = window.innerHeight > 0 ? window.innerHeight : screen.height;
-      canvas.style.width = width + "px";
-      canvas.style.height = height + "px";
-    } else {
-      width = canvas.clientWidth;
-      height = canvas.clientHeight;
-    }
-    width *= ratio;
-    height *= ratio;
-    if (canvas.width === width && canvas.height === height) {
-      return;
-    }
-    canvas.width = width;
-    canvas.height = height;
-    console.log("Resize: " + width + " x " + height + " / " + ratio);
-    root.viewport(width, height, ratio);
-    render();
-  }
-}
-function ImageLoader(src, success, error) {
-  console.log("Loading image: " + src);
-  var image = new Image();
-  image.onload = function() {
-    success(image);
-  };
-  image.onerror = error;
-  image.src = src;
-}
-listenable(Stage.prototype, function(obj, name, on) {
-  obj._flag(name, on);
-});
-Stage.Matrix = Matrix;
-Stage.Texture = Texture;
-Stage.Mouse = Mouse;
-Stage.Math = math;
-Stage.Image = Image$1;
-Stage.Tween = Tween;
-Stage.Root = Root;
-Stage.Pin = Pin;
-Stage.Str = Str;
-Stage.Anim = Anim;
-module.exports = Stage;
+module.exports = index;

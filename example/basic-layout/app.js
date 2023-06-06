@@ -18,14 +18,14 @@ stage.on(Mouse.CLICK, function(point) {
   bar8.tween().pin('height', Math.random(20, 100) | 0);
 });
 
-var bar1 = Stage.image('box').stretch();
-var bar2 = Stage.image('box').stretch();
-var bar3 = Stage.image('box').stretch();
-var bar4 = Stage.image('box').stretch();
-var bar5 = Stage.image('box').stretch();
-var bar6 = Stage.image('box').stretch();
-var bar7 = Stage.image('box').stretch();
-var bar8 = Stage.image('box').stretch();
+var bar1 = Stage.sprite('box').stretch();
+var bar2 = Stage.sprite('box').stretch();
+var bar3 = Stage.sprite('box').stretch();
+var bar4 = Stage.sprite('box').stretch();
+var bar5 = Stage.sprite('box').stretch();
+var bar6 = Stage.sprite('box').stretch();
+var bar7 = Stage.sprite('box').stretch();
+var bar8 = Stage.sprite('box').stretch();
 
 Stage.column(1).append(bar1, bar2).appendTo(stage).pin({
   alignX : 1,

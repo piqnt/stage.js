@@ -129,12 +129,12 @@ var stage = Stage.mount();
 
 stage.viewbox(50, 50).pin('handle', -0.5);
 
-Stage.image('bg').pin('handle', 0.5).appendTo(stage);
+Stage.sprite('bg').pin('handle', 0.5).appendTo(stage);
 
 var game = new Game({
   cell : function(obj) {
     console.log('ui new cell');
-    var img = Stage.image('x').appendTo(stage).pin({
+    var img = Stage.sprite('x').appendTo(stage).pin({
       offsetX : obj.i * 10,
       offsetY : obj.j * 10,
       handle : 0.5
@@ -148,7 +148,7 @@ var game = new Game({
     return {
       update : function() {
         console.log('ui update cell');
-        img.image(obj.sign || '-').pin({
+        img.sprite(obj.sign || '-').pin({
           alpha : 0.8,
           scale : 1
         });

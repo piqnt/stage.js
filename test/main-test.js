@@ -13,7 +13,7 @@ it('static methods', function() {
   expect(Stage.create).be.a('function');
 
   // expect(Stage.stage).be.a('function');
-  // expect(Stage.image).be.a('function');
+  // expect(Stage.sprite).be.a('function');
   // expect(Stage.anim).be.a('function');
   // expect(Stage.string).be.a('function');
   // expect(Stage.canvas).be.a('function');

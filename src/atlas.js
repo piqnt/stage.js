@@ -8,8 +8,17 @@ import Texture from './texture';
 
 
 var NO_TEXTURE = new class extends Texture {
-  x = y = width = height = 0
-  pipe = src = dest = function() {
+  constructor() {
+    super();
+    this.x = this.y = this.width = this.height = 0
+  }
+  pipe = function() {
+    return this;
+  };
+  src = function() {
+    return this;
+  };
+  dest = function() {
     return this;
   };
   draw = function() {

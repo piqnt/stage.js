@@ -12,7 +12,7 @@ var stage = Stage.mount();
 
 stage.viewbox(1000, 1000);
 
-var box = Stage.image('package').appendTo(stage).pin({
+var box = Stage.sprite('package').appendTo(stage).pin({
   alignX : 0.5,
   alignY : 0.6,
 });

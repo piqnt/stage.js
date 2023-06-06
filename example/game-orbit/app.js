@@ -300,7 +300,7 @@ var Mouse = Stage.Mouse;
 root.viewbox(150, 150);
 
 // add the background
-Stage.image('background').pin('align', 0.5).on('viewport', function() {
+Stage.sprite('background').pin('align', 0.5).on('viewport', function() {
   // on viewport change scale it to fill root
   this.pin({
     scaleMode : 'out',
@@ -332,7 +332,7 @@ var homeView = Stage.create().on('viewport', function() {
 }).hide().appendTo(root);
 
 // start button
-Stage.image('play').pin('align', 0.5).on(Mouse.CLICK, function() {
+Stage.sprite('play').pin('align', 0.5).on(Mouse.CLICK, function() {
   startGame();
 }).appendTo(homeView);
 
@@ -366,7 +366,7 @@ var game = new Game({
     life.value(game.life);
   },
   planet : function(obj) {
-    var img = Stage.image('planet').pin('handle', 0.5);
+    var img = Stage.sprite('planet').pin('handle', 0.5);
     return {
       add : function() {
         img.appendTo(space);
@@ -381,7 +381,7 @@ var game = new Game({
     };
   },
   asteroid : function(obj) {
-    var img = Stage.image('asteroid').pin('handle', 0.5);
+    var img = Stage.sprite('asteroid').pin('handle', 0.5);
     return {
       add : function() {
         img.appendTo(space);
@@ -396,8 +396,8 @@ var game = new Game({
     };
   },
   orbit : function(obj) {
-    var img = Stage.image('orbit').pin('handle', 0.5);
-    var ring = Stage.image('first').pin('align', 0.5).appendTo(img).hide();
+    var img = Stage.sprite('orbit').pin('handle', 0.5);
+    var ring = Stage.sprite('first').pin('align', 0.5).appendTo(img).hide();
     return {
       add : function() {
         img.appendTo(space);
@@ -414,7 +414,7 @@ var game = new Game({
     };
   },
   bullet : function(obj) {
-    var img = Stage.image('bullet').pin('handle', 0.5);
+    var img = Stage.sprite('bullet').pin('handle', 0.5);
     return {
       add : function() {
         img.appendTo(space);
@@ -429,7 +429,7 @@ var game = new Game({
     };
   },
   explode : function(obj) {
-    var explosion = Stage.image('explosion').pin('handle', 0.5).offset(obj)
+    var explosion = Stage.sprite('explosion').pin('handle', 0.5).offset(obj)
         .scale(0.1).appendTo(space);
     explosion.tween(50).scale(1).then(function() {
       game.explode(obj);

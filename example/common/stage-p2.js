@@ -135,7 +135,7 @@ Viewer.prototype.addRenderable = function(obj) {
   if (obj instanceof p2.Body && obj.shapes.length) {
     if (obj.concavePath && !this.options.debugPolygons) {
       var texture = this.drawConvex(obj.concavePath, obj.render);
-      Stage.image(texture).appendTo(obj.ui).pin({
+      Stage.sprite(texture).appendTo(obj.ui).pin({
         handle : 0.5,
         offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
         offsetY : -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
@@ -171,7 +171,7 @@ Viewer.prototype.addRenderable = function(obj) {
             texture = this.drawConvex(shape.vertices, options);
           }
         }
-        Stage.image(texture).appendTo(obj.ui).pin({
+        Stage.sprite(texture).appendTo(obj.ui).pin({
           handle : 0.5,
           offsetX : obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
           offsetY : -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
@@ -182,7 +182,7 @@ Viewer.prototype.addRenderable = function(obj) {
 
   } else if (obj instanceof p2.Spring) {
     var texture = this.drawSpring(obj.restLength, obj.render);
-    Stage.image(texture).appendTo(obj.ui).pin({
+    Stage.sprite(texture).appendTo(obj.ui).pin({
       handle : 0.5
     });
   }
