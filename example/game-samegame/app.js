@@ -181,7 +181,7 @@ var board = Stage.create().appendTo(stage).pin({
   align : 0.5
 });
 
-Stage.image('easy').appendTo(board).pin({
+Stage.sprite('easy').appendTo(board).pin({
   alignX : 1,
   alignY : 1,
   handleY : 0,
@@ -191,7 +191,7 @@ Stage.image('easy').appendTo(board).pin({
   game.start(4);
 });
 
-Stage.image('hard').appendTo(board).pin({
+Stage.sprite('hard').appendTo(board).pin({
   alignX : 1,
   alignY : 1,
   handleY : 0,
@@ -204,7 +204,7 @@ Stage.image('hard').appendTo(board).pin({
 // create game with ui callbacks
 var game = new Game({
   tile : function(tile) {
-    var img = Stage.image('tile-' + tile.color).pin({
+    var img = Stage.sprite('tile-' + tile.color).pin({
       handle : 0.5
     }).on(Mouse.CLICK, function(point) {
       game.click(tile);

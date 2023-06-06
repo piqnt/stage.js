@@ -67,11 +67,11 @@ Str.prototype.value = function(value) {
 
   var width = 0, height = 0;
   for (var i = 0; i < value.length; i++) {
-    var image = this._textures[i] = this._item(value[i]);
+    var texture = this._textures[i] = this._item(value[i]);
     width += i > 0 ? this._spacing : 0;
-    image.dest(width, 0);
-    width = width + image.width;
-    height = Math.max(height, image.height);
+    texture.dest(width, 0);
+    width = width + texture.width;
+    height = Math.max(height, texture.height);
   }
   this.pin('width', width);
   this.pin('height', height);

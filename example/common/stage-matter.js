@@ -78,7 +78,7 @@ Viewer.prototype.addRenderable = function(body) {
       texture = this.drawConvex(body.vertices, body.position, body.render);
     }
     if (texture) {
-      body.ui = Stage.image(texture).pin('handle', 0.5).appendTo(this);
+      body.ui = Stage.sprite(texture).pin('handle', 0.5).appendTo(this);
     }
     this.updateRenderable(body);
   }

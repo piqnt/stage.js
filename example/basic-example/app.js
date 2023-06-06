@@ -15,8 +15,8 @@ const stage = Stage.mount();
 // Set view box
 stage.viewbox(300, 200);
 
-// Create an image and append it to stage
-var box = Stage.image('box').appendTo(stage);
+// Create an sprite and append it to stage
+var box = Stage.sprite('box').appendTo(stage);
 
 // Align box to center
 box.pin('align', 0.5);

@@ -79,7 +79,7 @@
       // texture = this.drawConvex(shape.points);
       // }
     }
-    obj.ui = Stage.create().append(Stage.image(texture).pin({
+    obj.ui = Stage.create().append(Stage.sprite(texture).pin({
       handle : 0.5
     })).appendTo(this);
   };

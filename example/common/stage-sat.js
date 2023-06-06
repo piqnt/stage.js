@@ -109,7 +109,7 @@
       }
     }
 
-    Stage.image(texture).appendTo(obj.ui).pin({
+    Stage.sprite(texture).appendTo(obj.ui).pin({
       handle : 0.5
     });
 

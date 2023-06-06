@@ -1,11 +1,11 @@
 interface TextureDefinition {
 }
 
-type ImageType = HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas;
+type Plotter = (context: CanvasRenderingContext2D) => void;
+
+type Drawable = Plotter | HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas;
 
 type Ticker = (t: number, dt: number) => boolean | void
-
-type Plotter = (context: CanvasRenderingContext2D) => void;
 
 interface Visitor<D> {
   start(child: Stage.Stage, data: D): boolean | void;
@@ -22,18 +22,20 @@ export namespace Stage {
   function resume(): void;
 
   function create(): Stage.Stage;
-  function box(): Stage.Stage;
+
   function column(align: number): Stage.Stage;
-  function layer(): Stage.Stage;
   function row(align: number): Stage.Stage;
+  function layer(): Stage.Stage;
+  function box(): Stage.Stage;
+
+  function sprite(frame?: any): Stage.Sprite;
   function anim(frames: string | Stage.Texture[], fps: number): Stage.Anim;
   function string(frames: string | Stage.Texture[]): Stage.Str;
-  function canvas(): Stage.Stage;
-  function canvas(plotter: Plotter): Stage.Stage;
-  function canvas(type: string, attributes: Record<string, string>, plotter: Plotter): Stage.Stage;
 
   function texture(query: string): Stage.Texture | Stage.Texture[];
-  function image(image?: ImageType): Stage.Image;
+  function canvas(plotter: Plotter): Stage.Texture;
+  function canvas(type: string, plotter: Plotter): Stage.Texture;
+  function canvas(type: string, attributes: Record<string, string>, plotter: Plotter): Stage.Texture;
 
   export interface Stage {
     appendTo(parent: Stage.Stage): this;
@@ -99,13 +101,12 @@ export namespace Stage {
     on(type: string, listener: (...args: unknown[]) => void): this;
     off(type: string, listener: (...args: unknown[]) => void): this;
     publish(name: string, ...args: unknown[]): number;
-    listeners(type: string): unknown[];
-  
-    box(): this;
+    listeners(type: string): unknown[];  
   
     row(align: number): this;
     column(align: number): this;
   
+    box(): this;
     layer(): this;
   
     timeout(fn: () => unknown, time: number): void;
@@ -135,7 +136,7 @@ export namespace Stage {
     viewport(width: number, height: number, ratio: any): this;
   }
 
-  class Image extends Stage.Stage {
+  class Sprite extends Stage.Stage {
     constructor(texture: Texture);
     image(texture: Texture): this;
     stretch(inner: any): this;
@@ -227,9 +228,9 @@ export namespace Stage {
 
   class Texture {
     constructor();
-    constructor(image: ImageType, ratio: number);
+    constructor(drawable: Drawable, ratio: number);
 
-    src(image: ImageType, ratio: number): this;
+    src(drawable: Drawable, ratio: number): this;
 
     src(x: number, y: number): this;
     src(x: number, y: number, w: number, h: number): this;

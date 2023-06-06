@@ -1,18 +1,18 @@
 import Stage from './core';
 import Texture from './texture';
 
-Stage.canvas = function(type, attributes, drawFn) {
+Stage.canvas = function(type, attributes, plotter) {
   if (typeof type === 'string') {
     if (typeof attributes === 'object') {
     } else {
       if (typeof attributes === 'function') {
-        drawFn = attributes;
+        plotter = attributes;
       }
       attributes = {};
     }
   } else {
     if (typeof type === 'function') {
-      drawFn = type;
+      plotter = type;
     }
     attributes = {};
     type = '2d';
@@ -34,17 +34,17 @@ Stage.canvas = function(type, attributes, drawFn) {
     return this;
   };
 
-  texture.canvas = function(fn) {
-    if (typeof fn === 'function') {
-      fn.call(this, context);
-    } else if (typeof fn === 'undefined' && typeof drawFn === 'function') {
-      drawFn.call(this, context);
-    }
-    return this;
-  };
+  // texture.canvas = function(fn) {
+  //   if (typeof fn === 'function') {
+  //     fn.call(this, context);
+  //   } else if (typeof fn === 'undefined' && typeof plotter === 'function') {
+  //     plotter.call(this, context);
+  //   }
+  //   return this;
+  // };
 
-  if (typeof drawFn === 'function') {
-    drawFn.call(texture, context);
+  if (typeof plotter === 'function') {
+    plotter.call(texture, context);
   }
 
   return texture;

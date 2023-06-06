@@ -7,7 +7,7 @@ var stage = Stage.mount();
 
 stage.viewbox(200, 200);
 
-Stage.image('box').stretch().appendTo(stage).pin({
+Stage.sprite('box').stretch().appendTo(stage).pin({
   width : 64,
   height : 64,
   align : 0.5

@@ -151,8 +151,8 @@ Drone.prototype.tick = function(t) {
 
 Drone.prototype.uiCreate = function() {
   this.ui = Stage.create().pin('handle', 0.5);
-  this.ui.drone = Stage.image('drone').pin('handle', 0.5).appendTo(this.ui);
-  this.ui.shadow = Stage.image('drone').pin('handle', 0.5).pin({
+  this.ui.drone = Stage.sprite('drone').pin('handle', 0.5).appendTo(this.ui);
+  this.ui.shadow = Stage.sprite('drone').pin('handle', 0.5).pin({
     alpha : 0.2,
     offsetX : 30,
     offsetY : 30

@@ -14,15 +14,6 @@ Features:
 [中文手册](https://github.com/shakiba/stage.js/wiki/%E4%B8%AD%E6%96%87%E6%89%8B%E5%86%8C)
 
 
-## V1 (alpha) Upgrade and Breaking Changes
-
-- `Stage` is not callable anymore
-  - `Stage({ }})` is replaced by `await Stage.atlas({ })`
-  - `Stage(function(stage, element))` is replaced by `stage = Stage.mount()`
-  - `Stage()` is replaced by `Stage.create()`
-
-- Relative path image url resolving is removed
-
 ### Example
 
 ```js
@@ -40,8 +31,8 @@ const stage = Stage.mount();
 // Set view box
 stage.viewbox(300, 200);
 
-// Create an image and append it to stage
-var box = Stage.image('box').appendTo(stage);
+// Create an sprite and append it to stage
+var box = Stage.sprite('box').appendTo(stage);
 
 // Align box to center
 box.pin('align', 0.5);
@@ -389,7 +380,7 @@ Stage.Mouse.CANCEL = 'touchcancel mousecancel';
 Textures are drawable objects which are used by tree nodes to draw graphics on the Canvas surface.
 
 ### Texture Atlas
-A texture atlas (sprite sheet) consists of a set of named textures which are referenced by name in an application.
+A texture atlas (sprite sheet) consists of a set of named textures that are referenced by name in an application.
 
 Atlases are usually created using static image files. Images referenced in atlases are automatically preloaded.
 
@@ -423,30 +414,27 @@ Stage.atlas({
   }
 });
 
-Stage.image('mario:stand');
+Stage.sprite('mario:stand');
 
 Stage.anim('mario:walk').play();
 
 Stage.string('mario:number').value(100);
 ```
 
-If image src starts with `./` it will be resolved relative to the current script URL.
-
-
-### Image
-An image is a node with one texture.
+### Sprite
+An sprite is a node with one texture.
 
 ```javascript
-// Create a new image instance
-var image = Stage.image(texture);
+// Create a new sprite instance
+var sprite = Stage.sprite(texture);
 
-// Change image texture
-image.image(texture);
+// Change sprite texture
+sprite.sprite(texture);
 
-// Tile/Stretch image when pinning width and/or height
+// Tile/Stretch sprite when pinning width and/or height
 // To define borders add top, bottom, left and right to texture
-image.tile();
-image.stretch();
+sprite.tile();
+sprite.stretch();
 ```
 
 
@@ -535,7 +523,7 @@ node.spacing(space);
 
 ### Box (experimental)
 A box resizes to wrap its children. It can be applied to tiled/stretched
-images to create variable size components such as windows and buttons.
+images to create variable-size components such as windows and buttons.
 
 ```javascript
 // Create a new box

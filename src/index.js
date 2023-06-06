@@ -8,7 +8,7 @@ import './loop';
 
 import Root from './root';
 import './canvas';
-import Image from './image';
+import Sprite from './sprite';
 import Anim from './anim';
 import Str from './str';
 import './layout';
@@ -23,7 +23,7 @@ export default {
   Texture,
   Mouse,
   Math,
-  Image,
+  Sprite,
   Tween,
   Root,
   Pin,
