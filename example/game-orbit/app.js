@@ -293,23 +293,23 @@ function Game(gameui) {
 }
 
 // UI
-var root = Stage.mount();
+var stage = Stage.mount();
 
 // set viewbox
-root.viewbox(150, 150);
+stage.viewbox(150, 150);
 
 // add the background
 Stage.sprite('background').pin('align', 0.5).on('viewport', function() {
-  // on viewport change scale it to fill root
+  // on viewport change scale it to fill stage
   this.pin({
     scaleMode : 'out',
-    scaleWidth : root.width(),
-    scaleHeight : root.height()
+    scaleWidth : stage.width(),
+    scaleHeight : stage.height()
   });
-}).appendTo(root);
+}).appendTo(stage);
 
 // an element which views only one child at a time
-var singleView = Stage.create().appendTo(root);
+var singleView = Stage.create().appendTo(stage);
 singleView.view = function(active) {
   if (active.parent() !== this) {
     active.remove().appendTo(this);
@@ -325,10 +325,10 @@ singleView.view = function(active) {
 // game home view
 var homeView = Stage.create().on('viewport', function() {
   this.pin({
-    width : root.width(),
-    height : root.height()
+    width : stage.width(),
+    height : stage.height()
   });
-}).hide().appendTo(root);
+}).hide().appendTo(stage);
 
 // start button
 Stage.sprite('play').pin('align', 0.5).on(Stage.Mouse.CLICK, function() {
@@ -338,10 +338,10 @@ Stage.sprite('play').pin('align', 0.5).on(Stage.Mouse.CLICK, function() {
 // game play view
 var playView = Stage.create().on('viewport', function() {
   this.pin({
-    width : root.width(),
-    height : root.height()
+    width : stage.width(),
+    height : stage.height()
   });
-}).hide().appendTo(root);
+}).hide().appendTo(stage);
 
 var space = Stage.create().pin('align', 0.5).appendTo(playView);
 
@@ -356,7 +356,7 @@ Stage.row().spacing(2).pin({
   offset : 2,
   align : 0,
   handle : 0
-}).appendTo(root).append(life, score);
+}).appendTo(stage).append(life, score);
 
 // create a game with ui callbacks
 var game = new Game({
