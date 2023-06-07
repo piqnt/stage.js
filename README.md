@@ -506,7 +506,7 @@ string.value();
 
 
 ### Row and Column
-A row/column is a node which organizes its children as a horizontal/vertical sequence.
+A row/column is a node that aligns its children in a horizontal/vertical direction.
 
 ```javascript
 // Create a new row/column

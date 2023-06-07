@@ -5,7 +5,7 @@ export const row = function(align) {
 };
 
 Stage.prototype.row = function(align) {
-  this.sequence('row', align);
+  this.align('row', align);
   return this;
 };
 
@@ -14,15 +14,11 @@ export const column = function(align) {
 };
 
 Stage.prototype.column = function(align) {
-  this.sequence('column', align);
+  this.align('column', align);
   return this;
 };
 
-sequence = function(type, align) {
-  return create().sequence(type, align).label('Sequence');
-};
-
-Stage.prototype.sequence = function(type, align) {
+Stage.prototype.align = function(type, align) {
 
   this._padding = this._padding || 0;
   this._spacing = this._spacing || 0;

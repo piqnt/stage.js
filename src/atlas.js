@@ -72,99 +72,98 @@ export const atlas = async function(def) {
   return atlas;
 };
 
-Atlas._super = Texture;
-Atlas.prototype = Object.create(Atlas._super.prototype);
+export class Atlas extends Texture {
+  constructor(def) {
+    super();
 
-export function Atlas(def) {
-  Atlas._super.call(this);
+    var atlas = this;
 
-  var atlas = this;
+    deprecated(def, 'filter');
+    deprecated(def, 'cutouts');
+    deprecated(def, 'sprites');
+    deprecated(def, 'factory');
 
-  deprecated(def, 'filter');
-  deprecated(def, 'cutouts');
-  deprecated(def, 'sprites');
-  deprecated(def, 'factory');
+    var map = def.map || def.filter;
+    var ppu = def.ppu || def.ratio || 1;
+    var trim = def.trim || 0;
+    var textures = def.textures;
+    var factory = def.factory;
+    var cutouts = def.cutouts || def.sprites;
 
-  var map = def.map || def.filter;
-  var ppu = def.ppu || def.ratio || 1;
-  var trim = def.trim || 0;
-  var textures = def.textures;
-  var factory = def.factory;
-  var cutouts = def.cutouts || def.sprites;
-
-  function make(def) {
-    if (!def || is.fn(def.draw)) {
-      return def;
-    }
-
-    def = Object.assign({}, def);
-
-    if (is.fn(map)) {
-      def = map(def);
-    }
-
-    if (ppu != 1) {
-      def.x *= ppu, def.y *= ppu;
-      def.width *= ppu, def.height *= ppu;
-      def.top *= ppu, def.bottom *= ppu;
-      def.left *= ppu, def.right *= ppu;
-    }
-
-    if (trim != 0) {
-      def.x += trim, def.y += trim;
-      def.width -= 2 * trim, def.height -= 2 * trim;
-      def.top -= trim, def.bottom -= trim;
-      def.left -= trim, def.right -= trim;
-    }
-
-    var texture = atlas.pipe();
-    texture.top = def.top, texture.bottom = def.bottom;
-    texture.left = def.left, texture.right = def.right;
-    texture.src(def.x, def.y, def.width, def.height);
-    return texture;
-  }
-
-  function find(query) {
-    if (textures) {
-      if (is.fn(textures)) {
-        return textures(query);
-      } else if (is.hash(textures)) {
-        return textures[query];
+    function make(def) {
+      if (!def || is.fn(def.draw)) {
+        return def;
       }
+
+      def = Object.assign({}, def);
+
+      if (is.fn(map)) {
+        def = map(def);
+      }
+
+      if (ppu != 1) {
+        def.x *= ppu, def.y *= ppu;
+        def.width *= ppu, def.height *= ppu;
+        def.top *= ppu, def.bottom *= ppu;
+        def.left *= ppu, def.right *= ppu;
+      }
+
+      if (trim != 0) {
+        def.x += trim, def.y += trim;
+        def.width -= 2 * trim, def.height -= 2 * trim;
+        def.top -= trim, def.bottom -= trim;
+        def.left -= trim, def.right -= trim;
+      }
+
+      var texture = atlas.pipe();
+      texture.top = def.top, texture.bottom = def.bottom;
+      texture.left = def.left, texture.right = def.right;
+      texture.src(def.x, def.y, def.width, def.height);
+      return texture;
     }
-    if (cutouts) { // deprecated
-      var result = null, n = 0;
-      for (var i = 0; i < cutouts.length; i++) {
-        if (string.startsWith(cutouts[i].name, query)) {
-          if (n === 0) {
-            result = cutouts[i];
-          } else if (n === 1) {
-            result = [ result, cutouts[i] ];
-          } else {
-            result.push(cutouts[i]);
-          }
-          n++;
+
+    function find(query) {
+      if (textures) {
+        if (is.fn(textures)) {
+          return textures(query);
+        } else if (is.hash(textures)) {
+          return textures[query];
         }
       }
-      if (n === 0 && is.fn(factory)) {
-        result = function(subquery) {
-          return factory(query + (subquery ? subquery : ''));
-        };
+      if (cutouts) { // deprecated
+        var result = null, n = 0;
+        for (var i = 0; i < cutouts.length; i++) {
+          if (string.startsWith(cutouts[i].name, query)) {
+            if (n === 0) {
+              result = cutouts[i];
+            } else if (n === 1) {
+              result = [result, cutouts[i]];
+            } else {
+              result.push(cutouts[i]);
+            }
+            n++;
+          }
+        }
+        if (n === 0 && is.fn(factory)) {
+          result = function (subquery) {
+            return factory(query + (subquery ? subquery : ''));
+          };
+        }
+        return result;
       }
-      return result;
     }
-  }
 
-  this.select = function(query) {
-    if (!query) {
-      // TODO: if `textures` is texture def, map or fn?
-      return new Selection(this.pipe());
-    }
-    var found = find(query);
-    if (found) {
-      return new Selection(found, find, make);
-    }
-  };
+    this.select = function (query) {
+      if (!query) {
+        // TODO: if `textures` is texture def, map or fn?
+        return new Selection(this.pipe());
+      }
+      var found = find(query);
+      if (found) {
+        return new Selection(found, find, make);
+      }
+    };
+  }
 };
 
 function Selection(result, find, make) {

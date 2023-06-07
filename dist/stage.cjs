@@ -292,147 +292,149 @@ const stats = {
   draw: 0,
   fps: 0
 };
-function Matrix(a, b, c, d, e, f) {
-  this.reset(a, b, c, d, e, f);
+class Matrix {
+  constructor(a, b, c, d, e, f) {
+    this.reset(a, b, c, d, e, f);
+  }
+  toString() {
+    return "[" + this.a + ", " + this.b + ", " + this.c + ", " + this.d + ", " + this.e + ", " + this.f + "]";
+  }
+  clone() {
+    return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
+  }
+  reset(a, b, c, d, e, f) {
+    this._dirty = true;
+    if (typeof a === "object") {
+      this.a = a.a, this.d = a.d;
+      this.b = a.b, this.c = a.c;
+      this.e = a.e, this.f = a.f;
+    } else {
+      this.a = a || 1, this.d = d || 1;
+      this.b = b || 0, this.c = c || 0;
+      this.e = e || 0, this.f = f || 0;
+    }
+    return this;
+  }
+  identity() {
+    this._dirty = true;
+    this.a = 1;
+    this.b = 0;
+    this.c = 0;
+    this.d = 1;
+    this.e = 0;
+    this.f = 0;
+    return this;
+  }
+  rotate(angle) {
+    if (!angle) {
+      return this;
+    }
+    this._dirty = true;
+    var u = angle ? Math.cos(angle) : 1;
+    var v = angle ? Math.sin(angle) : 0;
+    var a = u * this.a - v * this.b;
+    var b = u * this.b + v * this.a;
+    var c = u * this.c - v * this.d;
+    var d = u * this.d + v * this.c;
+    var e = u * this.e - v * this.f;
+    var f = u * this.f + v * this.e;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+  }
+  translate(x, y) {
+    if (!x && !y) {
+      return this;
+    }
+    this._dirty = true;
+    this.e += x;
+    this.f += y;
+    return this;
+  }
+  scale(x, y) {
+    if (!(x - 1) && !(y - 1)) {
+      return this;
+    }
+    this._dirty = true;
+    this.a *= x;
+    this.b *= y;
+    this.c *= x;
+    this.d *= y;
+    this.e *= x;
+    this.f *= y;
+    return this;
+  }
+  skew(x, y) {
+    if (!x && !y) {
+      return this;
+    }
+    this._dirty = true;
+    var a = this.a + this.b * x;
+    var b = this.b + this.a * y;
+    var c = this.c + this.d * x;
+    var d = this.d + this.c * y;
+    var e = this.e + this.f * x;
+    var f = this.f + this.e * y;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+  }
+  concat(m) {
+    this._dirty = true;
+    var n = this;
+    var a = n.a * m.a + n.b * m.c;
+    var b = n.b * m.d + n.a * m.b;
+    var c = n.c * m.a + n.d * m.c;
+    var d = n.d * m.d + n.c * m.b;
+    var e = n.e * m.a + m.e + n.f * m.c;
+    var f = n.f * m.d + m.f + n.e * m.b;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+  }
+  inverse() {
+    if (this._dirty) {
+      this._dirty = false;
+      this.inverted = this.inverted || new Matrix();
+      var z = this.a * this.d - this.b * this.c;
+      this.inverted.a = this.d / z;
+      this.inverted.b = -this.b / z;
+      this.inverted.c = -this.c / z;
+      this.inverted.d = this.a / z;
+      this.inverted.e = (this.c * this.f - this.e * this.d) / z;
+      this.inverted.f = (this.e * this.b - this.a * this.f) / z;
+    }
+    return this.inverted;
+  }
+  map(p, q) {
+    q = q || {};
+    q.x = this.a * p.x + this.c * p.y + this.e;
+    q.y = this.b * p.x + this.d * p.y + this.f;
+    return q;
+  }
+  mapX(x, y) {
+    if (typeof x === "object")
+      y = x.y, x = x.x;
+    return this.a * x + this.c * y + this.e;
+  }
+  mapY(x, y) {
+    if (typeof x === "object")
+      y = x.y, x = x.x;
+    return this.b * x + this.d * y + this.f;
+  }
 }
-Matrix.prototype.toString = function() {
-  return "[" + this.a + ", " + this.b + ", " + this.c + ", " + this.d + ", " + this.e + ", " + this.f + "]";
-};
-Matrix.prototype.clone = function() {
-  return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
-};
-Matrix.prototype.reset = function(a, b, c, d, e, f) {
-  this._dirty = true;
-  if (typeof a === "object") {
-    this.a = a.a, this.d = a.d;
-    this.b = a.b, this.c = a.c;
-    this.e = a.e, this.f = a.f;
-  } else {
-    this.a = a || 1, this.d = d || 1;
-    this.b = b || 0, this.c = c || 0;
-    this.e = e || 0, this.f = f || 0;
-  }
-  return this;
-};
-Matrix.prototype.identity = function() {
-  this._dirty = true;
-  this.a = 1;
-  this.b = 0;
-  this.c = 0;
-  this.d = 1;
-  this.e = 0;
-  this.f = 0;
-  return this;
-};
-Matrix.prototype.rotate = function(angle) {
-  if (!angle) {
-    return this;
-  }
-  this._dirty = true;
-  var u = angle ? Math.cos(angle) : 1;
-  var v = angle ? Math.sin(angle) : 0;
-  var a = u * this.a - v * this.b;
-  var b = u * this.b + v * this.a;
-  var c = u * this.c - v * this.d;
-  var d = u * this.d + v * this.c;
-  var e = u * this.e - v * this.f;
-  var f = u * this.f + v * this.e;
-  this.a = a;
-  this.b = b;
-  this.c = c;
-  this.d = d;
-  this.e = e;
-  this.f = f;
-  return this;
-};
-Matrix.prototype.translate = function(x, y) {
-  if (!x && !y) {
-    return this;
-  }
-  this._dirty = true;
-  this.e += x;
-  this.f += y;
-  return this;
-};
-Matrix.prototype.scale = function(x, y) {
-  if (!(x - 1) && !(y - 1)) {
-    return this;
-  }
-  this._dirty = true;
-  this.a *= x;
-  this.b *= y;
-  this.c *= x;
-  this.d *= y;
-  this.e *= x;
-  this.f *= y;
-  return this;
-};
-Matrix.prototype.skew = function(x, y) {
-  if (!x && !y) {
-    return this;
-  }
-  this._dirty = true;
-  var a = this.a + this.b * x;
-  var b = this.b + this.a * y;
-  var c = this.c + this.d * x;
-  var d = this.d + this.c * y;
-  var e = this.e + this.f * x;
-  var f = this.f + this.e * y;
-  this.a = a;
-  this.b = b;
-  this.c = c;
-  this.d = d;
-  this.e = e;
-  this.f = f;
-  return this;
-};
-Matrix.prototype.concat = function(m) {
-  this._dirty = true;
-  var n = this;
-  var a = n.a * m.a + n.b * m.c;
-  var b = n.b * m.d + n.a * m.b;
-  var c = n.c * m.a + n.d * m.c;
-  var d = n.d * m.d + n.c * m.b;
-  var e = n.e * m.a + m.e + n.f * m.c;
-  var f = n.f * m.d + m.f + n.e * m.b;
-  this.a = a;
-  this.b = b;
-  this.c = c;
-  this.d = d;
-  this.e = e;
-  this.f = f;
-  return this;
-};
-Matrix.prototype.inverse = Matrix.prototype.reverse = function() {
-  if (this._dirty) {
-    this._dirty = false;
-    this.inversed = this.inversed || new Matrix();
-    var z = this.a * this.d - this.b * this.c;
-    this.inversed.a = this.d / z;
-    this.inversed.b = -this.b / z;
-    this.inversed.c = -this.c / z;
-    this.inversed.d = this.a / z;
-    this.inversed.e = (this.c * this.f - this.e * this.d) / z;
-    this.inversed.f = (this.e * this.b - this.a * this.f) / z;
-  }
-  return this.inversed;
-};
-Matrix.prototype.map = function(p, q) {
-  q = q || {};
-  q.x = this.a * p.x + this.c * p.y + this.e;
-  q.y = this.b * p.x + this.d * p.y + this.f;
-  return q;
-};
-Matrix.prototype.mapX = function(x, y) {
-  if (typeof x === "object")
-    y = x.y, x = x.x;
-  return this.a * x + this.c * y + this.e;
-};
-Matrix.prototype.mapY = function(x, y) {
-  if (typeof x === "object")
-    y = x.y, x = x.x;
-  return this.b * x + this.d * y + this.f;
-};
 var iid$1 = 0;
 function Pin(owner) {
   this._owner = owner;
@@ -900,13 +902,13 @@ Pin._add_shortcuts = function(prototype) {
 };
 var iid = 0;
 stats.create = 0;
+const create = function() {
+  return new Stage$1();
+};
 function Stage$1() {
   stats.create++;
   this._pin = new Pin(this);
 }
-const create = function() {
-  return new Stage$1();
-};
 Stage$1.prototype.matrix = function(relative) {
   if (relative === true) {
     return this._pin.relativeMatrix();
@@ -1344,83 +1346,91 @@ math.clamp = function(num, min, max) {
 math.length = function(x, y) {
   return native.sqrt(x * x + y * y);
 };
-function Texture(texture2, ratio) {
-  if (typeof texture2 === "object") {
-    this.src(texture2, ratio);
+class Texture {
+  constructor(texture2, ratio) {
+    if (typeof texture2 === "object") {
+      this.src(texture2, ratio);
+    }
+  }
+  pipe() {
+    return new Texture(this);
+  }
+  /**
+   * Signatures: (texture), (x, y, w, h), (w, h)
+   */
+  src(x, y, w, h) {
+    if (typeof x === "object") {
+      var drawable = x, ratio = y || 1;
+      this._image = drawable;
+      this._sx = this._dx = 0;
+      this._sy = this._dy = 0;
+      this._sw = this._dw = drawable.width / ratio;
+      this._sh = this._dh = drawable.height / ratio;
+      this.width = drawable.width / ratio;
+      this.height = drawable.height / ratio;
+      this.ratio = ratio;
+    } else {
+      if (typeof w === "undefined") {
+        w = x, h = y;
+      } else {
+        this._sx = x, this._sy = y;
+      }
+      this._sw = this._dw = w;
+      this._sh = this._dh = h;
+      this.width = w;
+      this.height = h;
+    }
+    return this;
+  }
+  /**
+   * Signatures: (x, y, w, h), (x, y)
+   */
+  dest(x, y, w, h) {
+    this._dx = x, this._dy = y;
+    this._dx = x, this._dy = y;
+    if (typeof w !== "undefined") {
+      this._dw = w, this._dh = h;
+      this.width = w, this.height = h;
+    }
+    return this;
+  }
+  draw(context, x1, y1, x2, y2, x3, y3, x4, y4) {
+    var drawable = this._image;
+    if (drawable === null || typeof drawable !== "object") {
+      return;
+    }
+    var sx = this._sx, sy = this._sy;
+    var sw = this._sw, sh = this._sh;
+    var dx = this._dx, dy = this._dy;
+    var dw = this._dw, dh = this._dh;
+    if (typeof x3 !== "undefined") {
+      x1 = math.clamp(x1, 0, this._sw), x2 = math.clamp(x2, 0, this._sw - x1);
+      y1 = math.clamp(y1, 0, this._sh), y2 = math.clamp(y2, 0, this._sh - y1);
+      sx += x1, sy += y1, sw = x2, sh = y2;
+      dx = x3, dy = y3, dw = x4, dh = y4;
+    } else if (typeof x2 !== "undefined") {
+      dx = x1, dy = y1, dw = x2, dh = y2;
+    } else if (typeof x1 !== "undefined") {
+      dw = x1, dh = y1;
+    }
+    var ratio = this.ratio || 1;
+    sx *= ratio, sy *= ratio, sw *= ratio, sh *= ratio;
+    try {
+      if (typeof drawable.draw === "function") {
+        drawable.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
+      } else {
+        stats.draw++;
+        context.drawImage(drawable, sx, sy, sw, sh, dx, dy, dw, dh);
+      }
+    } catch (ex) {
+      if (!drawable._draw_failed) {
+        console.log("Unable to draw: ", drawable);
+        console.log(ex);
+        drawable._draw_failed = true;
+      }
+    }
   }
 }
-Texture.prototype.pipe = function() {
-  return new Texture(this);
-};
-Texture.prototype.src = function(x, y, w, h) {
-  if (typeof x === "object") {
-    var drawable = x, ratio = y || 1;
-    this._image = drawable;
-    this._sx = this._dx = 0;
-    this._sy = this._dy = 0;
-    this._sw = this._dw = drawable.width / ratio;
-    this._sh = this._dh = drawable.height / ratio;
-    this.width = drawable.width / ratio;
-    this.height = drawable.height / ratio;
-    this.ratio = ratio;
-  } else {
-    if (typeof w === "undefined") {
-      w = x, h = y;
-    } else {
-      this._sx = x, this._sy = y;
-    }
-    this._sw = this._dw = w;
-    this._sh = this._dh = h;
-    this.width = w;
-    this.height = h;
-  }
-  return this;
-};
-Texture.prototype.dest = function(x, y, w, h) {
-  this._dx = x, this._dy = y;
-  this._dx = x, this._dy = y;
-  if (typeof w !== "undefined") {
-    this._dw = w, this._dh = h;
-    this.width = w, this.height = h;
-  }
-  return this;
-};
-Texture.prototype.draw = function(context, x1, y1, x2, y2, x3, y3, x4, y4) {
-  var drawable = this._image;
-  if (drawable === null || typeof drawable !== "object") {
-    return;
-  }
-  var sx = this._sx, sy = this._sy;
-  var sw = this._sw, sh = this._sh;
-  var dx = this._dx, dy = this._dy;
-  var dw = this._dw, dh = this._dh;
-  if (typeof x3 !== "undefined") {
-    x1 = math.clamp(x1, 0, this._sw), x2 = math.clamp(x2, 0, this._sw - x1);
-    y1 = math.clamp(y1, 0, this._sh), y2 = math.clamp(y2, 0, this._sh - y1);
-    sx += x1, sy += y1, sw = x2, sh = y2;
-    dx = x3, dy = y3, dw = x4, dh = y4;
-  } else if (typeof x2 !== "undefined") {
-    dx = x1, dy = y1, dw = x2, dh = y2;
-  } else if (typeof x1 !== "undefined") {
-    dw = x1, dh = y1;
-  }
-  var ratio = this.ratio || 1;
-  sx *= ratio, sy *= ratio, sw *= ratio, sh *= ratio;
-  try {
-    if (typeof drawable.draw === "function") {
-      drawable.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
-    } else {
-      stats.draw++;
-      context.drawImage(drawable, sx, sy, sw, sh, dx, dy, dw, dh);
-    }
-  } catch (ex) {
-    if (!drawable._draw_failed) {
-      console.log("Unable to draw: ", drawable);
-      console.log(ex);
-      drawable._draw_failed = true;
-    }
-  }
-};
 var NO_TEXTURE = new class extends Texture {
   constructor() {
     super();
@@ -1476,86 +1486,86 @@ const atlas = async function(def) {
   }
   return atlas2;
 };
-Atlas._super = Texture;
-Atlas.prototype = Object.create(Atlas._super.prototype);
-function Atlas(def) {
-  Atlas._super.call(this);
-  var atlas2 = this;
-  deprecated(def, "filter");
-  deprecated(def, "cutouts");
-  deprecated(def, "sprites");
-  deprecated(def, "factory");
-  var map = def.map || def.filter;
-  var ppu = def.ppu || def.ratio || 1;
-  var trim = def.trim || 0;
-  var textures = def.textures;
-  var factory = def.factory;
-  var cutouts = def.cutouts || def.sprites;
-  function make(def2) {
-    if (!def2 || is$1.fn(def2.draw)) {
-      return def2;
-    }
-    def2 = Object.assign({}, def2);
-    if (is$1.fn(map)) {
-      def2 = map(def2);
-    }
-    if (ppu != 1) {
-      def2.x *= ppu, def2.y *= ppu;
-      def2.width *= ppu, def2.height *= ppu;
-      def2.top *= ppu, def2.bottom *= ppu;
-      def2.left *= ppu, def2.right *= ppu;
-    }
-    if (trim != 0) {
-      def2.x += trim, def2.y += trim;
-      def2.width -= 2 * trim, def2.height -= 2 * trim;
-      def2.top -= trim, def2.bottom -= trim;
-      def2.left -= trim, def2.right -= trim;
-    }
-    var texture2 = atlas2.pipe();
-    texture2.top = def2.top, texture2.bottom = def2.bottom;
-    texture2.left = def2.left, texture2.right = def2.right;
-    texture2.src(def2.x, def2.y, def2.width, def2.height);
-    return texture2;
-  }
-  function find(query) {
-    if (textures) {
-      if (is$1.fn(textures)) {
-        return textures(query);
-      } else if (is$1.hash(textures)) {
-        return textures[query];
+class Atlas extends Texture {
+  constructor(def) {
+    super();
+    var atlas2 = this;
+    deprecated(def, "filter");
+    deprecated(def, "cutouts");
+    deprecated(def, "sprites");
+    deprecated(def, "factory");
+    var map = def.map || def.filter;
+    var ppu = def.ppu || def.ratio || 1;
+    var trim = def.trim || 0;
+    var textures = def.textures;
+    var factory = def.factory;
+    var cutouts = def.cutouts || def.sprites;
+    function make(def2) {
+      if (!def2 || is$1.fn(def2.draw)) {
+        return def2;
       }
+      def2 = Object.assign({}, def2);
+      if (is$1.fn(map)) {
+        def2 = map(def2);
+      }
+      if (ppu != 1) {
+        def2.x *= ppu, def2.y *= ppu;
+        def2.width *= ppu, def2.height *= ppu;
+        def2.top *= ppu, def2.bottom *= ppu;
+        def2.left *= ppu, def2.right *= ppu;
+      }
+      if (trim != 0) {
+        def2.x += trim, def2.y += trim;
+        def2.width -= 2 * trim, def2.height -= 2 * trim;
+        def2.top -= trim, def2.bottom -= trim;
+        def2.left -= trim, def2.right -= trim;
+      }
+      var texture2 = atlas2.pipe();
+      texture2.top = def2.top, texture2.bottom = def2.bottom;
+      texture2.left = def2.left, texture2.right = def2.right;
+      texture2.src(def2.x, def2.y, def2.width, def2.height);
+      return texture2;
     }
-    if (cutouts) {
-      var result = null, n = 0;
-      for (var i = 0; i < cutouts.length; i++) {
-        if (string.startsWith(cutouts[i].name, query)) {
-          if (n === 0) {
-            result = cutouts[i];
-          } else if (n === 1) {
-            result = [result, cutouts[i]];
-          } else {
-            result.push(cutouts[i]);
-          }
-          n++;
+    function find(query) {
+      if (textures) {
+        if (is$1.fn(textures)) {
+          return textures(query);
+        } else if (is$1.hash(textures)) {
+          return textures[query];
         }
       }
-      if (n === 0 && is$1.fn(factory)) {
-        result = function(subquery) {
-          return factory(query + (subquery ? subquery : ""));
-        };
+      if (cutouts) {
+        var result = null, n = 0;
+        for (var i = 0; i < cutouts.length; i++) {
+          if (string.startsWith(cutouts[i].name, query)) {
+            if (n === 0) {
+              result = cutouts[i];
+            } else if (n === 1) {
+              result = [result, cutouts[i]];
+            } else {
+              result.push(cutouts[i]);
+            }
+            n++;
+          }
+        }
+        if (n === 0 && is$1.fn(factory)) {
+          result = function(subquery) {
+            return factory(query + (subquery ? subquery : ""));
+          };
+        }
+        return result;
       }
-      return result;
     }
+    this.select = function(query) {
+      if (!query) {
+        return new Selection(this.pipe());
+      }
+      var found = find(query);
+      if (found) {
+        return new Selection(found, find, make);
+      }
+    };
   }
-  this.select = function(query) {
-    if (!query) {
-      return new Selection(this.pipe());
-    }
-    var found = find(query);
-    if (found) {
-      return new Selection(found, find, make);
-    }
-  };
 }
 function Selection(result, find, make) {
   function link(result2, subquery) {
@@ -2428,20 +2438,17 @@ const row = function(align) {
   return create().row(align).label("Row");
 };
 Stage$1.prototype.row = function(align) {
-  this.sequence("row", align);
+  this.align("row", align);
   return this;
 };
 const column = function(align) {
   return create().column(align).label("Row");
 };
 Stage$1.prototype.column = function(align) {
-  this.sequence("column", align);
+  this.align("column", align);
   return this;
 };
-sequence = function(type, align) {
-  return create().sequence(type, align).label("Sequence");
-};
-Stage$1.prototype.sequence = function(type, align) {
+Stage$1.prototype.align = function(type, align) {
   this._padding = this._padding || 0;
   this._spacing = this._spacing || 0;
   this.untick(this._layoutTiker);
@@ -2538,52 +2545,54 @@ Stage$1.prototype.spacing = function(space) {
   this._spacing = space;
   return this;
 };
-function _identity(x) {
+function IDENTITY(x) {
   return x;
 }
 var _cache = {};
 var _modes = {};
 var _easings = {};
-function Easing(token) {
-  if (typeof token === "function") {
-    return token;
-  }
-  if (typeof token !== "string") {
-    return _identity;
-  }
-  var fn = _cache[token];
-  if (fn) {
+class Easing {
+  static get(token, fallback = IDENTITY) {
+    if (typeof token === "function") {
+      return token;
+    }
+    if (typeof token !== "string") {
+      return fallback;
+    }
+    var fn = _cache[token];
+    if (fn) {
+      return fn;
+    }
+    var match = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
+    if (!match || !match.length) {
+      return fallback;
+    }
+    var easing = _easings[match[1]];
+    var mode = _modes[match[3]];
+    var params = match[5];
+    if (easing && easing.fn) {
+      fn = easing.fn;
+    } else if (easing && easing.fc) {
+      fn = easing.fc.apply(easing.fc, params && params.replace(/\s+/, "").split(","));
+    } else {
+      fn = fallback;
+    }
+    if (mode) {
+      fn = mode.fn(fn);
+    }
+    _cache[token] = fn;
     return fn;
   }
-  var match = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
-  if (!match || !match.length) {
-    return _identity;
-  }
-  var easing = _easings[match[1]];
-  var mode = _modes[match[3]];
-  var params = match[5];
-  if (easing && easing.fn) {
-    fn = easing.fn;
-  } else if (easing && easing.fc) {
-    fn = easing.fc.apply(easing.fc, params && params.replace(/\s+/, "").split(","));
-  } else {
-    fn = _identity;
-  }
-  if (mode) {
-    fn = mode.fn(fn);
-  }
-  _cache[token] = fn;
-  return fn;
-}
-Easing.add = function(data) {
-  var names = (data.name || data.mode).split(/\s+/);
-  for (var i = 0; i < names.length; i++) {
-    var name = names[i];
-    if (name) {
-      (data.name ? _easings : _modes)[name] = data;
+  static add(data) {
+    var names = (data.name || data.mode).split(/\s+/);
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      if (name) {
+        (data.name ? _easings : _modes)[name] = data;
+      }
     }
   }
-};
+}
 Easing.add({
   mode: "in",
   fn: function(f) {
@@ -2795,7 +2804,7 @@ Tween.prototype.delay = function(delay) {
   return this;
 };
 Tween.prototype.ease = function(easing) {
-  this._easing = Easing(easing);
+  this._easing = Easing.get(easing);
   return this;
 };
 Tween.prototype.done = function(fn) {

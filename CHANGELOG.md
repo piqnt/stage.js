@@ -1,5 +1,5 @@
 #### next
-* use ES modules
+* use ES modules and classes
 * typescript definition added
 * lib directory renamed to src, and folder structure flattened
 * all classes are exported under Stage namespace
@@ -15,7 +15,11 @@
 * removed cordova/fastcontext loader and build removed
 * removed different platform builds (web, cordova)
 * removed Stage.config()
-* remove _create, _extend functions with js functions
+* removed _create, _extend functions with js functions
+* Ease() replaced by Ease.get()
+* removed Stage.Math, added Stage.math with different function names
+* renamed sequence to align
+* removed Matrix reverse (use inverse)
 
 #### v0.8.2
 * `render.js` renamed to `loop.js`

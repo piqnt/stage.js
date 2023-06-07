@@ -1,54 +1,56 @@
-function _identity(x) {
+function IDENTITY(x) {
   return x;
 };
 var _cache = {};
 var _modes = {};
 var _easings = {};
 
-export function Easing(token) {
-  if (typeof token === 'function') {
-    return token;
-  }
-  if (typeof token !== 'string') {
-    return _identity;
-  }
-  var fn = _cache[token];
-  if (fn) {
-    return fn;
-  }
-  var match = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
-  if (!match || !match.length) {
-    return _identity;
-  }
-  var easing = _easings[match[1]];
-  var mode = _modes[match[3]];
-  var params = match[5];
-  if (easing && easing.fn) {
-    fn = easing.fn;
-  } else if (easing && easing.fc) {
-    fn = easing.fc.apply(easing.fc, params
-        && params.replace(/\s+/, '').split(','));
-  } else {
-    fn = _identity;
-  }
-  if (mode) {
-    fn = mode.fn(fn);
-  }
-  // TODO: It can be a memory leak with different `params`.
-  _cache[token] = fn;
-  return fn;
-};
-
-Easing.add = function(data) {
-  // TODO: create a map of all { name-mode : data }
-  var names = (data.name || data.mode).split(/\s+/);
-  for (var i = 0; i < names.length; i++) {
-    var name = names[i];
-    if (name) {
-      (data.name ? _easings : _modes)[name] = data;
+export class Easing {
+  static get(token, fallback = IDENTITY) {
+    if (typeof token === 'function') {
+      return token;
     }
-  }
-};
+    if (typeof token !== 'string') {
+      return fallback;
+    }
+    var fn = _cache[token];
+    if (fn) {
+      return fn;
+    }
+    var match = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
+    if (!match || !match.length) {
+      return fallback;
+    }
+    var easing = _easings[match[1]];
+    var mode = _modes[match[3]];
+    var params = match[5];
+    if (easing && easing.fn) {
+      fn = easing.fn;
+    } else if (easing && easing.fc) {
+      fn = easing.fc.apply(easing.fc, params
+          && params.replace(/\s+/, '').split(','));
+    } else {
+      fn = fallback;
+    }
+    if (mode) {
+      fn = mode.fn(fn);
+    }
+    // TODO: It can be a memory leak with different `params`.
+    _cache[token] = fn;
+    return fn;
+  };  
+
+  static add(data) {
+    // TODO: create a map of all { name-mode : data }
+    var names = (data.name || data.mode).split(/\s+/);
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      if (name) {
+        (data.name ? _easings : _modes)[name] = data;
+      }
+    }
+  };
+}
 
 Easing.add({
   mode : 'in',

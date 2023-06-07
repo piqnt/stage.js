@@ -5,15 +5,15 @@ import { Pin } from './pin';
 var iid = 0;
 stats.create = 0;
 
-function Stage() {
+export const create = function() {
+  return new Stage();
+};
+
+export function Stage() {
   stats.create++;
 
   this._pin = new Pin(this);
 }
-
-export const create = function() {
-  return new Stage();
-};
 
 Stage.prototype.matrix = function(relative) {
   if (relative === true) {
@@ -522,8 +522,4 @@ Stage.prototype.publish = function(name, args) {
 Stage.prototype.trigger = function(name, args) {
   this.publish(name, args);
   return this;
-};
-
-export {
-  Stage
 };

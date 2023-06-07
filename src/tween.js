@@ -125,7 +125,7 @@ Tween.prototype.delay = function(delay) {
 };
 
 Tween.prototype.ease = function(easing) {
-  this._easing = Easing(easing);
+  this._easing = Easing.get(easing);
   return this;
 };
 

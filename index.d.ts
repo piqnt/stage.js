@@ -223,7 +223,7 @@ export namespace Stage {
     mapX(x: number, y: number): this;
     mapY(x: number, y: number): this;
     reset(a: number, b: number, c: number, d: number, e: number, f: number): Matrix;
-    reverse(): this;
+    inverse(): this;
     rotate(angle: number): this;
     scale(x: number, y: number): this;
     skew(x: number, y: number): this;
