@@ -1,4 +1,4 @@
-import { Stage } from './core';
+import { Node } from './core';
 import { texture } from './atlas';
 import { math } from './util/math';
 
@@ -9,7 +9,7 @@ export const anim = function(frames, fps) {
   return anim;
 };
 
-Anim._super = Stage;
+Anim._super = Node;
 Anim.prototype = Object.create(Anim._super.prototype);
 
 // TODO: replace with atlas fps or texture time

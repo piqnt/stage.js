@@ -1,5 +1,5 @@
 import { texture } from './atlas';
-import { Stage } from './core';
+import { Node } from './core';
 
 export const sprite = function(query) {
   var sprite = new Sprite();
@@ -7,7 +7,7 @@ export const sprite = function(query) {
   return sprite;
 };
 
-Sprite._super = Stage;
+Sprite._super = Node;
 Sprite.prototype = Object.create(Sprite._super.prototype);
 
 export function Sprite() {

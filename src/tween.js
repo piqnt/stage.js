@@ -1,8 +1,8 @@
 import { Easing } from './easing';
-import { Stage } from './core';
+import { Node } from './core';
 import { Pin } from './pin';
 
-Stage.prototype.tween = function(duration, delay, append) {
+Node.prototype.tween = function(duration, delay, append) {
   if (typeof duration !== 'number') {
     append = duration, delay = 0, duration = 0;
   } else if (typeof delay !== 'number') {
@@ -57,106 +57,112 @@ Stage.prototype.tween = function(duration, delay, append) {
   return tween;
 };
 
-export function Tween(owner, duration, delay) {
-  this._end = {};
-  this._duration = duration || 400;
-  this._delay = delay || 0;
+export class Tween {
+  constructor(owner, duration, delay) {
+    this._end = {};
+    this._duration = duration || 400;
+    this._delay = delay || 0;
 
-  this._owner = owner;
-  this._time = 0;
-};
-
-Tween.prototype.tick = function(node, elapsed, now, last) {
-  this._time += elapsed;
-
-  if (this._time < this._delay) {
-    return;
+    this._owner = owner;
+    this._time = 0;
   }
+  tick(node, elapsed, now, last) {
+    this._time += elapsed;
 
-  var time = this._time - this._delay;
+    if (this._time < this._delay) {
+      return;
+    }
 
-  if (!this._start) {
-    this._start = {};
-    for ( var key in this._end) {
-      this._start[key] = this._owner.pin(key);
+    var time = this._time - this._delay;
+
+    if (!this._start) {
+      this._start = {};
+      for (var key in this._end) {
+        this._start[key] = this._owner.pin(key);
+      }
+    }
+
+    var p, over;
+    if (time < this._duration) {
+      p = time / this._duration;
+      over = false;
+    } else {
+      p = 1;
+      over = true;
+    }
+
+    if (typeof this._easing == 'function') {
+      p = this._easing(p);
+    }
+
+    var q = 1 - p;
+
+    for (var key in this._end) {
+      this._owner.pin(key, this._start[key] * q + this._end[key] * p);
+    }
+
+    if (over) {
+      var actions = [this._hide, this._remove, this._done];
+      actions = actions.filter(function (element) {
+        return typeof element === 'function';
+      });
+      return this._next || actions;
     }
   }
-
-  var p, over;
-  if (time < this._duration) {
-    p = time / this._duration;
-    over = false;
-  } else {
-    p = 1;
-    over = true;
+  tween(duration, delay) {
+    return this._next = new Tween(this._owner, duration, delay);
   }
-
-  if (typeof this._easing == 'function') {
-    p = this._easing(p);
+  duration(duration) {
+    this._duration = duration;
+    return this;
   }
-
-  var q = 1 - p;
-
-  for ( var key in this._end) {
-    this._owner.pin(key, this._start[key] * q + this._end[key] * p);
+  delay(delay) {
+    this._delay = delay;
+    return this;
   }
-
-  if (over) {
-    var actions = [this._hide, this._remove, this._done];
-    actions = actions.filter(function( element ) {
-      return typeof element === 'function';
-    });
-    return this._next || actions;
+  ease(easing) {
+    this._easing = Easing.get(easing);
+    return this;
   }
-};
-
-Tween.prototype.tween = function(duration, delay) {
-  return this._next = new Tween(this._owner, duration, delay);
-};
-
-Tween.prototype.duration = function(duration) {
-  this._duration = duration;
-  return this;
-};
-
-Tween.prototype.delay = function(delay) {
-  this._delay = delay;
-  return this;
-};
-
-Tween.prototype.ease = function(easing) {
-  this._easing = Easing.get(easing);
-  return this;
-};
-
-Tween.prototype.done = function(fn) {
-  this._done = fn;
-  return this;
-};
-
-Tween.prototype.hide = function() {
-  this._hide = function() {
-    this.hide();
-  };
-  return this;
-};
-
-Tween.prototype.remove = function() {
-  this._remove = function() {
-    this.remove();
-  };
-  return this;
-};
-
-Tween.prototype.pin = function(a, b) {
-  if (typeof a === 'object') {
-    for ( var attr in a) {
-      pinning(this._owner, this._end, attr, a[attr]);
+  done(fn) {
+    this._done = fn;
+    return this;
+  }
+  hide() {
+    this._hide = function () {
+      this.hide();
+    };
+    return this;
+  }
+  remove() {
+    this._remove = function () {
+      this.remove();
+    };
+    return this;
+  }
+  pin(a, b) {
+    if (typeof a === 'object') {
+      for (var attr in a) {
+        pinning(this._owner, this._end, attr, a[attr]);
+      }
+    } else if (typeof b !== 'undefined') {
+      pinning(this._owner, this._end, a, b);
     }
-  } else if (typeof b !== 'undefined') {
-    pinning(this._owner, this._end, a, b);
+    return this;
   }
-  return this;
+  /**
+   * @deprecated Use .done(fn) instead.
+   */
+  then(fn) {
+    this.done(fn);
+    return this;
+  }
+  /**
+   * @deprecated NOOP
+   */
+  clear(forward) {
+    return this;
+  }
 };
 
 function pinning(node, map, key, value) {
@@ -171,17 +177,3 @@ function pinning(node, map, key, value) {
 
 Pin._add_shortcuts(Tween.prototype);
 
-/**
- * @deprecated Use .done(fn) instead.
- */
-Tween.prototype.then = function(fn) {
-  this.done(fn);
-  return this;
-};
-
-/**
- * @deprecated NOOP
- */
-Tween.prototype.clear = function(forward) {
-  return this;
-};

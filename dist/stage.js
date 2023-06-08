@@ -900,20 +900,26 @@ Pin._add_shortcuts = function(prototype) {
 };
 var iid = 0;
 stats.create = 0;
+function assertType(obj) {
+  if (obj && obj instanceof Node) {
+    return obj;
+  }
+  throw "Invalid node: " + obj;
+}
 const create = function() {
-  return new Stage$1();
+  return new Node();
 };
-function Stage$1() {
+function Node() {
   stats.create++;
   this._pin = new Pin(this);
 }
-Stage$1.prototype.matrix = function(relative) {
+Node.prototype.matrix = function(relative) {
   if (relative === true) {
     return this._pin.relativeMatrix();
   }
   return this._pin.absoluteMatrix();
 };
-Stage$1.prototype.pin = function(a, b) {
+Node.prototype.pin = function(a, b) {
   if (typeof a === "object") {
     this._pin.set(a);
     return this;
@@ -928,43 +934,43 @@ Stage$1.prototype.pin = function(a, b) {
     return this._pin;
   }
 };
-Stage$1.prototype.scaleTo = function(a, b, c) {
+Node.prototype.scaleTo = function(a, b, c) {
   if (typeof a === "object")
     c = b, b = a.y, a = a.x;
   this._pin.scaleTo(a, b, c);
   return this;
 };
-Pin._add_shortcuts(Stage$1.prototype);
-Stage$1.prototype._label = "";
-Stage$1.prototype._visible = true;
-Stage$1.prototype._parent = null;
-Stage$1.prototype._next = null;
-Stage$1.prototype._prev = null;
-Stage$1.prototype._first = null;
-Stage$1.prototype._last = null;
-Stage$1.prototype._attrs = null;
-Stage$1.prototype._flags = null;
-Stage$1.prototype.toString = function() {
+Pin._add_shortcuts(Node.prototype);
+Node.prototype._label = "";
+Node.prototype._visible = true;
+Node.prototype._parent = null;
+Node.prototype._next = null;
+Node.prototype._prev = null;
+Node.prototype._first = null;
+Node.prototype._last = null;
+Node.prototype._attrs = null;
+Node.prototype._flags = null;
+Node.prototype.toString = function() {
   return "[" + this._label + "]";
 };
-Stage$1.prototype.id = function(id) {
+Node.prototype.id = function(id) {
   return this.label(id);
 };
-Stage$1.prototype.label = function(label) {
+Node.prototype.label = function(label) {
   if (typeof label === "undefined") {
     return this._label;
   }
   this._label = label;
   return this;
 };
-Stage$1.prototype.attr = function(name, value) {
+Node.prototype.attr = function(name, value) {
   if (typeof value === "undefined") {
     return this._attrs !== null ? this._attrs[name] : void 0;
   }
   (this._attrs !== null ? this._attrs : this._attrs = {})[name] = value;
   return this;
 };
-Stage$1.prototype.visible = function(visible) {
+Node.prototype.visible = function(visible) {
   if (typeof visible === "undefined") {
     return this._visible;
   }
@@ -974,44 +980,44 @@ Stage$1.prototype.visible = function(visible) {
   this.touch();
   return this;
 };
-Stage$1.prototype.hide = function() {
+Node.prototype.hide = function() {
   return this.visible(false);
 };
-Stage$1.prototype.show = function() {
+Node.prototype.show = function() {
   return this.visible(true);
 };
-Stage$1.prototype.parent = function() {
+Node.prototype.parent = function() {
   return this._parent;
 };
-Stage$1.prototype.next = function(visible) {
+Node.prototype.next = function(visible) {
   var next = this._next;
   while (next && visible && !next._visible) {
     next = next._next;
   }
   return next;
 };
-Stage$1.prototype.prev = function(visible) {
+Node.prototype.prev = function(visible) {
   var prev = this._prev;
   while (prev && visible && !prev._visible) {
     prev = prev._prev;
   }
   return prev;
 };
-Stage$1.prototype.first = function(visible) {
+Node.prototype.first = function(visible) {
   var next = this._first;
   while (next && visible && !next._visible) {
     next = next._next;
   }
   return next;
 };
-Stage$1.prototype.last = function(visible) {
+Node.prototype.last = function(visible) {
   var prev = this._last;
   while (prev && visible && !prev._visible) {
     prev = prev._prev;
   }
   return prev;
 };
-Stage$1.prototype.visit = function(visitor, data) {
+Node.prototype.visit = function(visitor, data) {
   var reverse = visitor.reverse;
   var visible = visitor.visible;
   if (visitor.start && visitor.start(this, data)) {
@@ -1026,7 +1032,7 @@ Stage$1.prototype.visit = function(visitor, data) {
   }
   return visitor.end && visitor.end(this, data);
 };
-Stage$1.prototype.append = function(child, more) {
+Node.prototype.append = function(child, more) {
   if (is$1.array(child))
     for (var i = 0; i < child.length; i++)
       append(this, child[i]);
@@ -1037,7 +1043,7 @@ Stage$1.prototype.append = function(child, more) {
     append(this, child);
   return this;
 };
-Stage$1.prototype.prepend = function(child, more) {
+Node.prototype.prepend = function(child, more) {
   if (is$1.array(child))
     for (var i = child.length - 1; i >= 0; i--)
       prepend(this, child[i]);
@@ -1048,15 +1054,15 @@ Stage$1.prototype.prepend = function(child, more) {
     prepend(this, child);
   return this;
 };
-Stage$1.prototype.appendTo = function(parent) {
+Node.prototype.appendTo = function(parent) {
   append(parent, this);
   return this;
 };
-Stage$1.prototype.prependTo = function(parent) {
+Node.prototype.prependTo = function(parent) {
   prepend(parent, this);
   return this;
 };
-Stage$1.prototype.insertNext = function(sibling, more) {
+Node.prototype.insertNext = function(sibling, more) {
   if (is$1.array(sibling))
     for (var i = 0; i < sibling.length; i++)
       insertAfter(sibling[i], this);
@@ -1067,7 +1073,7 @@ Stage$1.prototype.insertNext = function(sibling, more) {
     insertAfter(sibling, this);
   return this;
 };
-Stage$1.prototype.insertPrev = function(sibling, more) {
+Node.prototype.insertPrev = function(sibling, more) {
   if (is$1.array(sibling))
     for (var i = sibling.length - 1; i >= 0; i--)
       insertBefore(sibling[i], this);
@@ -1078,17 +1084,17 @@ Stage$1.prototype.insertPrev = function(sibling, more) {
     insertBefore(sibling, this);
   return this;
 };
-Stage$1.prototype.insertAfter = function(prev) {
+Node.prototype.insertAfter = function(prev) {
   insertAfter(this, prev);
   return this;
 };
-Stage$1.prototype.insertBefore = function(next) {
+Node.prototype.insertBefore = function(next) {
   insertBefore(this, next);
   return this;
 };
 function append(parent, child) {
-  _ensure(child);
-  _ensure(parent);
+  assertType(child);
+  assertType(parent);
   child.remove();
   if (parent._last) {
     parent._last._next = child;
@@ -1105,8 +1111,8 @@ function append(parent, child) {
   parent.touch();
 }
 function prepend(parent, child) {
-  _ensure(child);
-  _ensure(parent);
+  assertType(child);
+  assertType(parent);
   child.remove();
   if (parent._first) {
     parent._first._prev = child;
@@ -1123,8 +1129,8 @@ function prepend(parent, child) {
   parent.touch();
 }
 function insertBefore(self, next) {
-  _ensure(self);
-  _ensure(next);
+  assertType(self);
+  assertType(next);
   self.remove();
   var parent = next._parent;
   var prev = next._prev;
@@ -1138,8 +1144,8 @@ function insertBefore(self, next) {
   self.touch();
 }
 function insertAfter(self, prev) {
-  _ensure(self);
-  _ensure(prev);
+  assertType(self);
+  assertType(prev);
   self.remove();
   var parent = prev._parent;
   var next = prev._next;
@@ -1152,16 +1158,16 @@ function insertAfter(self, prev) {
   self._ts_parent = ++iid;
   self.touch();
 }
-Stage$1.prototype.remove = function(child, more) {
+Node.prototype.remove = function(child, more) {
   if (typeof child !== "undefined") {
     if (is$1.array(child)) {
       for (var i = 0; i < child.length; i++)
-        _ensure(child[i]).remove();
+        assertType(child[i]).remove();
     } else if (typeof more !== "undefined") {
       for (var i = 0; i < arguments.length; i++)
-        _ensure(arguments[i]).remove();
+        assertType(arguments[i]).remove();
     } else {
-      _ensure(child).remove();
+      assertType(child).remove();
     }
     return this;
   }
@@ -1186,7 +1192,7 @@ Stage$1.prototype.remove = function(child, more) {
   this._ts_parent = ++iid;
   return this;
 };
-Stage$1.prototype.empty = function() {
+Node.prototype.empty = function() {
   var child, next = this._first;
   while (child = next) {
     next = child._next;
@@ -1198,12 +1204,12 @@ Stage$1.prototype.empty = function() {
   this.touch();
   return this;
 };
-Stage$1.prototype.touch = function() {
+Node.prototype.touch = function() {
   this._ts_touch = ++iid;
   this._parent && this._parent.touch();
   return this;
 };
-Stage$1.prototype._flag = function(obj, name) {
+Node.prototype._flag = function(obj, name) {
   if (typeof name === "undefined") {
     return this._flags !== null && this._flags[obj] || 0;
   }
@@ -1232,22 +1238,125 @@ Stage$1.prototype._flag = function(obj, name) {
   }
   return this;
 };
-Stage$1.prototype.hitTest = function(hit) {
+Node.prototype.hitTest = function(hit) {
   var width = this._pin._width;
   var height = this._pin._height;
   return hit.x >= 0 && hit.x <= width && hit.y >= 0 && hit.y <= height;
 };
-function _ensure(obj) {
-  if (obj && obj instanceof Stage$1) {
-    return obj;
+Node.prototype._textures = null;
+Node.prototype._alpha = 1;
+Node.prototype.render = function(context) {
+  if (!this._visible) {
+    return;
   }
-  throw "Invalid node: " + obj;
-}
-Stage$1.prototype._listeners = null;
-Stage$1.prototype._event_callback = function(name, on) {
+  stats.node++;
+  var m = this.matrix();
+  context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
+  this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
+  var alpha = this._pin._textureAlpha * this._alpha;
+  if (context.globalAlpha != alpha) {
+    context.globalAlpha = alpha;
+  }
+  if (this._textures !== null) {
+    for (var i = 0, n = this._textures.length; i < n; i++) {
+      this._textures[i].draw(context);
+    }
+  }
+  if (context.globalAlpha != this._alpha) {
+    context.globalAlpha = this._alpha;
+  }
+  var child, next = this._first;
+  while (child = next) {
+    next = child._next;
+    child.render(context);
+  }
+};
+Node.prototype._tickBefore = null;
+Node.prototype._tickAfter = null;
+Node.prototype.MAX_ELAPSE = Infinity;
+Node.prototype._tick = function(elapsed, now, last) {
+  if (!this._visible) {
+    return;
+  }
+  if (elapsed > this.MAX_ELAPSE) {
+    elapsed = this.MAX_ELAPSE;
+  }
+  var ticked = false;
+  if (this._tickBefore !== null) {
+    for (var i = 0; i < this._tickBefore.length; i++) {
+      stats.tick++;
+      var tickFn = this._tickBefore[i];
+      ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
+    }
+  }
+  var child, next = this._first;
+  while (child = next) {
+    next = child._next;
+    if (child._flag("_tick")) {
+      ticked = child._tick(elapsed, now, last) === true ? true : ticked;
+    }
+  }
+  if (this._tickAfter !== null) {
+    for (var i = 0; i < this._tickAfter.length; i++) {
+      stats.tick++;
+      var tickFn = this._tickAfter[i];
+      ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
+    }
+  }
+  return ticked;
+};
+Node.prototype.tick = function(ticker, before) {
+  if (typeof ticker !== "function") {
+    return;
+  }
+  if (before) {
+    if (this._tickBefore === null) {
+      this._tickBefore = [];
+    }
+    this._tickBefore.push(ticker);
+  } else {
+    if (this._tickAfter === null) {
+      this._tickAfter = [];
+    }
+    this._tickAfter.push(ticker);
+  }
+  this._flag("_tick", this._tickAfter !== null && this._tickAfter.length > 0 || this._tickBefore !== null && this._tickBefore.length > 0);
+};
+Node.prototype.untick = function(ticker) {
+  if (typeof ticker !== "function") {
+    return;
+  }
+  var i;
+  if (this._tickBefore !== null && (i = this._tickBefore.indexOf(ticker)) >= 0) {
+    this._tickBefore.splice(i, 1);
+  }
+  if (this._tickAfter !== null && (i = this._tickAfter.indexOf(ticker)) >= 0) {
+    this._tickAfter.splice(i, 1);
+  }
+};
+Node.prototype.timeout = function(fn, time) {
+  this.setTimeout(fn, time);
+};
+Node.prototype.setTimeout = function(fn, time) {
+  function timer(t) {
+    if ((time -= t) < 0) {
+      this.untick(timer);
+      fn.call(this);
+    } else {
+      return true;
+    }
+  }
+  this.tick(timer);
+  return timer;
+};
+Node.prototype.clearTimeout = function(timer) {
+  this.untick(timer);
+};
+Node.prototype._listeners = null;
+Node.prototype._event_callback = function(name, on) {
   this._flag(name, on);
 };
-Stage$1.prototype.on = function(types, listener) {
+Node.prototype.on = function(types, listener) {
   if (!types || !types.length || typeof listener !== "function") {
     return this;
   }
@@ -1267,7 +1376,7 @@ Stage$1.prototype.on = function(types, listener) {
   }
   return this;
 };
-Stage$1.prototype.off = function(types, listener) {
+Node.prototype.off = function(types, listener) {
   if (!types || !types.length || typeof listener !== "function") {
     return this;
   }
@@ -1291,10 +1400,10 @@ Stage$1.prototype.off = function(types, listener) {
   }
   return this;
 };
-Stage$1.prototype.listeners = function(type) {
+Node.prototype.listeners = function(type) {
   return this._listeners && this._listeners[type];
 };
-Stage$1.prototype.publish = function(name, args) {
+Node.prototype.publish = function(name, args) {
   var listeners = this.listeners(name);
   if (!listeners || !listeners.length) {
     return 0;
@@ -1304,7 +1413,7 @@ Stage$1.prototype.publish = function(name, args) {
   }
   return listeners.length;
 };
-Stage$1.prototype.trigger = function(name, args) {
+Node.prototype.trigger = function(name, args) {
   this.publish(name, args);
   return this;
 };
@@ -1623,239 +1732,165 @@ function deprecated(hash, name, msg) {
   if (name in hash)
     console.log(msg ? msg.replace("%name", name) : "'" + name + "' field of texture atlas is deprecated.");
 }
-Stage$1.prototype._textures = null;
-Stage$1.prototype._alpha = 1;
-Stage$1.prototype.render = function(context) {
-  if (!this._visible) {
-    return;
-  }
-  stats.node++;
-  var m = this.matrix();
-  context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
-  this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
-  var alpha = this._pin._textureAlpha * this._alpha;
-  if (context.globalAlpha != alpha) {
-    context.globalAlpha = alpha;
-  }
-  if (this._textures !== null) {
-    for (var i = 0, n = this._textures.length; i < n; i++) {
-      this._textures[i].draw(context);
-    }
-  }
-  if (context.globalAlpha != this._alpha) {
-    context.globalAlpha = this._alpha;
-  }
-  var child, next = this._first;
-  while (child = next) {
-    next = child._next;
-    child.render(context);
-  }
-};
-Stage$1.prototype._tickBefore = null;
-Stage$1.prototype._tickAfter = null;
-Stage$1.prototype.MAX_ELAPSE = Infinity;
-Stage$1.prototype._tick = function(elapsed, now, last) {
-  if (!this._visible) {
-    return;
-  }
-  if (elapsed > this.MAX_ELAPSE) {
-    elapsed = this.MAX_ELAPSE;
-  }
-  var ticked = false;
-  if (this._tickBefore !== null) {
-    for (var i = 0; i < this._tickBefore.length; i++) {
-      stats.tick++;
-      var tickFn = this._tickBefore[i];
-      ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
-    }
-  }
-  var child, next = this._first;
-  while (child = next) {
-    next = child._next;
-    if (child._flag("_tick")) {
-      ticked = child._tick(elapsed, now, last) === true ? true : ticked;
-    }
-  }
-  if (this._tickAfter !== null) {
-    for (var i = 0; i < this._tickAfter.length; i++) {
-      stats.tick++;
-      var tickFn = this._tickAfter[i];
-      ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
-    }
-  }
-  return ticked;
-};
-Stage$1.prototype.tick = function(ticker, before) {
-  if (typeof ticker !== "function") {
-    return;
-  }
-  if (before) {
-    if (this._tickBefore === null) {
-      this._tickBefore = [];
-    }
-    this._tickBefore.push(ticker);
-  } else {
-    if (this._tickAfter === null) {
-      this._tickAfter = [];
-    }
-    this._tickAfter.push(ticker);
-  }
-  this._flag("_tick", this._tickAfter !== null && this._tickAfter.length > 0 || this._tickBefore !== null && this._tickBefore.length > 0);
-};
-Stage$1.prototype.untick = function(ticker) {
-  if (typeof ticker !== "function") {
-    return;
-  }
-  var i;
-  if (this._tickBefore !== null && (i = this._tickBefore.indexOf(ticker)) >= 0) {
-    this._tickBefore.splice(i, 1);
-  }
-  if (this._tickAfter !== null && (i = this._tickAfter.indexOf(ticker)) >= 0) {
-    this._tickAfter.splice(i, 1);
-  }
-};
-Stage$1.prototype.timeout = function(fn, time) {
-  this.setTimeout(fn, time);
-};
-Stage$1.prototype.setTimeout = function(fn, time) {
-  function timer(t) {
-    if ((time -= t) < 0) {
-      this.untick(timer);
-      fn.call(this);
-    } else {
-      return true;
-    }
-  }
-  this.tick(timer);
-  return timer;
-};
-Stage$1.prototype.clearTimeout = function(timer) {
-  this.untick(timer);
-};
-Mouse.CLICK = "click";
-Mouse.START = "touchstart mousedown";
-Mouse.MOVE = "touchmove mousemove";
-Mouse.END = "touchend mouseup";
-Mouse.CANCEL = "touchcancel mousecancel";
-Mouse.subscribe = function(stage, elem) {
-  if (stage.mouse) {
-    return;
-  }
-  stage.mouse = new Mouse(stage, elem);
-  elem.addEventListener("touchstart", handleStart);
-  elem.addEventListener("touchend", handleEnd);
-  elem.addEventListener("touchmove", handleMove);
-  elem.addEventListener("touchcancel", handleCancel);
-  elem.addEventListener("mousedown", handleStart);
-  elem.addEventListener("mouseup", handleEnd);
-  elem.addEventListener("mousemove", handleMove);
-  document.addEventListener("mouseup", handleCancel);
-  window.addEventListener("blur", handleCancel);
-  var clicklist = [], cancellist = [];
-  function handleStart(event) {
-    event.preventDefault();
-    stage.mouse.locate(event);
-    stage.mouse.publish(event.type, event);
-    stage.mouse.lookup("click", clicklist);
-    stage.mouse.lookup("mousecancel", cancellist);
-  }
-  function handleMove(event) {
-    event.preventDefault();
-    stage.mouse.locate(event);
-    stage.mouse.publish(event.type, event);
-  }
-  function handleEnd(event) {
-    event.preventDefault();
-    stage.mouse.publish(event.type, event);
-    if (clicklist.length) {
-      stage.mouse.publish("click", event, clicklist);
-    }
-    cancellist.length = 0;
-  }
-  function handleCancel(event) {
-    if (cancellist.length) {
-      stage.mouse.publish("mousecancel", event, cancellist);
-    }
-    clicklist.length = 0;
-  }
-};
-function Mouse(stage, elem) {
-  if (!(this instanceof Mouse)) {
-    return;
-  }
-  var ratio = stage.viewport().ratio || 1;
-  stage.on("viewport", function(size) {
-    ratio = size.ratio || ratio;
-  });
-  this.x = 0;
-  this.y = 0;
-  this.toString = function() {
-    return (this.x | 0) + "x" + (this.y | 0);
-  };
-  this.locate = function(event) {
-    locateElevent(elem, event, this);
-    this.x *= ratio;
-    this.y *= ratio;
-  };
-  this.lookup = function(type, collect) {
-    this.type = type;
-    this.root = stage;
-    this.event = null;
-    collect.length = 0;
-    this.collect = collect;
-    this.root.visit(this.visitor, this);
-  };
-  this.publish = function(type, event, targets) {
-    this.type = type;
-    this.root = stage;
-    this.event = event;
-    this.collect = false;
-    this.timeStamp = Date.now();
-    if (type !== "mousemove" && type !== "touchmove") {
-      console.log(this.type + " " + this);
-    }
-    if (targets) {
-      while (targets.length)
-        if (this.visitor.end(targets.shift(), this))
-          break;
-      targets.length = 0;
-    } else {
-      this.root.visit(this.visitor, this);
-    }
-  };
-  this.visitor = {
-    reverse: true,
-    visible: true,
-    start: function(node, mouse) {
-      return !node._flag(mouse.type);
-    },
-    end: function(node, mouse) {
-      rel.raw = mouse.event;
-      rel.type = mouse.type;
-      rel.timeStamp = mouse.timeStamp;
-      rel.abs.x = mouse.x;
-      rel.abs.y = mouse.y;
-      var listeners = node.listeners(mouse.type);
+class Mouse {
+  constructor() {
+    __publicField(this, "x", 0);
+    __publicField(this, "y", 0);
+    __publicField(this, "ratio", 1);
+    __publicField(this, "stage");
+    __publicField(this, "elem");
+    __publicField(this, "clicklist", []);
+    __publicField(this, "cancellist", []);
+    __publicField(this, "handleStart", (event) => {
+      event.preventDefault();
+      this.locate(event);
+      this.publish(event.type, event);
+      this.lookup("click", this.clicklist);
+      this.lookup("mousecancel", this.cancellist);
+    });
+    __publicField(this, "handleMove", (event) => {
+      event.preventDefault();
+      this.locate(event);
+      this.publish(event.type, event);
+    });
+    __publicField(this, "handleEnd", (event) => {
+      event.preventDefault();
+      this.publish(event.type, event);
+      if (this.clicklist.length) {
+        this.publish("click", event, this.clicklist);
+      }
+      this.cancellist.length = 0;
+    });
+    __publicField(this, "handleCancel", (event) => {
+      if (this.cancellist.length) {
+        this.publish("mousecancel", event, this.cancellist);
+      }
+      this.clicklist.length = 0;
+    });
+    __publicField(this, "toString", function() {
+      return (this.x | 0) + "x" + (this.y | 0);
+    });
+    __publicField(this, "locate", function(event) {
+      const elem = this.elem;
+      let x;
+      let y;
+      if (event.touches && event.touches.length) {
+        x = event.touches[0].clientX;
+        y = event.touches[0].clientY;
+      } else {
+        x = event.clientX;
+        y = event.clientY;
+      }
+      var rect = elem.getBoundingClientRect();
+      x -= rect.left;
+      y -= rect.top;
+      x -= elem.clientLeft | 0;
+      y -= elem.clientTop | 0;
+      this.x = x * this.ratio;
+      this.y = y * this.ratio;
+    });
+    __publicField(this, "lookup", function(type, collect) {
+      this.type = type;
+      this.root = this.stage;
+      this.event = null;
+      collect.length = 0;
+      this.collect = collect;
+      this.root.visit({
+        reverse: true,
+        visible: true,
+        start: this.visitStart,
+        end: this.visitEnd
+      }, this);
+    });
+    __publicField(this, "publish", function(type, event, targets) {
+      this.type = type;
+      this.root = this.stage;
+      this.event = event;
+      this.collect = false;
+      this.timeStamp = Date.now();
+      if (type !== "mousemove" && type !== "touchmove") {
+        console.log(this.type + " " + this);
+      }
+      if (targets) {
+        while (targets.length)
+          if (this.visitEnd(targets.shift()))
+            break;
+        targets.length = 0;
+      } else {
+        this.root.visit({
+          reverse: true,
+          visible: true,
+          start: this.visitStart,
+          end: this.visitEnd
+        }, this);
+      }
+    });
+    __publicField(this, "visitStart", (node) => {
+      return !node._flag(this.type);
+    });
+    __publicField(this, "visitEnd", (node) => {
+      rel.raw = this.event;
+      rel.type = this.type;
+      rel.timeStamp = this.timeStamp;
+      rel.abs.x = this.x;
+      rel.abs.y = this.y;
+      var listeners = node.listeners(this.type);
       if (!listeners) {
         return;
       }
-      node.matrix().inverse().map(mouse, rel);
-      if (!(node === mouse.root || node.attr("spy") || node.hitTest(rel))) {
+      node.matrix().inverse().map(this, rel);
+      if (!(node === this.root || node.attr("spy") || node.hitTest(rel))) {
         return;
       }
-      if (mouse.collect) {
-        mouse.collect.push(node);
+      if (this.collect) {
+        this.collect.push(node);
       }
-      if (mouse.event) {
+      if (this.event) {
         var cancel = false;
         for (var l = 0; l < listeners.length; l++) {
           cancel = listeners[l].call(node, rel) ? true : cancel;
         }
         return cancel;
       }
-    }
-  };
+    });
+  }
+  mount(stage, elem) {
+    this.stage = stage;
+    this.elem = elem;
+    this.ratio = stage.viewport().ratio || 1;
+    stage.on("viewport", (size) => {
+      this.ratio = size.ratio ?? this.ratio;
+    });
+    elem.addEventListener("touchstart", this.handleStart);
+    elem.addEventListener("touchend", this.handleEnd);
+    elem.addEventListener("touchmove", this.handleMove);
+    elem.addEventListener("touchcancel", this.handleCancel);
+    elem.addEventListener("mousedown", this.handleStart);
+    elem.addEventListener("mouseup", this.handleEnd);
+    elem.addEventListener("mousemove", this.handleMove);
+    document.addEventListener("mouseup", this.handleCancel);
+    window.addEventListener("blur", this.handleCancel);
+    return this;
+  }
+  unmount() {
+    const elem = this.elem;
+    elem.removeEventListener("touchstart", this.handleStart);
+    elem.removeEventListener("touchend", this.handleEnd);
+    elem.removeEventListener("touchmove", this.handleMove);
+    elem.removeEventListener("touchcancel", this.handleCancel);
+    elem.removeEventListener("mousedown", this.handleStart);
+    elem.removeEventListener("mouseup", this.handleEnd);
+    elem.removeEventListener("mousemove", this.handleMove);
+    document.removeEventListener("mouseup", this.handleCancel);
+    window.removeEventListener("blur", this.handleCancel);
+    return this;
+  }
 }
+__publicField(Mouse, "CLICK", "click");
+__publicField(Mouse, "START", "touchstart mousedown");
+__publicField(Mouse, "MOVE", "touchmove mousemove");
+__publicField(Mouse, "END", "touchend mouseup");
+__publicField(Mouse, "CANCEL", "touchcancel mousecancel");
 var rel = {}, abs = {};
 defineValue(rel, "clone", function(obj) {
   obj = obj || {}, obj.x = this.x, obj.y = this.y;
@@ -1877,672 +1912,6 @@ function defineValue(obj, name, value) {
     value
   });
 }
-function locateElevent(el, ev, loc) {
-  if (ev.touches && ev.touches.length) {
-    loc.x = ev.touches[0].clientX;
-    loc.y = ev.touches[0].clientY;
-  } else {
-    loc.x = ev.clientX;
-    loc.y = ev.clientY;
-  }
-  var rect = el.getBoundingClientRect();
-  loc.x -= rect.left;
-  loc.y -= rect.top;
-  loc.x -= el.clientLeft | 0;
-  loc.y -= el.clientTop | 0;
-  return loc;
-}
-var _stages = [];
-const pause = function() {
-  for (var i = _stages.length - 1; i >= 0; i--) {
-    _stages[i].pause();
-  }
-};
-const resume = function() {
-  for (var i = _stages.length - 1; i >= 0; i--) {
-    _stages[i].resume();
-  }
-};
-const mount = function(configs = {}) {
-  var root = new Root();
-  root.mount(configs);
-  Mouse.subscribe(root, root.dom);
-  return root;
-};
-Root._super = Stage$1;
-Root.prototype = Object.create(Root._super.prototype);
-function Root() {
-  Root._super.call(this);
-  this.label("Root");
-}
-Root.prototype.mount = function(configs = {}) {
-  var canvas2;
-  var context = null;
-  var fullpage = false;
-  var drawingWidth = 0;
-  var drawingHeight = 0;
-  var pixelRatio = 1;
-  var mounted = false;
-  var paused = true;
-  if (typeof configs.canvas === "string") {
-    canvas2 = document.getElementById(configs.canvas);
-  }
-  if (!canvas2) {
-    canvas2 = document.getElementById("cutjs") || document.getElementById("stage");
-  }
-  if (!canvas2) {
-    fullpage = true;
-    console.log("Creating Canvas...");
-    canvas2 = document.createElement("canvas");
-    canvas2.style.position = "absolute";
-    canvas2.style.top = "0";
-    canvas2.style.left = "0";
-    var body = document.body;
-    body.insertBefore(canvas2, body.firstChild);
-  }
-  this.dom = canvas2;
-  context = canvas2.getContext("2d");
-  var devicePixelRatio = window.devicePixelRatio || 1;
-  var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
-  pixelRatio = devicePixelRatio / backingStoreRatio;
-  var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
-    return window.setTimeout(callback, 1e3 / 60);
-  };
-  var lastTime = 0;
-  var renderLoop = (now) => {
-    if (!mounted || paused) {
-      return;
-    }
-    var last = lastTime || now;
-    var elapsed = now - last;
-    lastTime = now;
-    var ticked = this._tick(elapsed, now, last);
-    if (this._mo_touch != this._ts_touch) {
-      this._mo_touch = this._ts_touch;
-      onRender();
-      requestAnimationFrame(renderLoop);
-    } else if (ticked) {
-      requestAnimationFrame(renderLoop);
-    } else {
-      paused = true;
-    }
-    stats.fps = elapsed ? 1e3 / elapsed : 0;
-  };
-  var onRender = () => {
-    if (drawingWidth > 0 && drawingHeight > 0) {
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, drawingWidth, drawingHeight);
-      this.render(context);
-    }
-  };
-  var lastWidth = -1;
-  var lastHeight = -1;
-  var resizeLoop = () => {
-    if (!mounted) {
-      return;
-    }
-    var newWidth, newHeight;
-    if (fullpage) {
-      newWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
-      newHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
-    } else {
-      newWidth = canvas2.clientWidth;
-      newHeight = canvas2.clientHeight;
-    }
-    if (lastWidth !== newWidth || lastHeight !== newHeight) {
-      lastWidth = newWidth;
-      lastHeight = newHeight;
-      onResize();
-    }
-    requestAnimationFrame(resizeLoop);
-  };
-  var onResize = () => {
-    if (fullpage) {
-      drawingWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
-      drawingHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
-      canvas2.style.width = drawingWidth + "px";
-      canvas2.style.height = drawingHeight + "px";
-    } else {
-      drawingWidth = canvas2.clientWidth;
-      drawingHeight = canvas2.clientHeight;
-    }
-    drawingWidth *= pixelRatio;
-    drawingHeight *= pixelRatio;
-    if (canvas2.width === drawingWidth && canvas2.height === drawingHeight) {
-      return;
-    }
-    canvas2.width = drawingWidth;
-    canvas2.height = drawingHeight;
-    console.log("Resize: " + drawingWidth + " x " + drawingHeight + " / " + pixelRatio);
-    this.viewport(drawingWidth, drawingHeight, pixelRatio);
-    onRender();
-  };
-  this.resume = function() {
-    if (paused) {
-      this.publish("resume");
-      paused = false;
-      requestAnimationFrame(renderLoop);
-    }
-    return this;
-  };
-  this.pause = function() {
-    if (!paused) {
-      this.publish("pause");
-    }
-    paused = true;
-    return this;
-  };
-  this.touch_root = this.touch;
-  this.touch = function() {
-    this.resume();
-    return this.touch_root();
-  };
-  this.unmount = function() {
-    mounted = false;
-    var index = _stages.indexOf(this);
-    if (index >= 0) {
-      _stages.splice(index, 1);
-    }
-    return this;
-  };
-  mounted = true;
-  _stages.push(this);
-  resizeLoop();
-  requestAnimationFrame(renderLoop);
-};
-Root.prototype.background = function(color) {
-  canvas.style.backgroundColor = color;
-  return this;
-};
-Root.prototype.viewport = function(width, height, ratio) {
-  if (typeof width === "undefined") {
-    return Object.assign({}, this._viewport);
-  }
-  this._viewport = {
-    width,
-    height,
-    ratio: ratio || 1
-  };
-  this.viewbox();
-  var data = Object.assign({}, this._viewport);
-  this.visit({
-    start: function(node) {
-      if (!node._flag("viewport")) {
-        return true;
-      }
-      node.publish("viewport", [data]);
-    }
-  });
-  return this;
-};
-Root.prototype.viewbox = function(width, height, mode) {
-  if (typeof width === "number" && typeof height === "number") {
-    this._viewbox = {
-      width,
-      height,
-      mode: /^(in|out|in-pad|out-crop)$/.test(mode) ? mode : "in-pad"
-    };
-  }
-  var viewbox = this._viewbox;
-  var viewport = this._viewport;
-  if (viewport && viewbox) {
-    this.pin({
-      width: viewbox.width,
-      height: viewbox.height
-    });
-    this.scaleTo(viewport.width, viewport.height, viewbox.mode);
-  } else if (viewport) {
-    this.pin({
-      width: viewport.width,
-      height: viewport.height
-    });
-  }
-  return this;
-};
-const canvas$1 = function(type, attributes, plotter) {
-  if (typeof type === "string") {
-    if (typeof attributes === "object")
-      ;
-    else {
-      if (typeof attributes === "function") {
-        plotter = attributes;
-      }
-      attributes = {};
-    }
-  } else {
-    if (typeof type === "function") {
-      plotter = type;
-    }
-    attributes = {};
-    type = "2d";
-  }
-  var canvas2 = document.createElement("canvas");
-  var context = canvas2.getContext(type, attributes);
-  var texture2 = new Texture(canvas2);
-  texture2.context = function() {
-    return context;
-  };
-  texture2.size = function(width, height, ratio) {
-    ratio = ratio || 1;
-    canvas2.width = width * ratio;
-    canvas2.height = height * ratio;
-    this.src(canvas2, ratio);
-    return this;
-  };
-  if (typeof plotter === "function") {
-    plotter.call(texture2, context);
-  }
-  return texture2;
-};
-const sprite = function(query) {
-  var sprite2 = new Sprite();
-  query && sprite2.image(query);
-  return sprite2;
-};
-Sprite._super = Stage$1;
-Sprite.prototype = Object.create(Sprite._super.prototype);
-function Sprite() {
-  Sprite._super.call(this);
-  this.label("Sprite");
-  this._textures = [];
-  this._image = null;
-}
-Sprite.prototype.image = function(frame) {
-  this._image = texture(frame).one();
-  this.pin("width", this._image ? this._image.width : 0);
-  this.pin("height", this._image ? this._image.height : 0);
-  this._textures[0] = this._image.pipe();
-  this._textures.length = 1;
-  return this;
-};
-Sprite.prototype.tile = function(inner) {
-  this._repeat(false, inner);
-  return this;
-};
-Sprite.prototype.stretch = function(inner) {
-  this._repeat(true, inner);
-  return this;
-};
-Sprite.prototype._repeat = function(stretch, inner) {
-  var self = this;
-  this.untick(this._repeatTicker);
-  this.tick(this._repeatTicker = function() {
-    if (this._mo_stretch == this._pin._ts_transform) {
-      return;
-    }
-    this._mo_stretch = this._pin._ts_transform;
-    var width = this.pin("width");
-    var height = this.pin("height");
-    this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
-  });
-  function insert(i, sx, sy, sw, sh, dx, dy, dw, dh) {
-    var repeat2 = self._textures.length > i ? self._textures[i] : self._textures[i] = self._image.pipe();
-    repeat2.src(sx, sy, sw, sh);
-    repeat2.dest(dx, dy, dw, dh);
-  }
-};
-function repeat(img, owidth, oheight, stretch, inner, insert) {
-  var width = img.width;
-  var height = img.height;
-  var left = img.left;
-  var right = img.right;
-  var top = img.top;
-  var bottom = img.bottom;
-  left = typeof left === "number" && left === left ? left : 0;
-  right = typeof right === "number" && right === right ? right : 0;
-  top = typeof top === "number" && top === top ? top : 0;
-  bottom = typeof bottom === "number" && bottom === bottom ? bottom : 0;
-  width = width - left - right;
-  height = height - top - bottom;
-  if (!inner) {
-    owidth = Math.max(owidth - left - right, 0);
-    oheight = Math.max(oheight - top - bottom, 0);
-  }
-  var i = 0;
-  if (top > 0 && left > 0)
-    insert(i++, 0, 0, left, top, 0, 0, left, top);
-  if (bottom > 0 && left > 0)
-    insert(i++, 0, height + top, left, bottom, 0, oheight + top, left, bottom);
-  if (top > 0 && right > 0)
-    insert(i++, width + left, 0, right, top, owidth + left, 0, right, top);
-  if (bottom > 0 && right > 0)
-    insert(
-      i++,
-      width + left,
-      height + top,
-      right,
-      bottom,
-      owidth + left,
-      oheight + top,
-      right,
-      bottom
-    );
-  if (stretch) {
-    if (top > 0)
-      insert(i++, left, 0, width, top, left, 0, owidth, top);
-    if (bottom > 0)
-      insert(
-        i++,
-        left,
-        height + top,
-        width,
-        bottom,
-        left,
-        oheight + top,
-        owidth,
-        bottom
-      );
-    if (left > 0)
-      insert(i++, 0, top, left, height, 0, top, left, oheight);
-    if (right > 0)
-      insert(
-        i++,
-        width + left,
-        top,
-        right,
-        height,
-        owidth + left,
-        top,
-        right,
-        oheight
-      );
-    insert(i++, left, top, width, height, left, top, owidth, oheight);
-  } else {
-    var l = left, r = owidth, w;
-    while (r > 0) {
-      w = Math.min(width, r), r -= width;
-      var t = top, b = oheight, h;
-      while (b > 0) {
-        h = Math.min(height, b), b -= height;
-        insert(i++, left, top, w, h, l, t, w, h);
-        if (r <= 0) {
-          if (left)
-            insert(i++, 0, top, left, h, 0, t, left, h);
-          if (right)
-            insert(i++, width + left, top, right, h, l + w, t, right, h);
-        }
-        t += h;
-      }
-      if (top)
-        insert(i++, left, 0, w, top, l, 0, w, top);
-      if (bottom)
-        insert(i++, left, height + top, w, bottom, l, t, w, bottom);
-      l += w;
-    }
-  }
-  return i;
-}
-const anim = function(frames, fps) {
-  var anim2 = new Anim();
-  anim2.frames(frames).gotoFrame(0);
-  fps && anim2.fps(fps);
-  return anim2;
-};
-Anim._super = Stage$1;
-Anim.prototype = Object.create(Anim._super.prototype);
-const FPS = 15;
-function Anim() {
-  Anim._super.call(this);
-  this.label("Anim");
-  this._textures = [];
-  this._fps = FPS;
-  this._ft = 1e3 / this._fps;
-  this._time = -1;
-  this._repeat = 0;
-  this._index = 0;
-  this._frames = [];
-  var lastTime = 0;
-  this.tick(function(t, now, last) {
-    if (this._time < 0 || this._frames.length <= 1) {
-      return;
-    }
-    var ignore = lastTime != last;
-    lastTime = now;
-    if (ignore) {
-      return true;
-    }
-    this._time += t;
-    if (this._time < this._ft) {
-      return true;
-    }
-    var n = this._time / this._ft | 0;
-    this._time -= n * this._ft;
-    this.moveFrame(n);
-    if (this._repeat > 0 && (this._repeat -= n) <= 0) {
-      this.stop();
-      this._callback && this._callback();
-      return false;
-    }
-    return true;
-  }, false);
-}
-Anim.prototype.fps = function(fps) {
-  if (typeof fps === "undefined") {
-    return this._fps;
-  }
-  this._fps = fps > 0 ? fps : FPS;
-  this._ft = 1e3 / this._fps;
-  return this;
-};
-Anim.prototype.setFrames = function(a, b, c) {
-  return this.frames(a, b, c);
-};
-Anim.prototype.frames = function(frames) {
-  this._index = 0;
-  this._frames = texture(frames).array();
-  this.touch();
-  return this;
-};
-Anim.prototype.length = function() {
-  return this._frames ? this._frames.length : 0;
-};
-Anim.prototype.gotoFrame = function(frame, resize) {
-  this._index = math.modulo(frame, this._frames.length) | 0;
-  resize = resize || !this._textures[0];
-  this._textures[0] = this._frames[this._index];
-  if (resize) {
-    this.pin("width", this._textures[0].width);
-    this.pin("height", this._textures[0].height);
-  }
-  this.touch();
-  return this;
-};
-Anim.prototype.moveFrame = function(move) {
-  return this.gotoFrame(this._index + move);
-};
-Anim.prototype.repeat = function(repeat2, callback) {
-  this._repeat = repeat2 * this._frames.length - 1;
-  this._callback = callback;
-  this.play();
-  return this;
-};
-Anim.prototype.play = function(frame) {
-  if (typeof frame !== "undefined") {
-    this.gotoFrame(frame);
-    this._time = 0;
-  } else if (this._time < 0) {
-    this._time = 0;
-  }
-  this.touch();
-  return this;
-};
-Anim.prototype.stop = function(frame) {
-  this._time = -1;
-  if (typeof frame !== "undefined") {
-    this.gotoFrame(frame);
-  }
-  return this;
-};
-const string$1 = function(frames) {
-  return new Str().frames(frames);
-};
-Str._super = Stage$1;
-Str.prototype = Object.create(Str._super.prototype);
-function Str() {
-  Str._super.call(this);
-  this.label("String");
-  this._textures = [];
-}
-Str.prototype.setFont = function(a, b, c) {
-  return this.frames(a, b, c);
-};
-Str.prototype.frames = function(frames) {
-  this._textures = [];
-  if (typeof frames == "string") {
-    frames = texture(frames);
-    this._item = function(value) {
-      return frames.one(value);
-    };
-  } else if (typeof frames === "object") {
-    this._item = function(value) {
-      return frames[value];
-    };
-  } else if (typeof frames === "function") {
-    this._item = frames;
-  }
-  return this;
-};
-Str.prototype.setValue = function(a, b, c) {
-  return this.value(a, b, c);
-};
-Str.prototype.value = function(value) {
-  if (typeof value === "undefined") {
-    return this._value;
-  }
-  if (this._value === value) {
-    return this;
-  }
-  this._value = value;
-  if (value === null) {
-    value = "";
-  } else if (typeof value !== "string" && !is$1.array(value)) {
-    value = value.toString();
-  }
-  this._spacing = this._spacing || 0;
-  var width = 0, height = 0;
-  for (var i = 0; i < value.length; i++) {
-    var texture2 = this._textures[i] = this._item(value[i]);
-    width += i > 0 ? this._spacing : 0;
-    texture2.dest(width, 0);
-    width = width + texture2.width;
-    height = Math.max(height, texture2.height);
-  }
-  this.pin("width", width);
-  this.pin("height", height);
-  this._textures.length = value.length;
-  return this;
-};
-const row = function(align) {
-  return create().row(align).label("Row");
-};
-Stage$1.prototype.row = function(align) {
-  this.align("row", align);
-  return this;
-};
-const column = function(align) {
-  return create().column(align).label("Row");
-};
-Stage$1.prototype.column = function(align) {
-  this.align("column", align);
-  return this;
-};
-Stage$1.prototype.align = function(type, align) {
-  this._padding = this._padding || 0;
-  this._spacing = this._spacing || 0;
-  this.untick(this._layoutTiker);
-  this.tick(this._layoutTiker = function() {
-    if (this._mo_seq == this._ts_touch) {
-      return;
-    }
-    this._mo_seq = this._ts_touch;
-    var alignChildren = this._mo_seqAlign != this._ts_children;
-    this._mo_seqAlign = this._ts_children;
-    var width = 0, height = 0;
-    var child, next = this.first(true);
-    var first = true;
-    while (child = next) {
-      next = child.next(true);
-      child.matrix(true);
-      var w = child.pin("boxWidth");
-      var h = child.pin("boxHeight");
-      if (type == "column") {
-        !first && (height += this._spacing);
-        child.pin("offsetY") != height && child.pin("offsetY", height);
-        width = Math.max(width, w);
-        height = height + h;
-        alignChildren && child.pin("alignX", align);
-      } else if (type == "row") {
-        !first && (width += this._spacing);
-        child.pin("offsetX") != width && child.pin("offsetX", width);
-        width = width + w;
-        height = Math.max(height, h);
-        alignChildren && child.pin("alignY", align);
-      }
-      first = false;
-    }
-    width += 2 * this._padding;
-    height += 2 * this._padding;
-    this.pin("width") != width && this.pin("width", width);
-    this.pin("height") != height && this.pin("height", height);
-  });
-  return this;
-};
-const box = function() {
-  return create().box().label("Box");
-};
-Stage$1.prototype.box = function() {
-  this._padding = this._padding || 0;
-  this.untick(this._layoutTiker);
-  this.tick(this._layoutTiker = function() {
-    if (this._mo_box == this._ts_touch) {
-      return;
-    }
-    this._mo_box = this._ts_touch;
-    var width = 0, height = 0;
-    var child, next = this.first(true);
-    while (child = next) {
-      next = child.next(true);
-      child.matrix(true);
-      var w = child.pin("boxWidth");
-      var h = child.pin("boxHeight");
-      width = Math.max(width, w);
-      height = Math.max(height, h);
-    }
-    width += 2 * this._padding;
-    height += 2 * this._padding;
-    this.pin("width") != width && this.pin("width", width);
-    this.pin("height") != height && this.pin("height", height);
-  });
-  return this;
-};
-const layer = function() {
-  return create().layer().label("Layer");
-};
-Stage$1.prototype.layer = function() {
-  this.untick(this._layoutTiker);
-  this.tick(this._layoutTiker = function() {
-    var parent = this.parent();
-    if (parent) {
-      var width = parent.pin("width");
-      if (this.pin("width") != width) {
-        this.pin("width", width);
-      }
-      var height = parent.pin("height");
-      if (this.pin("height") != height) {
-        this.pin("height", height);
-      }
-    }
-  }, true);
-  return this;
-};
-Stage$1.prototype.padding = function(pad) {
-  this._padding = pad;
-  return this;
-};
-Stage$1.prototype.spacing = function(space) {
-  this._spacing = space;
-  return this;
-};
 function IDENTITY(x) {
   return x;
 }
@@ -2703,7 +2072,7 @@ Easing.add({
     };
   }
 });
-Stage$1.prototype.tween = function(duration, delay, append2) {
+Node.prototype.tween = function(duration, delay, append2) {
   if (typeof duration !== "number") {
     append2 = duration, delay = 0, duration = 0;
   } else if (typeof delay !== "number") {
@@ -2748,89 +2117,104 @@ Stage$1.prototype.tween = function(duration, delay, append2) {
   this._tweens.push(tween);
   return tween;
 };
-function Tween(owner, duration, delay) {
-  this._end = {};
-  this._duration = duration || 400;
-  this._delay = delay || 0;
-  this._owner = owner;
-  this._time = 0;
-}
-Tween.prototype.tick = function(node, elapsed, now, last) {
-  this._time += elapsed;
-  if (this._time < this._delay) {
-    return;
+class Tween {
+  constructor(owner, duration, delay) {
+    this._end = {};
+    this._duration = duration || 400;
+    this._delay = delay || 0;
+    this._owner = owner;
+    this._time = 0;
   }
-  var time = this._time - this._delay;
-  if (!this._start) {
-    this._start = {};
+  tick(node, elapsed, now, last) {
+    this._time += elapsed;
+    if (this._time < this._delay) {
+      return;
+    }
+    var time = this._time - this._delay;
+    if (!this._start) {
+      this._start = {};
+      for (var key in this._end) {
+        this._start[key] = this._owner.pin(key);
+      }
+    }
+    var p, over;
+    if (time < this._duration) {
+      p = time / this._duration;
+      over = false;
+    } else {
+      p = 1;
+      over = true;
+    }
+    if (typeof this._easing == "function") {
+      p = this._easing(p);
+    }
+    var q = 1 - p;
     for (var key in this._end) {
-      this._start[key] = this._owner.pin(key);
+      this._owner.pin(key, this._start[key] * q + this._end[key] * p);
+    }
+    if (over) {
+      var actions = [this._hide, this._remove, this._done];
+      actions = actions.filter(function(element) {
+        return typeof element === "function";
+      });
+      return this._next || actions;
     }
   }
-  var p, over;
-  if (time < this._duration) {
-    p = time / this._duration;
-    over = false;
-  } else {
-    p = 1;
-    over = true;
+  tween(duration, delay) {
+    return this._next = new Tween(this._owner, duration, delay);
   }
-  if (typeof this._easing == "function") {
-    p = this._easing(p);
+  duration(duration) {
+    this._duration = duration;
+    return this;
   }
-  var q = 1 - p;
-  for (var key in this._end) {
-    this._owner.pin(key, this._start[key] * q + this._end[key] * p);
+  delay(delay) {
+    this._delay = delay;
+    return this;
   }
-  if (over) {
-    var actions = [this._hide, this._remove, this._done];
-    actions = actions.filter(function(element) {
-      return typeof element === "function";
-    });
-    return this._next || actions;
+  ease(easing) {
+    this._easing = Easing.get(easing);
+    return this;
   }
-};
-Tween.prototype.tween = function(duration, delay) {
-  return this._next = new Tween(this._owner, duration, delay);
-};
-Tween.prototype.duration = function(duration) {
-  this._duration = duration;
-  return this;
-};
-Tween.prototype.delay = function(delay) {
-  this._delay = delay;
-  return this;
-};
-Tween.prototype.ease = function(easing) {
-  this._easing = Easing.get(easing);
-  return this;
-};
-Tween.prototype.done = function(fn) {
-  this._done = fn;
-  return this;
-};
-Tween.prototype.hide = function() {
-  this._hide = function() {
-    this.hide();
-  };
-  return this;
-};
-Tween.prototype.remove = function() {
-  this._remove = function() {
-    this.remove();
-  };
-  return this;
-};
-Tween.prototype.pin = function(a, b) {
-  if (typeof a === "object") {
-    for (var attr in a) {
-      pinning(this._owner, this._end, attr, a[attr]);
+  done(fn) {
+    this._done = fn;
+    return this;
+  }
+  hide() {
+    this._hide = function() {
+      this.hide();
+    };
+    return this;
+  }
+  remove() {
+    this._remove = function() {
+      this.remove();
+    };
+    return this;
+  }
+  pin(a, b) {
+    if (typeof a === "object") {
+      for (var attr in a) {
+        pinning(this._owner, this._end, attr, a[attr]);
+      }
+    } else if (typeof b !== "undefined") {
+      pinning(this._owner, this._end, a, b);
     }
-  } else if (typeof b !== "undefined") {
-    pinning(this._owner, this._end, a, b);
+    return this;
   }
-  return this;
-};
+  /**
+   * @deprecated Use .done(fn) instead.
+   */
+  then(fn) {
+    this.done(fn);
+    return this;
+  }
+  /**
+   * @deprecated NOOP
+   */
+  clear(forward) {
+    return this;
+  }
+}
 function pinning(node, map, key, value) {
   if (typeof node.pin(key) === "number") {
     map[key] = value;
@@ -2840,11 +2224,657 @@ function pinning(node, map, key, value) {
   }
 }
 Pin._add_shortcuts(Tween.prototype);
-Tween.prototype.then = function(fn) {
-  this.done(fn);
+var _stages = [];
+const pause = function() {
+  for (var i = _stages.length - 1; i >= 0; i--) {
+    _stages[i].pause();
+  }
+};
+const resume = function() {
+  for (var i = _stages.length - 1; i >= 0; i--) {
+    _stages[i].resume();
+  }
+};
+const mount = function(configs = {}) {
+  var root = new Root();
+  root.mount(configs);
+  root.mouse = new Mouse().mount(root, root.dom);
+  return root;
+};
+Root._super = Node;
+Root.prototype = Object.create(Root._super.prototype);
+function Root() {
+  Root._super.call(this);
+  this.label("Root");
+}
+Root.prototype.mount = function(configs = {}) {
+  var canvas2;
+  var context = null;
+  var fullpage = false;
+  var drawingWidth = 0;
+  var drawingHeight = 0;
+  var pixelRatio = 1;
+  var mounted = false;
+  var paused = true;
+  if (typeof configs.canvas === "string") {
+    canvas2 = document.getElementById(configs.canvas);
+  }
+  if (!canvas2) {
+    canvas2 = document.getElementById("cutjs") || document.getElementById("stage");
+  }
+  if (!canvas2) {
+    fullpage = true;
+    console.log("Creating Canvas...");
+    canvas2 = document.createElement("canvas");
+    canvas2.style.position = "absolute";
+    canvas2.style.top = "0";
+    canvas2.style.left = "0";
+    var body = document.body;
+    body.insertBefore(canvas2, body.firstChild);
+  }
+  this.dom = canvas2;
+  context = canvas2.getContext("2d");
+  var devicePixelRatio = window.devicePixelRatio || 1;
+  var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+  pixelRatio = devicePixelRatio / backingStoreRatio;
+  var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
+    return window.setTimeout(callback, 1e3 / 60);
+  };
+  var lastTime = 0;
+  var renderLoop = (now) => {
+    if (!mounted || paused) {
+      return;
+    }
+    var last = lastTime || now;
+    var elapsed = now - last;
+    lastTime = now;
+    var ticked = this._tick(elapsed, now, last);
+    if (this._mo_touch != this._ts_touch) {
+      this._mo_touch = this._ts_touch;
+      onRender();
+      requestAnimationFrame(renderLoop);
+    } else if (ticked) {
+      requestAnimationFrame(renderLoop);
+    } else {
+      paused = true;
+    }
+    stats.fps = elapsed ? 1e3 / elapsed : 0;
+  };
+  var onRender = () => {
+    if (drawingWidth > 0 && drawingHeight > 0) {
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, drawingWidth, drawingHeight);
+      this.render(context);
+    }
+  };
+  var lastWidth = -1;
+  var lastHeight = -1;
+  var resizeLoop = () => {
+    if (!mounted) {
+      return;
+    }
+    var newWidth, newHeight;
+    if (fullpage) {
+      newWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
+      newHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
+    } else {
+      newWidth = canvas2.clientWidth;
+      newHeight = canvas2.clientHeight;
+    }
+    if (lastWidth !== newWidth || lastHeight !== newHeight) {
+      lastWidth = newWidth;
+      lastHeight = newHeight;
+      onResize();
+    }
+    requestAnimationFrame(resizeLoop);
+  };
+  var onResize = () => {
+    if (fullpage) {
+      drawingWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
+      drawingHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
+      canvas2.style.width = drawingWidth + "px";
+      canvas2.style.height = drawingHeight + "px";
+    } else {
+      drawingWidth = canvas2.clientWidth;
+      drawingHeight = canvas2.clientHeight;
+    }
+    drawingWidth *= pixelRatio;
+    drawingHeight *= pixelRatio;
+    if (canvas2.width === drawingWidth && canvas2.height === drawingHeight) {
+      return;
+    }
+    canvas2.width = drawingWidth;
+    canvas2.height = drawingHeight;
+    console.log("Resize: " + drawingWidth + " x " + drawingHeight + " / " + pixelRatio);
+    this.viewport(drawingWidth, drawingHeight, pixelRatio);
+    onRender();
+  };
+  this.resume = function() {
+    if (paused) {
+      this.publish("resume");
+      paused = false;
+      requestAnimationFrame(renderLoop);
+    }
+    return this;
+  };
+  this.pause = function() {
+    if (!paused) {
+      this.publish("pause");
+    }
+    paused = true;
+    return this;
+  };
+  this.touch_root = this.touch;
+  this.touch = function() {
+    this.resume();
+    return this.touch_root();
+  };
+  this.unmount = function() {
+    var _a;
+    mounted = false;
+    var index = _stages.indexOf(this);
+    if (index >= 0) {
+      _stages.splice(index, 1);
+    }
+    (_a = this.mouse) == null ? void 0 : _a.unmount();
+    return this;
+  };
+  mounted = true;
+  _stages.push(this);
+  resizeLoop();
+  requestAnimationFrame(renderLoop);
+};
+Root.prototype.background = function(color) {
+  canvas.style.backgroundColor = color;
   return this;
 };
-Tween.prototype.clear = function(forward) {
+Root.prototype.viewport = function(width, height, ratio) {
+  if (typeof width === "undefined") {
+    return Object.assign({}, this._viewport);
+  }
+  this._viewport = {
+    width,
+    height,
+    ratio: ratio || 1
+  };
+  this.viewbox();
+  var data = Object.assign({}, this._viewport);
+  this.visit({
+    start: function(node) {
+      if (!node._flag("viewport")) {
+        return true;
+      }
+      node.publish("viewport", [data]);
+    }
+  });
+  return this;
+};
+Root.prototype.viewbox = function(width, height, mode) {
+  if (typeof width === "number" && typeof height === "number") {
+    this._viewbox = {
+      width,
+      height,
+      mode: /^(in|out|in-pad|out-crop)$/.test(mode) ? mode : "in-pad"
+    };
+  }
+  var viewbox = this._viewbox;
+  var viewport = this._viewport;
+  if (viewport && viewbox) {
+    this.pin({
+      width: viewbox.width,
+      height: viewbox.height
+    });
+    this.scaleTo(viewport.width, viewport.height, viewbox.mode);
+  } else if (viewport) {
+    this.pin({
+      width: viewport.width,
+      height: viewport.height
+    });
+  }
+  return this;
+};
+const canvas$1 = function(type, attributes, plotter) {
+  if (typeof type === "string") {
+    if (typeof attributes === "object")
+      ;
+    else {
+      if (typeof attributes === "function") {
+        plotter = attributes;
+      }
+      attributes = {};
+    }
+  } else {
+    if (typeof type === "function") {
+      plotter = type;
+    }
+    attributes = {};
+    type = "2d";
+  }
+  var canvas2 = document.createElement("canvas");
+  var context = canvas2.getContext(type, attributes);
+  var texture2 = new Texture(canvas2);
+  texture2.context = function() {
+    return context;
+  };
+  texture2.size = function(width, height, ratio) {
+    ratio = ratio || 1;
+    canvas2.width = width * ratio;
+    canvas2.height = height * ratio;
+    this.src(canvas2, ratio);
+    return this;
+  };
+  if (typeof plotter === "function") {
+    plotter.call(texture2, context);
+  }
+  return texture2;
+};
+const sprite = function(query) {
+  var sprite2 = new Sprite();
+  query && sprite2.image(query);
+  return sprite2;
+};
+Sprite._super = Node;
+Sprite.prototype = Object.create(Sprite._super.prototype);
+function Sprite() {
+  Sprite._super.call(this);
+  this.label("Sprite");
+  this._textures = [];
+  this._image = null;
+}
+Sprite.prototype.image = function(frame) {
+  this._image = texture(frame).one();
+  this.pin("width", this._image ? this._image.width : 0);
+  this.pin("height", this._image ? this._image.height : 0);
+  this._textures[0] = this._image.pipe();
+  this._textures.length = 1;
+  return this;
+};
+Sprite.prototype.tile = function(inner) {
+  this._repeat(false, inner);
+  return this;
+};
+Sprite.prototype.stretch = function(inner) {
+  this._repeat(true, inner);
+  return this;
+};
+Sprite.prototype._repeat = function(stretch, inner) {
+  var self = this;
+  this.untick(this._repeatTicker);
+  this.tick(this._repeatTicker = function() {
+    if (this._mo_stretch == this._pin._ts_transform) {
+      return;
+    }
+    this._mo_stretch = this._pin._ts_transform;
+    var width = this.pin("width");
+    var height = this.pin("height");
+    this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
+  });
+  function insert(i, sx, sy, sw, sh, dx, dy, dw, dh) {
+    var repeat2 = self._textures.length > i ? self._textures[i] : self._textures[i] = self._image.pipe();
+    repeat2.src(sx, sy, sw, sh);
+    repeat2.dest(dx, dy, dw, dh);
+  }
+};
+function repeat(img, owidth, oheight, stretch, inner, insert) {
+  var width = img.width;
+  var height = img.height;
+  var left = img.left;
+  var right = img.right;
+  var top = img.top;
+  var bottom = img.bottom;
+  left = typeof left === "number" && left === left ? left : 0;
+  right = typeof right === "number" && right === right ? right : 0;
+  top = typeof top === "number" && top === top ? top : 0;
+  bottom = typeof bottom === "number" && bottom === bottom ? bottom : 0;
+  width = width - left - right;
+  height = height - top - bottom;
+  if (!inner) {
+    owidth = Math.max(owidth - left - right, 0);
+    oheight = Math.max(oheight - top - bottom, 0);
+  }
+  var i = 0;
+  if (top > 0 && left > 0)
+    insert(i++, 0, 0, left, top, 0, 0, left, top);
+  if (bottom > 0 && left > 0)
+    insert(i++, 0, height + top, left, bottom, 0, oheight + top, left, bottom);
+  if (top > 0 && right > 0)
+    insert(i++, width + left, 0, right, top, owidth + left, 0, right, top);
+  if (bottom > 0 && right > 0)
+    insert(
+      i++,
+      width + left,
+      height + top,
+      right,
+      bottom,
+      owidth + left,
+      oheight + top,
+      right,
+      bottom
+    );
+  if (stretch) {
+    if (top > 0)
+      insert(i++, left, 0, width, top, left, 0, owidth, top);
+    if (bottom > 0)
+      insert(
+        i++,
+        left,
+        height + top,
+        width,
+        bottom,
+        left,
+        oheight + top,
+        owidth,
+        bottom
+      );
+    if (left > 0)
+      insert(i++, 0, top, left, height, 0, top, left, oheight);
+    if (right > 0)
+      insert(
+        i++,
+        width + left,
+        top,
+        right,
+        height,
+        owidth + left,
+        top,
+        right,
+        oheight
+      );
+    insert(i++, left, top, width, height, left, top, owidth, oheight);
+  } else {
+    var l = left, r = owidth, w;
+    while (r > 0) {
+      w = Math.min(width, r), r -= width;
+      var t = top, b = oheight, h;
+      while (b > 0) {
+        h = Math.min(height, b), b -= height;
+        insert(i++, left, top, w, h, l, t, w, h);
+        if (r <= 0) {
+          if (left)
+            insert(i++, 0, top, left, h, 0, t, left, h);
+          if (right)
+            insert(i++, width + left, top, right, h, l + w, t, right, h);
+        }
+        t += h;
+      }
+      if (top)
+        insert(i++, left, 0, w, top, l, 0, w, top);
+      if (bottom)
+        insert(i++, left, height + top, w, bottom, l, t, w, bottom);
+      l += w;
+    }
+  }
+  return i;
+}
+const anim = function(frames, fps) {
+  var anim2 = new Anim();
+  anim2.frames(frames).gotoFrame(0);
+  fps && anim2.fps(fps);
+  return anim2;
+};
+Anim._super = Node;
+Anim.prototype = Object.create(Anim._super.prototype);
+const FPS = 15;
+function Anim() {
+  Anim._super.call(this);
+  this.label("Anim");
+  this._textures = [];
+  this._fps = FPS;
+  this._ft = 1e3 / this._fps;
+  this._time = -1;
+  this._repeat = 0;
+  this._index = 0;
+  this._frames = [];
+  var lastTime = 0;
+  this.tick(function(t, now, last) {
+    if (this._time < 0 || this._frames.length <= 1) {
+      return;
+    }
+    var ignore = lastTime != last;
+    lastTime = now;
+    if (ignore) {
+      return true;
+    }
+    this._time += t;
+    if (this._time < this._ft) {
+      return true;
+    }
+    var n = this._time / this._ft | 0;
+    this._time -= n * this._ft;
+    this.moveFrame(n);
+    if (this._repeat > 0 && (this._repeat -= n) <= 0) {
+      this.stop();
+      this._callback && this._callback();
+      return false;
+    }
+    return true;
+  }, false);
+}
+Anim.prototype.fps = function(fps) {
+  if (typeof fps === "undefined") {
+    return this._fps;
+  }
+  this._fps = fps > 0 ? fps : FPS;
+  this._ft = 1e3 / this._fps;
+  return this;
+};
+Anim.prototype.setFrames = function(a, b, c) {
+  return this.frames(a, b, c);
+};
+Anim.prototype.frames = function(frames) {
+  this._index = 0;
+  this._frames = texture(frames).array();
+  this.touch();
+  return this;
+};
+Anim.prototype.length = function() {
+  return this._frames ? this._frames.length : 0;
+};
+Anim.prototype.gotoFrame = function(frame, resize) {
+  this._index = math.modulo(frame, this._frames.length) | 0;
+  resize = resize || !this._textures[0];
+  this._textures[0] = this._frames[this._index];
+  if (resize) {
+    this.pin("width", this._textures[0].width);
+    this.pin("height", this._textures[0].height);
+  }
+  this.touch();
+  return this;
+};
+Anim.prototype.moveFrame = function(move) {
+  return this.gotoFrame(this._index + move);
+};
+Anim.prototype.repeat = function(repeat2, callback) {
+  this._repeat = repeat2 * this._frames.length - 1;
+  this._callback = callback;
+  this.play();
+  return this;
+};
+Anim.prototype.play = function(frame) {
+  if (typeof frame !== "undefined") {
+    this.gotoFrame(frame);
+    this._time = 0;
+  } else if (this._time < 0) {
+    this._time = 0;
+  }
+  this.touch();
+  return this;
+};
+Anim.prototype.stop = function(frame) {
+  this._time = -1;
+  if (typeof frame !== "undefined") {
+    this.gotoFrame(frame);
+  }
+  return this;
+};
+const string$1 = function(frames) {
+  return new Str().frames(frames);
+};
+Str._super = Node;
+Str.prototype = Object.create(Str._super.prototype);
+function Str() {
+  Str._super.call(this);
+  this.label("String");
+  this._textures = [];
+}
+Str.prototype.setFont = function(a, b, c) {
+  return this.frames(a, b, c);
+};
+Str.prototype.frames = function(frames) {
+  this._textures = [];
+  if (typeof frames == "string") {
+    frames = texture(frames);
+    this._item = function(value) {
+      return frames.one(value);
+    };
+  } else if (typeof frames === "object") {
+    this._item = function(value) {
+      return frames[value];
+    };
+  } else if (typeof frames === "function") {
+    this._item = frames;
+  }
+  return this;
+};
+Str.prototype.setValue = function(a, b, c) {
+  return this.value(a, b, c);
+};
+Str.prototype.value = function(value) {
+  if (typeof value === "undefined") {
+    return this._value;
+  }
+  if (this._value === value) {
+    return this;
+  }
+  this._value = value;
+  if (value === null) {
+    value = "";
+  } else if (typeof value !== "string" && !is$1.array(value)) {
+    value = value.toString();
+  }
+  this._spacing = this._spacing || 0;
+  var width = 0, height = 0;
+  for (var i = 0; i < value.length; i++) {
+    var texture2 = this._textures[i] = this._item(value[i]);
+    width += i > 0 ? this._spacing : 0;
+    texture2.dest(width, 0);
+    width = width + texture2.width;
+    height = Math.max(height, texture2.height);
+  }
+  this.pin("width", width);
+  this.pin("height", height);
+  this._textures.length = value.length;
+  return this;
+};
+const row = function(align) {
+  return create().row(align).label("Row");
+};
+Node.prototype.row = function(align) {
+  this.align("row", align);
+  return this;
+};
+const column = function(align) {
+  return create().column(align).label("Row");
+};
+Node.prototype.column = function(align) {
+  this.align("column", align);
+  return this;
+};
+Node.prototype.align = function(type, align) {
+  this._padding = this._padding || 0;
+  this._spacing = this._spacing || 0;
+  this.untick(this._layoutTiker);
+  this.tick(this._layoutTiker = function() {
+    if (this._mo_seq == this._ts_touch) {
+      return;
+    }
+    this._mo_seq = this._ts_touch;
+    var alignChildren = this._mo_seqAlign != this._ts_children;
+    this._mo_seqAlign = this._ts_children;
+    var width = 0, height = 0;
+    var child, next = this.first(true);
+    var first = true;
+    while (child = next) {
+      next = child.next(true);
+      child.matrix(true);
+      var w = child.pin("boxWidth");
+      var h = child.pin("boxHeight");
+      if (type == "column") {
+        !first && (height += this._spacing);
+        child.pin("offsetY") != height && child.pin("offsetY", height);
+        width = Math.max(width, w);
+        height = height + h;
+        alignChildren && child.pin("alignX", align);
+      } else if (type == "row") {
+        !first && (width += this._spacing);
+        child.pin("offsetX") != width && child.pin("offsetX", width);
+        width = width + w;
+        height = Math.max(height, h);
+        alignChildren && child.pin("alignY", align);
+      }
+      first = false;
+    }
+    width += 2 * this._padding;
+    height += 2 * this._padding;
+    this.pin("width") != width && this.pin("width", width);
+    this.pin("height") != height && this.pin("height", height);
+  });
+  return this;
+};
+const box = function() {
+  return create().box().label("Box");
+};
+Node.prototype.box = function() {
+  this._padding = this._padding || 0;
+  this.untick(this._layoutTiker);
+  this.tick(this._layoutTiker = function() {
+    if (this._mo_box == this._ts_touch) {
+      return;
+    }
+    this._mo_box = this._ts_touch;
+    var width = 0, height = 0;
+    var child, next = this.first(true);
+    while (child = next) {
+      next = child.next(true);
+      child.matrix(true);
+      var w = child.pin("boxWidth");
+      var h = child.pin("boxHeight");
+      width = Math.max(width, w);
+      height = Math.max(height, h);
+    }
+    width += 2 * this._padding;
+    height += 2 * this._padding;
+    this.pin("width") != width && this.pin("width", width);
+    this.pin("height") != height && this.pin("height", height);
+  });
+  return this;
+};
+const layer = function() {
+  return create().layer().label("Layer");
+};
+Node.prototype.layer = function() {
+  this.untick(this._layoutTiker);
+  this.tick(this._layoutTiker = function() {
+    var parent = this.parent();
+    if (parent) {
+      var width = parent.pin("width");
+      if (this.pin("width") != width) {
+        this.pin("width", width);
+      }
+      var height = parent.pin("height");
+      if (this.pin("height") != height) {
+        this.pin("height", height);
+      }
+    }
+  }, true);
+  return this;
+};
+Node.prototype.padding = function(pad) {
+  this._padding = pad;
+  return this;
+};
+Node.prototype.spacing = function(space) {
+  this._spacing = space;
   return this;
 };
 const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
@@ -2853,10 +2883,10 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   Atlas,
   Matrix,
   Mouse,
+  Node,
   Pin,
   Root,
   Sprite,
-  Stage: Stage$1,
   Str,
   Texture,
   Tween,
@@ -2881,10 +2911,10 @@ export {
   Atlas,
   Matrix,
   Mouse,
+  Node,
   Pin,
   Root,
   Sprite,
-  Stage$1 as Stage,
   Str,
   Texture,
   Tween,

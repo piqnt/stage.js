@@ -1,110 +1,155 @@
 if (typeof DEBUG === 'undefined')
   DEBUG = true;
 
-// TODO: capture mouse
+// todo: capture mouse
+// todo: implement unmount
 
-Mouse.CLICK = 'click';
-Mouse.START = 'touchstart mousedown';
-Mouse.MOVE = 'touchmove mousemove';
-Mouse.END = 'touchend mouseup';
-Mouse.CANCEL = 'touchcancel mousecancel';
+export class Mouse {
+  static CLICK = 'click';
+  static START = 'touchstart mousedown';
+  static MOVE = 'touchmove mousemove';
+  static END = 'touchend mouseup';
+  static CANCEL = 'touchcancel mousecancel';
+  
+  x = 0;
+  y = 0;
+  ratio = 1;
 
-Mouse.subscribe = function(stage, elem) {
-  if (stage.mouse) {
-    return;
+  stage;
+  elem;
+
+  constructor() {
   }
 
-  stage.mouse = new Mouse(stage, elem);
+  mount(stage, elem) {
+    this.stage = stage;
+    this.elem = elem;
 
-  // `click` events are synthesized from start/end events on same nodes
-  // `mousecancel` events are synthesized on blur or mouseup outside element
+    this.ratio = stage.viewport().ratio || 1;  
+    stage.on('viewport', (size) => {
+      this.ratio = size.ratio ?? this.ratio;
+    });
 
-  elem.addEventListener('touchstart', handleStart);
-  elem.addEventListener('touchend', handleEnd);
-  elem.addEventListener('touchmove', handleMove);
-  elem.addEventListener('touchcancel', handleCancel);
+    // `click` events are synthesized from start/end events on same nodes
+    // `mousecancel` events are synthesized on blur or mouseup outside element
+  
+    elem.addEventListener('touchstart', this.handleStart);
+    elem.addEventListener('touchend', this.handleEnd);
+    elem.addEventListener('touchmove', this.handleMove);
+    elem.addEventListener('touchcancel', this.handleCancel);
+  
+    elem.addEventListener('mousedown', this.handleStart);
+    elem.addEventListener('mouseup', this.handleEnd);
+    elem.addEventListener('mousemove', this.handleMove);
+  
+    document.addEventListener('mouseup', this.handleCancel);
+    window.addEventListener("blur", this.handleCancel);
 
-  elem.addEventListener('mousedown', handleStart);
-  elem.addEventListener('mouseup', handleEnd);
-  elem.addEventListener('mousemove', handleMove);
+    return this;
+  }
 
-  document.addEventListener('mouseup', handleCancel);
-  window.addEventListener("blur", handleCancel);
+  unmount() {
+    const elem = this.elem;
 
-  var clicklist = [], cancellist = [];
+    elem.removeEventListener('touchstart', this.handleStart);
+    elem.removeEventListener('touchend', this.handleEnd);
+    elem.removeEventListener('touchmove', this.handleMove);
+    elem.removeEventListener('touchcancel', this.handleCancel);
+  
+    elem.removeEventListener('mousedown', this.handleStart);
+    elem.removeEventListener('mouseup', this.handleEnd);
+    elem.removeEventListener('mousemove', this.handleMove);
+  
+    document.removeEventListener('mouseup', this.handleCancel);
+    window.removeEventListener("blur", this.handleCancel);
 
-  function handleStart(event) {
+    return this;
+  }
+
+  clicklist = [];
+  cancellist = [];
+
+  handleStart = (event) => {
     event.preventDefault();
-    stage.mouse.locate(event);
-    // DEBUG && console.log('Mouse Start: ' + event.type + ' ' + mouse);
-    stage.mouse.publish(event.type, event);
+    this.locate(event);
+    // DEBUG && console.log('Mouse Start: ' + event.type + ' ' + this);
+    this.publish(event.type, event);
 
-    stage.mouse.lookup('click', clicklist);
-    stage.mouse.lookup('mousecancel', cancellist);
+    this.lookup('click', this.clicklist);
+    this.lookup('mousecancel', this.cancellist);
   }
 
-  function handleMove(event) {
+  handleMove = (event) => {
     event.preventDefault();
-    stage.mouse.locate(event);
-    stage.mouse.publish(event.type, event);
+    this.locate(event);
+    this.publish(event.type, event);
   }
 
-  function handleEnd(event) {
+  handleEnd = (event) => {
     event.preventDefault();
     // up/end location is not available, last one is used instead
-    // DEBUG && console.log('Mouse End: ' + event.type + ' ' + mouse);
-    stage.mouse.publish(event.type, event);
+    // DEBUG && console.log('Mouse End: ' + event.type + ' ' + this);
+    this.publish(event.type, event);
 
-    if (clicklist.length) {
-      // DEBUG && console.log('Mouse Click: ' + clicklist.length);
-      stage.mouse.publish('click', event, clicklist);
+    if (this.clicklist.length) {
+      // DEBUG && console.log('Mouse Click: ' + this.clicklist.length);
+      this.publish('click', event, this.clicklist);
     }
-    cancellist.length = 0;
+    this.cancellist.length = 0;
   }
 
-  function handleCancel(event) {
-    if (cancellist.length) {
+  handleCancel = (event) => {
+    if (this.cancellist.length) {
       // DEBUG && console.log('Mouse Cancel: ' + event.type);
-      stage.mouse.publish('mousecancel', event, cancellist);
+      this.publish('mousecancel', event, this.cancellist);
     }
-    clicklist.length = 0;
-  }
-};
-
-export function Mouse(stage, elem) {
-  if (!(this instanceof Mouse)) {
-    // old-style mouse subscription
-    return;
+    this.clicklist.length = 0;
   }
 
-  var ratio = stage.viewport().ratio || 1;
-
-  stage.on('viewport', function(size) {
-    ratio = size.ratio || ratio;
-  });
-
-  this.x = 0;
-  this.y = 0;
-  this.toString = function() {
+  toString = function() {
     return (this.x | 0) + 'x' + (this.y | 0);
   };
-  this.locate = function(event) {
-    locateElevent(elem, event, this);
-    this.x *= ratio;
-    this.y *= ratio;
+
+  locate = function(event) {
+    const elem = this.elem;
+    let x;
+    let y;
+    // pageX/Y if available?
+    if (event.touches && event.touches.length) {
+      x = event.touches[0].clientX;
+      y = event.touches[0].clientY;
+    } else {
+      x = event.clientX;
+      y = event.clientY;
+    }
+    var rect = elem.getBoundingClientRect();
+    x -= rect.left;
+    y -= rect.top;
+    x -= elem.clientLeft | 0;
+    y -= elem.clientTop | 0;
+
+    this.x = x * this.ratio;
+    this.y = y * this.ratio;
   };
-  this.lookup = function(type, collect) {
+
+  lookup = function(type, collect) {
     this.type = type;
-    this.root = stage;
+    this.root = this.stage;
     this.event = null;
     collect.length = 0;
     this.collect = collect;
 
-    this.root.visit(this.visitor, this);
+    this.root.visit({
+      reverse : true,
+      visible : true,
+      start : this.visitStart,
+      end : this.visitEnd
+    }, this);
   };
-  this.publish = function(type, event, targets) {
+
+  publish = function(type, event, targets) {
     this.type = type;
-    this.root = stage;
+    this.root = this.stage;
     this.event = event;
     this.collect = false;
     this.timeStamp = Date.now();
@@ -115,48 +160,52 @@ export function Mouse(stage, elem) {
 
     if (targets) {
       while (targets.length)
-        if (this.visitor.end(targets.shift(), this))
+        if (this.visitEnd(targets.shift()))
           break;
       targets.length = 0;
     } else {
-      this.root.visit(this.visitor, this);
+      this.root.visit({
+        reverse : true,
+        visible : true,
+        start : this.visitStart,
+        end : this.visitEnd
+      }, this);
     }
   };
-  this.visitor = {
-    reverse : true,
-    visible : true,
-    start : function(node, mouse) {
-      return !node._flag(mouse.type);
-    },
-    end : function(node, mouse) {
-      // mouse: event/collect, type, root
-      rel.raw = mouse.event;
-      rel.type = mouse.type;
-      rel.timeStamp = mouse.timeStamp;
-      rel.abs.x = mouse.x;
-      rel.abs.y = mouse.y;
 
-      var listeners = node.listeners(mouse.type);
-      if (!listeners) {
-        return;
-      }
-      node.matrix().inverse().map(mouse, rel);
-      if (!(node === mouse.root || node.attr('spy') || node.hitTest(rel))) {
-        return;
-      }
-      if (mouse.collect) {
-        mouse.collect.push(node);
-      }
-      if (mouse.event) {
-        var cancel = false;
-        for (var l = 0; l < listeners.length; l++) {
-          cancel = listeners[l].call(node, rel) ? true : cancel;
-        }
-        return cancel;
-      }
+  visitStart = (node) => {
+    return !node._flag(this.type);
+  }
+
+  visitEnd = (node) => {
+    // mouse: event/collect, type, root
+    rel.raw = this.event;
+    rel.type = this.type;
+    rel.timeStamp = this.timeStamp;
+    rel.abs.x = this.x;
+    rel.abs.y = this.y;
+
+    var listeners = node.listeners(this.type);
+    if (!listeners) {
+      return;
     }
-  };
-};
+    node.matrix().inverse().map(this, rel);
+    if (!(node === this.root || node.attr('spy') || node.hitTest(rel))) {
+      return;
+    }
+    if (this.collect) {
+      this.collect.push(node);
+    }
+    if (this.event) {
+      var cancel = false;
+      for (var l = 0; l < listeners.length; l++) {
+        cancel = listeners[l].call(node, rel) ? true : cancel;
+      }
+      return cancel;
+    }
+  }
+
+}
 
 // TODO: define per mouse object with get-only x and y
 var rel = {}, abs = {};
@@ -182,20 +231,3 @@ function defineValue(obj, name, value) {
     value : value
   });
 }
-
-function locateElevent(el, ev, loc) {
-  // pageX/Y if available?
-  if (ev.touches && ev.touches.length) {
-    loc.x = ev.touches[0].clientX;
-    loc.y = ev.touches[0].clientY;
-  } else {
-    loc.x = ev.clientX;
-    loc.y = ev.clientY;
-  }
-  var rect = el.getBoundingClientRect();
-  loc.x -= rect.left;
-  loc.y -= rect.top;
-  loc.x -= el.clientLeft | 0;
-  loc.y -= el.clientTop | 0;
-  return loc;
-};

@@ -10,8 +10,8 @@ type Ticker = (t: number, dt: number) => boolean | void
 type Frame = string;
 
 interface Visitor<D> {
-  start(child: Stage.Stage, data: D): boolean | void;
-  end(child: Stage.Stage, data: D): boolean | void;
+  start(child: Stage.Node, data: D): boolean | void;
+  end(child: Stage.Node, data: D): boolean | void;
   reverse: boolean;
   visible: boolean;
 }
@@ -23,37 +23,37 @@ export namespace Stage {
   function pause(): void;
   function resume(): void;
 
-  function create(): Stage.Stage;
+  function create(): Stage.Node;
 
   function sprite(frame?: Frame): Stage.Sprite;
   function anim(frames: Frame | Frame[], fps: number): Stage.Anim;
   function string(frames: string | Record<string, Stage.Texture> | ((char: string) => Stage.Texture)): Stage.Str;
 
-  function column(align: number): Stage.Stage;
-  function row(align: number): Stage.Stage;
+  function column(align: number): Stage.Node;
+  function row(align: number): Stage.Node;
 
-  function layer(): Stage.Stage; // resizes to fill parent
-  function box(): Stage.Stage; // resizes to fit children
+  function layer(): Stage.Node; // resizes to fill parent
+  function box(): Stage.Node; // resizes to fit children
 
   function texture(query: string): Stage.Texture | Stage.Texture[];
   function canvas(plotter: Plotter): Stage.Texture;
   function canvas(type: string, plotter: Plotter): Stage.Texture;
   function canvas(type: string, attributes: Record<string, string>, plotter: Plotter): Stage.Texture;
 
-  class Stage {
-    appendTo(parent: Stage.Stage): this;
-    prependTo(parent: Stage.Stage): this;
+  class Node {
+    appendTo(parent: Stage.Node): this;
+    prependTo(parent: Stage.Node): this;
   
-    append(child: Stage.Stage | Stage.Stage[]): this;
-    prepend(child: Stage.Stage | Stage.Stage[]): this;
+    append(child: Stage.Node | Stage.Node[]): this;
+    prepend(child: Stage.Node | Stage.Node[]): this;
   
-    insertNext(sibling: Stage.Stage, child: Stage.Stage | Stage.Stage[]): this;
-    insertPrev(sibling: Stage.Stage, child: Stage.Stage | Stage.Stage[]): this;
+    insertNext(sibling: Stage.Node, child: Stage.Node | Stage.Node[]): this;
+    insertPrev(sibling: Stage.Node, child: Stage.Node | Stage.Node[]): this;
   
-    insertAfter(sibling: Stage.Stage): this;
-    insertBefore(sibling: Stage.Stage): this;
+    insertAfter(sibling: Stage.Node): this;
+    insertBefore(sibling: Stage.Node): this;
   
-    remove(child: Stage.Stage | Stage.Stage[]): this;
+    remove(child: Stage.Node | Stage.Node[]): this;
     remove(): this;
     empty(): this;
   
@@ -129,7 +129,7 @@ export namespace Stage {
     // hitTest(hit: { x: number, y: number }): boolean;
   }
   
-  class Root extends Stage.Stage {
+  class Root extends Stage.Node {
     constructor(
       request: (loop: (time: number) => void) => void,
       render: (root: this) => void,
@@ -141,14 +141,14 @@ export namespace Stage {
     viewport(width: number, height: number, ratio: number): this;
   }
 
-  class Sprite extends Stage.Stage {
+  class Sprite extends Stage.Node {
     constructor(frame: any);
     image(frame: any): this;
     stretch(inner: any): this;
     tile(inner: any): this;
   }
 
-  class Anim extends Stage.Stage {
+  class Anim extends Stage.Node {
     static FPS: number;
     constructor();
     fps(fps: number): this;
@@ -162,7 +162,7 @@ export namespace Stage {
     stop(frame: any): this;
   }
 
-  class Str extends Stage.Stage {
+  class Str extends Stage.Node {
     constructor();
     frames(frames: any): this;
     setFont(a: any, b: any, c: any): this;
@@ -257,7 +257,7 @@ export namespace Stage {
     END: string;
     MOVE: string;
     START: string;
-    subscribe(stage: Stage.Stage, elem: Element): void;
+    subscribe(stage: Stage.Node, elem: Element): void;
   }
 
   interface math {

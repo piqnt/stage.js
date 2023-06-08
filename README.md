@@ -3,16 +3,15 @@
 Stage.js is a 2D rendering and layout library for HTML5 Canvas. It is lightweight, fast and optimized for web and mobile game development.
 
 ### Features
-- Tree data model, similar to DOM
+- Tree data model, similar to DOM, for composing an application
 - Managed and optimized rendering and game loop
-- Mouse events processing and delivering them to target components
+- Mouse events processing and delivering them to target nodes
 - Positioning and layout
 - Texture atlas and image preloading
 
-[**Examples and Demos!**](http://piqnt.com/stage.js/)
+[**Live Examples and Demos**](http://piqnt.com/stage.js/)
 
 [中文手册](https://github.com/shakiba/stage.js/wiki/%E4%B8%AD%E6%96%87%E6%89%8B%E5%86%8C)
-
 
 
 ## Install
@@ -34,7 +33,7 @@ npm install --save stage-js
 ```
 
 ```js
-var Stage = require('stage-js');
+const Stage = require('stage-js');
 ```
 
 ```js
@@ -59,7 +58,7 @@ const stage = Stage.mount();
 stage.viewbox(300, 200);
 
 // Create an sprite and append it to stage
-var box = Stage.sprite('box').appendTo(stage);
+const box = Stage.sprite('box').appendTo(stage);
 
 // Align box to center
 box.pin('align', 0.5);
@@ -90,7 +89,7 @@ This will set up root node with a canvas elmenet and returns the root node.
 
 ```javascript
 // Create and start an application
-let stage = Stage.mount();
+const stage = Stage.mount();
 
 // Set viewbox for stage, see pinning for valid modes
 stage.viewbox(width, height, mode = 'in-pad');
@@ -114,7 +113,7 @@ Every app consists of a tree. The tree's root is provided as `stage`.
 
 ```javascript
 // Create a new node instance (with no textures)
-var node = Stage.create();
+const node = Stage.create();
 
 // Append/prepend child to parent's children (accepts array)
 parent.append(child);
@@ -160,12 +159,12 @@ node.hide();
 node.show();
 
 // Iterate over parent's children, child can not be removed
-for (var child = parent.first(); child; child = child.next()) {
+for (let child = parent.first(); child; child = child.next()) {
   // use child
 }
 
 // Iterate over parent's children, child can be removed
-var child, next = parent.first();
+let child, next = parent.first();
 while (child = next) {
   next = child.next();
   // use child
@@ -427,7 +426,7 @@ An sprite is a node with one texture.
 
 ```javascript
 // Create a new sprite instance
-var sprite = Stage.sprite(texture);
+let sprite = Stage.sprite(texture);
 
 // Change sprite texture
 sprite.sprite(texture);
@@ -444,7 +443,7 @@ An animation or anim is a node with an array of textures as frames.
 
 ```javascript
 // Create a new anim instance
-var anim = Stage.anim(textures, fps = 15);
+const anim = Stage.anim(textures, fps = 15);
 
 // Get or set animation frame-per-second
 anim.fps();
@@ -478,7 +477,7 @@ String is a row of images which are dynamically selected from `frames` using cha
 
 ```javascript
 // Create a new string instance with frames
-var string = Stage.string(frames);
+const string = Stage.string(frames);
 
 // Set frames, a string referencing a map in an atlas 
 string.frames("digits");
@@ -510,8 +509,8 @@ A row/column is a node that aligns its children in a horizontal/vertical directi
 
 ```javascript
 // Create a new row/column
-var row = Stage.row(childrenAlignY = 0);
-var column = Stage.column(childrenAlignX = 0);
+const row = Stage.row(childrenAlignY = 0);
+const column = Stage.column(childrenAlignX = 0);
 
 // Make node a row/column
 node.row(childrenAlignY = 0);
@@ -523,15 +522,27 @@ node.spacing(space);
 
 
 ### Box (experimental)
-A box resizes to wrap its children. It can be applied to tiled/stretched
-images to create variable-size components such as windows and buttons.
+A box resizes to cover its children. It can be applied to tiled/stretched
+images, for example, to create variable-size nodes such as windows and buttons.
 
 ```javascript
 // Create a new box
-var box = Stage.box();
+const box = Stage.box();
 
 // Make node a box
 node = node.box();
+```
+
+
+### Layer (experimental)
+A layer resizes to cover its parent.
+
+```javascript
+// Create a new layer
+const box = Stage.box();
+
+// Make node a layer
+node = node.layer();
 ```
 
 
@@ -541,7 +552,7 @@ Tweening is used to apply smooth transitions to pinning values.
 ```javascript
 // Create a tweening entry
 // When `append` is true new entry is appended to current entries otherwise replaces them
-var tween = node.tween(duration = 400, delay = 0, append = false);
+const tween = node.tween(duration = 400, delay = 0, append = false);
 
 // Set pinning values and start tweening
 // Pinning shortcut methods, such as `.scale()`, can also be used
@@ -572,7 +583,7 @@ tween.remove();
 tween.hide();
 
 // Create and chain a new tweening to this entry
-var nextTween = tween.tween(duration = 400, delay = 0);
+const nextTween = tween.tween(duration = 400, delay = 0);
 ```
 
 

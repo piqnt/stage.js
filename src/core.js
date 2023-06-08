@@ -5,24 +5,37 @@ import { Pin } from './pin';
 var iid = 0;
 stats.create = 0;
 
-export const create = function() {
-  return new Stage();
+function assertType(obj) {
+  if (obj && obj instanceof Node) {
+    return obj;
+  }
+  throw 'Invalid node: ' + obj;
 };
 
-export function Stage() {
+export const create = function() {
+  return new Node();
+};
+
+
+// There are three sets of core functions:
+// - tree model manipulation functions:
+// - rendering and game look
+// - events handling
+
+export function Node() {
   stats.create++;
 
   this._pin = new Pin(this);
 }
 
-Stage.prototype.matrix = function(relative) {
+Node.prototype.matrix = function(relative) {
   if (relative === true) {
     return this._pin.relativeMatrix();
   }
   return this._pin.absoluteMatrix();
 };
 
-Stage.prototype.pin = function(a, b) {
+Node.prototype.pin = function(a, b) {
   if (typeof a === 'object') {
     this._pin.set(a);
     return this;
@@ -39,43 +52,43 @@ Stage.prototype.pin = function(a, b) {
   }
 };
 
-Stage.prototype.scaleTo = function(a, b, c) {
+Node.prototype.scaleTo = function(a, b, c) {
   if (typeof a === 'object')
     c = b, b = a.y, a = a.x;
   this._pin.scaleTo(a, b, c);
   return this;
 };
 
-Pin._add_shortcuts(Stage.prototype);
+Pin._add_shortcuts(Node.prototype);
 
 // TODO: do not clear next/prev/parent on remove
 
-Stage.prototype._label = '';
+Node.prototype._label = '';
 
-Stage.prototype._visible = true;
+Node.prototype._visible = true;
 
-Stage.prototype._parent = null;
-Stage.prototype._next = null;
-Stage.prototype._prev = null;
+Node.prototype._parent = null;
+Node.prototype._next = null;
+Node.prototype._prev = null;
 
-Stage.prototype._first = null;
-Stage.prototype._last = null;
+Node.prototype._first = null;
+Node.prototype._last = null;
 
-Stage.prototype._attrs = null;
-Stage.prototype._flags = null;
+Node.prototype._attrs = null;
+Node.prototype._flags = null;
 
-Stage.prototype.toString = function() {
+Node.prototype.toString = function() {
   return '[' + this._label + ']';
 };
 
 /**
  * @deprecated Use label()
  */
-Stage.prototype.id = function(id) {
+Node.prototype.id = function(id) {
   return this.label(id);
 };
 
-Stage.prototype.label = function(label) {
+Node.prototype.label = function(label) {
   if (typeof label === 'undefined') {
     return this._label;
   }
@@ -83,7 +96,7 @@ Stage.prototype.label = function(label) {
   return this;
 };
 
-Stage.prototype.attr = function(name, value) {
+Node.prototype.attr = function(name, value) {
   if (typeof value === 'undefined') {
     return this._attrs !== null ? this._attrs[name] : undefined;
   }
@@ -91,7 +104,7 @@ Stage.prototype.attr = function(name, value) {
   return this;
 };
 
-Stage.prototype.visible = function(visible) {
+Node.prototype.visible = function(visible) {
   if (typeof visible === 'undefined') {
     return this._visible;
   }
@@ -102,19 +115,19 @@ Stage.prototype.visible = function(visible) {
   return this;
 };
 
-Stage.prototype.hide = function() {
+Node.prototype.hide = function() {
   return this.visible(false);
 };
 
-Stage.prototype.show = function() {
+Node.prototype.show = function() {
   return this.visible(true);
 };
 
-Stage.prototype.parent = function() {
+Node.prototype.parent = function() {
   return this._parent;
 };
 
-Stage.prototype.next = function(visible) {
+Node.prototype.next = function(visible) {
   var next = this._next;
   while (next && visible && !next._visible) {
     next = next._next;
@@ -122,7 +135,7 @@ Stage.prototype.next = function(visible) {
   return next;
 };
 
-Stage.prototype.prev = function(visible) {
+Node.prototype.prev = function(visible) {
   var prev = this._prev;
   while (prev && visible && !prev._visible) {
     prev = prev._prev;
@@ -130,7 +143,7 @@ Stage.prototype.prev = function(visible) {
   return prev;
 };
 
-Stage.prototype.first = function(visible) {
+Node.prototype.first = function(visible) {
   var next = this._first;
   while (next && visible && !next._visible) {
     next = next._next;
@@ -138,7 +151,7 @@ Stage.prototype.first = function(visible) {
   return next;
 };
 
-Stage.prototype.last = function(visible) {
+Node.prototype.last = function(visible) {
   var prev = this._last;
   while (prev && visible && !prev._visible) {
     prev = prev._prev;
@@ -146,7 +159,7 @@ Stage.prototype.last = function(visible) {
   return prev;
 };
 
-Stage.prototype.visit = function(visitor, data) {
+Node.prototype.visit = function(visitor, data) {
   var reverse = visitor.reverse;
   var visible = visitor.visible;
   if (visitor.start && visitor.start(this, data)) {
@@ -162,7 +175,7 @@ Stage.prototype.visit = function(visitor, data) {
   return visitor.end && visitor.end(this, data);
 };
 
-Stage.prototype.append = function(child, more) {
+Node.prototype.append = function(child, more) {
   if (is.array(child))
     for (var i = 0; i < child.length; i++)
       append(this, child[i]);
@@ -177,7 +190,7 @@ Stage.prototype.append = function(child, more) {
   return this;
 };
 
-Stage.prototype.prepend = function(child, more) {
+Node.prototype.prepend = function(child, more) {
   if (is.array(child))
     for (var i = child.length - 1; i >= 0; i--)
       prepend(this, child[i]);
@@ -192,17 +205,17 @@ Stage.prototype.prepend = function(child, more) {
   return this;
 };
 
-Stage.prototype.appendTo = function(parent) {
+Node.prototype.appendTo = function(parent) {
   append(parent, this);
   return this;
 };
 
-Stage.prototype.prependTo = function(parent) {
+Node.prototype.prependTo = function(parent) {
   prepend(parent, this);
   return this;
 };
 
-Stage.prototype.insertNext = function(sibling, more) {
+Node.prototype.insertNext = function(sibling, more) {
   if (is.array(sibling))
     for (var i = 0; i < sibling.length; i++)
       insertAfter(sibling[i], this);
@@ -217,7 +230,7 @@ Stage.prototype.insertNext = function(sibling, more) {
   return this;
 };
 
-Stage.prototype.insertPrev = function(sibling, more) {
+Node.prototype.insertPrev = function(sibling, more) {
   if (is.array(sibling))
     for (var i = sibling.length - 1; i >= 0; i--)
       insertBefore(sibling[i], this);
@@ -232,19 +245,19 @@ Stage.prototype.insertPrev = function(sibling, more) {
   return this;
 };
 
-Stage.prototype.insertAfter = function(prev) {
+Node.prototype.insertAfter = function(prev) {
   insertAfter(this, prev);
   return this;
 };
 
-Stage.prototype.insertBefore = function(next) {
+Node.prototype.insertBefore = function(next) {
   insertBefore(this, next);
   return this;
 };
 
 function append(parent, child) {
-  _ensure(child);
-  _ensure(parent);
+  assertType(child);
+  assertType(parent);
 
   child.remove();
 
@@ -268,8 +281,8 @@ function append(parent, child) {
 }
 
 function prepend(parent, child) {
-  _ensure(child);
-  _ensure(parent);
+  assertType(child);
+  assertType(parent);
 
   child.remove();
 
@@ -293,8 +306,8 @@ function prepend(parent, child) {
 };
 
 function insertBefore(self, next) {
-  _ensure(self);
-  _ensure(next);
+  assertType(self);
+  assertType(next);
 
   self.remove();
 
@@ -315,8 +328,8 @@ function insertBefore(self, next) {
 };
 
 function insertAfter(self, prev) {
-  _ensure(self);
-  _ensure(prev);
+  assertType(self);
+  assertType(prev);
 
   self.remove();
 
@@ -336,18 +349,18 @@ function insertAfter(self, prev) {
   self.touch();
 };
 
-Stage.prototype.remove = function(child, more) {
+Node.prototype.remove = function(child, more) {
   if (typeof child !== 'undefined') {
     if (is.array(child)) {
       for (var i = 0; i < child.length; i++)
-        _ensure(child[i]).remove();
+        assertType(child[i]).remove();
 
     } else if (typeof more !== 'undefined') {
       for (var i = 0; i < arguments.length; i++)
-        _ensure(arguments[i]).remove();
+        assertType(arguments[i]).remove();
 
     } else {
-      _ensure(child).remove();
+      assertType(child).remove();
     }
     return this;
   }
@@ -380,7 +393,7 @@ Stage.prototype.remove = function(child, more) {
   return this;
 };
 
-Stage.prototype.empty = function() {
+Node.prototype.empty = function() {
   var child, next = this._first;
   while (child = next) {
     next = child._next;
@@ -396,7 +409,7 @@ Stage.prototype.empty = function() {
   return this;
 };
 
-Stage.prototype.touch = function() {
+Node.prototype.touch = function() {
   this._ts_touch = ++iid;
   this._parent && this._parent.touch();
   return this;
@@ -405,7 +418,7 @@ Stage.prototype.touch = function() {
 /**
  * Deep flags used for optimizing event distribution.
  */
-Stage.prototype._flag = function(obj, name) {
+Node.prototype._flag = function(obj, name) {
   if (typeof name === 'undefined') {
     return this._flags !== null && this._flags[obj] || 0;
   }
@@ -439,26 +452,151 @@ Stage.prototype._flag = function(obj, name) {
 /**
  * @private
  */
-Stage.prototype.hitTest = function(hit) {
+Node.prototype.hitTest = function(hit) {
   var width = this._pin._width;
   var height = this._pin._height;
   return hit.x >= 0 && hit.x <= width && hit.y >= 0 && hit.y <= height;
 };
 
-function _ensure(obj) {
-  if (obj && obj instanceof Stage) {
-    return obj;
+Node.prototype._textures = null;
+Node.prototype._alpha = 1;
+
+Node.prototype.render = function(context) {
+  if (!this._visible) {
+    return;
   }
-  throw 'Invalid node: ' + obj;
+  stats.node++;
+
+  var m = this.matrix();
+  context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
+
+  // move this elsewhere!
+  this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
+  var alpha = this._pin._textureAlpha * this._alpha;
+
+  if (context.globalAlpha != alpha) {
+    context.globalAlpha = alpha;
+  }
+
+  if (this._textures !== null) {
+    for (var i = 0, n = this._textures.length; i < n; i++) {
+      this._textures[i].draw(context);
+    }
+  }
+
+  if (context.globalAlpha != this._alpha) {
+    context.globalAlpha = this._alpha;
+  }
+
+  var child, next = this._first;
+  while (child = next) {
+    next = child._next;
+    child.render(context);
+  }
 };
 
-Stage.prototype._listeners = null;
+Node.prototype._tickBefore = null;
+Node.prototype._tickAfter = null;
+Node.prototype.MAX_ELAPSE = Infinity;
 
-Stage.prototype._event_callback = function(name, on) {
+Node.prototype._tick = function(elapsed, now, last) {
+  if (!this._visible) {
+    return;
+  }
+
+  if (elapsed > this.MAX_ELAPSE) {
+    elapsed = this.MAX_ELAPSE;
+  }
+
+  var ticked = false;
+
+  if (this._tickBefore !== null) {
+    for (var i = 0; i < this._tickBefore.length; i++) {
+      stats.tick++;
+      var tickFn = this._tickBefore[i];
+      ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
+    }
+  }
+
+  var child, next = this._first;
+  while (child = next) {
+    next = child._next;
+    if (child._flag('_tick')) {
+      ticked = child._tick(elapsed, now, last) === true ? true : ticked;
+    }
+  }
+
+  if (this._tickAfter !== null) {
+    for (var i = 0; i < this._tickAfter.length; i++) {
+      stats.tick++;
+      var tickFn = this._tickAfter[i];
+      ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
+    }
+  }
+
+  return ticked;
+};
+
+Node.prototype.tick = function(ticker, before) {
+  if (typeof ticker !== 'function') {
+    return;
+  }
+  if (before) {
+    if (this._tickBefore === null) {
+      this._tickBefore = [];
+    }
+    this._tickBefore.push(ticker);
+  } else {
+    if (this._tickAfter === null) {
+      this._tickAfter = [];
+    }
+    this._tickAfter.push(ticker);
+  }
+  this._flag('_tick', this._tickAfter !== null && this._tickAfter.length > 0
+      || this._tickBefore !== null && this._tickBefore.length > 0);
+};
+
+Node.prototype.untick = function(ticker) {
+  if (typeof ticker !== 'function') {
+    return;
+  }
+  var i;
+  if (this._tickBefore !== null && (i = this._tickBefore.indexOf(ticker)) >= 0) {
+    this._tickBefore.splice(i, 1);
+  }
+  if (this._tickAfter !== null && (i = this._tickAfter.indexOf(ticker)) >= 0) {
+    this._tickAfter.splice(i, 1);
+  }
+};
+
+Node.prototype.timeout = function(fn, time) {
+  this.setTimeout(fn, time);
+};
+
+Node.prototype.setTimeout = function(fn, time) {
+  function timer(t) {
+    if ((time -= t) < 0) {
+      this.untick(timer);
+      fn.call(this);
+    } else {
+      return true;
+    }
+  }
+  this.tick(timer);
+  return timer;
+};
+
+Node.prototype.clearTimeout = function(timer) {
+  this.untick(timer);
+};
+
+Node.prototype._listeners = null;
+
+Node.prototype._event_callback = function(name, on) {
   this._flag(name, on)
 };
 
-Stage.prototype.on = function(types, listener) {
+Node.prototype.on = function(types, listener) {
   if (!types || !types.length || typeof listener !== 'function') {
     return this;
   }
@@ -479,7 +617,7 @@ Stage.prototype.on = function(types, listener) {
   return this;
 };
 
-Stage.prototype.off = function(types, listener) {
+Node.prototype.off = function(types, listener) {
   if (!types || !types.length || typeof listener !== 'function') {
     return this;
   }
@@ -504,11 +642,11 @@ Stage.prototype.off = function(types, listener) {
   return this;
 };
 
-Stage.prototype.listeners = function(type) {
+Node.prototype.listeners = function(type) {
   return this._listeners && this._listeners[type];
 };
 
-Stage.prototype.publish = function(name, args) {
+Node.prototype.publish = function(name, args) {
   var listeners = this.listeners(name);
   if (!listeners || !listeners.length) {
     return 0;
@@ -519,7 +657,7 @@ Stage.prototype.publish = function(name, args) {
   return listeners.length;
 };
 
-Stage.prototype.trigger = function(name, args) {
+Node.prototype.trigger = function(name, args) {
   this.publish(name, args);
   return this;
 };

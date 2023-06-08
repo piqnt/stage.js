@@ -1,4 +1,4 @@
-import { Stage } from './core';
+import { Node } from './core';
 import { Mouse } from './mouse';
 
 import stats from './util/stats';
@@ -23,11 +23,11 @@ export const resume = function() {
 export const mount = function(configs = {}) {
   var root = new Root();
   root.mount(configs);
-  Mouse.subscribe(root, root.dom);
+  root.mouse = new Mouse().mount(root, root.dom);
   return root;
 };
 
-Root._super = Stage;
+Root._super = Node;
 Root.prototype = Object.create(Root._super.prototype);
 
 export function Root() {
@@ -205,6 +205,8 @@ Root.prototype.mount = function(configs = {}) {
     if (index >= 0) {
       _stages.splice(index, 1);
     }
+
+    this.mouse?.unmount();
     return this;
   };
 

@@ -1,13 +1,13 @@
 import is from 'is';
 
-import { Stage } from './core';
+import { Node } from './core';
 import { texture } from './atlas';
 
 export const string = function(frames) {
   return new Str().frames(frames);
 };
 
-Str._super = Stage;
+Str._super = Node;
 Str.prototype = Object.create(Str._super.prototype);
 
 export function Str() {

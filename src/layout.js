@@ -1,10 +1,10 @@
-import { Stage, create } from './core';
+import { Node, create } from './core';
 
 export const row = function(align) {
   return create().row(align).label('Row');
 };
 
-Stage.prototype.row = function(align) {
+Node.prototype.row = function(align) {
   this.align('row', align);
   return this;
 };
@@ -13,12 +13,12 @@ export const column = function(align) {
   return create().column(align).label('Row');
 };
 
-Stage.prototype.column = function(align) {
+Node.prototype.column = function(align) {
   this.align('column', align);
   return this;
 };
 
-Stage.prototype.align = function(type, align) {
+Node.prototype.align = function(type, align) {
 
   this._padding = this._padding || 0;
   this._spacing = this._spacing || 0;
@@ -72,7 +72,7 @@ export const box = function() {
   return create().box().label('Box');
 };
 
-Stage.prototype.box = function() {
+Node.prototype.box = function() {
   this._padding = this._padding || 0;
 
   this.untick(this._layoutTiker);
@@ -104,7 +104,7 @@ export const layer = function() {
   return create().layer().label('Layer');
 };
 
-Stage.prototype.layer = function() {
+Node.prototype.layer = function() {
 
   this.untick(this._layoutTiker);
   this.tick(this._layoutTiker = function() {
@@ -124,12 +124,12 @@ Stage.prototype.layer = function() {
 };
 
 // TODO: move padding to pin
-Stage.prototype.padding = function(pad) {
+Node.prototype.padding = function(pad) {
   this._padding = pad;
   return this;
 };
 
-Stage.prototype.spacing = function(space) {
+Node.prototype.spacing = function(space) {
   this._spacing = space;
   return this;
 };

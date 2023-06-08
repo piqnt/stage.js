@@ -516,7 +516,7 @@ function scaleTo(pin, width, height, mode) {
     }
   }
 }
-// Used by Tween and Stage
+// Used by Tween and Node
 Pin._add_shortcuts = function(prototype) {
   prototype.size = function(w, h) {
     this.pin('width', w);
