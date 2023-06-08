@@ -1,5 +1,5 @@
 import { Node } from './core';
-import { texture } from './atlas';
+import { texture } from './drawable';
 import { math } from './util/math';
 
 export const anim = function(frames, fps) {

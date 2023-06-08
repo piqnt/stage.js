@@ -1,4 +1,4 @@
-import { texture } from './atlas';
+import { texture } from './drawable';
 import { Node } from './core';
 
 export const sprite = function(query) {
@@ -131,3 +131,7 @@ function repeat(img, owidth, oheight, stretch, inner, insert) {
 
   return i;
 };
+
+// todo: add deprecation log
+export const image = sprite;
+export const Image = Sprite;

@@ -217,7 +217,7 @@ Root.prototype.mount = function(configs = {}) {
 };
 
 Root.prototype.background = function(color) {
-  canvas.style.backgroundColor = color;
+  this.dom.style.backgroundColor = color;
   return this;
 };
 

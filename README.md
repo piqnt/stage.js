@@ -13,6 +13,29 @@ Stage.js is a 2D rendering and layout library for HTML5 Canvas. It is lightweigh
 
 [中文手册](https://github.com/shakiba/stage.js/wiki/%E4%B8%AD%E6%96%87%E6%89%8B%E5%86%8C)
 
+## V1 [Work in Progress] Upgrade and Breaking Changes
+
+Since the initial development of Stage.js in 2013, web technology has changed a lot. The new version of Stage.js is updated to take advantage of new web technologies to simplify the API, and there are backward incompatible changes in the new version.
+
+#### Importing and Starting
+The first important change is using ES classes and exports in the library. Now all classes are exported under `Stage` namespace, and `Stage` is not a function or a type anymore. In addition, preloading images and creating textures are separated from creating and mounting an app, and you need to use `await` to wait for the preloading to finish.
+
+
+- Use `stage = Stage.mount()` to create and mount a new app, instead of `Stage(function(stage){ }))`.
+- Use `await Stage.atlas({ })` to preload images and create textures before using them, instead of `Stage({ })`.
+- Use `Stage.Node` as the base class for your custom nodes, instead of `Stage`.
+
+FastContext support is also dropped in this version, and there is only one single build.
+
+#### Relative Paths
+The second important change is that relative image paths for textures are not resolved relative to the script anymore. You need to use absolute paths or resolve them yourself using a build tool.
+
+#### Other API Changes
+There are also some smaller API changes:
+- 'Stage.Image` and `Stage.image()` are renamed to `Stage.Sprite` and `Stage.sprite()` (to avoid overlapping with native Image class).
+- `Stage.Math` is renamed to `Stage.math` and extends native `Math`.
+
+For a complete list of changes, see [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
@@ -20,7 +43,7 @@ Stage.js is a 2D rendering and layout library for HTML5 Canvas. It is lightweigh
 #### CDN
 
 ```html
-<script src="path/to/stage.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stage-js@1.0"></script>
 <script>
   const stage = Stage.mount();
 </script>
@@ -109,7 +132,7 @@ stage.resume();
 
 
 ### Tree Model
-Every app consists of a tree. The tree's root is provided as `stage`.
+Every app consists of a tree. The tree's root is created and returned by `Stage.mount()`.
 
 ```javascript
 // Create a new node instance (with no textures)
@@ -186,7 +209,7 @@ node.visit({
 
 ### Game Loop
 Each rendering cycle consists of ticking and redrawing the application tree.
-Application and its nodes can be updated during ticking.
+An application and its nodes can be updated during ticking.
 Depending on application activities there can be three different follow-ups after ticking:
 
 * If at least one node is touched then the entire application tree will be redrawn and the game loop will continue.
@@ -422,7 +445,7 @@ Stage.string('mario:number').value(100);
 ```
 
 ### Sprite
-An sprite is a node with one texture.
+A sprite is a node with one texture.
 
 ```javascript
 // Create a new sprite instance

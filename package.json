@@ -1,6 +1,6 @@
 {
   "name": "stage-js",
-  "version": "1.0.0-dev",
+  "version": "1.0.0-alpha.1",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
   "author": "Ali Shakiba (http://shakiba.me/stage.js)",
@@ -36,11 +36,8 @@
     "dist/",
     "test/"
   ],
-  "dependencies": {
-    "@vue/compiler-sfc": "^3.3.4",
-    "is": "^3.3.0"
-  },
   "devDependencies": {
+    "@vue/compiler-sfc": "^3.3.4",
     "expect.js": "^0.3.1",
     "glob": "^10.2.6",
     "mocha": "^6.2.3",

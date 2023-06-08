@@ -1,4 +1,4 @@
-#### next
+#### v1.0 [work in progress]
 * use ES modules and classes
 * typescript definition added
 * lib directory renamed to src, and folder structure flattened
@@ -19,7 +19,7 @@
 * Ease() replaced by Ease.get()
 * removed Stage.Math, added Stage.math with different function names
 * renamed sequence to align
-* removed Matrix reverse (use inverse)
+* removed Matrix.reverse (use inverse)
 * removed Mouse.subscribe, replaced by new Mouse().mount
 
 #### v0.8.2

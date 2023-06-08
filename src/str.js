@@ -1,7 +1,5 @@
-import is from 'is';
-
 import { Node } from './core';
-import { texture } from './atlas';
+import { texture } from './drawable';
 
 export const string = function(frames) {
   return new Str().frames(frames);
@@ -58,7 +56,7 @@ Str.prototype.value = function(value) {
 
   if (value === null) {
     value = '';
-  } else if (typeof value !== 'string' && !is.array(value)) {
+  } else if (typeof value !== 'string' && !Array.isArray(value)) {
     value = value.toString();
   }
 

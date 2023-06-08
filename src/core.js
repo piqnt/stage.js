@@ -1,4 +1,3 @@
-import is from 'is';
 import stats from './util/stats';
 import { Pin } from './pin';
 
@@ -176,7 +175,7 @@ Node.prototype.visit = function(visitor, data) {
 };
 
 Node.prototype.append = function(child, more) {
-  if (is.array(child))
+  if (Array.isArray(child))
     for (var i = 0; i < child.length; i++)
       append(this, child[i]);
 
@@ -191,7 +190,7 @@ Node.prototype.append = function(child, more) {
 };
 
 Node.prototype.prepend = function(child, more) {
-  if (is.array(child))
+  if (Array.isArray(child))
     for (var i = child.length - 1; i >= 0; i--)
       prepend(this, child[i]);
 
@@ -216,7 +215,7 @@ Node.prototype.prependTo = function(parent) {
 };
 
 Node.prototype.insertNext = function(sibling, more) {
-  if (is.array(sibling))
+  if (Array.isArray(sibling))
     for (var i = 0; i < sibling.length; i++)
       insertAfter(sibling[i], this);
 
@@ -231,7 +230,7 @@ Node.prototype.insertNext = function(sibling, more) {
 };
 
 Node.prototype.insertPrev = function(sibling, more) {
-  if (is.array(sibling))
+  if (Array.isArray(sibling))
     for (var i = sibling.length - 1; i >= 0; i--)
       insertBefore(sibling[i], this);
 
@@ -351,7 +350,7 @@ function insertAfter(self, prev) {
 
 Node.prototype.remove = function(child, more) {
   if (typeof child !== 'undefined') {
-    if (is.array(child)) {
+    if (Array.isArray(child)) {
       for (var i = 0; i < child.length; i++)
         assertType(child[i]).remove();
 
