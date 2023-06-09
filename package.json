@@ -24,6 +24,9 @@
   "type": "module",
   "main": "./dist/stage.umd.cjs",
   "module": "./dist/stage.js",
+  "browser": "./dist/stage.cjs",
+  "jsdelivr": "dist/stage.umd.cjs",
+  "unpkg": "dist/stage.umd.cjs",
   "exports": {
     ".": {
       "import": "./dist/stage.js",
