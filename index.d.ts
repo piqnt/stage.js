@@ -7,79 +7,84 @@ type Drawable = Plotter | HTMLImageElement | SVGImageElement | HTMLVideoElement 
 
 type Ticker = (t: number, dt: number) => boolean | void
 
-type Frame = string;
+type Frame = string | Drawable | Stage.Texture;
+
+type Listener = (...args: any[]) => void
 
 interface Visitor<D> {
-  start(child: Stage.Node, data: D): boolean | void;
-  end(child: Stage.Node, data: D): boolean | void;
+  start(child: Node, data: D): boolean | void;
+  end(child: Node, data: D): boolean | void;
   reverse: boolean;
   visible: boolean;
 }
 
-export namespace Stage {
-  function mount(config: Record<string, any>): void;
-  function atlas(def: TextureDefinition): Stage.Texture;
+export = Stage;
+export as namespace Stage;
+
+declare namespace Stage {
+  function mount(config?: Record<string, any>): Root;
+  function atlas(def: TextureDefinition): Texture;
 
   function pause(): void;
   function resume(): void;
 
-  function create(): Stage.Node;
+  function create(): Node;
 
-  function sprite(frame?: Frame): Stage.Sprite;
-  function anim(frames: Frame | Frame[], fps: number): Stage.Anim;
-  function string(frames: string | Record<string, Stage.Texture> | ((char: string) => Stage.Texture)): Stage.Str;
+  function sprite(frame?: string | Frame): Sprite;
+  function anim(frames: string | Frame[], fps: number): Anim;
+  function string(frames: string | Record<string, Texture> | ((char: string) => Texture)): Str;
 
-  function column(align: number): Stage.Node;
-  function row(align: number): Stage.Node;
+  function column(align: number): Node;
+  function row(align: number): Node;
 
-  function layer(): Stage.Node; // resizes to fill parent
-  function box(): Stage.Node; // resizes to fit children
+  function layer(): Node; // resizes to fill parent
+  function box(): Node; // resizes to fit children
 
-  function texture(query: string): Stage.Texture | Stage.Texture[];
-  function canvas(plotter: Plotter): Stage.Texture;
-  function canvas(type: string, plotter: Plotter): Stage.Texture;
-  function canvas(type: string, attributes: Record<string, string>, plotter: Plotter): Stage.Texture;
+  function texture(query: string): Texture | Texture[];
+  function canvas(plotter: Plotter): Texture;
+  function canvas(type: string, plotter: Plotter): Texture;
+  function canvas(type: string, attributes: Record<string, string>, plotter: Plotter): Texture;
 
   class Node {
-    appendTo(parent: Stage.Node): this;
-    prependTo(parent: Stage.Node): this;
-  
-    append(child: Stage.Node | Stage.Node[]): this;
-    prepend(child: Stage.Node | Stage.Node[]): this;
-  
-    insertNext(sibling: Stage.Node, child: Stage.Node | Stage.Node[]): this;
-    insertPrev(sibling: Stage.Node, child: Stage.Node | Stage.Node[]): this;
-  
-    insertAfter(sibling: Stage.Node): this;
-    insertBefore(sibling: Stage.Node): this;
-  
-    remove(child: Stage.Node | Stage.Node[]): this;
+    appendTo(parent: Node): this;
+    prependTo(parent: Node): this;
+
+    append(child: Node | Node[]): this;
+    prepend(child: Node | Node[]): this;
+
+    insertNext(sibling: Node, child: Node | Node[]): this;
+    insertPrev(sibling: Node, child: Node | Node[]): this;
+
+    insertAfter(sibling: Node): this;
+    insertBefore(sibling: Node): this;
+
+    remove(child: Node | Node[]): this;
     remove(): this;
     empty(): this;
-  
+
     parent(): this;
-  
+
     first(visible?: boolean): this;
     last(visible?: boolean): this;
-  
+
     next(visible?: boolean): this;
     prev(visible?: boolean): this;
-  
+
     visible(): boolean;
     visible(visible: boolean): this;
     hide(): this;
     show(): this;
     visit<D>(visitor: Visitor<D>, data: D): boolean | void;
-  
+
     tick(ticker: Ticker, before?: boolean): void;
     untick(ticker: Ticker): void;
-  
+
     pin(a: string, b: any): this;
     pin(a: string): any;
-  
+
     pin(a: Record<string, any>): this;
     pin(): Record<string, any>;
-  
+
     size(w: number, h: number): this;
     width(w: number): this;
     height(h: number): this;
@@ -87,68 +92,70 @@ export namespace Stage {
     skew(a: number, b: number): this;
     rotate(a: number): this;
     offset(a: number, b: number): this;
-  
+
     scaleTo(a: number, b: number, mode: string): this;
-  
+
     padding(pad: number): this;
     spacing(space: number): this;
-  
+
     alpha(a: number, ta: number): this;
-  
-    matrix(relative?: boolean): Stage.Matrix;
-  
-    tween(duration: number, delay: number, append: boolean): Stage.Tween;
-    tween(duration: number, append: boolean): Stage.Tween;
-    tween(append: boolean): Stage.Tween;
-  
-    on(type: string, listener: (...args: unknown[]) => void): this;
-    off(type: string, listener: (...args: unknown[]) => void): this;
-    publish(name: string, ...args: unknown[]): number;
-    listeners(type: string): unknown[];  
-  
+
+    matrix(relative?: boolean): Matrix;
+
+    tween(duration: number, delay: number, append: boolean): Tween;
+    tween(duration: number, append: boolean): Tween;
+    tween(append: boolean): Tween;
+
+    on(type: string, listener: Listener): this;
+    off(type: string, listener: Listener): this;
+    publish(name: string, ...args: any[]): number;
+    listeners(type: string): Listener[];  
+
     row(align: number): this;
     column(align: number): this;
 
     layer(): this; // resizes to fill parent
     box(): this; // resizes to fit children
-  
+
     timeout(fn: () => unknown, time: number): void;
     setTimeout(fn: () => unknown, time: number): any;
     clearTimeout(timer: any): void;
-  
+
     label(): string;
     label(label: string): this;
-  
+
     attr(name: string): unknown;
     attr(name: string, value: unknown): this;
-  
+
     render(context: CanvasRenderingContext2D): void;
     touch(): this;
     toString(): string;
-  
+
     // hitTest(hit: { x: number, y: number }): boolean;
   }
-  
-  class Root extends Stage.Node {
+
+  class Root extends Node {
     constructor(
       request: (loop: (time: number) => void) => void,
-      render: (root: this) => void,
+      render: (root: Root) => void,
     );
     background(color: string): this;
-    viewbox(width: number, height: number, mode: 'in' | 'out' | 'out-crop' | 'in-pad'): this;
+    viewbox(width: number, height: number, mode?: 'in' | 'out' | 'out-crop' | 'in-pad'): this;
 
     viewport(): { width: number, height: number, ratio: number };
     viewport(width: number, height: number, ratio: number): this;
+
+    dom?: HTMLCanvasElement;
   }
 
-  class Sprite extends Stage.Node {
+  class Sprite extends Node {
     constructor(frame: any);
     image(frame: any): this;
-    stretch(inner: any): this;
-    tile(inner: any): this;
+    stretch(inner?: boolean): this;
+    tile(inner?: boolean): this;
   }
 
-  class Anim extends Stage.Node {
+  class Anim extends Node {
     static FPS: number;
     constructor();
     fps(fps: number): this;
@@ -162,7 +169,7 @@ export namespace Stage {
     stop(frame: any): this;
   }
 
-  class Str extends Stage.Node {
+  class Str extends Node {
     constructor();
     frames(frames: any): this;
     setFont(a: any, b: any, c: any): this;
@@ -251,25 +258,24 @@ export namespace Stage {
     draw(context: CanvasRenderingContext2D, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
   }
 
-  interface Mouse {
-    CANCEL: string;
-    CLICK: string;
-    END: string;
-    MOVE: string;
-    START: string;
-    subscribe(stage: Stage.Node, elem: Element): void;
+  class Mouse {
+    static CANCEL: string;
+    static CLICK: string;
+    static END: string;
+    static MOVE: string;
+    static START: string;
   }
 
-  interface math {
+  class math {
 
-    random(min: number, max: number): number;
-    random(max: number): number;
+    static random(min: number, max: number): number;
+    static random(max: number): number;
 
-    modulo(num: number, min: number, max: number): number;
-    modulo(num: number, max: number): number;
+    static mod(num: number, min: number, max: number): number;
+    static mod(num: number, max: number): number;
 
-    clamp(num: number, min: number, max: number): number;
+    static clamp(num: number, min: number, max: number): number;
 
-    length(x: number, y: number): number;
+    static length(x: number, y: number): number;
   }
 }

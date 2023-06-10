@@ -11,7 +11,7 @@ math.random = function(min, max) {
   return min == max ? min : native.random() * (max - min) + min;
 };
 
-math.modulo = function(num, min, max) {
+math.mod = function(num, min, max) {
   if (typeof min === 'undefined') {
     max = 1, min = 0;
   } else if (typeof max === 'undefined') {

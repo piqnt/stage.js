@@ -87,7 +87,7 @@ Anim.prototype.length = function() {
 };
 
 Anim.prototype.gotoFrame = function(frame, resize) {
-  this._index = math.modulo(frame, this._frames.length) | 0;
+  this._index = math.mod(frame, this._frames.length) | 0;
   resize = resize || !this._textures[0];
   this._textures[0] = this._frames[this._index];
   if (resize) {

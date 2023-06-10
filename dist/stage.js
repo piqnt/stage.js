@@ -620,7 +620,7 @@ const L = Object.create(Math);
 L.random = function(t, i) {
   return typeof t > "u" ? (i = 1, t = 0) : typeof i > "u" && (i = t, t = 0), t == i ? t : ft.random() * (i - t) + t;
 };
-L.modulo = function(t, i, e) {
+L.mod = function(t, i, e) {
   return typeof i > "u" ? (e = 1, i = 0) : typeof e > "u" && (e = i, i = 0), e > i ? (t = (t - i) % (e - i), t + (t < 0 ? e : i)) : (t = (t - e) % (i - e), t + (t <= 0 ? i : e));
 };
 L.clamp = function(t, i, e) {
@@ -1333,7 +1333,7 @@ b.prototype.length = function() {
   return this._frames ? this._frames.length : 0;
 };
 b.prototype.gotoFrame = function(t, i) {
-  return this._index = L.modulo(t, this._frames.length) | 0, i = i || !this._textures[0], this._textures[0] = this._frames[this._index], i && (this.pin("width", this._textures[0].width), this.pin("height", this._textures[0].height)), this.touch(), this;
+  return this._index = L.mod(t, this._frames.length) | 0, i = i || !this._textures[0], this._textures[0] = this._frames[this._index], i && (this.pin("width", this._textures[0].width), this.pin("height", this._textures[0].height)), this.touch(), this;
 };
 b.prototype.moveFrame = function(t) {
   return this.gotoFrame(this._index + t);

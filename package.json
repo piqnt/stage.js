@@ -29,15 +29,14 @@
   "unpkg": "dist/stage.umd.cjs",
   "exports": {
     ".": {
+      "types": "./index.d.ts",
       "import": "./dist/stage.js",
       "require": "./dist/stage.umd.cjs"
     }
   },
   "types": "./index.d.ts",
-  "files": [
-    "src/",
-    "dist/",
-    "test/"
+  "ignore": [
+    "example/"
   ],
   "devDependencies": {
     "@vue/compiler-sfc": "^3.3.4",
