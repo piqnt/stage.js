@@ -18,7 +18,7 @@ interface Visitor<D> {
   visible: boolean;
 }
 
-export = Stage;
+export default Stage;
 export as namespace Stage;
 
 declare namespace Stage {

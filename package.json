@@ -22,7 +22,7 @@
     "mobile"
   ],
   "type": "module",
-  "main": "./dist/stage.umd.cjs",
+  "main": "./dist/stage.cjs",
   "module": "./dist/stage.js",
   "browser": "./dist/stage.cjs",
   "jsdelivr": "dist/stage.umd.cjs",

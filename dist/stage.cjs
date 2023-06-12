@@ -1,1 +1,2671 @@
-"use strict";var Et=Object.defineProperty;var St=(t,i,e)=>i in t?Et(t,i,{enumerable:!0,configurable:!0,writable:!0,value:e}):t[i]=e;var p=(t,i,e)=>(St(t,typeof i!="symbol"?i+"":i,e),e);Object.defineProperties(exports,{__esModule:{value:!0},[Symbol.toStringTag]:{value:"Module"}});const F={create:0,tick:0,node:0,draw:0,fps:0};class C{constructor(i,e,s,n,r,h){this.reset(i,e,s,n,r,h)}toString(){return"["+this.a+", "+this.b+", "+this.c+", "+this.d+", "+this.e+", "+this.f+"]"}clone(){return new C(this.a,this.b,this.c,this.d,this.e,this.f)}reset(i,e,s,n,r,h){return this._dirty=!0,typeof i=="object"?(this.a=i.a,this.d=i.d,this.b=i.b,this.c=i.c,this.e=i.e,this.f=i.f):(this.a=i||1,this.d=n||1,this.b=e||0,this.c=s||0,this.e=r||0,this.f=h||0),this}identity(){return this._dirty=!0,this.a=1,this.b=0,this.c=0,this.d=1,this.e=0,this.f=0,this}rotate(i){if(!i)return this;this._dirty=!0;var e=i?Math.cos(i):1,s=i?Math.sin(i):0,n=e*this.a-s*this.b,r=e*this.b+s*this.a,h=e*this.c-s*this.d,_=e*this.d+s*this.c,o=e*this.e-s*this.f,l=e*this.f+s*this.e;return this.a=n,this.b=r,this.c=h,this.d=_,this.e=o,this.f=l,this}translate(i,e){return!i&&!e?this:(this._dirty=!0,this.e+=i,this.f+=e,this)}scale(i,e){return!(i-1)&&!(e-1)?this:(this._dirty=!0,this.a*=i,this.b*=e,this.c*=i,this.d*=e,this.e*=i,this.f*=e,this)}skew(i,e){if(!i&&!e)return this;this._dirty=!0;var s=this.a+this.b*i,n=this.b+this.a*e,r=this.c+this.d*i,h=this.d+this.c*e,_=this.e+this.f*i,o=this.f+this.e*e;return this.a=s,this.b=n,this.c=r,this.d=h,this.e=_,this.f=o,this}concat(i){this._dirty=!0;var e=this,s=e.a*i.a+e.b*i.c,n=e.b*i.d+e.a*i.b,r=e.c*i.a+e.d*i.c,h=e.d*i.d+e.c*i.b,_=e.e*i.a+i.e+e.f*i.c,o=e.f*i.d+i.f+e.e*i.b;return this.a=s,this.b=n,this.c=r,this.d=h,this.e=_,this.f=o,this}inverse(){if(this._dirty){this._dirty=!1,this.inverted=this.inverted||new C;var i=this.a*this.d-this.b*this.c;this.inverted.a=this.d/i,this.inverted.b=-this.b/i,this.inverted.c=-this.c/i,this.inverted.d=this.a/i,this.inverted.e=(this.c*this.f-this.e*this.d)/i,this.inverted.f=(this.e*this.b-this.a*this.f)/i}return this.inverted}map(i,e){return e=e||{},e.x=this.a*i.x+this.c*i.y+this.e,e.y=this.b*i.x+this.d*i.y+this.f,e}mapX(i,e){return typeof i=="object"&&(e=i.y,i=i.x),this.a*i+this.c*e+this.e}mapY(i,e){return typeof i=="object"&&(e=i.y,i=i.x),this.b*i+this.d*e+this.f}}var d=0;function k(t){this._owner=t,this._parent=null,this._relativeMatrix=new C,this._absoluteMatrix=new C,this.reset()}k.prototype.reset=function(){this._textureAlpha=1,this._alpha=1,this._width=0,this._height=0,this._scaleX=1,this._scaleY=1,this._skewX=0,this._skewY=0,this._rotation=0,this._pivoted=!1,this._pivotX=null,this._pivotY=null,this._handled=!1,this._handleX=0,this._handleY=0,this._aligned=!1,this._alignX=0,this._alignY=0,this._offsetX=0,this._offsetY=0,this._boxX=0,this._boxY=0,this._boxWidth=this._width,this._boxHeight=this._height,this._ts_translate=++d,this._ts_transform=++d,this._ts_matrix=++d};k.prototype._update=function(){return this._parent=this._owner._parent&&this._owner._parent._pin,this._handled&&this._mo_handle!=this._ts_transform&&(this._mo_handle=this._ts_transform,this._ts_translate=++d),this._aligned&&this._parent&&this._mo_align!=this._parent._ts_transform&&(this._mo_align=this._parent._ts_transform,this._ts_translate=++d),this};k.prototype.toString=function(){return this._owner+" ("+(this._parent?this._parent._owner:null)+")"};k.prototype.absoluteMatrix=function(){this._update();var t=Math.max(this._ts_transform,this._ts_translate,this._parent?this._parent._ts_matrix:0);if(this._mo_abs==t)return this._absoluteMatrix;this._mo_abs=t;var i=this._absoluteMatrix;return i.reset(this.relativeMatrix()),this._parent&&i.concat(this._parent._absoluteMatrix),this._ts_matrix=++d,i};k.prototype.relativeMatrix=function(){this._update();var t=Math.max(this._ts_transform,this._ts_translate,this._parent?this._parent._ts_transform:0);if(this._mo_rel==t)return this._relativeMatrix;this._mo_rel=t;var i=this._relativeMatrix;if(i.identity(),this._pivoted&&i.translate(-this._pivotX*this._width,-this._pivotY*this._height),i.scale(this._scaleX,this._scaleY),i.skew(this._skewX,this._skewY),i.rotate(this._rotation),this._pivoted&&i.translate(this._pivotX*this._width,this._pivotY*this._height),this._pivoted)this._boxX=0,this._boxY=0,this._boxWidth=this._width,this._boxHeight=this._height;else{var e,s;i.a>0&&i.c>0||i.a<0&&i.c<0?(e=0,s=i.a*this._width+i.c*this._height):(e=i.a*this._width,s=i.c*this._height),e>s?(this._boxX=s,this._boxWidth=e-s):(this._boxX=e,this._boxWidth=s-e),i.b>0&&i.d>0||i.b<0&&i.d<0?(e=0,s=i.b*this._width+i.d*this._height):(e=i.b*this._width,s=i.d*this._height),e>s?(this._boxY=s,this._boxHeight=e-s):(this._boxY=e,this._boxHeight=s-e)}return this._x=this._offsetX,this._y=this._offsetY,this._x-=this._boxX+this._handleX*this._boxWidth,this._y-=this._boxY+this._handleY*this._boxHeight,this._aligned&&this._parent&&(this._parent.relativeMatrix(),this._x+=this._alignX*this._parent._width,this._y+=this._alignY*this._parent._height),i.translate(this._x,this._y),this._relativeMatrix};k.prototype.get=function(t){if(typeof ht[t]=="function")return ht[t](this)};k.prototype.set=function(t,i){if(typeof t=="string")typeof U[t]=="function"&&typeof i<"u"&&U[t](this,i);else if(typeof t=="object")for(i in t)typeof U[i]=="function"&&typeof t[i]<"u"&&U[i](this,t[i],t);return this._owner&&(this._owner._ts_pin=++d,this._owner.touch()),this};var ht={alpha:function(t){return t._alpha},textureAlpha:function(t){return t._textureAlpha},width:function(t){return t._width},height:function(t){return t._height},boxWidth:function(t){return t._boxWidth},boxHeight:function(t){return t._boxHeight},scaleX:function(t){return t._scaleX},scaleY:function(t){return t._scaleY},skewX:function(t){return t._skewX},skewY:function(t){return t._skewY},rotation:function(t){return t._rotation},pivotX:function(t){return t._pivotX},pivotY:function(t){return t._pivotY},offsetX:function(t){return t._offsetX},offsetY:function(t){return t._offsetY},alignX:function(t){return t._alignX},alignY:function(t){return t._alignY},handleX:function(t){return t._handleX},handleY:function(t){return t._handleY}},U={alpha:function(t,i){t._alpha=i},textureAlpha:function(t,i){t._textureAlpha=i},width:function(t,i){t._width_=i,t._width=i,t._ts_transform=++d},height:function(t,i){t._height_=i,t._height=i,t._ts_transform=++d},scale:function(t,i){t._scaleX=i,t._scaleY=i,t._ts_transform=++d},scaleX:function(t,i){t._scaleX=i,t._ts_transform=++d},scaleY:function(t,i){t._scaleY=i,t._ts_transform=++d},skew:function(t,i){t._skewX=i,t._skewY=i,t._ts_transform=++d},skewX:function(t,i){t._skewX=i,t._ts_transform=++d},skewY:function(t,i){t._skewY=i,t._ts_transform=++d},rotation:function(t,i){t._rotation=i,t._ts_transform=++d},pivot:function(t,i){t._pivotX=i,t._pivotY=i,t._pivoted=!0,t._ts_transform=++d},pivotX:function(t,i){t._pivotX=i,t._pivoted=!0,t._ts_transform=++d},pivotY:function(t,i){t._pivotY=i,t._pivoted=!0,t._ts_transform=++d},offset:function(t,i){t._offsetX=i,t._offsetY=i,t._ts_translate=++d},offsetX:function(t,i){t._offsetX=i,t._ts_translate=++d},offsetY:function(t,i){t._offsetY=i,t._ts_translate=++d},align:function(t,i){this.alignX(t,i),this.alignY(t,i)},alignX:function(t,i){t._alignX=i,t._aligned=!0,t._ts_translate=++d,this.handleX(t,i)},alignY:function(t,i){t._alignY=i,t._aligned=!0,t._ts_translate=++d,this.handleY(t,i)},handle:function(t,i){this.handleX(t,i),this.handleY(t,i)},handleX:function(t,i){t._handleX=i,t._handled=!0,t._ts_translate=++d},handleY:function(t,i){t._handleY=i,t._handled=!0,t._ts_translate=++d},resizeMode:function(t,i,e){e&&(i=="in"?i="in-pad":i=="out"&&(i="out-crop"),P(t,e.resizeWidth,e.resizeHeight,i))},resizeWidth:function(t,i,e){(!e||!e.resizeMode)&&P(t,i,null)},resizeHeight:function(t,i,e){(!e||!e.resizeMode)&&P(t,null,i)},scaleMode:function(t,i,e){e&&P(t,e.scaleWidth,e.scaleHeight,i)},scaleWidth:function(t,i,e){(!e||!e.scaleMode)&&P(t,i,null)},scaleHeight:function(t,i,e){(!e||!e.scaleMode)&&P(t,null,i)},matrix:function(t,i){this.scaleX(t,i.a),this.skewX(t,i.c/i.d),this.skewY(t,i.b/i.a),this.scaleY(t,i.d),this.offsetX(t,i.e),this.offsetY(t,i.f),this.rotation(t,0)}};k.prototype.scaleTo=function(t,i,e){P(this,t,i,e)};function P(t,i,e,s){var n=typeof i=="number",r=typeof e=="number",h=typeof s=="string";t._ts_transform=++d,n&&(t._scaleX=i/t._width_,t._width=t._width_),r&&(t._scaleY=e/t._height_,t._height=t._height_),n&&r&&h&&(s=="out"||s=="out-crop"?t._scaleX=t._scaleY=Math.max(t._scaleX,t._scaleY):(s=="in"||s=="in-pad")&&(t._scaleX=t._scaleY=Math.min(t._scaleX,t._scaleY)),(s=="out-crop"||s=="in-pad")&&(t._width=i/t._scaleX,t._height=e/t._scaleY))}k._add_shortcuts=function(t){t.size=function(i,e){return this.pin("width",i),this.pin("height",e),this},t.width=function(i){return typeof i>"u"?this.pin("width"):(this.pin("width",i),this)},t.height=function(i){return typeof i>"u"?this.pin("height"):(this.pin("height",i),this)},t.offset=function(i,e){return typeof i=="object"&&(e=i.y,i=i.x),this.pin("offsetX",i),this.pin("offsetY",e),this},t.rotate=function(i){return this.pin("rotation",i),this},t.skew=function(i,e){return typeof i=="object"?(e=i.y,i=i.x):typeof e>"u"&&(e=i),this.pin("skewX",i),this.pin("skewY",e),this},t.scale=function(i,e){return typeof i=="object"?(e=i.y,i=i.x):typeof e>"u"&&(e=i),this.pin("scaleX",i),this.pin("scaleY",e),this},t.alpha=function(i,e){return this.pin("alpha",i),typeof e<"u"&&this.pin("textureAlpha",e),this}};var A=0;F.create=0;function T(t){if(t&&t instanceof f)return t;throw"Invalid node: "+t}const z=function(){return new f};function f(){F.create++,this._pin=new k(this)}f.prototype.matrix=function(t){return t===!0?this._pin.relativeMatrix():this._pin.absoluteMatrix()};f.prototype.pin=function(t,i){if(typeof t=="object")return this._pin.set(t),this;if(typeof t=="string")return typeof i>"u"?this._pin.get(t):(this._pin.set(t,i),this);if(typeof t>"u")return this._pin};f.prototype.scaleTo=function(t,i,e){return typeof t=="object"&&(e=i,i=t.y,t=t.x),this._pin.scaleTo(t,i,e),this};k._add_shortcuts(f.prototype);f.prototype._label="";f.prototype._visible=!0;f.prototype._parent=null;f.prototype._next=null;f.prototype._prev=null;f.prototype._first=null;f.prototype._last=null;f.prototype._attrs=null;f.prototype._flags=null;f.prototype.toString=function(){return"["+this._label+"]"};f.prototype.id=function(t){return this.label(t)};f.prototype.label=function(t){return typeof t>"u"?this._label:(this._label=t,this)};f.prototype.attr=function(t,i){return typeof i>"u"?this._attrs!==null?this._attrs[t]:void 0:((this._attrs!==null?this._attrs:this._attrs={})[t]=i,this)};f.prototype.visible=function(t){return typeof t>"u"?this._visible:(this._visible=t,this._parent&&(this._parent._ts_children=++A),this._ts_pin=++A,this.touch(),this)};f.prototype.hide=function(){return this.visible(!1)};f.prototype.show=function(){return this.visible(!0)};f.prototype.parent=function(){return this._parent};f.prototype.next=function(t){for(var i=this._next;i&&t&&!i._visible;)i=i._next;return i};f.prototype.prev=function(t){for(var i=this._prev;i&&t&&!i._visible;)i=i._prev;return i};f.prototype.first=function(t){for(var i=this._first;i&&t&&!i._visible;)i=i._next;return i};f.prototype.last=function(t){for(var i=this._last;i&&t&&!i._visible;)i=i._prev;return i};f.prototype.visit=function(t,i){var e=t.reverse,s=t.visible;if(!(t.start&&t.start(this,i))){for(var n,r=e?this.last(s):this.first(s);n=r;)if(r=e?n.prev(s):n.next(s),n.visit(t,i))return!0;return t.end&&t.end(this,i)}};f.prototype.append=function(t,i){if(Array.isArray(t))for(var e=0;e<t.length;e++)G(this,t[e]);else if(typeof i<"u")for(var e=0;e<arguments.length;e++)G(this,arguments[e]);else typeof t<"u"&&G(this,t);return this};f.prototype.prepend=function(t,i){if(Array.isArray(t))for(var e=t.length-1;e>=0;e--)K(this,t[e]);else if(typeof i<"u")for(var e=arguments.length-1;e>=0;e--)K(this,arguments[e]);else typeof t<"u"&&K(this,t);return this};f.prototype.appendTo=function(t){return G(t,this),this};f.prototype.prependTo=function(t){return K(t,this),this};f.prototype.insertNext=function(t,i){if(Array.isArray(t))for(var e=0;e<t.length;e++)Q(t[e],this);else if(typeof i<"u")for(var e=0;e<arguments.length;e++)Q(arguments[e],this);else typeof t<"u"&&Q(t,this);return this};f.prototype.insertPrev=function(t,i){if(Array.isArray(t))for(var e=t.length-1;e>=0;e--)J(t[e],this);else if(typeof i<"u")for(var e=arguments.length-1;e>=0;e--)J(arguments[e],this);else typeof t<"u"&&J(t,this);return this};f.prototype.insertAfter=function(t){return Q(this,t),this};f.prototype.insertBefore=function(t){return J(this,t),this};function G(t,i){T(i),T(t),i.remove(),t._last&&(t._last._next=i,i._prev=t._last),i._parent=t,t._last=i,t._first||(t._first=i),i._parent._flag(i,!0),i._ts_parent=++A,t._ts_children=++A,t.touch()}function K(t,i){T(i),T(t),i.remove(),t._first&&(t._first._prev=i,i._next=t._first),i._parent=t,t._first=i,t._last||(t._last=i),i._parent._flag(i,!0),i._ts_parent=++A,t._ts_children=++A,t.touch()}function J(t,i){T(t),T(i),t.remove();var e=i._parent,s=i._prev;i._prev=t,s&&(s._next=t)||e&&(e._first=t),t._parent=e,t._prev=s,t._next=i,t._parent._flag(t,!0),t._ts_parent=++A,t.touch()}function Q(t,i){T(t),T(i),t.remove();var e=i._parent,s=i._next;i._next=t,s&&(s._prev=t)||e&&(e._last=t),t._parent=e,t._prev=i,t._next=s,t._parent._flag(t,!0),t._ts_parent=++A,t.touch()}f.prototype.remove=function(t,i){if(typeof t<"u"){if(Array.isArray(t))for(var e=0;e<t.length;e++)T(t[e]).remove();else if(typeof i<"u")for(var e=0;e<arguments.length;e++)T(arguments[e]).remove();else T(t).remove();return this}return this._prev&&(this._prev._next=this._next),this._next&&(this._next._prev=this._prev),this._parent&&(this._parent._first===this&&(this._parent._first=this._next),this._parent._last===this&&(this._parent._last=this._prev),this._parent._flag(this,!1),this._parent._ts_children=++A,this._parent.touch()),this._prev=this._next=this._parent=null,this._ts_parent=++A,this};f.prototype.empty=function(){for(var t,i=this._first;t=i;)i=t._next,t._prev=t._next=t._parent=null,this._flag(t,!1);return this._first=this._last=null,this._ts_children=++A,this.touch(),this};f.prototype.touch=function(){return this._ts_touch=++A,this._parent&&this._parent.touch(),this};f.prototype._flag=function(t,i){if(typeof i>"u")return this._flags!==null&&this._flags[t]||0;if(typeof t=="string"&&(i?(this._flags=this._flags||{},!this._flags[t]&&this._parent&&this._parent._flag(t,!0),this._flags[t]=(this._flags[t]||0)+1):this._flags&&this._flags[t]>0&&(this._flags[t]==1&&this._parent&&this._parent._flag(t,!1),this._flags[t]=this._flags[t]-1)),typeof t=="object"&&t._flags)for(var e in t._flags)t._flags[e]>0&&this._flag(e,i);return this};f.prototype.hitTest=function(t){var i=this._pin._width,e=this._pin._height;return t.x>=0&&t.x<=i&&t.y>=0&&t.y<=e};f.prototype._textures=null;f.prototype._alpha=1;f.prototype.render=function(t){if(this._visible){F.node++;var i=this.matrix();t.setTransform(i.a,i.b,i.c,i.d,i.e,i.f),this._alpha=this._pin._alpha*(this._parent?this._parent._alpha:1);var e=this._pin._textureAlpha*this._alpha;if(t.globalAlpha!=e&&(t.globalAlpha=e),this._textures!==null)for(var s=0,n=this._textures.length;s<n;s++)this._textures[s].draw(t);t.globalAlpha!=this._alpha&&(t.globalAlpha=this._alpha);for(var r,h=this._first;r=h;)h=r._next,r.render(t)}};f.prototype._tickBefore=null;f.prototype._tickAfter=null;f.prototype.MAX_ELAPSE=1/0;f.prototype._tick=function(t,i,e){if(this._visible){t>this.MAX_ELAPSE&&(t=this.MAX_ELAPSE);var s=!1;if(this._tickBefore!==null)for(var n=0;n<this._tickBefore.length;n++){F.tick++;var r=this._tickBefore[n];s=r.call(this,t,i,e)===!0||s}for(var h,_=this._first;h=_;)_=h._next,h._flag("_tick")&&(s=h._tick(t,i,e)===!0?!0:s);if(this._tickAfter!==null)for(var n=0;n<this._tickAfter.length;n++){F.tick++;var r=this._tickAfter[n];s=r.call(this,t,i,e)===!0||s}return s}};f.prototype.tick=function(t,i){typeof t=="function"&&(i?(this._tickBefore===null&&(this._tickBefore=[]),this._tickBefore.push(t)):(this._tickAfter===null&&(this._tickAfter=[]),this._tickAfter.push(t)),this._flag("_tick",this._tickAfter!==null&&this._tickAfter.length>0||this._tickBefore!==null&&this._tickBefore.length>0))};f.prototype.untick=function(t){if(typeof t=="function"){var i;this._tickBefore!==null&&(i=this._tickBefore.indexOf(t))>=0&&this._tickBefore.splice(i,1),this._tickAfter!==null&&(i=this._tickAfter.indexOf(t))>=0&&this._tickAfter.splice(i,1)}};f.prototype.timeout=function(t,i){this.setTimeout(t,i)};f.prototype.setTimeout=function(t,i){function e(s){if((i-=s)<0)this.untick(e),t.call(this);else return!0}return this.tick(e),e};f.prototype.clearTimeout=function(t){this.untick(t)};f.prototype._listeners=null;f.prototype._event_callback=function(t,i){this._flag(t,i)};f.prototype.on=function(t,i){if(!t||!t.length||typeof i!="function")return this;this._listeners===null&&(this._listeners={});var e=typeof t!="string"&&typeof t.join=="function";if(t=(e?t.join(" "):t).match(/\S+/g))for(var s=0;s<t.length;s++){var n=t[s];this._listeners[n]=this._listeners[n]||[],this._listeners[n].push(i),typeof this._event_callback=="function"&&this._event_callback(n,!0)}return this};f.prototype.off=function(t,i){if(!t||!t.length||typeof i!="function")return this;if(this._listeners===null)return this;var e=typeof t!="string"&&typeof t.join=="function";if(t=(e?t.join(" "):t).match(/\S+/g))for(var s=0;s<t.length;s++){var n=t[s],r=this._listeners[n],h;r&&(h=r.indexOf(i))>=0&&(r.splice(h,1),r.length||delete this._listeners[n],typeof this._event_callback=="function"&&this._event_callback(n,!1))}return this};f.prototype.listeners=function(t){return this._listeners&&this._listeners[t]};f.prototype.publish=function(t,i){var e=this.listeners(t);if(!e||!e.length)return 0;for(var s=0;s<e.length;s++)e[s].apply(this,i);return e.length};f.prototype.trigger=function(t,i){return this.publish(t,i),this};var _t=Math;const S=Object.create(Math);S.random=function(t,i){return typeof t>"u"?(i=1,t=0):typeof i>"u"&&(i=t,t=0),t==i?t:_t.random()*(i-t)+t};S.mod=function(t,i,e){return typeof i>"u"?(e=1,i=0):typeof e>"u"&&(e=i,i=0),e>i?(t=(t-i)%(e-i),t+(t<0?e:i)):(t=(t-e)%(i-e),t+(t<=0?i:e))};S.clamp=function(t,i,e){return t<i?i:t>e?e:t};S.length=function(t,i){return _t.sqrt(t*t+i*i)};const B=function(t){var i=Object.prototype.toString.call(t);return i==="[object Function]"||i==="[object GeneratorFunction]"||i==="[object AsyncFunction]"},tt=function(t){return Object.prototype.toString.call(t)==="[object Object]"&&t.constructor===Object};class I{constructor(i,e){typeof i=="object"&&this.src(i,e)}pipe(){return new I(this)}src(i,e,s,n){if(typeof i=="object"){var r=i,h=e||1;this._image=r,this._sx=this._dx=0,this._sy=this._dy=0,this._sw=this._dw=r.width/h,this._sh=this._dh=r.height/h,this.width=r.width/h,this.height=r.height/h,this.ratio=h}else typeof s>"u"?(s=i,n=e):(this._sx=i,this._sy=e),this._sw=this._dw=s,this._sh=this._dh=n,this.width=s,this.height=n;return this}dest(i,e,s,n){return this._dx=i,this._dy=e,this._dx=i,this._dy=e,typeof s<"u"&&(this._dw=s,this._dh=n,this.width=s,this.height=n),this}draw(i,e,s,n,r,h,_,o,l){var u=this._image;if(!(u===null||typeof u!="object")){var a=this._sx,c=this._sy,v=this._sw,g=this._sh,m=this._dx,X=this._dy,Y=this._dw,y=this._dh;typeof h<"u"?(e=S.clamp(e,0,this._sw),n=S.clamp(n,0,this._sw-e),s=S.clamp(s,0,this._sh),r=S.clamp(r,0,this._sh-s),a+=e,c+=s,v=n,g=r,m=h,X=_,Y=o,y=l):typeof n<"u"?(m=e,X=s,Y=n,y=r):typeof e<"u"&&(Y=e,y=s);var j=this.ratio||1;a*=j,c*=j,v*=j,g*=j;try{typeof u.draw=="function"?u.draw(i,a,c,v,g,m,X,Y,y):(F.draw++,i.drawImage(u,a,c,v,g,m,X,Y,y))}catch(x){u._draw_failed||(console.log("Unable to draw: ",u),console.log(x),u._draw_failed=!0)}}}}var ct=new class extends I{constructor(){super();p(this,"pipe",function(){return this});p(this,"src",function(){return this});p(this,"dest",function(){return this});p(this,"draw",function(){});this.x=this.y=this.width=this.height=0}},Tt=new Z(ct);function Lt(t){return console.log("Loading image: "+t),new Promise(function(i,e){const s=new Image;s.onload=function(){i(s)},s.onerror=function(n){e(n)},s.src=t})}var it={},et=[];const lt=async function(t){var i=B(t.draw)?t:new st(t);t.name&&(it[t.name]=i),et.push(i),N(t,"imagePath"),N(t,"imageRatio");var e=t.imagePath,s=t.imageRatio||1;if(typeof t.image=="string"?e=t.image:("src"in t.image||"url"in t.image)&&(e=t.image.src||t.image.url,s=t.image.ratio||s),e){const n=await Lt(e);i.src(n,s)}return i};class st extends I{constructor(i){super();var e=this;N(i,"filter"),N(i,"cutouts"),N(i,"sprites"),N(i,"factory");var s=i.map||i.filter,n=i.ppu||i.ratio||1,r=i.trim||0,h=i.textures,_=i.factory,o=i.cutouts||i.sprites;function l(a){if(!a||B(a.draw))return a;a=Object.assign({},a),B(s)&&(a=s(a)),n!=1&&(a.x*=n,a.y*=n,a.width*=n,a.height*=n,a.top*=n,a.bottom*=n,a.left*=n,a.right*=n),r!=0&&(a.x+=r,a.y+=r,a.width-=2*r,a.height-=2*r,a.top-=r,a.bottom-=r,a.left-=r,a.right-=r);var c=e.pipe();return c.top=a.top,c.bottom=a.bottom,c.left=a.left,c.right=a.right,c.src(a.x,a.y,a.width,a.height),c}function u(a){if(h){if(B(h))return h(a);if(tt(h))return h[a]}if(o){for(var c=null,v=0,g=0;g<o.length;g++)string.startsWith(o[g].name,a)&&(v===0?c=o[g]:v===1?c=[c,o[g]]:c.push(o[g]),v++);return v===0&&B(_)&&(c=function(m){return _(a+(m||""))}),c}}this.select=function(a){if(!a)return new Z(this.pipe());var c=u(a);if(c)return new Z(c,u,l)}}}function Z(t,i,e){function s(n,r){if(n){if(B(n.draw))return n;if(tt(n)&&typeof n.width=="number"&&typeof n.height=="number"&&B(e))return e(n);if(tt(n)&&typeof r<"u")return s(n[r]);if(B(n))return s(n(r));if(Array.isArray(n))return s(n[0]);if(typeof n=="string"&&B(i))return s(i(n))}else return ct}this.one=function(n){return s(t,n)},this.array=function(n){var r=Array.isArray(n)?n:[];if(Array.isArray(t))for(var h=0;h<t.length;h++)r[h]=s(t[h]);else r[0]=s(t);return r}}const $=function(t){if(typeof t!="string")return new Z(t);var i=null,e,s;for((s=t.indexOf(":"))>0&&t.length>s+1&&(e=it[t.slice(0,s)],i=e&&e.select(t.slice(s+1))),!i&&(e=it[t])&&(i=e.select()),s=0;!i&&s<et.length;s++)i=et[s].select(t);return i||(console.error("Texture not found: "+t),i=Tt),i};function N(t,i,e){i in t&&console.log(e?e.replace("%name",i):"'"+i+"' field of texture atlas is deprecated.")}const pt=function(t,i,e){typeof t=="string"?typeof i=="object"||(typeof i=="function"&&(e=i),i={}):(typeof t=="function"&&(e=t),i={},t="2d");var s=document.createElement("canvas"),n=s.getContext(t,i),r=new I(s);return r.context=function(){return n},r.size=function(h,_,o){return o=o||1,s.width=h*o,s.height=_*o,this.src(s,o),this},typeof e=="function"&&e.call(r,n),r};class H{constructor(){p(this,"x",0);p(this,"y",0);p(this,"ratio",1);p(this,"stage");p(this,"elem");p(this,"clicklist",[]);p(this,"cancellist",[]);p(this,"handleStart",i=>{i.preventDefault(),this.locate(i),this.publish(i.type,i),this.lookup("click",this.clicklist),this.lookup("mousecancel",this.cancellist)});p(this,"handleMove",i=>{i.preventDefault(),this.locate(i),this.publish(i.type,i)});p(this,"handleEnd",i=>{i.preventDefault(),this.publish(i.type,i),this.clicklist.length&&this.publish("click",i,this.clicklist),this.cancellist.length=0});p(this,"handleCancel",i=>{this.cancellist.length&&this.publish("mousecancel",i,this.cancellist),this.clicklist.length=0});p(this,"toString",function(){return(this.x|0)+"x"+(this.y|0)});p(this,"locate",function(i){const e=this.elem;let s,n;i.touches&&i.touches.length?(s=i.touches[0].clientX,n=i.touches[0].clientY):(s=i.clientX,n=i.clientY);var r=e.getBoundingClientRect();s-=r.left,n-=r.top,s-=e.clientLeft|0,n-=e.clientTop|0,this.x=s*this.ratio,this.y=n*this.ratio});p(this,"lookup",function(i,e){this.type=i,this.root=this.stage,this.event=null,e.length=0,this.collect=e,this.root.visit({reverse:!0,visible:!0,start:this.visitStart,end:this.visitEnd},this)});p(this,"publish",function(i,e,s){if(this.type=i,this.root=this.stage,this.event=e,this.collect=!1,this.timeStamp=Date.now(),i!=="mousemove"&&i!=="touchmove"&&console.log(this.type+" "+this),s){for(;s.length&&!this.visitEnd(s.shift()););s.length=0}else this.root.visit({reverse:!0,visible:!0,start:this.visitStart,end:this.visitEnd},this)});p(this,"visitStart",i=>!i._flag(this.type));p(this,"visitEnd",i=>{E.raw=this.event,E.type=this.type,E.timeStamp=this.timeStamp,E.abs.x=this.x,E.abs.y=this.y;var e=i.listeners(this.type);if(e&&(i.matrix().inverse().map(this,E),!!(i===this.root||i.attr("spy")||i.hitTest(E))&&(this.collect&&this.collect.push(i),this.event))){for(var s=!1,n=0;n<e.length;n++)s=e[n].call(i,E)?!0:s;return s}})}mount(i,e){return this.stage=i,this.elem=e,this.ratio=i.viewport().ratio||1,i.on("viewport",s=>{this.ratio=s.ratio??this.ratio}),e.addEventListener("touchstart",this.handleStart),e.addEventListener("touchend",this.handleEnd),e.addEventListener("touchmove",this.handleMove),e.addEventListener("touchcancel",this.handleCancel),e.addEventListener("mousedown",this.handleStart),e.addEventListener("mouseup",this.handleEnd),e.addEventListener("mousemove",this.handleMove),document.addEventListener("mouseup",this.handleCancel),window.addEventListener("blur",this.handleCancel),this}unmount(){const i=this.elem;return i.removeEventListener("touchstart",this.handleStart),i.removeEventListener("touchend",this.handleEnd),i.removeEventListener("touchmove",this.handleMove),i.removeEventListener("touchcancel",this.handleCancel),i.removeEventListener("mousedown",this.handleStart),i.removeEventListener("mouseup",this.handleEnd),i.removeEventListener("mousemove",this.handleMove),document.removeEventListener("mouseup",this.handleCancel),window.removeEventListener("blur",this.handleCancel),this}}p(H,"CLICK","click"),p(H,"START","touchstart mousedown"),p(H,"MOVE","touchmove mousemove"),p(H,"END","touchend mouseup"),p(H,"CANCEL","touchcancel mousecancel");var E={},nt={};V(E,"clone",function(t){return t=t||{},t.x=this.x,t.y=this.y,t});V(E,"toString",function(){return(this.x|0)+"x"+(this.y|0)+" ("+this.abs+")"});V(E,"abs",nt);V(nt,"clone",function(t){return t=t||{},t.x=this.x,t.y=this.y,t});V(nt,"toString",function(){return(this.x|0)+"x"+(this.y|0)});function V(t,i,e){Object.defineProperty(t,i,{value:e})}function Rt(t){return t}var ot={},at={},ft={};class w{static get(i,e=Rt){if(typeof i=="function")return i;if(typeof i!="string")return e;var s=ot[i];if(s)return s;var n=/^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(i);if(!n||!n.length)return e;var r=ft[n[1]],h=at[n[3]],_=n[5];return r&&r.fn?s=r.fn:r&&r.fc?s=r.fc.apply(r.fc,_&&_.replace(/\s+/,"").split(",")):s=e,h&&(s=h.fn(s)),ot[i]=s,s}static add(i){for(var e=(i.name||i.mode).split(/\s+/),s=0;s<e.length;s++){var n=e[s];n&&((i.name?ft:at)[n]=i)}}}w.add({mode:"in",fn:function(t){return t}});w.add({mode:"out",fn:function(t){return function(i){return 1-t(1-i)}}});w.add({mode:"in-out",fn:function(t){return function(i){return i<.5?t(2*i)/2:1-t(2*(1-i))/2}}});w.add({mode:"out-in",fn:function(t){return function(i){return i<.5?1-t(2*(1-i))/2:t(2*i)/2}}});w.add({name:"linear",fn:function(t){return t}});w.add({name:"quad",fn:function(t){return t*t}});w.add({name:"cubic",fn:function(t){return t*t*t}});w.add({name:"quart",fn:function(t){return t*t*t*t}});w.add({name:"quint",fn:function(t){return t*t*t*t*t}});w.add({name:"sin sine",fn:function(t){return 1-Math.cos(t*Math.PI/2)}});w.add({name:"exp expo",fn:function(t){return t==0?0:Math.pow(2,10*(t-1))}});w.add({name:"circle circ",fn:function(t){return 1-Math.sqrt(1-t*t)}});w.add({name:"bounce",fn:function(t){return t<1/2.75?7.5625*t*t:t<2/2.75?7.5625*(t-=1.5/2.75)*t+.75:t<2.5/2.75?7.5625*(t-=2.25/2.75)*t+.9375:7.5625*(t-=2.625/2.75)*t+.984375}});w.add({name:"poly",fc:function(t){return function(i){return Math.pow(i,t)}}});w.add({name:"elastic",fc:function(t,i){i=i||.45,t=t||1;var e=i/(2*Math.PI)*Math.asin(1/t);return function(s){return 1+t*Math.pow(2,-10*s)*Math.sin((s-e)*(2*Math.PI)/i)}}});w.add({name:"back",fc:function(t){return t=typeof t<"u"?t:1.70158,function(i){return i*i*((t+1)*i-t)}}});f.prototype.tween=function(t,i,e){if(typeof t!="number"?(e=t,i=0,t=0):typeof i!="number"&&(e=i,i=0),!this._tweens){this._tweens=[];var s=0;this.tick(function(r,h,_){if(this._tweens.length){var o=s!=_;if(s=h,o)return!0;var l=this._tweens[0],u=l.tick(this,r,h,_);if(u&&l===this._tweens[0]&&this._tweens.shift(),Array.isArray(u))for(var a=0;a<u.length;a++)try{u[a].call(this)}catch(c){console.log(c)}else typeof u=="object"&&this._tweens.unshift(u);return!0}},!0)}this.touch(),e||(this._tweens.length=0);var n=new D(this,t,i);return this._tweens.push(n),n};class D{constructor(i,e,s){this._end={},this._duration=e||400,this._delay=s||0,this._owner=i,this._time=0}tick(i,e,s,n){if(this._time+=e,!(this._time<this._delay)){var r=this._time-this._delay;if(!this._start){this._start={};for(var h in this._end)this._start[h]=this._owner.pin(h)}var _,o;r<this._duration?(_=r/this._duration,o=!1):(_=1,o=!0),typeof this._easing=="function"&&(_=this._easing(_));var l=1-_;for(var h in this._end)this._owner.pin(h,this._start[h]*l+this._end[h]*_);if(o){var u=[this._hide,this._remove,this._done];return u=u.filter(function(a){return typeof a=="function"}),this._next||u}}}tween(i,e){return this._next=new D(this._owner,i,e)}duration(i){return this._duration=i,this}delay(i){return this._delay=i,this}ease(i){return this._easing=w.get(i),this}done(i){return this._done=i,this}hide(){return this._hide=function(){this.hide()},this}remove(){return this._remove=function(){this.remove()},this}pin(i,e){if(typeof i=="object")for(var s in i)ut(this._owner,this._end,s,i[s]);else typeof e<"u"&&ut(this._owner,this._end,i,e);return this}then(i){return this.done(i),this}clear(i){return this}}function ut(t,i,e,s){typeof t.pin(e)=="number"?i[e]=s:typeof t.pin(e+"X")=="number"&&typeof t.pin(e+"Y")=="number"&&(i[e+"X"]=s,i[e+"Y"]=s)}k._add_shortcuts(D.prototype);var W=[];const dt=function(){for(var t=W.length-1;t>=0;t--)W[t].pause()},vt=function(){for(var t=W.length-1;t>=0;t--)W[t].resume()},gt=function(t={}){var i=new L;return i.mount(t),i.mouse=new H().mount(i,i.dom),i};L._super=f;L.prototype=Object.create(L._super.prototype);function L(){L._super.call(this),this.label("Root")}L.prototype.mount=function(t={}){var i,e=null,s=!1,n=0,r=0,h=1,_=!1,o=!0;if(typeof t.canvas=="string"&&(i=document.getElementById(t.canvas)),i||(i=document.getElementById("cutjs")||document.getElementById("stage")),!i){s=!0,console.log("Creating Canvas..."),i=document.createElement("canvas"),i.style.position="absolute",i.style.top="0",i.style.left="0";var l=document.body;l.insertBefore(i,l.firstChild)}this.dom=i,e=i.getContext("2d");var u=window.devicePixelRatio||1,a=e.webkitBackingStorePixelRatio||e.mozBackingStorePixelRatio||e.msBackingStorePixelRatio||e.oBackingStorePixelRatio||e.backingStorePixelRatio||1;h=u/a;var c=window.requestAnimationFrame||window.msRequestAnimationFrame||window.mozRequestAnimationFrame||window.webkitRequestAnimationFrame||window.oRequestAnimationFrame||function(x){return window.setTimeout(x,1e3/60)},v=0,g=x=>{if(!(!_||o)){var O=v||x,q=x-O;v=x;var Mt=this._tick(q,x,O);this._mo_touch!=this._ts_touch?(this._mo_touch=this._ts_touch,m(),c(g)):Mt?c(g):o=!0,F.fps=q?1e3/q:0}},m=()=>{n>0&&r>0&&(e.setTransform(1,0,0,1,0,0),e.clearRect(0,0,n,r),this.render(e))},X=-1,Y=-1,y=()=>{if(_){var x,O;s?(x=window.innerWidth>0?window.innerWidth:screen.width,O=window.innerHeight>0?window.innerHeight:screen.height):(x=i.clientWidth,O=i.clientHeight),(X!==x||Y!==O)&&(X=x,Y=O,j()),c(y)}},j=()=>{s?(n=window.innerWidth>0?window.innerWidth:screen.width,r=window.innerHeight>0?window.innerHeight:screen.height,i.style.width=n+"px",i.style.height=r+"px"):(n=i.clientWidth,r=i.clientHeight),n*=h,r*=h,!(i.width===n&&i.height===r)&&(i.width=n,i.height=r,console.log("Resize: "+n+" x "+r+" / "+h),this.viewport(n,r,h),m())};this.resume=function(){return o&&(this.publish("resume"),o=!1,c(g)),this},this.pause=function(){return o||this.publish("pause"),o=!0,this},this.touch_root=this.touch,this.touch=function(){return this.resume(),this.touch_root()},this.unmount=function(){var O;_=!1;var x=W.indexOf(this);return x>=0&&W.splice(x,1),(O=this.mouse)==null||O.unmount(),this},_=!0,W.push(this),y(),c(g)};L.prototype.background=function(t){return this.dom.style.backgroundColor=t,this};L.prototype.viewport=function(t,i,e){if(typeof t>"u")return Object.assign({},this._viewport);this._viewport={width:t,height:i,ratio:e||1},this.viewbox();var s=Object.assign({},this._viewport);return this.visit({start:function(n){if(!n._flag("viewport"))return!0;n.publish("viewport",[s])}}),this};L.prototype.viewbox=function(t,i,e){typeof t=="number"&&typeof i=="number"&&(this._viewbox={width:t,height:i,mode:/^(in|out|in-pad|out-crop)$/.test(e)?e:"in-pad"});var s=this._viewbox,n=this._viewport;return n&&s?(this.pin({width:s.width,height:s.height}),this.scaleTo(n.width,n.height,s.mode)):n&&this.pin({width:n.width,height:n.height}),this};const rt=function(t){var i=new M;return t&&i.image(t),i};M._super=f;M.prototype=Object.create(M._super.prototype);function M(){M._super.call(this),this.label("Sprite"),this._textures=[],this._image=null}M.prototype.image=function(t){return this._image=$(t).one(),this.pin("width",this._image?this._image.width:0),this.pin("height",this._image?this._image.height:0),this._textures[0]=this._image.pipe(),this._textures.length=1,this};M.prototype.tile=function(t){return this._repeat(!1,t),this};M.prototype.stretch=function(t){return this._repeat(!0,t),this};M.prototype._repeat=function(t,i){var e=this;this.untick(this._repeatTicker),this.tick(this._repeatTicker=function(){if(this._mo_stretch!=this._pin._ts_transform){this._mo_stretch=this._pin._ts_transform;var n=this.pin("width"),r=this.pin("height");this._textures.length=Ot(this._image,n,r,t,i,s)}});function s(n,r,h,_,o,l,u,a,c){var v=e._textures.length>n?e._textures[n]:e._textures[n]=e._image.pipe();v.src(r,h,_,o),v.dest(l,u,a,c)}};function Ot(t,i,e,s,n,r){var h=t.width,_=t.height,o=t.left,l=t.right,u=t.top,a=t.bottom;o=typeof o=="number"&&o===o?o:0,l=typeof l=="number"&&l===l?l:0,u=typeof u=="number"&&u===u?u:0,a=typeof a=="number"&&a===a?a:0,h=h-o-l,_=_-u-a,n||(i=Math.max(i-o-l,0),e=Math.max(e-u-a,0));var c=0;if(u>0&&o>0&&r(c++,0,0,o,u,0,0,o,u),a>0&&o>0&&r(c++,0,_+u,o,a,0,e+u,o,a),u>0&&l>0&&r(c++,h+o,0,l,u,i+o,0,l,u),a>0&&l>0&&r(c++,h+o,_+u,l,a,i+o,e+u,l,a),s)u>0&&r(c++,o,0,h,u,o,0,i,u),a>0&&r(c++,o,_+u,h,a,o,e+u,i,a),o>0&&r(c++,0,u,o,_,0,u,o,e),l>0&&r(c++,h+o,u,l,_,i+o,u,l,e),r(c++,o,u,h,_,o,u,i,e);else for(var v=o,g=i,m;g>0;){m=Math.min(h,g),g-=h;for(var X=u,Y=e,y;Y>0;)y=Math.min(_,Y),Y-=_,r(c++,o,u,m,y,v,X,m,y),g<=0&&(o&&r(c++,0,u,o,y,0,X,o,y),l&&r(c++,h+o,u,l,y,v+m,X,l,y)),X+=y;u&&r(c++,o,0,m,u,v,0,m,u),a&&r(c++,o,_+u,m,a,v,X,m,a),v+=m}return c}const mt=rt,yt=M,wt=function(t,i){var e=new b;return e.frames(t).gotoFrame(0),i&&e.fps(i),e};b._super=f;b.prototype=Object.create(b._super.prototype);const xt=15;function b(){b._super.call(this),this.label("Anim"),this._textures=[],this._fps=xt,this._ft=1e3/this._fps,this._time=-1,this._repeat=0,this._index=0,this._frames=[];var t=0;this.tick(function(i,e,s){if(!(this._time<0||this._frames.length<=1)){var n=t!=s;if(t=e,n||(this._time+=i,this._time<this._ft))return!0;var r=this._time/this._ft|0;return this._time-=r*this._ft,this.moveFrame(r),this._repeat>0&&(this._repeat-=r)<=0?(this.stop(),this._callback&&this._callback(),!1):!0}},!1)}b.prototype.fps=function(t){return typeof t>"u"?this._fps:(this._fps=t>0?t:xt,this._ft=1e3/this._fps,this)};b.prototype.setFrames=function(t,i,e){return this.frames(t,i,e)};b.prototype.frames=function(t){return this._index=0,this._frames=$(t).array(),this.touch(),this};b.prototype.length=function(){return this._frames?this._frames.length:0};b.prototype.gotoFrame=function(t,i){return this._index=S.mod(t,this._frames.length)|0,i=i||!this._textures[0],this._textures[0]=this._frames[this._index],i&&(this.pin("width",this._textures[0].width),this.pin("height",this._textures[0].height)),this.touch(),this};b.prototype.moveFrame=function(t){return this.gotoFrame(this._index+t)};b.prototype.repeat=function(t,i){return this._repeat=t*this._frames.length-1,this._callback=i,this.play(),this};b.prototype.play=function(t){return typeof t<"u"?(this.gotoFrame(t),this._time=0):this._time<0&&(this._time=0),this.touch(),this};b.prototype.stop=function(t){return this._time=-1,typeof t<"u"&&this.gotoFrame(t),this};const bt=function(t){return new R().frames(t)};R._super=f;R.prototype=Object.create(R._super.prototype);function R(){R._super.call(this),this.label("String"),this._textures=[]}R.prototype.setFont=function(t,i,e){return this.frames(t,i,e)};R.prototype.frames=function(t){return this._textures=[],typeof t=="string"?(t=$(t),this._item=function(i){return t.one(i)}):typeof t=="object"?this._item=function(i){return t[i]}:typeof t=="function"&&(this._item=t),this};R.prototype.setValue=function(t,i,e){return this.value(t,i,e)};R.prototype.value=function(t){if(typeof t>"u")return this._value;if(this._value===t)return this;this._value=t,t===null?t="":typeof t!="string"&&!Array.isArray(t)&&(t=t.toString()),this._spacing=this._spacing||0;for(var i=0,e=0,s=0;s<t.length;s++){var n=this._textures[s]=this._item(t[s]);i+=s>0?this._spacing:0,n.dest(i,0),i=i+n.width,e=Math.max(e,n.height)}return this.pin("width",i),this.pin("height",e),this._textures.length=t.length,this};const kt=function(t){return z().row(t).label("Row")};f.prototype.row=function(t){return this.align("row",t),this};const Xt=function(t){return z().column(t).label("Row")};f.prototype.column=function(t){return this.align("column",t),this};f.prototype.align=function(t,i){return this._padding=this._padding||0,this._spacing=this._spacing||0,this.untick(this._layoutTiker),this.tick(this._layoutTiker=function(){if(this._mo_seq!=this._ts_touch){this._mo_seq=this._ts_touch;var e=this._mo_seqAlign!=this._ts_children;this._mo_seqAlign=this._ts_children;for(var s=0,n=0,r,h=this.first(!0),_=!0;r=h;){h=r.next(!0),r.matrix(!0);var o=r.pin("boxWidth"),l=r.pin("boxHeight");t=="column"?(!_&&(n+=this._spacing),r.pin("offsetY")!=n&&r.pin("offsetY",n),s=Math.max(s,o),n=n+l,e&&r.pin("alignX",i)):t=="row"&&(!_&&(s+=this._spacing),r.pin("offsetX")!=s&&r.pin("offsetX",s),s=s+o,n=Math.max(n,l),e&&r.pin("alignY",i)),_=!1}s+=2*this._padding,n+=2*this._padding,this.pin("width")!=s&&this.pin("width",s),this.pin("height")!=n&&this.pin("height",n)}}),this};const Yt=function(){return z().box().label("Box")};f.prototype.box=function(){return this._padding=this._padding||0,this.untick(this._layoutTiker),this.tick(this._layoutTiker=function(){if(this._mo_box!=this._ts_touch){this._mo_box=this._ts_touch;for(var t=0,i=0,e,s=this.first(!0);e=s;){s=e.next(!0),e.matrix(!0);var n=e.pin("boxWidth"),r=e.pin("boxHeight");t=Math.max(t,n),i=Math.max(i,r)}t+=2*this._padding,i+=2*this._padding,this.pin("width")!=t&&this.pin("width",t),this.pin("height")!=i&&this.pin("height",i)}}),this};const At=function(){return z().layer().label("Layer")};f.prototype.layer=function(){return this.untick(this._layoutTiker),this.tick(this._layoutTiker=function(){var t=this.parent();if(t){var i=t.pin("width");this.pin("width")!=i&&this.pin("width",i);var e=t.pin("height");this.pin("height")!=e&&this.pin("height",e)}},!0),this};f.prototype.padding=function(t){return this._padding=t,this};f.prototype.spacing=function(t){return this._spacing=t,this};const Bt=Object.freeze(Object.defineProperty({__proto__:null,Anim:b,Atlas:st,Image:yt,Matrix:C,Mouse:H,Node:f,Pin:k,Root:L,Sprite:M,Str:R,Texture:I,Tween:D,anim:wt,atlas:lt,box:Yt,canvas:pt,column:Xt,create:z,image:mt,layer:At,math:S,mount:gt,pause:dt,resume:vt,row:kt,sprite:rt,string:bt,texture:$},Symbol.toStringTag,{value:"Module"}));exports.Anim=b;exports.Atlas=st;exports.Image=yt;exports.Matrix=C;exports.Mouse=H;exports.Node=f;exports.Pin=k;exports.Root=L;exports.Sprite=M;exports.Str=R;exports.Texture=I;exports.Tween=D;exports.anim=wt;exports.atlas=lt;exports.box=Yt;exports.canvas=pt;exports.column=Xt;exports.create=z;exports.default=Bt;exports.image=mt;exports.layer=At;exports.math=S;exports.mount=gt;exports.pause=dt;exports.resume=vt;exports.row=kt;exports.sprite=rt;exports.string=bt;exports.texture=$;
+"use strict";
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
+const stats = {
+  create: 0,
+  tick: 0,
+  node: 0,
+  draw: 0,
+  fps: 0
+};
+class Matrix {
+  constructor(a, b, c, d, e, f) {
+    this.reset(a, b, c, d, e, f);
+  }
+  toString() {
+    return "[" + this.a + ", " + this.b + ", " + this.c + ", " + this.d + ", " + this.e + ", " + this.f + "]";
+  }
+  clone() {
+    return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
+  }
+  reset(a, b, c, d, e, f) {
+    this._dirty = true;
+    if (typeof a === "object") {
+      this.a = a.a, this.d = a.d;
+      this.b = a.b, this.c = a.c;
+      this.e = a.e, this.f = a.f;
+    } else {
+      this.a = a || 1, this.d = d || 1;
+      this.b = b || 0, this.c = c || 0;
+      this.e = e || 0, this.f = f || 0;
+    }
+    return this;
+  }
+  identity() {
+    this._dirty = true;
+    this.a = 1;
+    this.b = 0;
+    this.c = 0;
+    this.d = 1;
+    this.e = 0;
+    this.f = 0;
+    return this;
+  }
+  rotate(angle) {
+    if (!angle) {
+      return this;
+    }
+    this._dirty = true;
+    var u = angle ? Math.cos(angle) : 1;
+    var v = angle ? Math.sin(angle) : 0;
+    var a = u * this.a - v * this.b;
+    var b = u * this.b + v * this.a;
+    var c = u * this.c - v * this.d;
+    var d = u * this.d + v * this.c;
+    var e = u * this.e - v * this.f;
+    var f = u * this.f + v * this.e;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+  }
+  translate(x, y) {
+    if (!x && !y) {
+      return this;
+    }
+    this._dirty = true;
+    this.e += x;
+    this.f += y;
+    return this;
+  }
+  scale(x, y) {
+    if (!(x - 1) && !(y - 1)) {
+      return this;
+    }
+    this._dirty = true;
+    this.a *= x;
+    this.b *= y;
+    this.c *= x;
+    this.d *= y;
+    this.e *= x;
+    this.f *= y;
+    return this;
+  }
+  skew(x, y) {
+    if (!x && !y) {
+      return this;
+    }
+    this._dirty = true;
+    var a = this.a + this.b * x;
+    var b = this.b + this.a * y;
+    var c = this.c + this.d * x;
+    var d = this.d + this.c * y;
+    var e = this.e + this.f * x;
+    var f = this.f + this.e * y;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+  }
+  concat(m) {
+    this._dirty = true;
+    var n = this;
+    var a = n.a * m.a + n.b * m.c;
+    var b = n.b * m.d + n.a * m.b;
+    var c = n.c * m.a + n.d * m.c;
+    var d = n.d * m.d + n.c * m.b;
+    var e = n.e * m.a + m.e + n.f * m.c;
+    var f = n.f * m.d + m.f + n.e * m.b;
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.d = d;
+    this.e = e;
+    this.f = f;
+    return this;
+  }
+  inverse() {
+    if (this._dirty) {
+      this._dirty = false;
+      this.inverted = this.inverted || new Matrix();
+      var z = this.a * this.d - this.b * this.c;
+      this.inverted.a = this.d / z;
+      this.inverted.b = -this.b / z;
+      this.inverted.c = -this.c / z;
+      this.inverted.d = this.a / z;
+      this.inverted.e = (this.c * this.f - this.e * this.d) / z;
+      this.inverted.f = (this.e * this.b - this.a * this.f) / z;
+    }
+    return this.inverted;
+  }
+  map(p, q) {
+    q = q || {};
+    q.x = this.a * p.x + this.c * p.y + this.e;
+    q.y = this.b * p.x + this.d * p.y + this.f;
+    return q;
+  }
+  mapX(x, y) {
+    if (typeof x === "object")
+      y = x.y, x = x.x;
+    return this.a * x + this.c * y + this.e;
+  }
+  mapY(x, y) {
+    if (typeof x === "object")
+      y = x.y, x = x.x;
+    return this.b * x + this.d * y + this.f;
+  }
+}
+var iid$1 = 0;
+function Pin(owner) {
+  this._owner = owner;
+  this._parent = null;
+  this._relativeMatrix = new Matrix();
+  this._absoluteMatrix = new Matrix();
+  this.reset();
+}
+Pin.prototype.reset = function() {
+  this._textureAlpha = 1;
+  this._alpha = 1;
+  this._width = 0;
+  this._height = 0;
+  this._scaleX = 1;
+  this._scaleY = 1;
+  this._skewX = 0;
+  this._skewY = 0;
+  this._rotation = 0;
+  this._pivoted = false;
+  this._pivotX = null;
+  this._pivotY = null;
+  this._handled = false;
+  this._handleX = 0;
+  this._handleY = 0;
+  this._aligned = false;
+  this._alignX = 0;
+  this._alignY = 0;
+  this._offsetX = 0;
+  this._offsetY = 0;
+  this._boxX = 0;
+  this._boxY = 0;
+  this._boxWidth = this._width;
+  this._boxHeight = this._height;
+  this._ts_translate = ++iid$1;
+  this._ts_transform = ++iid$1;
+  this._ts_matrix = ++iid$1;
+};
+Pin.prototype._update = function() {
+  this._parent = this._owner._parent && this._owner._parent._pin;
+  if (this._handled && this._mo_handle != this._ts_transform) {
+    this._mo_handle = this._ts_transform;
+    this._ts_translate = ++iid$1;
+  }
+  if (this._aligned && this._parent && this._mo_align != this._parent._ts_transform) {
+    this._mo_align = this._parent._ts_transform;
+    this._ts_translate = ++iid$1;
+  }
+  return this;
+};
+Pin.prototype.toString = function() {
+  return this._owner + " (" + (this._parent ? this._parent._owner : null) + ")";
+};
+Pin.prototype.absoluteMatrix = function() {
+  this._update();
+  var ts = Math.max(
+    this._ts_transform,
+    this._ts_translate,
+    this._parent ? this._parent._ts_matrix : 0
+  );
+  if (this._mo_abs == ts) {
+    return this._absoluteMatrix;
+  }
+  this._mo_abs = ts;
+  var abs2 = this._absoluteMatrix;
+  abs2.reset(this.relativeMatrix());
+  this._parent && abs2.concat(this._parent._absoluteMatrix);
+  this._ts_matrix = ++iid$1;
+  return abs2;
+};
+Pin.prototype.relativeMatrix = function() {
+  this._update();
+  var ts = Math.max(
+    this._ts_transform,
+    this._ts_translate,
+    this._parent ? this._parent._ts_transform : 0
+  );
+  if (this._mo_rel == ts) {
+    return this._relativeMatrix;
+  }
+  this._mo_rel = ts;
+  var rel2 = this._relativeMatrix;
+  rel2.identity();
+  if (this._pivoted) {
+    rel2.translate(-this._pivotX * this._width, -this._pivotY * this._height);
+  }
+  rel2.scale(this._scaleX, this._scaleY);
+  rel2.skew(this._skewX, this._skewY);
+  rel2.rotate(this._rotation);
+  if (this._pivoted) {
+    rel2.translate(this._pivotX * this._width, this._pivotY * this._height);
+  }
+  if (this._pivoted) {
+    this._boxX = 0;
+    this._boxY = 0;
+    this._boxWidth = this._width;
+    this._boxHeight = this._height;
+  } else {
+    var p, q;
+    if (rel2.a > 0 && rel2.c > 0 || rel2.a < 0 && rel2.c < 0) {
+      p = 0, q = rel2.a * this._width + rel2.c * this._height;
+    } else {
+      p = rel2.a * this._width, q = rel2.c * this._height;
+    }
+    if (p > q) {
+      this._boxX = q;
+      this._boxWidth = p - q;
+    } else {
+      this._boxX = p;
+      this._boxWidth = q - p;
+    }
+    if (rel2.b > 0 && rel2.d > 0 || rel2.b < 0 && rel2.d < 0) {
+      p = 0, q = rel2.b * this._width + rel2.d * this._height;
+    } else {
+      p = rel2.b * this._width, q = rel2.d * this._height;
+    }
+    if (p > q) {
+      this._boxY = q;
+      this._boxHeight = p - q;
+    } else {
+      this._boxY = p;
+      this._boxHeight = q - p;
+    }
+  }
+  this._x = this._offsetX;
+  this._y = this._offsetY;
+  this._x -= this._boxX + this._handleX * this._boxWidth;
+  this._y -= this._boxY + this._handleY * this._boxHeight;
+  if (this._aligned && this._parent) {
+    this._parent.relativeMatrix();
+    this._x += this._alignX * this._parent._width;
+    this._y += this._alignY * this._parent._height;
+  }
+  rel2.translate(this._x, this._y);
+  return this._relativeMatrix;
+};
+Pin.prototype.get = function(key) {
+  if (typeof getters[key] === "function") {
+    return getters[key](this);
+  }
+};
+Pin.prototype.set = function(a, b) {
+  if (typeof a === "string") {
+    if (typeof setters[a] === "function" && typeof b !== "undefined") {
+      setters[a](this, b);
+    }
+  } else if (typeof a === "object") {
+    for (b in a) {
+      if (typeof setters[b] === "function" && typeof a[b] !== "undefined") {
+        setters[b](this, a[b], a);
+      }
+    }
+  }
+  if (this._owner) {
+    this._owner._ts_pin = ++iid$1;
+    this._owner.touch();
+  }
+  return this;
+};
+var getters = {
+  alpha: function(pin) {
+    return pin._alpha;
+  },
+  textureAlpha: function(pin) {
+    return pin._textureAlpha;
+  },
+  width: function(pin) {
+    return pin._width;
+  },
+  height: function(pin) {
+    return pin._height;
+  },
+  boxWidth: function(pin) {
+    return pin._boxWidth;
+  },
+  boxHeight: function(pin) {
+    return pin._boxHeight;
+  },
+  // scale : function(pin) {
+  // },
+  scaleX: function(pin) {
+    return pin._scaleX;
+  },
+  scaleY: function(pin) {
+    return pin._scaleY;
+  },
+  // skew : function(pin) {
+  // },
+  skewX: function(pin) {
+    return pin._skewX;
+  },
+  skewY: function(pin) {
+    return pin._skewY;
+  },
+  rotation: function(pin) {
+    return pin._rotation;
+  },
+  // pivot : function(pin) {
+  // },
+  pivotX: function(pin) {
+    return pin._pivotX;
+  },
+  pivotY: function(pin) {
+    return pin._pivotY;
+  },
+  // offset : function(pin) {
+  // },
+  offsetX: function(pin) {
+    return pin._offsetX;
+  },
+  offsetY: function(pin) {
+    return pin._offsetY;
+  },
+  // align : function(pin) {
+  // },
+  alignX: function(pin) {
+    return pin._alignX;
+  },
+  alignY: function(pin) {
+    return pin._alignY;
+  },
+  // handle : function(pin) {
+  // },
+  handleX: function(pin) {
+    return pin._handleX;
+  },
+  handleY: function(pin) {
+    return pin._handleY;
+  }
+};
+var setters = {
+  alpha: function(pin, value) {
+    pin._alpha = value;
+  },
+  textureAlpha: function(pin, value) {
+    pin._textureAlpha = value;
+  },
+  width: function(pin, value) {
+    pin._width_ = value;
+    pin._width = value;
+    pin._ts_transform = ++iid$1;
+  },
+  height: function(pin, value) {
+    pin._height_ = value;
+    pin._height = value;
+    pin._ts_transform = ++iid$1;
+  },
+  scale: function(pin, value) {
+    pin._scaleX = value;
+    pin._scaleY = value;
+    pin._ts_transform = ++iid$1;
+  },
+  scaleX: function(pin, value) {
+    pin._scaleX = value;
+    pin._ts_transform = ++iid$1;
+  },
+  scaleY: function(pin, value) {
+    pin._scaleY = value;
+    pin._ts_transform = ++iid$1;
+  },
+  skew: function(pin, value) {
+    pin._skewX = value;
+    pin._skewY = value;
+    pin._ts_transform = ++iid$1;
+  },
+  skewX: function(pin, value) {
+    pin._skewX = value;
+    pin._ts_transform = ++iid$1;
+  },
+  skewY: function(pin, value) {
+    pin._skewY = value;
+    pin._ts_transform = ++iid$1;
+  },
+  rotation: function(pin, value) {
+    pin._rotation = value;
+    pin._ts_transform = ++iid$1;
+  },
+  pivot: function(pin, value) {
+    pin._pivotX = value;
+    pin._pivotY = value;
+    pin._pivoted = true;
+    pin._ts_transform = ++iid$1;
+  },
+  pivotX: function(pin, value) {
+    pin._pivotX = value;
+    pin._pivoted = true;
+    pin._ts_transform = ++iid$1;
+  },
+  pivotY: function(pin, value) {
+    pin._pivotY = value;
+    pin._pivoted = true;
+    pin._ts_transform = ++iid$1;
+  },
+  offset: function(pin, value) {
+    pin._offsetX = value;
+    pin._offsetY = value;
+    pin._ts_translate = ++iid$1;
+  },
+  offsetX: function(pin, value) {
+    pin._offsetX = value;
+    pin._ts_translate = ++iid$1;
+  },
+  offsetY: function(pin, value) {
+    pin._offsetY = value;
+    pin._ts_translate = ++iid$1;
+  },
+  align: function(pin, value) {
+    this.alignX(pin, value);
+    this.alignY(pin, value);
+  },
+  alignX: function(pin, value) {
+    pin._alignX = value;
+    pin._aligned = true;
+    pin._ts_translate = ++iid$1;
+    this.handleX(pin, value);
+  },
+  alignY: function(pin, value) {
+    pin._alignY = value;
+    pin._aligned = true;
+    pin._ts_translate = ++iid$1;
+    this.handleY(pin, value);
+  },
+  handle: function(pin, value) {
+    this.handleX(pin, value);
+    this.handleY(pin, value);
+  },
+  handleX: function(pin, value) {
+    pin._handleX = value;
+    pin._handled = true;
+    pin._ts_translate = ++iid$1;
+  },
+  handleY: function(pin, value) {
+    pin._handleY = value;
+    pin._handled = true;
+    pin._ts_translate = ++iid$1;
+  },
+  resizeMode: function(pin, value, all) {
+    if (all) {
+      if (value == "in") {
+        value = "in-pad";
+      } else if (value == "out") {
+        value = "out-crop";
+      }
+      scaleTo(pin, all.resizeWidth, all.resizeHeight, value);
+    }
+  },
+  resizeWidth: function(pin, value, all) {
+    if (!all || !all.resizeMode) {
+      scaleTo(pin, value, null);
+    }
+  },
+  resizeHeight: function(pin, value, all) {
+    if (!all || !all.resizeMode) {
+      scaleTo(pin, null, value);
+    }
+  },
+  scaleMode: function(pin, value, all) {
+    if (all) {
+      scaleTo(pin, all.scaleWidth, all.scaleHeight, value);
+    }
+  },
+  scaleWidth: function(pin, value, all) {
+    if (!all || !all.scaleMode) {
+      scaleTo(pin, value, null);
+    }
+  },
+  scaleHeight: function(pin, value, all) {
+    if (!all || !all.scaleMode) {
+      scaleTo(pin, null, value);
+    }
+  },
+  matrix: function(pin, value) {
+    this.scaleX(pin, value.a);
+    this.skewX(pin, value.c / value.d);
+    this.skewY(pin, value.b / value.a);
+    this.scaleY(pin, value.d);
+    this.offsetX(pin, value.e);
+    this.offsetY(pin, value.f);
+    this.rotation(pin, 0);
+  }
+};
+Pin.prototype.scaleTo = function(width, height, mode) {
+  scaleTo(this, width, height, mode);
+};
+function scaleTo(pin, width, height, mode) {
+  var w = typeof width === "number";
+  var h = typeof height === "number";
+  var m = typeof mode === "string";
+  pin._ts_transform = ++iid$1;
+  if (w) {
+    pin._scaleX = width / pin._width_;
+    pin._width = pin._width_;
+  }
+  if (h) {
+    pin._scaleY = height / pin._height_;
+    pin._height = pin._height_;
+  }
+  if (w && h && m) {
+    if (mode == "out" || mode == "out-crop") {
+      pin._scaleX = pin._scaleY = Math.max(pin._scaleX, pin._scaleY);
+    } else if (mode == "in" || mode == "in-pad") {
+      pin._scaleX = pin._scaleY = Math.min(pin._scaleX, pin._scaleY);
+    }
+    if (mode == "out-crop" || mode == "in-pad") {
+      pin._width = width / pin._scaleX;
+      pin._height = height / pin._scaleY;
+    }
+  }
+}
+Pin._add_shortcuts = function(prototype) {
+  prototype.size = function(w, h) {
+    this.pin("width", w);
+    this.pin("height", h);
+    return this;
+  };
+  prototype.width = function(w) {
+    if (typeof w === "undefined") {
+      return this.pin("width");
+    }
+    this.pin("width", w);
+    return this;
+  };
+  prototype.height = function(h) {
+    if (typeof h === "undefined") {
+      return this.pin("height");
+    }
+    this.pin("height", h);
+    return this;
+  };
+  prototype.offset = function(a, b) {
+    if (typeof a === "object")
+      b = a.y, a = a.x;
+    this.pin("offsetX", a);
+    this.pin("offsetY", b);
+    return this;
+  };
+  prototype.rotate = function(a) {
+    this.pin("rotation", a);
+    return this;
+  };
+  prototype.skew = function(a, b) {
+    if (typeof a === "object")
+      b = a.y, a = a.x;
+    else if (typeof b === "undefined")
+      b = a;
+    this.pin("skewX", a);
+    this.pin("skewY", b);
+    return this;
+  };
+  prototype.scale = function(a, b) {
+    if (typeof a === "object")
+      b = a.y, a = a.x;
+    else if (typeof b === "undefined")
+      b = a;
+    this.pin("scaleX", a);
+    this.pin("scaleY", b);
+    return this;
+  };
+  prototype.alpha = function(a, ta) {
+    this.pin("alpha", a);
+    if (typeof ta !== "undefined") {
+      this.pin("textureAlpha", ta);
+    }
+    return this;
+  };
+};
+var iid = 0;
+stats.create = 0;
+function assertType(obj) {
+  if (obj && obj instanceof Node) {
+    return obj;
+  }
+  throw "Invalid node: " + obj;
+}
+const create = function() {
+  return new Node();
+};
+function Node() {
+  stats.create++;
+  this._pin = new Pin(this);
+}
+Node.prototype.matrix = function(relative) {
+  if (relative === true) {
+    return this._pin.relativeMatrix();
+  }
+  return this._pin.absoluteMatrix();
+};
+Node.prototype.pin = function(a, b) {
+  if (typeof a === "object") {
+    this._pin.set(a);
+    return this;
+  } else if (typeof a === "string") {
+    if (typeof b === "undefined") {
+      return this._pin.get(a);
+    } else {
+      this._pin.set(a, b);
+      return this;
+    }
+  } else if (typeof a === "undefined") {
+    return this._pin;
+  }
+};
+Node.prototype.scaleTo = function(a, b, c) {
+  if (typeof a === "object")
+    c = b, b = a.y, a = a.x;
+  this._pin.scaleTo(a, b, c);
+  return this;
+};
+Pin._add_shortcuts(Node.prototype);
+Node.prototype._label = "";
+Node.prototype._visible = true;
+Node.prototype._parent = null;
+Node.prototype._next = null;
+Node.prototype._prev = null;
+Node.prototype._first = null;
+Node.prototype._last = null;
+Node.prototype._attrs = null;
+Node.prototype._flags = null;
+Node.prototype.toString = function() {
+  return "[" + this._label + "]";
+};
+Node.prototype.id = function(id) {
+  return this.label(id);
+};
+Node.prototype.label = function(label) {
+  if (typeof label === "undefined") {
+    return this._label;
+  }
+  this._label = label;
+  return this;
+};
+Node.prototype.attr = function(name, value) {
+  if (typeof value === "undefined") {
+    return this._attrs !== null ? this._attrs[name] : void 0;
+  }
+  (this._attrs !== null ? this._attrs : this._attrs = {})[name] = value;
+  return this;
+};
+Node.prototype.visible = function(visible) {
+  if (typeof visible === "undefined") {
+    return this._visible;
+  }
+  this._visible = visible;
+  this._parent && (this._parent._ts_children = ++iid);
+  this._ts_pin = ++iid;
+  this.touch();
+  return this;
+};
+Node.prototype.hide = function() {
+  return this.visible(false);
+};
+Node.prototype.show = function() {
+  return this.visible(true);
+};
+Node.prototype.parent = function() {
+  return this._parent;
+};
+Node.prototype.next = function(visible) {
+  var next = this._next;
+  while (next && visible && !next._visible) {
+    next = next._next;
+  }
+  return next;
+};
+Node.prototype.prev = function(visible) {
+  var prev = this._prev;
+  while (prev && visible && !prev._visible) {
+    prev = prev._prev;
+  }
+  return prev;
+};
+Node.prototype.first = function(visible) {
+  var next = this._first;
+  while (next && visible && !next._visible) {
+    next = next._next;
+  }
+  return next;
+};
+Node.prototype.last = function(visible) {
+  var prev = this._last;
+  while (prev && visible && !prev._visible) {
+    prev = prev._prev;
+  }
+  return prev;
+};
+Node.prototype.visit = function(visitor, data) {
+  var reverse = visitor.reverse;
+  var visible = visitor.visible;
+  if (visitor.start && visitor.start(this, data)) {
+    return;
+  }
+  var child, next = reverse ? this.last(visible) : this.first(visible);
+  while (child = next) {
+    next = reverse ? child.prev(visible) : child.next(visible);
+    if (child.visit(visitor, data)) {
+      return true;
+    }
+  }
+  return visitor.end && visitor.end(this, data);
+};
+Node.prototype.append = function(child, more) {
+  if (Array.isArray(child))
+    for (var i = 0; i < child.length; i++)
+      append(this, child[i]);
+  else if (typeof more !== "undefined")
+    for (var i = 0; i < arguments.length; i++)
+      append(this, arguments[i]);
+  else if (typeof child !== "undefined")
+    append(this, child);
+  return this;
+};
+Node.prototype.prepend = function(child, more) {
+  if (Array.isArray(child))
+    for (var i = child.length - 1; i >= 0; i--)
+      prepend(this, child[i]);
+  else if (typeof more !== "undefined")
+    for (var i = arguments.length - 1; i >= 0; i--)
+      prepend(this, arguments[i]);
+  else if (typeof child !== "undefined")
+    prepend(this, child);
+  return this;
+};
+Node.prototype.appendTo = function(parent) {
+  append(parent, this);
+  return this;
+};
+Node.prototype.prependTo = function(parent) {
+  prepend(parent, this);
+  return this;
+};
+Node.prototype.insertNext = function(sibling, more) {
+  if (Array.isArray(sibling))
+    for (var i = 0; i < sibling.length; i++)
+      insertAfter(sibling[i], this);
+  else if (typeof more !== "undefined")
+    for (var i = 0; i < arguments.length; i++)
+      insertAfter(arguments[i], this);
+  else if (typeof sibling !== "undefined")
+    insertAfter(sibling, this);
+  return this;
+};
+Node.prototype.insertPrev = function(sibling, more) {
+  if (Array.isArray(sibling))
+    for (var i = sibling.length - 1; i >= 0; i--)
+      insertBefore(sibling[i], this);
+  else if (typeof more !== "undefined")
+    for (var i = arguments.length - 1; i >= 0; i--)
+      insertBefore(arguments[i], this);
+  else if (typeof sibling !== "undefined")
+    insertBefore(sibling, this);
+  return this;
+};
+Node.prototype.insertAfter = function(prev) {
+  insertAfter(this, prev);
+  return this;
+};
+Node.prototype.insertBefore = function(next) {
+  insertBefore(this, next);
+  return this;
+};
+function append(parent, child) {
+  assertType(child);
+  assertType(parent);
+  child.remove();
+  if (parent._last) {
+    parent._last._next = child;
+    child._prev = parent._last;
+  }
+  child._parent = parent;
+  parent._last = child;
+  if (!parent._first) {
+    parent._first = child;
+  }
+  child._parent._flag(child, true);
+  child._ts_parent = ++iid;
+  parent._ts_children = ++iid;
+  parent.touch();
+}
+function prepend(parent, child) {
+  assertType(child);
+  assertType(parent);
+  child.remove();
+  if (parent._first) {
+    parent._first._prev = child;
+    child._next = parent._first;
+  }
+  child._parent = parent;
+  parent._first = child;
+  if (!parent._last) {
+    parent._last = child;
+  }
+  child._parent._flag(child, true);
+  child._ts_parent = ++iid;
+  parent._ts_children = ++iid;
+  parent.touch();
+}
+function insertBefore(self, next) {
+  assertType(self);
+  assertType(next);
+  self.remove();
+  var parent = next._parent;
+  var prev = next._prev;
+  next._prev = self;
+  prev && (prev._next = self) || parent && (parent._first = self);
+  self._parent = parent;
+  self._prev = prev;
+  self._next = next;
+  self._parent._flag(self, true);
+  self._ts_parent = ++iid;
+  self.touch();
+}
+function insertAfter(self, prev) {
+  assertType(self);
+  assertType(prev);
+  self.remove();
+  var parent = prev._parent;
+  var next = prev._next;
+  prev._next = self;
+  next && (next._prev = self) || parent && (parent._last = self);
+  self._parent = parent;
+  self._prev = prev;
+  self._next = next;
+  self._parent._flag(self, true);
+  self._ts_parent = ++iid;
+  self.touch();
+}
+Node.prototype.remove = function(child, more) {
+  if (typeof child !== "undefined") {
+    if (Array.isArray(child)) {
+      for (var i = 0; i < child.length; i++)
+        assertType(child[i]).remove();
+    } else if (typeof more !== "undefined") {
+      for (var i = 0; i < arguments.length; i++)
+        assertType(arguments[i]).remove();
+    } else {
+      assertType(child).remove();
+    }
+    return this;
+  }
+  if (this._prev) {
+    this._prev._next = this._next;
+  }
+  if (this._next) {
+    this._next._prev = this._prev;
+  }
+  if (this._parent) {
+    if (this._parent._first === this) {
+      this._parent._first = this._next;
+    }
+    if (this._parent._last === this) {
+      this._parent._last = this._prev;
+    }
+    this._parent._flag(this, false);
+    this._parent._ts_children = ++iid;
+    this._parent.touch();
+  }
+  this._prev = this._next = this._parent = null;
+  this._ts_parent = ++iid;
+  return this;
+};
+Node.prototype.empty = function() {
+  var child, next = this._first;
+  while (child = next) {
+    next = child._next;
+    child._prev = child._next = child._parent = null;
+    this._flag(child, false);
+  }
+  this._first = this._last = null;
+  this._ts_children = ++iid;
+  this.touch();
+  return this;
+};
+Node.prototype.touch = function() {
+  this._ts_touch = ++iid;
+  this._parent && this._parent.touch();
+  return this;
+};
+Node.prototype._flag = function(obj, name) {
+  if (typeof name === "undefined") {
+    return this._flags !== null && this._flags[obj] || 0;
+  }
+  if (typeof obj === "string") {
+    if (name) {
+      this._flags = this._flags || {};
+      if (!this._flags[obj] && this._parent) {
+        this._parent._flag(obj, true);
+      }
+      this._flags[obj] = (this._flags[obj] || 0) + 1;
+    } else if (this._flags && this._flags[obj] > 0) {
+      if (this._flags[obj] == 1 && this._parent) {
+        this._parent._flag(obj, false);
+      }
+      this._flags[obj] = this._flags[obj] - 1;
+    }
+  }
+  if (typeof obj === "object") {
+    if (obj._flags) {
+      for (var type in obj._flags) {
+        if (obj._flags[type] > 0) {
+          this._flag(type, name);
+        }
+      }
+    }
+  }
+  return this;
+};
+Node.prototype.hitTest = function(hit) {
+  var width = this._pin._width;
+  var height = this._pin._height;
+  return hit.x >= 0 && hit.x <= width && hit.y >= 0 && hit.y <= height;
+};
+Node.prototype._textures = null;
+Node.prototype._alpha = 1;
+Node.prototype.render = function(context) {
+  if (!this._visible) {
+    return;
+  }
+  stats.node++;
+  var m = this.matrix();
+  context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
+  this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
+  var alpha = this._pin._textureAlpha * this._alpha;
+  if (context.globalAlpha != alpha) {
+    context.globalAlpha = alpha;
+  }
+  if (this._textures !== null) {
+    for (var i = 0, n = this._textures.length; i < n; i++) {
+      this._textures[i].draw(context);
+    }
+  }
+  if (context.globalAlpha != this._alpha) {
+    context.globalAlpha = this._alpha;
+  }
+  var child, next = this._first;
+  while (child = next) {
+    next = child._next;
+    child.render(context);
+  }
+};
+Node.prototype._tickBefore = null;
+Node.prototype._tickAfter = null;
+Node.prototype.MAX_ELAPSE = Infinity;
+Node.prototype._tick = function(elapsed, now, last) {
+  if (!this._visible) {
+    return;
+  }
+  if (elapsed > this.MAX_ELAPSE) {
+    elapsed = this.MAX_ELAPSE;
+  }
+  var ticked = false;
+  if (this._tickBefore !== null) {
+    for (var i = 0; i < this._tickBefore.length; i++) {
+      stats.tick++;
+      var tickFn = this._tickBefore[i];
+      ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
+    }
+  }
+  var child, next = this._first;
+  while (child = next) {
+    next = child._next;
+    if (child._flag("_tick")) {
+      ticked = child._tick(elapsed, now, last) === true ? true : ticked;
+    }
+  }
+  if (this._tickAfter !== null) {
+    for (var i = 0; i < this._tickAfter.length; i++) {
+      stats.tick++;
+      var tickFn = this._tickAfter[i];
+      ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
+    }
+  }
+  return ticked;
+};
+Node.prototype.tick = function(ticker, before) {
+  if (typeof ticker !== "function") {
+    return;
+  }
+  if (before) {
+    if (this._tickBefore === null) {
+      this._tickBefore = [];
+    }
+    this._tickBefore.push(ticker);
+  } else {
+    if (this._tickAfter === null) {
+      this._tickAfter = [];
+    }
+    this._tickAfter.push(ticker);
+  }
+  this._flag("_tick", this._tickAfter !== null && this._tickAfter.length > 0 || this._tickBefore !== null && this._tickBefore.length > 0);
+};
+Node.prototype.untick = function(ticker) {
+  if (typeof ticker !== "function") {
+    return;
+  }
+  var i;
+  if (this._tickBefore !== null && (i = this._tickBefore.indexOf(ticker)) >= 0) {
+    this._tickBefore.splice(i, 1);
+  }
+  if (this._tickAfter !== null && (i = this._tickAfter.indexOf(ticker)) >= 0) {
+    this._tickAfter.splice(i, 1);
+  }
+};
+Node.prototype.timeout = function(fn, time) {
+  this.setTimeout(fn, time);
+};
+Node.prototype.setTimeout = function(fn, time) {
+  function timer(t) {
+    if ((time -= t) < 0) {
+      this.untick(timer);
+      fn.call(this);
+    } else {
+      return true;
+    }
+  }
+  this.tick(timer);
+  return timer;
+};
+Node.prototype.clearTimeout = function(timer) {
+  this.untick(timer);
+};
+Node.prototype._listeners = null;
+Node.prototype._event_callback = function(name, on) {
+  this._flag(name, on);
+};
+Node.prototype.on = function(types, listener) {
+  if (!types || !types.length || typeof listener !== "function") {
+    return this;
+  }
+  if (this._listeners === null) {
+    this._listeners = {};
+  }
+  var isarray = typeof types !== "string" && typeof types.join === "function";
+  if (types = (isarray ? types.join(" ") : types).match(/\S+/g)) {
+    for (var i = 0; i < types.length; i++) {
+      var type = types[i];
+      this._listeners[type] = this._listeners[type] || [];
+      this._listeners[type].push(listener);
+      if (typeof this._event_callback === "function") {
+        this._event_callback(type, true);
+      }
+    }
+  }
+  return this;
+};
+Node.prototype.off = function(types, listener) {
+  if (!types || !types.length || typeof listener !== "function") {
+    return this;
+  }
+  if (this._listeners === null) {
+    return this;
+  }
+  var isarray = typeof types !== "string" && typeof types.join === "function";
+  if (types = (isarray ? types.join(" ") : types).match(/\S+/g)) {
+    for (var i = 0; i < types.length; i++) {
+      var type = types[i], all = this._listeners[type], index;
+      if (all && (index = all.indexOf(listener)) >= 0) {
+        all.splice(index, 1);
+        if (!all.length) {
+          delete this._listeners[type];
+        }
+        if (typeof this._event_callback === "function") {
+          this._event_callback(type, false);
+        }
+      }
+    }
+  }
+  return this;
+};
+Node.prototype.listeners = function(type) {
+  return this._listeners && this._listeners[type];
+};
+Node.prototype.publish = function(name, args) {
+  var listeners = this.listeners(name);
+  if (!listeners || !listeners.length) {
+    return 0;
+  }
+  for (var l = 0; l < listeners.length; l++) {
+    listeners[l].apply(this, args);
+  }
+  return listeners.length;
+};
+Node.prototype.trigger = function(name, args) {
+  this.publish(name, args);
+  return this;
+};
+var native = Math;
+const math = Object.create(Math);
+math.random = function(min, max) {
+  if (typeof min === "undefined") {
+    max = 1, min = 0;
+  } else if (typeof max === "undefined") {
+    max = min, min = 0;
+  }
+  return min == max ? min : native.random() * (max - min) + min;
+};
+math.mod = function(num, min, max) {
+  if (typeof min === "undefined") {
+    max = 1, min = 0;
+  } else if (typeof max === "undefined") {
+    max = min, min = 0;
+  }
+  if (max > min) {
+    num = (num - min) % (max - min);
+    return num + (num < 0 ? max : min);
+  } else {
+    num = (num - max) % (min - max);
+    return num + (num <= 0 ? min : max);
+  }
+};
+math.clamp = function(num, min, max) {
+  if (num < min) {
+    return min;
+  } else if (num > max) {
+    return max;
+  } else {
+    return num;
+  }
+};
+math.length = function(x, y) {
+  return native.sqrt(x * x + y * y);
+};
+const isFn = function(value) {
+  var str = Object.prototype.toString.call(value);
+  return str === "[object Function]" || str === "[object GeneratorFunction]" || str === "[object AsyncFunction]";
+};
+const isHash = function(value) {
+  return Object.prototype.toString.call(value) === "[object Object]" && value.constructor === Object;
+};
+class Texture {
+  constructor(texture2, ratio) {
+    if (typeof texture2 === "object") {
+      this.src(texture2, ratio);
+    }
+  }
+  pipe() {
+    return new Texture(this);
+  }
+  /**
+   * Signatures: (texture), (x, y, w, h), (w, h)
+   */
+  src(x, y, w, h) {
+    if (typeof x === "object") {
+      var drawable = x, ratio = y || 1;
+      this._image = drawable;
+      this._sx = this._dx = 0;
+      this._sy = this._dy = 0;
+      this._sw = this._dw = drawable.width / ratio;
+      this._sh = this._dh = drawable.height / ratio;
+      this.width = drawable.width / ratio;
+      this.height = drawable.height / ratio;
+      this.ratio = ratio;
+    } else {
+      if (typeof w === "undefined") {
+        w = x, h = y;
+      } else {
+        this._sx = x, this._sy = y;
+      }
+      this._sw = this._dw = w;
+      this._sh = this._dh = h;
+      this.width = w;
+      this.height = h;
+    }
+    return this;
+  }
+  /**
+   * Signatures: (x, y, w, h), (x, y)
+   */
+  dest(x, y, w, h) {
+    this._dx = x, this._dy = y;
+    this._dx = x, this._dy = y;
+    if (typeof w !== "undefined") {
+      this._dw = w, this._dh = h;
+      this.width = w, this.height = h;
+    }
+    return this;
+  }
+  draw(context, x1, y1, x2, y2, x3, y3, x4, y4) {
+    var drawable = this._image;
+    if (drawable === null || typeof drawable !== "object") {
+      return;
+    }
+    var sx = this._sx, sy = this._sy;
+    var sw = this._sw, sh = this._sh;
+    var dx = this._dx, dy = this._dy;
+    var dw = this._dw, dh = this._dh;
+    if (typeof x3 !== "undefined") {
+      x1 = math.clamp(x1, 0, this._sw), x2 = math.clamp(x2, 0, this._sw - x1);
+      y1 = math.clamp(y1, 0, this._sh), y2 = math.clamp(y2, 0, this._sh - y1);
+      sx += x1, sy += y1, sw = x2, sh = y2;
+      dx = x3, dy = y3, dw = x4, dh = y4;
+    } else if (typeof x2 !== "undefined") {
+      dx = x1, dy = y1, dw = x2, dh = y2;
+    } else if (typeof x1 !== "undefined") {
+      dw = x1, dh = y1;
+    }
+    var ratio = this.ratio || 1;
+    sx *= ratio, sy *= ratio, sw *= ratio, sh *= ratio;
+    try {
+      if (typeof drawable.draw === "function") {
+        drawable.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
+      } else {
+        stats.draw++;
+        context.drawImage(drawable, sx, sy, sw, sh, dx, dy, dw, dh);
+      }
+    } catch (ex) {
+      if (!drawable._draw_failed) {
+        console.log("Unable to draw: ", drawable);
+        console.log(ex);
+        drawable._draw_failed = true;
+      }
+    }
+  }
+}
+var NO_TEXTURE = new class extends Texture {
+  constructor() {
+    super();
+    __publicField(this, "pipe", function() {
+      return this;
+    });
+    __publicField(this, "src", function() {
+      return this;
+    });
+    __publicField(this, "dest", function() {
+      return this;
+    });
+    __publicField(this, "draw", function() {
+    });
+    this.x = this.y = this.width = this.height = 0;
+  }
+}();
+var NO_SELECTION = new Selection(NO_TEXTURE);
+function preloadImage(src) {
+  console.log("Loading image: " + src);
+  return new Promise(function(resolve, reject) {
+    const img = new Image();
+    img.onload = function() {
+      resolve(img);
+    };
+    img.onerror = function(error) {
+      reject(error);
+    };
+    img.src = src;
+  });
+}
+var _atlases_map = {};
+var _atlases_arr = [];
+const atlas = async function(def) {
+  var atlas2 = isFn(def.draw) ? def : new Atlas(def);
+  if (def.name) {
+    _atlases_map[def.name] = atlas2;
+  }
+  _atlases_arr.push(atlas2);
+  deprecated(def, "imagePath");
+  deprecated(def, "imageRatio");
+  var url = def.imagePath;
+  var ratio = def.imageRatio || 1;
+  if ("string" === typeof def.image) {
+    url = def.image;
+  } else if ("src" in def.image || "url" in def.image) {
+    url = def.image.src || def.image.url;
+    ratio = def.image.ratio || ratio;
+  }
+  if (url) {
+    const image2 = await preloadImage(url);
+    atlas2.src(image2, ratio);
+  }
+  return atlas2;
+};
+class Atlas extends Texture {
+  constructor(def) {
+    super();
+    var atlas2 = this;
+    deprecated(def, "filter");
+    deprecated(def, "cutouts");
+    deprecated(def, "sprites");
+    deprecated(def, "factory");
+    var map = def.map || def.filter;
+    var ppu = def.ppu || def.ratio || 1;
+    var trim = def.trim || 0;
+    var textures = def.textures;
+    var factory = def.factory;
+    var cutouts = def.cutouts || def.sprites;
+    function make(def2) {
+      if (!def2 || isFn(def2.draw)) {
+        return def2;
+      }
+      def2 = Object.assign({}, def2);
+      if (isFn(map)) {
+        def2 = map(def2);
+      }
+      if (ppu != 1) {
+        def2.x *= ppu, def2.y *= ppu;
+        def2.width *= ppu, def2.height *= ppu;
+        def2.top *= ppu, def2.bottom *= ppu;
+        def2.left *= ppu, def2.right *= ppu;
+      }
+      if (trim != 0) {
+        def2.x += trim, def2.y += trim;
+        def2.width -= 2 * trim, def2.height -= 2 * trim;
+        def2.top -= trim, def2.bottom -= trim;
+        def2.left -= trim, def2.right -= trim;
+      }
+      var texture2 = atlas2.pipe();
+      texture2.top = def2.top, texture2.bottom = def2.bottom;
+      texture2.left = def2.left, texture2.right = def2.right;
+      texture2.src(def2.x, def2.y, def2.width, def2.height);
+      return texture2;
+    }
+    function find(query) {
+      if (textures) {
+        if (isFn(textures)) {
+          return textures(query);
+        } else if (isHash(textures)) {
+          return textures[query];
+        }
+      }
+      if (cutouts) {
+        var result = null, n = 0;
+        for (var i = 0; i < cutouts.length; i++) {
+          if (string.startsWith(cutouts[i].name, query)) {
+            if (n === 0) {
+              result = cutouts[i];
+            } else if (n === 1) {
+              result = [result, cutouts[i]];
+            } else {
+              result.push(cutouts[i]);
+            }
+            n++;
+          }
+        }
+        if (n === 0 && isFn(factory)) {
+          result = function(subquery) {
+            return factory(query + (subquery ? subquery : ""));
+          };
+        }
+        return result;
+      }
+    }
+    this.select = function(query) {
+      if (!query) {
+        return new Selection(this.pipe());
+      }
+      var found = find(query);
+      if (found) {
+        return new Selection(found, find, make);
+      }
+    };
+  }
+}
+function Selection(result, find, make) {
+  function link(result2, subquery) {
+    if (!result2) {
+      return NO_TEXTURE;
+    } else if (isFn(result2.draw)) {
+      return result2;
+    } else if (isHash(result2) && "number" === typeof result2.width && "number" === typeof result2.height && isFn(make)) {
+      return make(result2);
+    } else if (isHash(result2) && "undefined" !== typeof subquery) {
+      return link(result2[subquery]);
+    } else if (isFn(result2)) {
+      return link(result2(subquery));
+    } else if (Array.isArray(result2)) {
+      return link(result2[0]);
+    } else if ("string" === typeof result2 && isFn(find)) {
+      return link(find(result2));
+    }
+  }
+  this.one = function(subquery) {
+    return link(result, subquery);
+  };
+  this.array = function(arr) {
+    var array = Array.isArray(arr) ? arr : [];
+    if (Array.isArray(result)) {
+      for (var i = 0; i < result.length; i++) {
+        array[i] = link(result[i]);
+      }
+    } else {
+      array[0] = link(result);
+    }
+    return array;
+  };
+}
+const texture = function(query) {
+  if (!("string" === typeof query)) {
+    return new Selection(query);
+  }
+  var result = null, atlas2, i;
+  if ((i = query.indexOf(":")) > 0 && query.length > i + 1) {
+    atlas2 = _atlases_map[query.slice(0, i)];
+    result = atlas2 && atlas2.select(query.slice(i + 1));
+  }
+  if (!result && (atlas2 = _atlases_map[query])) {
+    result = atlas2.select();
+  }
+  for (i = 0; !result && i < _atlases_arr.length; i++) {
+    result = _atlases_arr[i].select(query);
+  }
+  if (!result) {
+    console.error("Texture not found: " + query);
+    result = NO_SELECTION;
+  }
+  return result;
+};
+function deprecated(hash, name, msg) {
+  if (name in hash)
+    console.log(msg ? msg.replace("%name", name) : "'" + name + "' field of texture atlas is deprecated.");
+}
+const canvas = function(type, attributes, plotter) {
+  if (typeof type === "string") {
+    if (typeof attributes === "object")
+      ;
+    else {
+      if (typeof attributes === "function") {
+        plotter = attributes;
+      }
+      attributes = {};
+    }
+  } else {
+    if (typeof type === "function") {
+      plotter = type;
+    }
+    attributes = {};
+    type = "2d";
+  }
+  var canvas2 = document.createElement("canvas");
+  var context = canvas2.getContext(type, attributes);
+  var texture2 = new Texture(canvas2);
+  texture2.context = function() {
+    return context;
+  };
+  texture2.size = function(width, height, ratio) {
+    ratio = ratio || 1;
+    canvas2.width = width * ratio;
+    canvas2.height = height * ratio;
+    this.src(canvas2, ratio);
+    return this;
+  };
+  if (typeof plotter === "function") {
+    plotter.call(texture2, context);
+  }
+  return texture2;
+};
+class Mouse {
+  constructor() {
+    __publicField(this, "x", 0);
+    __publicField(this, "y", 0);
+    __publicField(this, "ratio", 1);
+    __publicField(this, "stage");
+    __publicField(this, "elem");
+    __publicField(this, "clicklist", []);
+    __publicField(this, "cancellist", []);
+    __publicField(this, "handleStart", (event) => {
+      event.preventDefault();
+      this.locate(event);
+      this.publish(event.type, event);
+      this.lookup("click", this.clicklist);
+      this.lookup("mousecancel", this.cancellist);
+    });
+    __publicField(this, "handleMove", (event) => {
+      event.preventDefault();
+      this.locate(event);
+      this.publish(event.type, event);
+    });
+    __publicField(this, "handleEnd", (event) => {
+      event.preventDefault();
+      this.publish(event.type, event);
+      if (this.clicklist.length) {
+        this.publish("click", event, this.clicklist);
+      }
+      this.cancellist.length = 0;
+    });
+    __publicField(this, "handleCancel", (event) => {
+      if (this.cancellist.length) {
+        this.publish("mousecancel", event, this.cancellist);
+      }
+      this.clicklist.length = 0;
+    });
+    __publicField(this, "toString", function() {
+      return (this.x | 0) + "x" + (this.y | 0);
+    });
+    __publicField(this, "locate", function(event) {
+      const elem = this.elem;
+      let x;
+      let y;
+      if (event.touches && event.touches.length) {
+        x = event.touches[0].clientX;
+        y = event.touches[0].clientY;
+      } else {
+        x = event.clientX;
+        y = event.clientY;
+      }
+      var rect = elem.getBoundingClientRect();
+      x -= rect.left;
+      y -= rect.top;
+      x -= elem.clientLeft | 0;
+      y -= elem.clientTop | 0;
+      this.x = x * this.ratio;
+      this.y = y * this.ratio;
+    });
+    __publicField(this, "lookup", function(type, collect) {
+      this.type = type;
+      this.root = this.stage;
+      this.event = null;
+      collect.length = 0;
+      this.collect = collect;
+      this.root.visit({
+        reverse: true,
+        visible: true,
+        start: this.visitStart,
+        end: this.visitEnd
+      }, this);
+    });
+    __publicField(this, "publish", function(type, event, targets) {
+      this.type = type;
+      this.root = this.stage;
+      this.event = event;
+      this.collect = false;
+      this.timeStamp = Date.now();
+      if (type !== "mousemove" && type !== "touchmove") {
+        console.log(this.type + " " + this);
+      }
+      if (targets) {
+        while (targets.length)
+          if (this.visitEnd(targets.shift()))
+            break;
+        targets.length = 0;
+      } else {
+        this.root.visit({
+          reverse: true,
+          visible: true,
+          start: this.visitStart,
+          end: this.visitEnd
+        }, this);
+      }
+    });
+    __publicField(this, "visitStart", (node) => {
+      return !node._flag(this.type);
+    });
+    __publicField(this, "visitEnd", (node) => {
+      rel.raw = this.event;
+      rel.type = this.type;
+      rel.timeStamp = this.timeStamp;
+      rel.abs.x = this.x;
+      rel.abs.y = this.y;
+      var listeners = node.listeners(this.type);
+      if (!listeners) {
+        return;
+      }
+      node.matrix().inverse().map(this, rel);
+      if (!(node === this.root || node.attr("spy") || node.hitTest(rel))) {
+        return;
+      }
+      if (this.collect) {
+        this.collect.push(node);
+      }
+      if (this.event) {
+        var cancel = false;
+        for (var l = 0; l < listeners.length; l++) {
+          cancel = listeners[l].call(node, rel) ? true : cancel;
+        }
+        return cancel;
+      }
+    });
+  }
+  mount(stage, elem) {
+    this.stage = stage;
+    this.elem = elem;
+    this.ratio = stage.viewport().ratio || 1;
+    stage.on("viewport", (size) => {
+      this.ratio = size.ratio ?? this.ratio;
+    });
+    elem.addEventListener("touchstart", this.handleStart);
+    elem.addEventListener("touchend", this.handleEnd);
+    elem.addEventListener("touchmove", this.handleMove);
+    elem.addEventListener("touchcancel", this.handleCancel);
+    elem.addEventListener("mousedown", this.handleStart);
+    elem.addEventListener("mouseup", this.handleEnd);
+    elem.addEventListener("mousemove", this.handleMove);
+    document.addEventListener("mouseup", this.handleCancel);
+    window.addEventListener("blur", this.handleCancel);
+    return this;
+  }
+  unmount() {
+    const elem = this.elem;
+    elem.removeEventListener("touchstart", this.handleStart);
+    elem.removeEventListener("touchend", this.handleEnd);
+    elem.removeEventListener("touchmove", this.handleMove);
+    elem.removeEventListener("touchcancel", this.handleCancel);
+    elem.removeEventListener("mousedown", this.handleStart);
+    elem.removeEventListener("mouseup", this.handleEnd);
+    elem.removeEventListener("mousemove", this.handleMove);
+    document.removeEventListener("mouseup", this.handleCancel);
+    window.removeEventListener("blur", this.handleCancel);
+    return this;
+  }
+}
+__publicField(Mouse, "CLICK", "click");
+__publicField(Mouse, "START", "touchstart mousedown");
+__publicField(Mouse, "MOVE", "touchmove mousemove");
+__publicField(Mouse, "END", "touchend mouseup");
+__publicField(Mouse, "CANCEL", "touchcancel mousecancel");
+var rel = {}, abs = {};
+defineValue(rel, "clone", function(obj) {
+  obj = obj || {}, obj.x = this.x, obj.y = this.y;
+  return obj;
+});
+defineValue(rel, "toString", function() {
+  return (this.x | 0) + "x" + (this.y | 0) + " (" + this.abs + ")";
+});
+defineValue(rel, "abs", abs);
+defineValue(abs, "clone", function(obj) {
+  obj = obj || {}, obj.x = this.x, obj.y = this.y;
+  return obj;
+});
+defineValue(abs, "toString", function() {
+  return (this.x | 0) + "x" + (this.y | 0);
+});
+function defineValue(obj, name, value) {
+  Object.defineProperty(obj, name, {
+    value
+  });
+}
+function IDENTITY(x) {
+  return x;
+}
+var _cache = {};
+var _modes = {};
+var _easings = {};
+class Easing {
+  static get(token, fallback = IDENTITY) {
+    if (typeof token === "function") {
+      return token;
+    }
+    if (typeof token !== "string") {
+      return fallback;
+    }
+    var fn = _cache[token];
+    if (fn) {
+      return fn;
+    }
+    var match = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
+    if (!match || !match.length) {
+      return fallback;
+    }
+    var easing = _easings[match[1]];
+    var mode = _modes[match[3]];
+    var params = match[5];
+    if (easing && easing.fn) {
+      fn = easing.fn;
+    } else if (easing && easing.fc) {
+      fn = easing.fc.apply(easing.fc, params && params.replace(/\s+/, "").split(","));
+    } else {
+      fn = fallback;
+    }
+    if (mode) {
+      fn = mode.fn(fn);
+    }
+    _cache[token] = fn;
+    return fn;
+  }
+  static add(data) {
+    var names = (data.name || data.mode).split(/\s+/);
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      if (name) {
+        (data.name ? _easings : _modes)[name] = data;
+      }
+    }
+  }
+}
+Easing.add({
+  mode: "in",
+  fn: function(f) {
+    return f;
+  }
+});
+Easing.add({
+  mode: "out",
+  fn: function(f) {
+    return function(t) {
+      return 1 - f(1 - t);
+    };
+  }
+});
+Easing.add({
+  mode: "in-out",
+  fn: function(f) {
+    return function(t) {
+      return t < 0.5 ? f(2 * t) / 2 : 1 - f(2 * (1 - t)) / 2;
+    };
+  }
+});
+Easing.add({
+  mode: "out-in",
+  fn: function(f) {
+    return function(t) {
+      return t < 0.5 ? 1 - f(2 * (1 - t)) / 2 : f(2 * t) / 2;
+    };
+  }
+});
+Easing.add({
+  name: "linear",
+  fn: function(t) {
+    return t;
+  }
+});
+Easing.add({
+  name: "quad",
+  fn: function(t) {
+    return t * t;
+  }
+});
+Easing.add({
+  name: "cubic",
+  fn: function(t) {
+    return t * t * t;
+  }
+});
+Easing.add({
+  name: "quart",
+  fn: function(t) {
+    return t * t * t * t;
+  }
+});
+Easing.add({
+  name: "quint",
+  fn: function(t) {
+    return t * t * t * t * t;
+  }
+});
+Easing.add({
+  name: "sin sine",
+  fn: function(t) {
+    return 1 - Math.cos(t * Math.PI / 2);
+  }
+});
+Easing.add({
+  name: "exp expo",
+  fn: function(t) {
+    return t == 0 ? 0 : Math.pow(2, 10 * (t - 1));
+  }
+});
+Easing.add({
+  name: "circle circ",
+  fn: function(t) {
+    return 1 - Math.sqrt(1 - t * t);
+  }
+});
+Easing.add({
+  name: "bounce",
+  fn: function(t) {
+    return t < 1 / 2.75 ? 7.5625 * t * t : t < 2 / 2.75 ? 7.5625 * (t -= 1.5 / 2.75) * t + 0.75 : t < 2.5 / 2.75 ? 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375 : 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+  }
+});
+Easing.add({
+  name: "poly",
+  fc: function(e) {
+    return function(t) {
+      return Math.pow(t, e);
+    };
+  }
+});
+Easing.add({
+  name: "elastic",
+  fc: function(a, p) {
+    p = p || 0.45;
+    a = a || 1;
+    var s = p / (2 * Math.PI) * Math.asin(1 / a);
+    return function(t) {
+      return 1 + a * Math.pow(2, -10 * t) * Math.sin((t - s) * (2 * Math.PI) / p);
+    };
+  }
+});
+Easing.add({
+  name: "back",
+  fc: function(s) {
+    s = typeof s !== "undefined" ? s : 1.70158;
+    return function(t) {
+      return t * t * ((s + 1) * t - s);
+    };
+  }
+});
+Node.prototype.tween = function(duration, delay, append2) {
+  if (typeof duration !== "number") {
+    append2 = duration, delay = 0, duration = 0;
+  } else if (typeof delay !== "number") {
+    append2 = delay, delay = 0;
+  }
+  if (!this._tweens) {
+    this._tweens = [];
+    var ticktime = 0;
+    this.tick(function(elapsed, now, last) {
+      if (!this._tweens.length) {
+        return;
+      }
+      var ignore = ticktime != last;
+      ticktime = now;
+      if (ignore) {
+        return true;
+      }
+      var head = this._tweens[0];
+      var next = head.tick(this, elapsed, now, last);
+      if (next && head === this._tweens[0]) {
+        this._tweens.shift();
+      }
+      if (Array.isArray(next)) {
+        for (var i = 0; i < next.length; i++) {
+          try {
+            next[i].call(this);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      } else if (typeof next === "object") {
+        this._tweens.unshift(next);
+      }
+      return true;
+    }, true);
+  }
+  this.touch();
+  if (!append2) {
+    this._tweens.length = 0;
+  }
+  var tween = new Tween(this, duration, delay);
+  this._tweens.push(tween);
+  return tween;
+};
+class Tween {
+  constructor(owner, duration, delay) {
+    this._end = {};
+    this._duration = duration || 400;
+    this._delay = delay || 0;
+    this._owner = owner;
+    this._time = 0;
+  }
+  tick(node, elapsed, now, last) {
+    this._time += elapsed;
+    if (this._time < this._delay) {
+      return;
+    }
+    var time = this._time - this._delay;
+    if (!this._start) {
+      this._start = {};
+      for (var key in this._end) {
+        this._start[key] = this._owner.pin(key);
+      }
+    }
+    var p, over;
+    if (time < this._duration) {
+      p = time / this._duration;
+      over = false;
+    } else {
+      p = 1;
+      over = true;
+    }
+    if (typeof this._easing == "function") {
+      p = this._easing(p);
+    }
+    var q = 1 - p;
+    for (var key in this._end) {
+      this._owner.pin(key, this._start[key] * q + this._end[key] * p);
+    }
+    if (over) {
+      var actions = [this._hide, this._remove, this._done];
+      actions = actions.filter(function(element) {
+        return typeof element === "function";
+      });
+      return this._next || actions;
+    }
+  }
+  tween(duration, delay) {
+    return this._next = new Tween(this._owner, duration, delay);
+  }
+  duration(duration) {
+    this._duration = duration;
+    return this;
+  }
+  delay(delay) {
+    this._delay = delay;
+    return this;
+  }
+  ease(easing) {
+    this._easing = Easing.get(easing);
+    return this;
+  }
+  done(fn) {
+    this._done = fn;
+    return this;
+  }
+  hide() {
+    this._hide = function() {
+      this.hide();
+    };
+    return this;
+  }
+  remove() {
+    this._remove = function() {
+      this.remove();
+    };
+    return this;
+  }
+  pin(a, b) {
+    if (typeof a === "object") {
+      for (var attr in a) {
+        pinning(this._owner, this._end, attr, a[attr]);
+      }
+    } else if (typeof b !== "undefined") {
+      pinning(this._owner, this._end, a, b);
+    }
+    return this;
+  }
+  /**
+   * @deprecated Use .done(fn) instead.
+   */
+  then(fn) {
+    this.done(fn);
+    return this;
+  }
+  /**
+   * @deprecated NOOP
+   */
+  clear(forward) {
+    return this;
+  }
+}
+function pinning(node, map, key, value) {
+  if (typeof node.pin(key) === "number") {
+    map[key] = value;
+  } else if (typeof node.pin(key + "X") === "number" && typeof node.pin(key + "Y") === "number") {
+    map[key + "X"] = value;
+    map[key + "Y"] = value;
+  }
+}
+Pin._add_shortcuts(Tween.prototype);
+var _stages = [];
+const pause = function() {
+  for (var i = _stages.length - 1; i >= 0; i--) {
+    _stages[i].pause();
+  }
+};
+const resume = function() {
+  for (var i = _stages.length - 1; i >= 0; i--) {
+    _stages[i].resume();
+  }
+};
+const mount = function(configs = {}) {
+  var root = new Root();
+  root.mount(configs);
+  root.mouse = new Mouse().mount(root, root.dom);
+  return root;
+};
+Root._super = Node;
+Root.prototype = Object.create(Root._super.prototype);
+function Root() {
+  Root._super.call(this);
+  this.label("Root");
+}
+Root.prototype.mount = function(configs = {}) {
+  var canvas2;
+  var context = null;
+  var fullpage = false;
+  var drawingWidth = 0;
+  var drawingHeight = 0;
+  var pixelRatio = 1;
+  var mounted = false;
+  var paused = true;
+  if (typeof configs.canvas === "string") {
+    canvas2 = document.getElementById(configs.canvas);
+  }
+  if (!canvas2) {
+    canvas2 = document.getElementById("cutjs") || document.getElementById("stage");
+  }
+  if (!canvas2) {
+    fullpage = true;
+    console.log("Creating Canvas...");
+    canvas2 = document.createElement("canvas");
+    canvas2.style.position = "absolute";
+    canvas2.style.top = "0";
+    canvas2.style.left = "0";
+    var body = document.body;
+    body.insertBefore(canvas2, body.firstChild);
+  }
+  this.dom = canvas2;
+  context = canvas2.getContext("2d");
+  var devicePixelRatio = window.devicePixelRatio || 1;
+  var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+  pixelRatio = devicePixelRatio / backingStoreRatio;
+  var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
+    return window.setTimeout(callback, 1e3 / 60);
+  };
+  var lastTime = 0;
+  var renderLoop = (now) => {
+    if (!mounted || paused) {
+      return;
+    }
+    var last = lastTime || now;
+    var elapsed = now - last;
+    lastTime = now;
+    var ticked = this._tick(elapsed, now, last);
+    if (this._mo_touch != this._ts_touch) {
+      this._mo_touch = this._ts_touch;
+      onRender();
+      requestAnimationFrame(renderLoop);
+    } else if (ticked) {
+      requestAnimationFrame(renderLoop);
+    } else {
+      paused = true;
+    }
+    stats.fps = elapsed ? 1e3 / elapsed : 0;
+  };
+  var onRender = () => {
+    if (drawingWidth > 0 && drawingHeight > 0) {
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, drawingWidth, drawingHeight);
+      this.render(context);
+    }
+  };
+  var lastWidth = -1;
+  var lastHeight = -1;
+  var resizeLoop = () => {
+    if (!mounted) {
+      return;
+    }
+    var newWidth, newHeight;
+    if (fullpage) {
+      newWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
+      newHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
+    } else {
+      newWidth = canvas2.clientWidth;
+      newHeight = canvas2.clientHeight;
+    }
+    if (lastWidth !== newWidth || lastHeight !== newHeight) {
+      lastWidth = newWidth;
+      lastHeight = newHeight;
+      onResize();
+    }
+    requestAnimationFrame(resizeLoop);
+  };
+  var onResize = () => {
+    if (fullpage) {
+      drawingWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
+      drawingHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
+      canvas2.style.width = drawingWidth + "px";
+      canvas2.style.height = drawingHeight + "px";
+    } else {
+      drawingWidth = canvas2.clientWidth;
+      drawingHeight = canvas2.clientHeight;
+    }
+    drawingWidth *= pixelRatio;
+    drawingHeight *= pixelRatio;
+    if (canvas2.width === drawingWidth && canvas2.height === drawingHeight) {
+      return;
+    }
+    canvas2.width = drawingWidth;
+    canvas2.height = drawingHeight;
+    console.log("Resize: " + drawingWidth + " x " + drawingHeight + " / " + pixelRatio);
+    this.viewport(drawingWidth, drawingHeight, pixelRatio);
+    onRender();
+  };
+  this.resume = function() {
+    if (paused) {
+      this.publish("resume");
+      paused = false;
+      requestAnimationFrame(renderLoop);
+    }
+    return this;
+  };
+  this.pause = function() {
+    if (!paused) {
+      this.publish("pause");
+    }
+    paused = true;
+    return this;
+  };
+  this.touch_root = this.touch;
+  this.touch = function() {
+    this.resume();
+    return this.touch_root();
+  };
+  this.unmount = function() {
+    var _a;
+    mounted = false;
+    var index = _stages.indexOf(this);
+    if (index >= 0) {
+      _stages.splice(index, 1);
+    }
+    (_a = this.mouse) == null ? void 0 : _a.unmount();
+    return this;
+  };
+  mounted = true;
+  _stages.push(this);
+  resizeLoop();
+  requestAnimationFrame(renderLoop);
+};
+Root.prototype.background = function(color) {
+  this.dom.style.backgroundColor = color;
+  return this;
+};
+Root.prototype.viewport = function(width, height, ratio) {
+  if (typeof width === "undefined") {
+    return Object.assign({}, this._viewport);
+  }
+  this._viewport = {
+    width,
+    height,
+    ratio: ratio || 1
+  };
+  this.viewbox();
+  var data = Object.assign({}, this._viewport);
+  this.visit({
+    start: function(node) {
+      if (!node._flag("viewport")) {
+        return true;
+      }
+      node.publish("viewport", [data]);
+    }
+  });
+  return this;
+};
+Root.prototype.viewbox = function(width, height, mode) {
+  if (typeof width === "number" && typeof height === "number") {
+    this._viewbox = {
+      width,
+      height,
+      mode: /^(in|out|in-pad|out-crop)$/.test(mode) ? mode : "in-pad"
+    };
+  }
+  var viewbox = this._viewbox;
+  var viewport = this._viewport;
+  if (viewport && viewbox) {
+    this.pin({
+      width: viewbox.width,
+      height: viewbox.height
+    });
+    this.scaleTo(viewport.width, viewport.height, viewbox.mode);
+  } else if (viewport) {
+    this.pin({
+      width: viewport.width,
+      height: viewport.height
+    });
+  }
+  return this;
+};
+const sprite = function(query) {
+  var sprite2 = new Sprite();
+  query && sprite2.image(query);
+  return sprite2;
+};
+Sprite._super = Node;
+Sprite.prototype = Object.create(Sprite._super.prototype);
+function Sprite() {
+  Sprite._super.call(this);
+  this.label("Sprite");
+  this._textures = [];
+  this._image = null;
+}
+Sprite.prototype.image = function(frame) {
+  this._image = texture(frame).one();
+  this.pin("width", this._image ? this._image.width : 0);
+  this.pin("height", this._image ? this._image.height : 0);
+  this._textures[0] = this._image.pipe();
+  this._textures.length = 1;
+  return this;
+};
+Sprite.prototype.tile = function(inner) {
+  this._repeat(false, inner);
+  return this;
+};
+Sprite.prototype.stretch = function(inner) {
+  this._repeat(true, inner);
+  return this;
+};
+Sprite.prototype._repeat = function(stretch, inner) {
+  var self = this;
+  this.untick(this._repeatTicker);
+  this.tick(this._repeatTicker = function() {
+    if (this._mo_stretch == this._pin._ts_transform) {
+      return;
+    }
+    this._mo_stretch = this._pin._ts_transform;
+    var width = this.pin("width");
+    var height = this.pin("height");
+    this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
+  });
+  function insert(i, sx, sy, sw, sh, dx, dy, dw, dh) {
+    var repeat2 = self._textures.length > i ? self._textures[i] : self._textures[i] = self._image.pipe();
+    repeat2.src(sx, sy, sw, sh);
+    repeat2.dest(dx, dy, dw, dh);
+  }
+};
+function repeat(img, owidth, oheight, stretch, inner, insert) {
+  var width = img.width;
+  var height = img.height;
+  var left = img.left;
+  var right = img.right;
+  var top = img.top;
+  var bottom = img.bottom;
+  left = typeof left === "number" && left === left ? left : 0;
+  right = typeof right === "number" && right === right ? right : 0;
+  top = typeof top === "number" && top === top ? top : 0;
+  bottom = typeof bottom === "number" && bottom === bottom ? bottom : 0;
+  width = width - left - right;
+  height = height - top - bottom;
+  if (!inner) {
+    owidth = Math.max(owidth - left - right, 0);
+    oheight = Math.max(oheight - top - bottom, 0);
+  }
+  var i = 0;
+  if (top > 0 && left > 0)
+    insert(i++, 0, 0, left, top, 0, 0, left, top);
+  if (bottom > 0 && left > 0)
+    insert(i++, 0, height + top, left, bottom, 0, oheight + top, left, bottom);
+  if (top > 0 && right > 0)
+    insert(i++, width + left, 0, right, top, owidth + left, 0, right, top);
+  if (bottom > 0 && right > 0)
+    insert(
+      i++,
+      width + left,
+      height + top,
+      right,
+      bottom,
+      owidth + left,
+      oheight + top,
+      right,
+      bottom
+    );
+  if (stretch) {
+    if (top > 0)
+      insert(i++, left, 0, width, top, left, 0, owidth, top);
+    if (bottom > 0)
+      insert(
+        i++,
+        left,
+        height + top,
+        width,
+        bottom,
+        left,
+        oheight + top,
+        owidth,
+        bottom
+      );
+    if (left > 0)
+      insert(i++, 0, top, left, height, 0, top, left, oheight);
+    if (right > 0)
+      insert(
+        i++,
+        width + left,
+        top,
+        right,
+        height,
+        owidth + left,
+        top,
+        right,
+        oheight
+      );
+    insert(i++, left, top, width, height, left, top, owidth, oheight);
+  } else {
+    var l = left, r = owidth, w;
+    while (r > 0) {
+      w = Math.min(width, r), r -= width;
+      var t = top, b = oheight, h;
+      while (b > 0) {
+        h = Math.min(height, b), b -= height;
+        insert(i++, left, top, w, h, l, t, w, h);
+        if (r <= 0) {
+          if (left)
+            insert(i++, 0, top, left, h, 0, t, left, h);
+          if (right)
+            insert(i++, width + left, top, right, h, l + w, t, right, h);
+        }
+        t += h;
+      }
+      if (top)
+        insert(i++, left, 0, w, top, l, 0, w, top);
+      if (bottom)
+        insert(i++, left, height + top, w, bottom, l, t, w, bottom);
+      l += w;
+    }
+  }
+  return i;
+}
+const image = sprite;
+const Image$1 = Sprite;
+const anim = function(frames, fps) {
+  var anim2 = new Anim();
+  anim2.frames(frames).gotoFrame(0);
+  fps && anim2.fps(fps);
+  return anim2;
+};
+Anim._super = Node;
+Anim.prototype = Object.create(Anim._super.prototype);
+const FPS = 15;
+function Anim() {
+  Anim._super.call(this);
+  this.label("Anim");
+  this._textures = [];
+  this._fps = FPS;
+  this._ft = 1e3 / this._fps;
+  this._time = -1;
+  this._repeat = 0;
+  this._index = 0;
+  this._frames = [];
+  var lastTime = 0;
+  this.tick(function(t, now, last) {
+    if (this._time < 0 || this._frames.length <= 1) {
+      return;
+    }
+    var ignore = lastTime != last;
+    lastTime = now;
+    if (ignore) {
+      return true;
+    }
+    this._time += t;
+    if (this._time < this._ft) {
+      return true;
+    }
+    var n = this._time / this._ft | 0;
+    this._time -= n * this._ft;
+    this.moveFrame(n);
+    if (this._repeat > 0 && (this._repeat -= n) <= 0) {
+      this.stop();
+      this._callback && this._callback();
+      return false;
+    }
+    return true;
+  }, false);
+}
+Anim.prototype.fps = function(fps) {
+  if (typeof fps === "undefined") {
+    return this._fps;
+  }
+  this._fps = fps > 0 ? fps : FPS;
+  this._ft = 1e3 / this._fps;
+  return this;
+};
+Anim.prototype.setFrames = function(a, b, c) {
+  return this.frames(a, b, c);
+};
+Anim.prototype.frames = function(frames) {
+  this._index = 0;
+  this._frames = texture(frames).array();
+  this.touch();
+  return this;
+};
+Anim.prototype.length = function() {
+  return this._frames ? this._frames.length : 0;
+};
+Anim.prototype.gotoFrame = function(frame, resize) {
+  this._index = math.mod(frame, this._frames.length) | 0;
+  resize = resize || !this._textures[0];
+  this._textures[0] = this._frames[this._index];
+  if (resize) {
+    this.pin("width", this._textures[0].width);
+    this.pin("height", this._textures[0].height);
+  }
+  this.touch();
+  return this;
+};
+Anim.prototype.moveFrame = function(move) {
+  return this.gotoFrame(this._index + move);
+};
+Anim.prototype.repeat = function(repeat2, callback) {
+  this._repeat = repeat2 * this._frames.length - 1;
+  this._callback = callback;
+  this.play();
+  return this;
+};
+Anim.prototype.play = function(frame) {
+  if (typeof frame !== "undefined") {
+    this.gotoFrame(frame);
+    this._time = 0;
+  } else if (this._time < 0) {
+    this._time = 0;
+  }
+  this.touch();
+  return this;
+};
+Anim.prototype.stop = function(frame) {
+  this._time = -1;
+  if (typeof frame !== "undefined") {
+    this.gotoFrame(frame);
+  }
+  return this;
+};
+const string$1 = function(frames) {
+  return new Str().frames(frames);
+};
+Str._super = Node;
+Str.prototype = Object.create(Str._super.prototype);
+function Str() {
+  Str._super.call(this);
+  this.label("String");
+  this._textures = [];
+}
+Str.prototype.setFont = function(a, b, c) {
+  return this.frames(a, b, c);
+};
+Str.prototype.frames = function(frames) {
+  this._textures = [];
+  if (typeof frames == "string") {
+    frames = texture(frames);
+    this._item = function(value) {
+      return frames.one(value);
+    };
+  } else if (typeof frames === "object") {
+    this._item = function(value) {
+      return frames[value];
+    };
+  } else if (typeof frames === "function") {
+    this._item = frames;
+  }
+  return this;
+};
+Str.prototype.setValue = function(a, b, c) {
+  return this.value(a, b, c);
+};
+Str.prototype.value = function(value) {
+  if (typeof value === "undefined") {
+    return this._value;
+  }
+  if (this._value === value) {
+    return this;
+  }
+  this._value = value;
+  if (value === null) {
+    value = "";
+  } else if (typeof value !== "string" && !Array.isArray(value)) {
+    value = value.toString();
+  }
+  this._spacing = this._spacing || 0;
+  var width = 0, height = 0;
+  for (var i = 0; i < value.length; i++) {
+    var texture2 = this._textures[i] = this._item(value[i]);
+    width += i > 0 ? this._spacing : 0;
+    texture2.dest(width, 0);
+    width = width + texture2.width;
+    height = Math.max(height, texture2.height);
+  }
+  this.pin("width", width);
+  this.pin("height", height);
+  this._textures.length = value.length;
+  return this;
+};
+const row = function(align) {
+  return create().row(align).label("Row");
+};
+Node.prototype.row = function(align) {
+  this.align("row", align);
+  return this;
+};
+const column = function(align) {
+  return create().column(align).label("Row");
+};
+Node.prototype.column = function(align) {
+  this.align("column", align);
+  return this;
+};
+Node.prototype.align = function(type, align) {
+  this._padding = this._padding || 0;
+  this._spacing = this._spacing || 0;
+  this.untick(this._layoutTiker);
+  this.tick(this._layoutTiker = function() {
+    if (this._mo_seq == this._ts_touch) {
+      return;
+    }
+    this._mo_seq = this._ts_touch;
+    var alignChildren = this._mo_seqAlign != this._ts_children;
+    this._mo_seqAlign = this._ts_children;
+    var width = 0, height = 0;
+    var child, next = this.first(true);
+    var first = true;
+    while (child = next) {
+      next = child.next(true);
+      child.matrix(true);
+      var w = child.pin("boxWidth");
+      var h = child.pin("boxHeight");
+      if (type == "column") {
+        !first && (height += this._spacing);
+        child.pin("offsetY") != height && child.pin("offsetY", height);
+        width = Math.max(width, w);
+        height = height + h;
+        alignChildren && child.pin("alignX", align);
+      } else if (type == "row") {
+        !first && (width += this._spacing);
+        child.pin("offsetX") != width && child.pin("offsetX", width);
+        width = width + w;
+        height = Math.max(height, h);
+        alignChildren && child.pin("alignY", align);
+      }
+      first = false;
+    }
+    width += 2 * this._padding;
+    height += 2 * this._padding;
+    this.pin("width") != width && this.pin("width", width);
+    this.pin("height") != height && this.pin("height", height);
+  });
+  return this;
+};
+const box = function() {
+  return create().box().label("Box");
+};
+Node.prototype.box = function() {
+  this._padding = this._padding || 0;
+  this.untick(this._layoutTiker);
+  this.tick(this._layoutTiker = function() {
+    if (this._mo_box == this._ts_touch) {
+      return;
+    }
+    this._mo_box = this._ts_touch;
+    var width = 0, height = 0;
+    var child, next = this.first(true);
+    while (child = next) {
+      next = child.next(true);
+      child.matrix(true);
+      var w = child.pin("boxWidth");
+      var h = child.pin("boxHeight");
+      width = Math.max(width, w);
+      height = Math.max(height, h);
+    }
+    width += 2 * this._padding;
+    height += 2 * this._padding;
+    this.pin("width") != width && this.pin("width", width);
+    this.pin("height") != height && this.pin("height", height);
+  });
+  return this;
+};
+const layer = function() {
+  return create().layer().label("Layer");
+};
+Node.prototype.layer = function() {
+  this.untick(this._layoutTiker);
+  this.tick(this._layoutTiker = function() {
+    var parent = this.parent();
+    if (parent) {
+      var width = parent.pin("width");
+      if (this.pin("width") != width) {
+        this.pin("width", width);
+      }
+      var height = parent.pin("height");
+      if (this.pin("height") != height) {
+        this.pin("height", height);
+      }
+    }
+  }, true);
+  return this;
+};
+Node.prototype.padding = function(pad) {
+  this._padding = pad;
+  return this;
+};
+Node.prototype.spacing = function(space) {
+  this._spacing = space;
+  return this;
+};
+const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  Anim,
+  Atlas,
+  Image: Image$1,
+  Matrix,
+  Mouse,
+  Node,
+  Pin,
+  Root,
+  Sprite,
+  Str,
+  Texture,
+  Tween,
+  anim,
+  atlas,
+  box,
+  canvas,
+  column,
+  create,
+  image,
+  layer,
+  math,
+  mount,
+  pause,
+  resume,
+  row,
+  sprite,
+  string: string$1,
+  texture
+}, Symbol.toStringTag, { value: "Module" }));
+exports.Anim = Anim;
+exports.Atlas = Atlas;
+exports.Image = Image$1;
+exports.Matrix = Matrix;
+exports.Mouse = Mouse;
+exports.Node = Node;
+exports.Pin = Pin;
+exports.Root = Root;
+exports.Sprite = Sprite;
+exports.Str = Str;
+exports.Texture = Texture;
+exports.Tween = Tween;
+exports.anim = anim;
+exports.atlas = atlas;
+exports.box = box;
+exports.canvas = canvas;
+exports.column = column;
+exports.create = create;
+exports.default = Stage;
+exports.image = image;
+exports.layer = layer;
+exports.math = math;
+exports.mount = mount;
+exports.pause = pause;
+exports.resume = resume;
+exports.row = row;
+exports.sprite = sprite;
+exports.string = string$1;
+exports.texture = texture;
