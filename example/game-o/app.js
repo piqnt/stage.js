@@ -1161,7 +1161,7 @@ function open(view) {
   var lastCoinTimeout = null;
 
   function setLastCoin(value, scale) {
-    lastCoin.first().sprite('coin_' + value).pin('scale', scale || 1);
+    lastCoin.first().image('coin_' + value).pin('scale', scale || 1);
     lastCoin.last().value(Format.coin(value)).visible(value > 100);
 
     lastCoin.show();
