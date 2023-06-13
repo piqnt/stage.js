@@ -1,5 +1,5 @@
 import Stage from '../../src';
-import '../common/stage-p2';
+import { P2Stage } from '../common/stage-p2';
 import './texture';
 import Timeout from '../common/timeout';
 
@@ -462,7 +462,7 @@ var physics = new Physics({
 var board = Stage.sprite('board').appendTo(stage).pin('handle', 0.5).attr(
     'spy', true);
 
-var p2view = new Stage.P2(physics.world, {
+var p2view = new P2Stage(physics.world, {
   lineWidth : 1 / pscale,
   lineColor : '#888',
   ratio : 4 * pscale,

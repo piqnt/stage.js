@@ -189,21 +189,12 @@ declare namespace Stage {
 
   class Tween {
     constructor(owner: any, duration: any, delay: any);
-    clear(forward: any): this;
+    // set up
     delay(delay: any): this;
-    done(fn: any): this;
     duration(duration: any): this;
     ease(easing: any): this;
 
-    hide(): this;
-    remove(): this;
-    then(fn: any): this;
-    tween(duration: any, delay: any): this;
-    tick(node: any, elapsed: any, now: any, last: any): this;
-
-    pin(a: string, b: any): this;
-    pin(a: Record<string, any>): this;  
-
+    // action
     size(w: number, h: number): this;
     width(w: number): this;
     height(h: number): this;
@@ -212,6 +203,22 @@ declare namespace Stage {
     rotate(a: number): this;
     offset(a: number, b: number): this;
     alpha(a: number, ta: number): this;
+
+    pin(a: string, b: any): this;
+    pin(a: Record<string, any>): this;  
+
+    // ending
+    hide(): this;
+    remove(): this;
+    done(fn: any): this;
+    // deprecated then(fn: any): this;
+    // deprecated clear(forward: any): this;
+
+    // next
+    /** chain another tween */
+    tween(duration: any, delay: any): this;
+
+    // internal tick(node: any, elapsed: any, now: any, last: any): this;
   }
 
   class Matrix {
@@ -271,8 +278,8 @@ declare namespace Stage {
     static random(min: number, max: number): number;
     static random(max: number): number;
 
-    static mod(num: number, min: number, max: number): number;
-    static mod(num: number, max: number): number;
+    static wrap(num: number, min: number, max: number): number;
+    static wrap(num: number, max: number): number;
 
     static clamp(num: number, min: number, max: number): number;
 

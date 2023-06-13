@@ -876,7 +876,7 @@ function Game() {
   });
 
   function zigzag(t) {
-    t = math.rotate(t, -math.PI, math.PI) / math.PI * 2;
+    t = math.wrap(t, -math.PI, math.PI) / math.PI * 2;
     if (t > 1) {
       t = 2 - t;
     } else if (t < -1) {

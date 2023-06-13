@@ -117,7 +117,7 @@ Drone.prototype.tick = function(t) {
   }
 
   if (m || n) {
-    m = math.limit(m, -this.aMax, this.aMax);
+    m = math.clamp(m, -this.aMax, this.aMax);
     m = m / this.v;
 
     this.vx += +this.vx * n * t;
@@ -127,13 +127,13 @@ Drone.prototype.tick = function(t) {
     this.vy += -this.vx * m * t;
 
     var v = math.length(this.vx, this.vy);
-    this.v = math.limit(v, this.vMin, this.vMax);
+    this.v = math.clamp(v, this.vMin, this.vMax);
     v = this.v / v;
     this.vx *= v;
     this.vy *= v;
 
     var dir = math.atan2(this.vy, this.vx);
-    this.rotation = (this.rotation * (200 - t) + math.rotate(this.dir - dir,
+    this.rotation = (this.rotation * (200 - t) + math.wrap(this.dir - dir,
         -math.PI, math.PI)) / 200;
     this.dir = dir;
 
@@ -141,8 +141,8 @@ Drone.prototype.tick = function(t) {
     this.rotation = (this.rotation * (200 - t)) / 200;
   }
 
-  this.x = math.rotate(this.x + this.vx * t, this.world.xMin, this.world.xMax);
-  this.y = math.rotate(this.y + this.vy * t, this.world.yMin, this.world.yMax);
+  this.x = math.wrap(this.x + this.vx * t, this.world.xMin, this.world.xMax);
+  this.y = math.wrap(this.y + this.vy * t, this.world.yMin, this.world.yMax);
 
   this.uiUpdate();
 };
@@ -268,8 +268,8 @@ var tilt = {
       this.a = a, this.b = b, this.g = g, this.o = o;
       this.time = now;
     }
-    var x = math.rotate(this.g - this.g0, -180, 180) / 180;
-    var y = math.rotate(this.b - this.b0, -180, 180) / 180;
+    var x = math.wrap(this.g - this.g0, -180, 180) / 180;
+    var y = math.wrap(this.b - this.b0, -180, 180) / 180;
     var min = 0.05;
     drone.accX = x > min ? 1 : x < -min ? -1 : 0;
     drone.accY = y > min ? 1 : y < -min ? -1 : 0;

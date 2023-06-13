@@ -1,8 +1,7 @@
 import stats from './util/stats';
 import { math } from './util/math';
 
-if (typeof DEBUG === 'undefined')
-  DEBUG = true;
+const DEBUG = true;
 
 const isFn = function (value) {
   var str = Object.prototype.toString.call(value);
@@ -136,9 +135,11 @@ function preloadImage(src) {
   return new Promise(function(resolve, reject) {
     const img = new Image();
     img.onload = function() {
+      DEBUG && console.log('Image loaded: ' + src);
       resolve(img);
     };
     img.onerror = function(error) {
+      DEBUG && console.log('Loading failed: ' + src);
       reject(error);
     };
     img.src = src;
@@ -167,7 +168,7 @@ export const atlas = async function(def) {
   var ratio = def.imageRatio || 1;
   if (('string' === typeof def.image)) {
     url = def.image;
-  } else if ('src' in def.image || 'url' in def.image) {
+  } else if (isHash(def.image)) {
     url = def.image.src || def.image.url;
     ratio = def.image.ratio || ratio;
   }

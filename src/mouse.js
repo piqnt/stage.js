@@ -1,5 +1,4 @@
-if (typeof DEBUG === 'undefined')
-  DEBUG = true;
+const DEBUG = true;
 
 // todo: capture mouse
 // todo: implement unmount

@@ -1152,7 +1152,7 @@ var __publicField = (obj, key, value) => {
     }
     return min == max ? min : native.random() * (max - min) + min;
   };
-  math.mod = function(num, min, max) {
+  math.wrap = function(num, min, max) {
     if (typeof min === "undefined") {
       max = 1, min = 0;
     } else if (typeof max === "undefined") {
@@ -1293,9 +1293,11 @@ var __publicField = (obj, key, value) => {
     return new Promise(function(resolve, reject) {
       const img = new Image();
       img.onload = function() {
+        console.log("Image loaded: " + src);
         resolve(img);
       };
       img.onerror = function(error) {
+        console.log("Loading failed: " + src);
         reject(error);
       };
       img.src = src;
@@ -1315,7 +1317,7 @@ var __publicField = (obj, key, value) => {
     var ratio = def.imageRatio || 1;
     if ("string" === typeof def.image) {
       url = def.image;
-    } else if ("src" in def.image || "url" in def.image) {
+    } else if (isHash(def.image)) {
       url = def.image.src || def.image.url;
       ratio = def.image.ratio || ratio;
     }
@@ -1858,20 +1860,15 @@ var __publicField = (obj, key, value) => {
           return true;
         }
         var head = this._tweens[0];
-        var next = head.tick(this, elapsed, now, last);
-        if (next && head === this._tweens[0]) {
+        var ended = head.tick(this, elapsed, now, last);
+        if (ended && head === this._tweens[0]) {
           this._tweens.shift();
         }
-        if (Array.isArray(next)) {
-          for (var i = 0; i < next.length; i++) {
-            try {
-              next[i].call(this);
-            } catch (e) {
-              console.log(e);
-            }
+        if (ended) {
+          var next = head.finish();
+          if (next) {
+            this._tweens.unshift(next);
           }
-        } else if (typeof next === "object") {
-          this._tweens.unshift(next);
         }
         return true;
       }, true);
@@ -1892,6 +1889,7 @@ var __publicField = (obj, key, value) => {
       this._owner = owner;
       this._time = 0;
     }
+    // @internal
     tick(node, elapsed, now, last) {
       this._time += elapsed;
       if (this._time < this._delay) {
@@ -1904,13 +1902,13 @@ var __publicField = (obj, key, value) => {
           this._start[key] = this._owner.pin(key);
         }
       }
-      var p, over;
+      var p, ended;
       if (time < this._duration) {
         p = time / this._duration;
-        over = false;
+        ended = false;
       } else {
         p = 1;
-        over = true;
+        ended = true;
       }
       if (typeof this._easing == "function") {
         p = this._easing(p);
@@ -1919,12 +1917,23 @@ var __publicField = (obj, key, value) => {
       for (var key in this._end) {
         this._owner.pin(key, this._start[key] * q + this._end[key] * p);
       }
-      if (over) {
-        var actions = [this._hide, this._remove, this._done];
-        actions = actions.filter(function(element) {
-          return typeof element === "function";
-        });
-        return this._next || actions;
+      return ended;
+    }
+    // @internal
+    finish() {
+      try {
+        if (this._hide) {
+          this._owner.hide();
+        }
+        if (this._remove) {
+          this._owner.remove();
+        }
+        if (this._done) {
+          this._done.call(this._owner);
+        }
+        return this._next;
+      } catch (e) {
+        console.error(e);
       }
     }
     tween(duration, delay) {
@@ -1947,15 +1956,11 @@ var __publicField = (obj, key, value) => {
       return this;
     }
     hide() {
-      this._hide = function() {
-        this.hide();
-      };
+      this._hide = true;
       return this;
     }
     remove() {
-      this._remove = function() {
-        this.remove();
-      };
+      this._remove = true;
       return this;
     }
     pin(a, b) {
@@ -1991,215 +1996,223 @@ var __publicField = (obj, key, value) => {
     }
   }
   Pin._add_shortcuts(Tween.prototype);
-  var _stages = [];
+  const _stages = [];
   const pause = function() {
-    for (var i = _stages.length - 1; i >= 0; i--) {
+    for (let i = _stages.length - 1; i >= 0; i--) {
       _stages[i].pause();
     }
   };
   const resume = function() {
-    for (var i = _stages.length - 1; i >= 0; i--) {
+    for (let i = _stages.length - 1; i >= 0; i--) {
       _stages[i].resume();
     }
   };
   const mount = function(configs = {}) {
-    var root = new Root();
+    let root = new Root();
     root.mount(configs);
     root.mouse = new Mouse().mount(root, root.dom);
     return root;
   };
-  Root._super = Node;
-  Root.prototype = Object.create(Root._super.prototype);
-  function Root() {
-    Root._super.call(this);
-    this.label("Root");
-  }
-  Root.prototype.mount = function(configs = {}) {
-    var canvas2;
-    var context = null;
-    var fullpage = false;
-    var drawingWidth = 0;
-    var drawingHeight = 0;
-    var pixelRatio = 1;
-    var mounted = false;
-    var paused = true;
-    if (typeof configs.canvas === "string") {
-      canvas2 = document.getElementById(configs.canvas);
+  class Root extends Node {
+    constructor() {
+      super();
+      __publicField(this, "lastTime", 0);
+      __publicField(this, "pixelWidth", -1);
+      __publicField(this, "pixelHeight", -1);
+      __publicField(this, "canvas", null);
+      __publicField(this, "dom", null);
+      __publicField(this, "context", null);
+      __publicField(this, "fullpage", false);
+      __publicField(this, "drawingWidth", 0);
+      __publicField(this, "drawingHeight", 0);
+      __publicField(this, "pixelRatio", 1);
+      __publicField(this, "mounted", false);
+      __publicField(this, "paused", false);
+      __publicField(this, "sleep", false);
+      __publicField(this, "computeViewport", () => {
+        let newPixelWidth;
+        let newPixelHeight;
+        if (this.fullpage) {
+          newPixelWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
+          newPixelHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
+        } else {
+          newPixelWidth = this.canvas.clientWidth;
+          newPixelHeight = this.canvas.clientHeight;
+        }
+        return [newPixelWidth, newPixelHeight, this.fullpage];
+      });
+      __publicField(this, "mount", (configs = {}) => {
+        if (typeof configs.canvas === "string") {
+          this.canvas = document.getElementById(configs.canvas);
+        }
+        if (!this.canvas) {
+          this.canvas = document.getElementById("cutjs") || document.getElementById("stage");
+        }
+        if (!this.canvas) {
+          this.fullpage = true;
+          console.log("Creating Canvas...");
+          this.canvas = document.createElement("canvas");
+          this.canvas.style.position = "absolute";
+          this.canvas.style.top = "0";
+          this.canvas.style.left = "0";
+          let body = document.body;
+          body.insertBefore(this.canvas, body.firstChild);
+        }
+        this.dom = this.canvas;
+        this.context = this.canvas.getContext("2d");
+        this.devicePixelRatio = window.devicePixelRatio || 1;
+        this.backingStoreRatio = this.context.webkitBackingStorePixelRatio || this.context.mozBackingStorePixelRatio || this.context.msBackingStorePixelRatio || this.context.oBackingStorePixelRatio || this.context.backingStorePixelRatio || 1;
+        this.pixelRatio = this.devicePixelRatio / this.backingStoreRatio;
+        this.mounted = true;
+        _stages.push(this);
+        this.requestFrame(this.onFrame);
+      });
+      __publicField(this, "frameRequested", false);
+      __publicField(this, "requestFrame", () => {
+        if (!this.frameRequested) {
+          this.frameRequested = true;
+          requestAnimationFrame(this.onFrame);
+        }
+      });
+      __publicField(this, "onFrame", (now) => {
+        this.frameRequested = false;
+        if (!this.mounted) {
+          return;
+        }
+        this.requestFrame();
+        let [newPixelWidth, newPixelHeight, managed] = this.computeViewport();
+        if (this.pixelWidth !== newPixelWidth || this.pixelHeight !== newPixelHeight) {
+          this.pixelWidth = newPixelWidth;
+          this.pixelHeight = newPixelHeight;
+          if (managed) {
+            this.canvas.style.width = newPixelWidth + "px";
+            this.canvas.style.height = newPixelHeight + "px";
+          }
+          this.drawingWidth = newPixelWidth * this.pixelRatio;
+          this.drawingHeight = newPixelHeight * this.pixelRatio;
+          if (this.canvas.width !== this.drawingWidth || this.canvas.height !== this.drawingHeight) {
+            this.canvas.width = this.drawingWidth;
+            this.canvas.height = this.drawingHeight;
+            console.log("Resize: " + this.drawingWidth + " x " + this.drawingHeight + " / " + this.pixelRatio);
+            this.viewport(this.drawingWidth, this.drawingHeight, this.pixelRatio);
+          }
+        }
+        let last = this.lastTime || now;
+        let elapsed = now - last;
+        if (!this.mounted || this.paused || this.sleep) {
+          return;
+        }
+        this.lastTime = now;
+        let loopRequest = this._tick(elapsed, now, last);
+        if (this._mo_touch != this._ts_touch) {
+          this._mo_touch = this._ts_touch;
+          this.sleep = false;
+          if (this.drawingWidth > 0 && this.drawingHeight > 0) {
+            this.context.setTransform(1, 0, 0, 1, 0, 0);
+            this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);
+            this.render(this.context);
+          }
+        } else if (loopRequest) {
+          this.sleep = false;
+        } else {
+          this.sleep = true;
+        }
+        stats.fps = elapsed ? 1e3 / elapsed : 0;
+      });
+      this.label("Root");
     }
-    if (!canvas2) {
-      canvas2 = document.getElementById("cutjs") || document.getElementById("stage");
-    }
-    if (!canvas2) {
-      fullpage = true;
-      console.log("Creating Canvas...");
-      canvas2 = document.createElement("canvas");
-      canvas2.style.position = "absolute";
-      canvas2.style.top = "0";
-      canvas2.style.left = "0";
-      var body = document.body;
-      body.insertBefore(canvas2, body.firstChild);
-    }
-    this.dom = canvas2;
-    context = canvas2.getContext("2d");
-    var devicePixelRatio = window.devicePixelRatio || 1;
-    var backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
-    pixelRatio = devicePixelRatio / backingStoreRatio;
-    var requestAnimationFrame = window.requestAnimationFrame || window.msRequestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
-      return window.setTimeout(callback, 1e3 / 60);
-    };
-    var lastTime = 0;
-    var renderLoop = (now) => {
-      if (!mounted || paused) {
-        return;
+    resume() {
+      if (this.sleep || this.paused) {
+        this.requestFrame();
       }
-      var last = lastTime || now;
-      var elapsed = now - last;
-      lastTime = now;
-      var ticked = this._tick(elapsed, now, last);
-      if (this._mo_touch != this._ts_touch) {
-        this._mo_touch = this._ts_touch;
-        onRender();
-        requestAnimationFrame(renderLoop);
-      } else if (ticked) {
-        requestAnimationFrame(renderLoop);
-      } else {
-        paused = true;
-      }
-      stats.fps = elapsed ? 1e3 / elapsed : 0;
-    };
-    var onRender = () => {
-      if (drawingWidth > 0 && drawingHeight > 0) {
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, drawingWidth, drawingHeight);
-        this.render(context);
-      }
-    };
-    var lastWidth = -1;
-    var lastHeight = -1;
-    var resizeLoop = () => {
-      if (!mounted) {
-        return;
-      }
-      var newWidth, newHeight;
-      if (fullpage) {
-        newWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
-        newHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
-      } else {
-        newWidth = canvas2.clientWidth;
-        newHeight = canvas2.clientHeight;
-      }
-      if (lastWidth !== newWidth || lastHeight !== newHeight) {
-        lastWidth = newWidth;
-        lastHeight = newHeight;
-        onResize();
-      }
-      requestAnimationFrame(resizeLoop);
-    };
-    var onResize = () => {
-      if (fullpage) {
-        drawingWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
-        drawingHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
-        canvas2.style.width = drawingWidth + "px";
-        canvas2.style.height = drawingHeight + "px";
-      } else {
-        drawingWidth = canvas2.clientWidth;
-        drawingHeight = canvas2.clientHeight;
-      }
-      drawingWidth *= pixelRatio;
-      drawingHeight *= pixelRatio;
-      if (canvas2.width === drawingWidth && canvas2.height === drawingHeight) {
-        return;
-      }
-      canvas2.width = drawingWidth;
-      canvas2.height = drawingHeight;
-      console.log("Resize: " + drawingWidth + " x " + drawingHeight + " / " + pixelRatio);
-      this.viewport(drawingWidth, drawingHeight, pixelRatio);
-      onRender();
-    };
-    this.resume = function() {
-      if (paused) {
-        this.publish("resume");
-        paused = false;
-        requestAnimationFrame(renderLoop);
-      }
+      this.paused = false;
+      this.sleep = false;
+      this.publish("resume");
       return this;
-    };
-    this.pause = function() {
-      if (!paused) {
+    }
+    pause() {
+      if (!this.paused) {
         this.publish("pause");
       }
-      paused = true;
+      this.paused = true;
       return this;
-    };
-    this.touch_root = this.touch;
-    this.touch = function() {
-      this.resume();
-      return this.touch_root();
-    };
-    this.unmount = function() {
+    }
+    touch() {
+      if (this.sleep || this.paused) {
+        this.requestFrame();
+      }
+      this.sleep = false;
+      return Node.prototype.touch();
+    }
+    unmount() {
       var _a;
-      mounted = false;
-      var index = _stages.indexOf(this);
+      this.mounted = false;
+      let index = _stages.indexOf(this);
       if (index >= 0) {
         _stages.splice(index, 1);
       }
       (_a = this.mouse) == null ? void 0 : _a.unmount();
       return this;
-    };
-    mounted = true;
-    _stages.push(this);
-    resizeLoop();
-    requestAnimationFrame(renderLoop);
-  };
-  Root.prototype.background = function(color) {
-    this.dom.style.backgroundColor = color;
-    return this;
-  };
-  Root.prototype.viewport = function(width, height, ratio) {
-    if (typeof width === "undefined") {
-      return Object.assign({}, this._viewport);
     }
-    this._viewport = {
-      width,
-      height,
-      ratio: ratio || 1
-    };
-    this.viewbox();
-    var data = Object.assign({}, this._viewport);
-    this.visit({
-      start: function(node) {
-        if (!node._flag("viewport")) {
-          return true;
-        }
-        node.publish("viewport", [data]);
+    background(color) {
+      this.dom.style.backgroundColor = color;
+      return this;
+    }
+    /**
+     * Set/get viewport. This is combined with viewbox to determine the scale and position of the viewbox within the viewport.
+     */
+    viewport(width, height, ratio) {
+      if (typeof width === "undefined") {
+        return Object.assign({}, this._viewport);
       }
-    });
-    return this;
-  };
-  Root.prototype.viewbox = function(width, height, mode) {
-    if (typeof width === "number" && typeof height === "number") {
-      this._viewbox = {
+      this._viewport = {
         width,
         height,
-        mode: /^(in|out|in-pad|out-crop)$/.test(mode) ? mode : "in-pad"
+        ratio: ratio || 1
       };
-    }
-    var viewbox = this._viewbox;
-    var viewport = this._viewport;
-    if (viewport && viewbox) {
-      this.pin({
-        width: viewbox.width,
-        height: viewbox.height
+      this.viewbox();
+      let data = Object.assign({}, this._viewport);
+      this.visit({
+        start: function(node) {
+          if (!node._flag("viewport")) {
+            return true;
+          }
+          node.publish("viewport", [data]);
+        }
       });
-      this.scaleTo(viewport.width, viewport.height, viewbox.mode);
-    } else if (viewport) {
-      this.pin({
-        width: viewport.width,
-        height: viewport.height
-      });
+      return this;
     }
-    return this;
-  };
+    /**
+     * Set/get viewbox. This is combined with viewport to determine the scale and position of the viewbox within the viewport.
+     * 
+     * @param {mode} string - One of: 'in-pad' (like css object-fit: 'contain'), 'in', 'out-crop' (like css object-fit: 'cover'), 'out'
+     */
+    // TODO: static/fixed viewbox
+    viewbox(width, height, mode) {
+      if (typeof width === "number" && typeof height === "number") {
+        this._viewbox = {
+          width,
+          height,
+          mode: /^(in|out|in-pad|out-crop)$/.test(mode) ? mode : "in-pad"
+        };
+      }
+      let viewbox = this._viewbox;
+      let viewport = this._viewport;
+      if (viewport && viewbox) {
+        this.pin({
+          width: viewbox.width,
+          height: viewbox.height
+        });
+        this.scaleTo(viewport.width, viewport.height, viewbox.mode);
+      } else if (viewport) {
+        this.pin({
+          width: viewport.width,
+          height: viewport.height
+        });
+      }
+      return this;
+    }
+  }
   const sprite = function(query) {
     var sprite2 = new Sprite();
     query && sprite2.image(query);
@@ -2405,7 +2418,7 @@ var __publicField = (obj, key, value) => {
     return this._frames ? this._frames.length : 0;
   };
   Anim.prototype.gotoFrame = function(frame, resize) {
-    this._index = math.mod(frame, this._frames.length) | 0;
+    this._index = math.wrap(frame, this._frames.length) | 0;
     resize = resize || !this._textures[0];
     this._textures[0] = this._frames[this._index];
     if (resize) {

@@ -17,8 +17,8 @@ export const create = function() {
 
 
 // There are three sets of core functions:
-// - tree model manipulation functions:
-// - rendering and game look
+// - tree model manipulation functions
+// - frame loop and rendering
 // - events handling
 
 export function Node() {

@@ -1,13 +1,11 @@
 import Stage from '../../src';
 import './p2';
 
-Stage.P2 = Viewer;
-
 /**
  * P2.js viewer for Stage.js
  */
 
-class Viewer extends Stage.Node {
+export class P2Stage extends Stage.Node {
   constructor(world, options) {
     super();
     this.label('P2');
