@@ -1,9 +1,9 @@
 import { texture } from './drawable';
 import { Node } from './core';
 
-export const sprite = function(query) {
+export const sprite = function(frame) {
   var sprite = new Sprite();
-  query && sprite.image(query);
+  frame && sprite.texture(frame);
   return sprite;
 };
 
@@ -18,7 +18,7 @@ export function Sprite() {
 };
 
 // todo: v1 rename to texture?
-Sprite.prototype.image = function(frame) {
+Sprite.prototype.texture = function(frame) {
   this._image = texture(frame).one();
   this.pin('width', this._image ? this._image.width : 0);
   this.pin('height', this._image ? this._image.height : 0);
@@ -134,5 +134,6 @@ function repeat(img, owidth, oheight, stretch, inner, insert) {
 };
 
 // todo: add deprecation log
+Sprite.prototype.image = Sprite.prototype.texture;
 export const image = sprite;
 export const Image = Sprite;

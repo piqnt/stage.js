@@ -150,7 +150,7 @@ declare namespace Stage {
 
   class Sprite extends Node {
     constructor(frame: any);
-    image(frame: any): this;
+    texture(frame: any): this;
     stretch(inner?: boolean): this;
     tile(inner?: boolean): this;
   }

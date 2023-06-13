@@ -28,11 +28,10 @@ Node.prototype.tween = function(duration, delay, append) {
 
       var ended = head.tick(this, elapsed, now, last);
 
-      if (ended && head === this._tweens[0]) {
-        this._tweens.shift();
-      }
-
       if (ended) {
+        if (head === this._tweens[0]) {
+          this._tweens.shift();
+        }
         var next = head.finish();
         if (next) {
           this._tweens.unshift(next)
@@ -53,6 +52,7 @@ Node.prototype.tween = function(duration, delay, append) {
 };
 
 export class Tween {
+  _ending = [];
   constructor(owner, duration, delay) {
     this._end = {};
     this._duration = duration || 400;
@@ -102,22 +102,15 @@ export class Tween {
 
   // @internal
   finish() {
-    try {
-      if (this._hide) {
-        this._owner.hide()
+    this._ending.forEach(callback => {
+      try {
+        callback.call(this._owner)
+      } catch (e) {
+        console.error(e);
       }
-      if (this._remove) {
-        this._owner.remove();
-      }
-      if (this._done) {
-        this._done.call(this._owner);
-      }
-      return this._next;
-    } catch (e) {
-      console.error(e);
-    }
+    });
+    return this._next;
   }
-
   tween(duration, delay) {
     return this._next = new Tween(this._owner, duration, delay);
   }
@@ -134,14 +127,20 @@ export class Tween {
     return this;
   }
   done(fn) {
-    this._done = fn;
+    this._ending.push(fn);
     return this;
   }
   hide() {
+    this._ending.push(function() {
+      this.remove();
+    });
     this._hide = true;
     return this;
   }
   remove() {
+    this._ending.push(function() {
+      this.remove();
+    });
     this._remove = true;
     return this;
   }

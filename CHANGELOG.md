@@ -21,6 +21,7 @@
 * renamed sequence to align
 * removed Matrix.reverse (use inverse)
 * removed Mouse.subscribe, replaced by new Mouse().mount
+* renamed Image/image to Sprite/sprite, and .image() to .texture()
 
 #### v0.8.2
 * `render.js` renamed to `loop.js`

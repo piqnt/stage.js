@@ -1,7 +1,7 @@
 var native = Math;
 
 export const math = Object.create(Math);
-
+ 
 math.random = function(min, max) {
   if (typeof min === 'undefined') {
     max = 1, min = 0;
@@ -39,3 +39,7 @@ math.clamp = function(num, min, max) {
 math.length = function(x, y) {
   return native.sqrt(x * x + y * y);
 };
+
+// todo: add deprecation log
+math.rotate = math.wrap;
+math.limit = math.clamp;

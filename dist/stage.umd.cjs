@@ -1178,6 +1178,8 @@ var __publicField = (obj, key, value) => {
   math.length = function(x, y) {
     return native.sqrt(x * x + y * y);
   };
+  math.rotate = math.wrap;
+  math.limit = math.clamp;
   const isFn = function(value) {
     var str = Object.prototype.toString.call(value);
     return str === "[object Function]" || str === "[object GeneratorFunction]" || str === "[object AsyncFunction]";
@@ -1861,10 +1863,10 @@ var __publicField = (obj, key, value) => {
         }
         var head = this._tweens[0];
         var ended = head.tick(this, elapsed, now, last);
-        if (ended && head === this._tweens[0]) {
-          this._tweens.shift();
-        }
         if (ended) {
+          if (head === this._tweens[0]) {
+            this._tweens.shift();
+          }
           var next = head.finish();
           if (next) {
             this._tweens.unshift(next);
@@ -1883,6 +1885,7 @@ var __publicField = (obj, key, value) => {
   };
   class Tween {
     constructor(owner, duration, delay) {
+      __publicField(this, "_ending", []);
       this._end = {};
       this._duration = duration || 400;
       this._delay = delay || 0;
@@ -1921,20 +1924,14 @@ var __publicField = (obj, key, value) => {
     }
     // @internal
     finish() {
-      try {
-        if (this._hide) {
-          this._owner.hide();
+      this._ending.forEach((callback) => {
+        try {
+          callback.call(this._owner);
+        } catch (e) {
+          console.error(e);
         }
-        if (this._remove) {
-          this._owner.remove();
-        }
-        if (this._done) {
-          this._done.call(this._owner);
-        }
-        return this._next;
-      } catch (e) {
-        console.error(e);
-      }
+      });
+      return this._next;
     }
     tween(duration, delay) {
       return this._next = new Tween(this._owner, duration, delay);
@@ -1952,14 +1949,20 @@ var __publicField = (obj, key, value) => {
       return this;
     }
     done(fn) {
-      this._done = fn;
+      this._ending.push(fn);
       return this;
     }
     hide() {
+      this._ending.push(function() {
+        this.remove();
+      });
       this._hide = true;
       return this;
     }
     remove() {
+      this._ending.push(function() {
+        this.remove();
+      });
       this._remove = true;
       return this;
     }
@@ -2213,9 +2216,9 @@ var __publicField = (obj, key, value) => {
       return this;
     }
   }
-  const sprite = function(query) {
+  const sprite = function(frame) {
     var sprite2 = new Sprite();
-    query && sprite2.image(query);
+    frame && sprite2.texture(frame);
     return sprite2;
   };
   Sprite._super = Node;
@@ -2226,7 +2229,7 @@ var __publicField = (obj, key, value) => {
     this._textures = [];
     this._image = null;
   }
-  Sprite.prototype.image = function(frame) {
+  Sprite.prototype.texture = function(frame) {
     this._image = texture(frame).one();
     this.pin("width", this._image ? this._image.width : 0);
     this.pin("height", this._image ? this._image.height : 0);
@@ -2351,6 +2354,7 @@ var __publicField = (obj, key, value) => {
     }
     return i;
   }
+  Sprite.prototype.image = Sprite.prototype.texture;
   const image = sprite;
   const Image$1 = Sprite;
   const anim = function(frames, fps) {

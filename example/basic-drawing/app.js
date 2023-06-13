@@ -14,7 +14,7 @@ var sprite = Stage.sprite().appendTo(stage).pin('align', 0.5);
 draw();
 
 function draw() {
-  sprite.image(Stage.canvas(function(ctx) {
+  sprite.texture(Stage.canvas(function(ctx) {
     p = (p + 1 - 3) % 3 + 3;
 
     this.size(width, height, 4);

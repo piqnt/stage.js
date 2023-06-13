@@ -148,7 +148,7 @@ var game = new Game({
     return {
       update : function() {
         console.log('ui update cell');
-        img.image(obj.sign || '-').pin({
+        img.texture(obj.sign || '-').pin({
           alpha : 0.8,
           scale : 1
         });
