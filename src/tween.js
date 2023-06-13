@@ -26,22 +26,17 @@ Node.prototype.tween = function(duration, delay, append) {
 
       var head = this._tweens[0];
 
-      var next = head.tick(this, elapsed, now, last);
+      var ended = head.tick(this, elapsed, now, last);
 
-      if (next && head === this._tweens[0]) {
+      if (ended && head === this._tweens[0]) {
         this._tweens.shift();
       }
 
-      if (Array.isArray(next)) {
-        for (var i = 0; i < next.length; i++) {
-          try {
-            next[i].call(this);
-          } catch (e) {
-            console.log(e);
-          }
+      if (ended) {
+        var next = head.finish();
+        if (next) {
+          this._tweens.unshift(next)
         }
-      } else if (typeof next === 'object') {
-        this._tweens.unshift(next);
       }
 
       return true;
@@ -66,6 +61,7 @@ export class Tween {
     this._owner = owner;
     this._time = 0;
   }
+  // @internal
   tick(node, elapsed, now, last) {
     this._time += elapsed;
 
@@ -82,13 +78,13 @@ export class Tween {
       }
     }
 
-    var p, over;
+    var p, ended;
     if (time < this._duration) {
       p = time / this._duration;
-      over = false;
+      ended = false;
     } else {
       p = 1;
-      over = true;
+      ended = true;
     }
 
     if (typeof this._easing == 'function') {
@@ -101,14 +97,27 @@ export class Tween {
       this._owner.pin(key, this._start[key] * q + this._end[key] * p);
     }
 
-    if (over) {
-      var actions = [this._hide, this._remove, this._done];
-      actions = actions.filter(function (element) {
-        return typeof element === 'function';
-      });
-      return this._next || actions;
+    return ended;
+  }
+
+  // @internal
+  finish() {
+    try {
+      if (this._hide) {
+        this._owner.hide()
+      }
+      if (this._remove) {
+        this._owner.remove();
+      }
+      if (this._done) {
+        this._done.call(this._owner);
+      }
+      return this._next;
+    } catch (e) {
+      console.error(e);
     }
   }
+
   tween(duration, delay) {
     return this._next = new Tween(this._owner, duration, delay);
   }
@@ -129,15 +138,11 @@ export class Tween {
     return this;
   }
   hide() {
-    this._hide = function () {
-      this.hide();
-    };
+    this._hide = true;
     return this;
   }
   remove() {
-    this._remove = function () {
-      this.remove();
-    };
+    this._remove = true;
     return this;
   }
   pin(a, b) {
