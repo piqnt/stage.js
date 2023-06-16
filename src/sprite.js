@@ -17,7 +17,6 @@ export function Sprite() {
   this._image = null;
 };
 
-// todo: v1 rename to texture?
 Sprite.prototype.texture = function(frame) {
   this._image = texture(frame).one();
   this.pin('width', this._image ? this._image.width : 0);

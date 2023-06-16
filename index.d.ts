@@ -1,13 +1,20 @@
 interface TextureDefinition {
 }
 
-type Plotter = (context: CanvasRenderingContext2D) => void;
+type CanvasTextureDraw = (this: Stage.CanvasTexture, context: CanvasRenderingContext2D) => void;
 
-type Drawable = Plotter | HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas;
+type TextureSource = Stage.Texture | CanvasImageSource;
+
+// TODO
+type TextureQuery = any;
+type TextureSubquery = any;
+
+interface TextureSelection {
+  one: (subquery: TextureSubquery) => Stage.Texture;
+  array: (subquery: TextureSubquery) => Stage.Texture[];
+}
 
 type Ticker = (t: number, dt: number) => boolean | void
-
-type Frame = string | Drawable | Stage.Texture;
 
 type Listener = (...args: any[]) => void
 
@@ -23,16 +30,16 @@ export as namespace Stage;
 
 declare namespace Stage {
   function mount(config?: Record<string, any>): Root;
-  function atlas(def: TextureDefinition): Texture;
+  function atlas(def: TextureDefinition): Promise<Texture>;
 
   function pause(): void;
   function resume(): void;
 
   function create(): Node;
 
-  function sprite(frame?: string | Frame): Sprite;
-  function anim(frames: string | Frame[], fps: number): Anim;
-  function string(frames: string | Record<string, Texture> | ((char: string) => Texture)): Str;
+  function sprite(texture?: string | TextureSource): Sprite;
+  function anim(frames: string | TextureSource[], fps: number): Anim;
+  function string(chars: string | Record<string, TextureSource> | ((char: string) => TextureSource)): Str;
 
   function column(align: number): Node;
   function row(align: number): Node;
@@ -40,10 +47,21 @@ declare namespace Stage {
   function layer(): Node; // resizes to fill parent
   function box(): Node; // resizes to fit children
 
-  function texture(query: string): Texture | Texture[];
-  function canvas(plotter: Plotter): Texture;
-  function canvas(type: string, plotter: Plotter): Texture;
-  function canvas(type: string, attributes: Record<string, string>, plotter: Plotter): Texture;
+  function texture(query: TextureQuery): TextureSelection;
+
+  /** @deprecated */
+  function canvas(callback: CanvasTextureDraw): CanvasTexture;
+  /** @deprecated */
+  function canvas(type: string, callback: CanvasTextureDraw): CanvasTexture;
+  /** @deprecated */
+  function canvas(type: string, attributes: Record<string, string>, callback: CanvasTextureDraw): CanvasTexture;
+
+  /** @deprecated */
+  interface CanvasTexture extends Stage.Texture {
+    context: () => CanvasRenderingContext2D;
+    size: (width: number, height: number, ratio?: number) => CanvasTexture;
+    canvas: (callback?: CanvasTextureDraw) => CanvasTexture;
+  }
 
   class Node {
     appendTo(parent: Node): this;
@@ -247,9 +265,9 @@ declare namespace Stage {
 
   class Texture {
     constructor();
-    constructor(drawable: Drawable, ratio: number);
+    constructor(source: TextureSource, ratio: number);
 
-    src(drawable: Drawable, ratio: number): this;
+    src(source: TextureSource, ratio: number): this;
 
     src(x: number, y: number): this;
     src(x: number, y: number, w: number, h: number): this;
