@@ -351,6 +351,7 @@ function deprecated(hash, name, msg) {
         + '\' field of texture atlas is deprecated.');
 };
 
+// todo: merge with memoizeDraw
 export const canvas = function(type, attributes, plotter) {
   if (typeof type === 'string') {
     if (typeof attributes === 'object') {
@@ -384,14 +385,15 @@ export const canvas = function(type, attributes, plotter) {
     return this;
   };
 
-  // texture.canvas = function(fn) {
-  //   if (typeof fn === 'function') {
-  //     fn.call(this, context);
-  //   } else if (typeof fn === 'undefined' && typeof plotter === 'function') {
-  //     plotter.call(this, context);
-  //   }
-  //   return this;
-  // };
+  // this updates the drawing
+  texture.canvas = function(fn) {
+    if (typeof fn === 'function') {
+      fn.call(this, context);
+    } else if (typeof fn === 'undefined' && typeof plotter === 'function') {
+      plotter.call(this, context);
+    }
+    return this;
+  };
 
   if (typeof plotter === 'function') {
     plotter.call(texture, context);
@@ -399,3 +401,40 @@ export const canvas = function(type, attributes, plotter) {
 
   return texture;
 };
+
+const PIXEL_RATIO = (window.devicePixelRatio || 1);
+
+let M;
+// todo: merge with canvas, probably use Texture.draw parameters to memoize
+// the wrapper sprite is used for ticking and centering the texture
+export function memoizeDraw(callback, memoKey = () => null) {
+  let lastRatio = 0;
+  let lastSelection = undefined;
+  let texture = Stage.canvas();
+  let sprite = Stage.sprite();
+  let first = true;
+  sprite.tick(function() {
+    let m = this._parent.matrix();
+    if (first) {
+      // hack: parent matrix is not available in the first call
+      first = false;
+      if (!(m = M)) {
+        return;
+      }
+    }
+    M = m;
+    let newRatio = Math.max(Math.abs(m.a), Math.abs(m.b));
+    let rationChange = lastRatio / newRatio;
+    if (lastRatio === 0 || rationChange > 1.25 || rationChange < 0.8) {
+      const newSelection = memoKey();
+      if (lastSelection !== newSelection) {
+        lastSelection === newSelection;
+        lastRatio = newRatio;
+        callback(2.5 * newRatio / PIXEL_RATIO, texture, sprite);
+        sprite.texture(texture);
+        sprite.__timestamp = Date.now();
+      }
+    }
+  }, false);
+  return sprite;
+}

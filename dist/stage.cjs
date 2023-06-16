@@ -1496,11 +1496,50 @@ const canvas = function(type, attributes, plotter) {
     this.src(canvas2, ratio);
     return this;
   };
+  texture2.canvas = function(fn) {
+    if (typeof fn === "function") {
+      fn.call(this, context);
+    } else if (typeof fn === "undefined" && typeof plotter === "function") {
+      plotter.call(this, context);
+    }
+    return this;
+  };
   if (typeof plotter === "function") {
     plotter.call(texture2, context);
   }
   return texture2;
 };
+const PIXEL_RATIO = window.devicePixelRatio || 1;
+let M;
+function memoizeDraw(callback, memoKey = () => null) {
+  let lastRatio = 0;
+  let lastSelection = void 0;
+  let texture2 = Stage.canvas();
+  let sprite2 = Stage.sprite();
+  let first = true;
+  sprite2.tick(function() {
+    let m = this._parent.matrix();
+    if (first) {
+      first = false;
+      if (!(m = M)) {
+        return;
+      }
+    }
+    M = m;
+    let newRatio = Math.max(Math.abs(m.a), Math.abs(m.b));
+    let rationChange = lastRatio / newRatio;
+    if (lastRatio === 0 || rationChange > 1.25 || rationChange < 0.8) {
+      const newSelection = memoKey();
+      if (lastSelection !== newSelection) {
+        lastRatio = newRatio;
+        callback(2.5 * newRatio / PIXEL_RATIO, texture2, sprite2);
+        sprite2.texture(texture2);
+        sprite2.__timestamp = Date.now();
+      }
+    }
+  }, false);
+  return sprite2;
+}
 class Mouse {
   constructor() {
     __publicField(this, "x", 0);
@@ -2626,7 +2665,7 @@ Node.prototype.spacing = function(space) {
   this._spacing = space;
   return this;
 };
-const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const Stage$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   Anim,
   Atlas,
@@ -2649,6 +2688,7 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   image,
   layer,
   math,
+  memoizeDraw,
   mount,
   pause,
   resume,
@@ -2675,10 +2715,11 @@ exports.box = box;
 exports.canvas = canvas;
 exports.column = column;
 exports.create = create;
-exports.default = Stage;
+exports.default = Stage$1;
 exports.image = image;
 exports.layer = layer;
 exports.math = math;
+exports.memoizeDraw = memoizeDraw;
 exports.mount = mount;
 exports.pause = pause;
 exports.resume = resume;

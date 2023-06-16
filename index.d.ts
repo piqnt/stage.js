@@ -63,6 +63,12 @@ declare namespace Stage {
     canvas: (callback?: CanvasTextureDraw) => CanvasTexture;
   }
 
+  /** @deprecated */
+  function memoizeDraw(
+    callback: (ratio: number, texture: CanvasTexture, sprite: Stage.Sprite) => void,
+    key?: () => any,
+  ): Stage.Sprite;
+
   class Node {
     appendTo(parent: Node): this;
     prependTo(parent: Node): this;
