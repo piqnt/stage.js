@@ -2082,7 +2082,10 @@ class Root extends Node {
     __publicField(this, "mount", (configs = {}) => {
       if (typeof configs.canvas === "string") {
         this.canvas = document.getElementById(configs.canvas);
-      }
+      } else if (configs.canvas instanceof HTMLCanvasElement) {
+        this.canvas = configs.canvas;
+      } else if (configs.canvas)
+        ;
       if (!this.canvas) {
         this.canvas = document.getElementById("cutjs") || document.getElementById("stage");
       }

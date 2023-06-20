@@ -65,6 +65,10 @@ export class Root extends Node {
   mount = (configs = {}) => {
     if (typeof configs.canvas === 'string') {
       this.canvas = document.getElementById(configs.canvas);
+    } else if (configs.canvas instanceof HTMLCanvasElement) {
+      this.canvas = configs.canvas;
+    } else if (configs.canvas) {
+      // should we error here
     }
 
     if (!this.canvas) {

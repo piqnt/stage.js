@@ -25,6 +25,11 @@ interface Visitor<D> {
   visible: boolean;
 }
 
+interface XY {
+  x: number;
+  y: number;
+}
+
 export default Stage;
 export as namespace Stage;
 
@@ -257,9 +262,11 @@ declare namespace Stage {
     concat(m: Matrix): this;
     identity(): this;
     inverse(): this;
-    map(p: number, q: number): this;
-    mapX(x: number, y: number): this;
-    mapY(x: number, y: number): this;
+    map(p: XY, q?: XY): XY;
+    mapX(p: XY): number;
+    mapX(x: number, y: number): number;
+    mapY(p: XY): number;
+    mapY(x: number, y: number): number;
     reset(a: number, b: number, c: number, d: number, e: number, f: number): Matrix;
     inverse(): this;
     rotate(angle: number): this;
