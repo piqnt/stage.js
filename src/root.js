@@ -27,16 +27,15 @@ export const mount = function(configs = {}) {
 };
 
 export class Root extends Node {
-  lastTime = 0;
-  pixelWidth = -1;
-  pixelHeight = -1;
   canvas = null;
   dom = null;
   context = null;
-  fullpage = false;
+
+  pixelWidth = -1;
+  pixelHeight = -1;
+  pixelRatio = 1;
   drawingWidth = 0;
   drawingHeight = 0;
-  pixelRatio = 1;
 
   mounted = false;
   paused = false;
@@ -45,21 +44,6 @@ export class Root extends Node {
   constructor() {
     super();
     this.label('Root');
-  }
-
-  computeViewport = () => {
-    let newPixelWidth;
-    let newPixelHeight;
-    if (this.fullpage) {
-      // screen.availWidth/Height?
-      newPixelWidth = (window.innerWidth > 0 ? window.innerWidth : screen.width);
-      newPixelHeight = (window.innerHeight > 0 ? window.innerHeight : screen.height);
-    } else {
-      newPixelWidth = this.canvas.clientWidth;
-      newPixelHeight = this.canvas.clientHeight;
-    }
-
-    return [newPixelWidth, newPixelHeight, this.fullpage];
   }
 
   mount = (configs = {}) => {
@@ -76,12 +60,18 @@ export class Root extends Node {
     }
 
     if (!this.canvas) {
-      this.fullpage = true;
       DEBUG && console.log('Creating Canvas...');
       this.canvas = document.createElement('canvas');
-      this.canvas.style.position = 'absolute';
-      this.canvas.style.top = '0';
-      this.canvas.style.left = '0';
+      Object.assign(this.canvas.style, {
+        position: 'absolute',
+        display: 'block',
+        top: '0',
+        left: '0',
+        bottom: '0',
+        right: '0',
+        width: '100%',
+        height: '100%'
+      });
 
       let body = document.body;
       body.insertBefore(this.canvas, body.firstChild);
@@ -116,6 +106,8 @@ export class Root extends Node {
     }
   };
 
+  lastTime = 0;
+
   onFrame = (now) => {
     this.frameRequested = false;
 
@@ -125,19 +117,14 @@ export class Root extends Node {
 
     this.requestFrame();
 
-    let [newPixelWidth, newPixelHeight, managed] = this.computeViewport();
+    const newPixelWidth = this.canvas.clientWidth;
+    const newPixelHeight = this.canvas.clientHeight;
 
     if (this.pixelWidth !== newPixelWidth || this.pixelHeight !== newPixelHeight) {
       // viewport pixel size is not the same as last time
       this.pixelWidth = newPixelWidth;
       this.pixelHeight = newPixelHeight;
 
-      if (managed) {
-        // when we match canvas size with, for example, window size
-        this.canvas.style.width = newPixelWidth + 'px';
-        this.canvas.style.height = newPixelHeight + 'px';
-      }
-  
       this.drawingWidth = newPixelWidth * this.pixelRatio;
       this.drawingHeight = newPixelHeight * this.pixelRatio;
   
@@ -146,7 +133,7 @@ export class Root extends Node {
         this.canvas.width = this.drawingWidth;
         this.canvas.height = this.drawingHeight;
     
-        DEBUG && console.log('Resize: ' + this.drawingWidth + ' x ' + this.drawingHeight + ' / ' + this.pixelRatio);
+        DEBUG && console.log('Resize: [' + this.drawingWidth + ', ' + this.drawingHeight + '] = ' + this.pixelRatio + ' x [' + this.pixelWidth + ', ' + this.pixelHeight + ']');
     
         this.viewport(this.drawingWidth, this.drawingHeight, this.pixelRatio);
       }  

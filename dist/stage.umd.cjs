@@ -2058,31 +2058,17 @@ var __publicField = (obj, key, value) => {
   class Root extends Node {
     constructor() {
       super();
-      __publicField(this, "lastTime", 0);
-      __publicField(this, "pixelWidth", -1);
-      __publicField(this, "pixelHeight", -1);
       __publicField(this, "canvas", null);
       __publicField(this, "dom", null);
       __publicField(this, "context", null);
-      __publicField(this, "fullpage", false);
+      __publicField(this, "pixelWidth", -1);
+      __publicField(this, "pixelHeight", -1);
+      __publicField(this, "pixelRatio", 1);
       __publicField(this, "drawingWidth", 0);
       __publicField(this, "drawingHeight", 0);
-      __publicField(this, "pixelRatio", 1);
       __publicField(this, "mounted", false);
       __publicField(this, "paused", false);
       __publicField(this, "sleep", false);
-      __publicField(this, "computeViewport", () => {
-        let newPixelWidth;
-        let newPixelHeight;
-        if (this.fullpage) {
-          newPixelWidth = window.innerWidth > 0 ? window.innerWidth : screen.width;
-          newPixelHeight = window.innerHeight > 0 ? window.innerHeight : screen.height;
-        } else {
-          newPixelWidth = this.canvas.clientWidth;
-          newPixelHeight = this.canvas.clientHeight;
-        }
-        return [newPixelWidth, newPixelHeight, this.fullpage];
-      });
       __publicField(this, "mount", (configs = {}) => {
         if (typeof configs.canvas === "string") {
           this.canvas = document.getElementById(configs.canvas);
@@ -2094,12 +2080,18 @@ var __publicField = (obj, key, value) => {
           this.canvas = document.getElementById("cutjs") || document.getElementById("stage");
         }
         if (!this.canvas) {
-          this.fullpage = true;
           console.log("Creating Canvas...");
           this.canvas = document.createElement("canvas");
-          this.canvas.style.position = "absolute";
-          this.canvas.style.top = "0";
-          this.canvas.style.left = "0";
+          Object.assign(this.canvas.style, {
+            position: "absolute",
+            display: "block",
+            top: "0",
+            left: "0",
+            bottom: "0",
+            right: "0",
+            width: "100%",
+            height: "100%"
+          });
           let body = document.body;
           body.insertBefore(this.canvas, body.firstChild);
         }
@@ -2119,26 +2111,24 @@ var __publicField = (obj, key, value) => {
           requestAnimationFrame(this.onFrame);
         }
       });
+      __publicField(this, "lastTime", 0);
       __publicField(this, "onFrame", (now) => {
         this.frameRequested = false;
         if (!this.mounted) {
           return;
         }
         this.requestFrame();
-        let [newPixelWidth, newPixelHeight, managed] = this.computeViewport();
+        const newPixelWidth = this.canvas.clientWidth;
+        const newPixelHeight = this.canvas.clientHeight;
         if (this.pixelWidth !== newPixelWidth || this.pixelHeight !== newPixelHeight) {
           this.pixelWidth = newPixelWidth;
           this.pixelHeight = newPixelHeight;
-          if (managed) {
-            this.canvas.style.width = newPixelWidth + "px";
-            this.canvas.style.height = newPixelHeight + "px";
-          }
           this.drawingWidth = newPixelWidth * this.pixelRatio;
           this.drawingHeight = newPixelHeight * this.pixelRatio;
           if (this.canvas.width !== this.drawingWidth || this.canvas.height !== this.drawingHeight) {
             this.canvas.width = this.drawingWidth;
             this.canvas.height = this.drawingHeight;
-            console.log("Resize: " + this.drawingWidth + " x " + this.drawingHeight + " / " + this.pixelRatio);
+            console.log("Resize: [" + this.drawingWidth + ", " + this.drawingHeight + "] = " + this.pixelRatio + " x [" + this.pixelWidth + ", " + this.pixelHeight + "]");
             this.viewport(this.drawingWidth, this.drawingHeight, this.pixelRatio);
           }
         }
@@ -2675,6 +2665,7 @@ var __publicField = (obj, key, value) => {
     Anim,
     Atlas,
     Image: Image$1,
+    Math: math,
     Matrix,
     Mouse,
     Node,
@@ -2705,6 +2696,7 @@ var __publicField = (obj, key, value) => {
   exports2.Anim = Anim;
   exports2.Atlas = Atlas;
   exports2.Image = Image$1;
+  exports2.Math = math;
   exports2.Matrix = Matrix;
   exports2.Mouse = Mouse;
   exports2.Node = Node;
