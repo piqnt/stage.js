@@ -1,4 +1,18 @@
-interface TextureDefinition {
+interface AtlasTextureDefinition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface AtlasDefinition {
+  name: string;
+  image: {
+    src: string,
+    ratio?: number
+  };
+  ppu: number;
+  textures: Record<string, AtlasTextureDefinition | AtlasTextureDefinition[] | Record<string, AtlasTextureDefinition>>
 }
 
 type CanvasTextureDraw = (this: Stage.CanvasTexture, context: CanvasRenderingContext2D) => void;
@@ -35,7 +49,7 @@ export as namespace Stage;
 
 declare namespace Stage {
   function mount(config?: Record<string, any>): Root;
-  function atlas(def: TextureDefinition): Promise<Texture>;
+  function atlas(def: AtlasDefinition): Promise<Texture>;
 
   function pause(): void;
   function resume(): void;
