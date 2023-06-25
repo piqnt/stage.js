@@ -3,7 +3,7 @@
 Stage.js is a 2D rendering and layout library for HTML5 Canvas. It is lightweight, fast and optimized for web and mobile game development.
 
 ### Features
-- Tree data model, similar to DOM, for composing an application
+- Tree object model, similar to DOM, for composing an application
 - Managed and optimized rendering and game loop
 - Mouse events processing and delivering them to target nodes
 - Positioning and layout
@@ -25,7 +25,7 @@ Since the initial development of Stage.js in 2013, web technology has changed a 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/stage-js@1.0"></script>
 <script>
-  const stage = Stage.mount();
+  const app = Stage.mount();
 </script>
 ```
 
@@ -55,13 +55,13 @@ await Stage.atlas({
 });
 
 // Create and mount a new app
-const stage = Stage.mount();
+const app = Stage.mount();
 
 // Set view box
-stage.viewbox(300, 200);
+app.viewbox(300, 200);
 
-// Create an sprite and append it to stage
-const box = Stage.sprite('box').appendTo(stage);
+// Create an sprite and append it to app
+const box = Stage.sprite('box').appendTo(app);
 
 // Align box to center
 box.pin('align', 0.5);
@@ -86,33 +86,38 @@ box.on('click', function(point) {
 
 ## API Doc
 
-### Application
+### Setup
 An application is created by calling `Stage.mount()`.
-This will set up root node with a canvas elmenet and returns the root node.
+This will set up the root node with a canvas element, starts the application, and returns the root node.
 
 ```javascript
-// Create and start an application
-const stage = Stage.mount();
+// Create and start an application (with a default full page canvas)
+const app = Stage.mount();
+
+// Create and start an application with a custom canvas element
+const app = Stage.mount({
+  canvas : document.getElementById('game-canvas')
+});
 
 // Set viewbox for stage, see pinning for valid modes
-stage.viewbox(width, height, mode = 'in-pad');
+app.viewbox(width, height, mode = 'in-pad');
 
 // Listen to view port resize events
-stage.on('viewport', function(viewport) {
+app.on('viewport', function(viewport) {
   // `viewport` attributes are `width`, `height` and `ratio`
 });
 
 // Pause playing
-stage.pause();
+app.pause();
 
 // Resume playing
-stage.resume();
+app.resume();
 
 ```
 
 
 ### Tree Model
-Every app consists of a tree. The tree's root is created and returned by `Stage.mount()`.
+Every application consists of a tree. The tree's root is created and returned by `Stage.mount()`.
 
 ```javascript
 // Create a new node instance (with no textures)
@@ -476,7 +481,7 @@ anim.repeat(repeat, callback = null);
 
 
 ### String
-String is a row of images which are dynamically selected from `frames` using characters of a string `value` (or items of an array `value`).
+String is a row of textures that are dynamically selected from `frames` using characters of a string value, or items of an array value.
 
 ```javascript
 // Create a new string instance with frames
@@ -594,10 +599,10 @@ const nextTween = tween.tween(duration = 400, delay = 0);
 ```javascript
 
 // Mount and start a new app
-let stage = Stage.mount();
+let app = Stage.mount();
 
 // Create and preload a texture atlas
-Stage.atlas({});
+Stage.atlas({ ... });
 
 // Pause playing all applications
 Stage.pause();
@@ -608,7 +613,7 @@ Stage.resume();
 
 
 ## Development
-To try examples with a live build run following command and check output for the URL to open in your browser:
+To try examples with a live build run the following command and check the output for the URL to open in your browser:
 ```
 npm run dev
 ```
