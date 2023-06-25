@@ -11,3 +11,6 @@ export * from './sprite';
 export * from './anim';
 export * from './str';
 export * from './layout';
+
+/** @deprecated */
+export { math as Math } from "./util/math";

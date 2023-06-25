@@ -41,5 +41,7 @@ math.length = function(x, y) {
 };
 
 // todo: add deprecation log
+/** @deprecated */
 math.rotate = math.wrap;
+/** @deprecated */
 math.limit = math.clamp;
