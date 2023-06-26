@@ -927,6 +927,7 @@ Node.prototype.empty = function() {
   this.touch();
   return this;
 };
+Node.prototype._ts_touch = null;
 Node.prototype.touch = function() {
   this._ts_touch = ++iid;
   this._parent && this._parent.touch();
@@ -2110,6 +2111,8 @@ class Root extends Node {
       }
     });
     __publicField(this, "lastTime", 0);
+    __publicField(this, "_mo_touch", null);
+    // monitor touch
     __publicField(this, "onFrame", (now) => {
       this.frameRequested = false;
       if (!this.mounted) {
@@ -2136,7 +2139,7 @@ class Root extends Node {
         return;
       }
       this.lastTime = now;
-      let loopRequest = this._tick(elapsed, now, last);
+      let tickRequest = this._tick(elapsed, now, last);
       if (this._mo_touch != this._ts_touch) {
         this._mo_touch = this._ts_touch;
         this.sleep = false;
@@ -2145,7 +2148,7 @@ class Root extends Node {
           this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);
           this.render(this.context);
         }
-      } else if (loopRequest) {
+      } else if (tickRequest) {
         this.sleep = false;
       } else {
         this.sleep = true;

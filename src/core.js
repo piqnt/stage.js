@@ -408,6 +408,8 @@ Node.prototype.empty = function() {
   return this;
 };
 
+Node.prototype._ts_touch = null;
+
 Node.prototype.touch = function() {
   this._ts_touch = ++iid;
   this._parent && this._parent.touch();

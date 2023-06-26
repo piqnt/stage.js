@@ -107,6 +107,7 @@ export class Root extends Node {
   };
 
   lastTime = 0;
+  _mo_touch = null; // monitor touch
 
   onFrame = (now) => {
     this.frameRequested = false;
@@ -148,7 +149,7 @@ export class Root extends Node {
 
     this.lastTime = now;
 
-    let loopRequest = this._tick(elapsed, now, last);
+    let tickRequest = this._tick(elapsed, now, last);
     if (this._mo_touch != this._ts_touch) {
       // something changed since last call
       this._mo_touch = this._ts_touch;
@@ -160,11 +161,11 @@ export class Root extends Node {
         this.render(this.context);
       }
   
-    } else if (loopRequest) {
-      // nothing changed, but a node requested a loop
+    } else if (tickRequest) {
+      // nothing changed, but a node requested next tick
       this.sleep = false;
     } else {
-      // nothing changed, and no node requested a loop
+      // nothing changed, and no node requested next tick
       this.sleep = true;
     }
 

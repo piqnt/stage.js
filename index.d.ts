@@ -177,16 +177,13 @@ declare namespace Stage {
     // hitTest(hit: { x: number, y: number }): boolean;
   }
 
-  class Root extends Node {
-    constructor(
-      request: (loop: (time: number) => void) => void,
-      render: (root: Root) => void,
-    );
+  interface Root extends Node {
     background(color: string): this;
     viewbox(width: number, height: number, mode?: 'in' | 'out' | 'out-crop' | 'in-pad'): this;
 
-    viewport(): { width: number, height: number, ratio: number };
-    viewport(width: number, height: number, ratio: number): this;
+    // for internal use only
+    // viewport(): { width: number, height: number, ratio: number };
+    // viewport(width: number, height: number, ratio: number): this;
 
     dom?: HTMLCanvasElement;
   }
