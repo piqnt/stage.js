@@ -1880,7 +1880,12 @@ Easing.add({
   }
 });
 Node.prototype.tween = function(duration, delay, append2) {
-  if (typeof duration !== "number") {
+  if (typeof duration === "object" && duration !== null) {
+    const options = duration;
+    duration = options.duration;
+    delay = options.delay;
+    append2 = options.append;
+  } else if (typeof duration !== "number") {
     append2 = duration, delay = 0, duration = 0;
   } else if (typeof delay !== "number") {
     append2 = delay, delay = 0;
@@ -2020,7 +2025,7 @@ class Tween {
     return this;
   }
   /**
-   * @deprecated NOOP
+   * @deprecated this doesn't do anything anymore, call tween on the node instead.
    */
   clear(forward) {
     return this;
@@ -2128,7 +2133,11 @@ class Root extends Node {
           this.canvas.width = this.drawingWidth;
           this.canvas.height = this.drawingHeight;
           console.log("Resize: [" + this.drawingWidth + ", " + this.drawingHeight + "] = " + this.pixelRatio + " x [" + this.pixelWidth + ", " + this.pixelHeight + "]");
-          this.viewport(this.drawingWidth, this.drawingHeight, this.pixelRatio);
+          this.viewport({
+            width: this.drawingWidth,
+            height: this.drawingHeight,
+            ratio: this.pixelRatio
+          });
         }
       }
       let last = this.lastTime || now;
@@ -2198,6 +2207,12 @@ class Root extends Node {
   viewport(width, height, ratio) {
     if (typeof width === "undefined") {
       return Object.assign({}, this._viewport);
+    }
+    if (typeof width === "object") {
+      const options = width;
+      width = options.width;
+      height = options.height;
+      ratio = options.ratio;
     }
     this._viewport = {
       width,

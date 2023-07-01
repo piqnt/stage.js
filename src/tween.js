@@ -3,7 +3,12 @@ import { Node } from './core';
 import { Pin } from './pin';
 
 Node.prototype.tween = function(duration, delay, append) {
-  if (typeof duration !== 'number') {
+  if (typeof duration === 'object' && duration !== null) {
+    const options = duration;
+    duration = options.duration;
+    delay = options.delay;
+    append = options.append;
+  } else if (typeof duration !== 'number') {
     append = duration, delay = 0, duration = 0;
   } else if (typeof delay !== 'number') {
     append = delay, delay = 0;
@@ -162,7 +167,7 @@ export class Tween {
     return this;
   }
   /**
-   * @deprecated NOOP
+   * @deprecated this doesn't do anything anymore, call tween on the node instead.
    */
   clear(forward) {
     return this;

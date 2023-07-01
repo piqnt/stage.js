@@ -136,7 +136,11 @@ export class Root extends Node {
     
         DEBUG && console.log('Resize: [' + this.drawingWidth + ', ' + this.drawingHeight + '] = ' + this.pixelRatio + ' x [' + this.pixelWidth + ', ' + this.pixelHeight + ']');
     
-        this.viewport(this.drawingWidth, this.drawingHeight, this.pixelRatio);
+        this.viewport({
+          width: this.drawingWidth,
+          height: this.drawingHeight,
+          ratio: this.pixelRatio
+        } );
       }  
     }
 
@@ -221,6 +225,14 @@ export class Root extends Node {
     if (typeof width === 'undefined') {
       return Object.assign({}, this._viewport);
     }
+    
+    if (typeof width === 'object') {
+      const options = width;
+      width = options.width;
+      height = options.height;
+      ratio = options.ratio;
+    }
+
     this._viewport = {
       width: width,
       height: height,

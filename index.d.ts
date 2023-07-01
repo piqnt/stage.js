@@ -3,16 +3,25 @@ interface AtlasTextureDefinition {
   y: number;
   width: number;
   height: number;
+  left?: number;
+  top?: number;
+  right?: number;
+  bottom?: number;
 }
 
 interface AtlasDefinition {
-  name: string;
+  name?: string;
   image: {
     src: string,
     ratio?: number
   };
-  ppu: number;
-  textures: Record<string, AtlasTextureDefinition | AtlasTextureDefinition[] | Record<string, AtlasTextureDefinition>>
+  ppu?: number;
+  textures?: Record<string, AtlasTextureDefinition | (AtlasTextureDefinition | string)[] | Record<string, (AtlasTextureDefinition | string)>>
+
+  map?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
+
+  /** @deprecated Use map */
+  filter?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
 }
 
 type CanvasTextureDraw = (this: Stage.CanvasTexture, context: CanvasRenderingContext2D) => void;
@@ -56,12 +65,15 @@ declare namespace Stage {
 
   function create(): Node;
 
+  /** @deprecated */
+  function image(texture?: string | TextureSource): Sprite;
+
   function sprite(texture?: string | TextureSource): Sprite;
-  function anim(frames: string | TextureSource[], fps: number): Anim;
+  function anim(frames: string | TextureSource[], fps?: number): Anim;
   function string(chars: string | Record<string, TextureSource> | ((char: string) => TextureSource)): Str;
 
-  function column(align: number): Node;
-  function row(align: number): Node;
+  function column(align?: number): Node;
+  function row(align?: number): Node;
 
   function layer(): Node; // resizes to fill parent
   function box(): Node; // resizes to fit children
@@ -128,25 +140,43 @@ declare namespace Stage {
     pin(a: Record<string, any>): this;
     pin(): Record<string, any>;
 
+    offset(x: number, y: number): this;
+    offset(value: XY): this;
+
+    rotate(angle: number): this;
+
     size(w: number, h: number): this;
     width(w: number): this;
+    width(): number;
     height(h: number): this;
-    scale(a: number, b: number): this;
-    skew(a: number, b: number): this;
-    rotate(a: number): this;
-    offset(a: number, b: number): this;
+    height(): number;
+
+    skew(x: number, y: number): this;
+    skew(value: XY): this;
+
+    scale(x: number, y: number): this;
+    scale(value: XY): this;
 
     scaleTo(a: number, b: number, mode: string): this;
 
-    padding(pad: number): this;
-    spacing(space: number): this;
+    padding(value: number): this;
+    spacing(value: number): this;
 
     alpha(a: number, ta: number): this;
 
     matrix(relative?: boolean): Matrix;
 
+    tween(options?: {
+      duration?: number,
+      delay?: number,
+      append?: boolean,
+    }): Tween;
+
+    /** @deprecated Use tween(options) */
     tween(duration: number, delay: number, append: boolean): Tween;
+    /** @deprecated Use tween(options) */
     tween(duration: number, append: boolean): Tween;
+    /** @deprecated Use tween(options) */
     tween(append: boolean): Tween;
 
     on(type: string, listener: Listener): this;
@@ -193,6 +223,9 @@ declare namespace Stage {
     texture(frame: any): this;
     stretch(inner?: boolean): this;
     tile(inner?: boolean): this;
+
+    /** @deprecated use texture */
+    image(frames: any): this;
   }
 
   class Anim extends Node {
@@ -205,16 +238,21 @@ declare namespace Stage {
     moveFrame(move: any): this;
     play(frame: any): this;
     repeat(repeat: any, callback: any): this;
-    setFrames(a: any, b: any, c: any): this;
     stop(frame: any): this;
+
+    /** @deprecated use frames */
+    setFrames(frames: any): this;
   }
 
   class Str extends Node {
     constructor();
     frames(frames: any): this;
-    setFont(a: any, b: any, c: any): this;
-    setValue(a: any, b: any, c: any): this;
-    value(value: any): this;
+    value(value?: any): this;
+
+    /** @deprecated use frames */
+    setFont(frames: any): this;
+    /** @deprecated use value */
+    setValue(value?: any): this;
   }
 
   class Pin {
@@ -254,10 +292,16 @@ declare namespace Stage {
     // deprecated then(fn: any): this;
     // deprecated clear(forward: any): this;
 
-    // next
-    /** chain another tween */
+    /** @deprecated */
     tween(duration: any, delay: any): this;
 
+    // next
+    /** chain another tween */
+    tween(options?: {
+      duration?: number,
+      delay?: number,
+    }): Tween;
+    
     // internal tick(node: any, elapsed: any, now: any, last: any): this;
   }
 
