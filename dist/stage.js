@@ -1879,23 +1879,35 @@ Easing.add({
     };
   }
 });
-Node.prototype.tween = function(duration, delay, append2) {
-  if (typeof duration === "object" && duration !== null) {
-    const options = duration;
-    duration = options.duration;
-    delay = options.delay;
-    append2 = options.append;
-  } else if (typeof duration !== "number") {
-    append2 = duration, delay = 0, duration = 0;
-  } else if (typeof delay !== "number") {
-    append2 = delay, delay = 0;
+Node.prototype.tween = function(a, b, c) {
+  let options;
+  if (typeof a === "object" && a !== null) {
+    options = a;
+  } else if (typeof a === "number" && typeof b === "number") {
+    options = {
+      duration: a,
+      delay: b,
+      append: c
+    };
+  } else if (typeof a === "number") {
+    options = {
+      duration: a,
+      delay: 0,
+      append: b
+    };
+  } else {
+    options = {
+      duration: 400,
+      delay: 0,
+      append: a
+    };
   }
   if (!this._tweens) {
     this._tweens = [];
     var ticktime = 0;
     this.tick(function(elapsed, now, last) {
       if (!this._tweens.length) {
-        return;
+        return false;
       }
       var ignore = ticktime != last;
       ticktime = now;
@@ -1917,19 +1929,19 @@ Node.prototype.tween = function(duration, delay, append2) {
     }, true);
   }
   this.touch();
-  if (!append2) {
+  if (!options.append) {
     this._tweens.length = 0;
   }
-  var tween = new Tween(this, duration, delay);
+  var tween = new Tween(this, options);
   this._tweens.push(tween);
   return tween;
 };
 class Tween {
-  constructor(owner, duration, delay) {
+  constructor(owner, options = {}) {
     __publicField(this, "_ending", []);
     this._end = {};
-    this._duration = duration || 400;
-    this._delay = delay || 0;
+    this._duration = options.duration || 400;
+    this._delay = options.delay || 0;
     this._owner = owner;
     this._time = 0;
   }
@@ -1946,14 +1958,8 @@ class Tween {
         this._start[key] = this._owner.pin(key);
       }
     }
-    var p, ended;
-    if (time < this._duration) {
-      p = time / this._duration;
-      ended = false;
-    } else {
-      p = 1;
-      ended = true;
-    }
+    var p = Math.min(time / this._duration, 1);
+    var ended = p >= 1;
     if (typeof this._easing == "function") {
       p = this._easing(p);
     }
@@ -1995,7 +2001,7 @@ class Tween {
   }
   hide() {
     this._ending.push(function() {
-      this.remove();
+      this.hide();
     });
     this._hide = true;
     return this;

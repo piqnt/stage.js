@@ -177,10 +177,12 @@ declare namespace Stage {
     /** @deprecated Use tween(options) */
     tween(duration: number, append: boolean): Tween;
     /** @deprecated Use tween(options) */
+    tween(duration: number): Tween;
+    /** @deprecated Use tween(options) */
     tween(append: boolean): Tween;
 
-    on(type: string, listener: Listener): this;
-    off(type: string, listener: Listener): this;
+    on(type: string | string[], listener: Listener): this;
+    off(type: string | string[], listener: Listener): this;
     publish(name: string, ...args: any[]): number;
     listeners(type: string): Listener[];  
 
@@ -293,9 +295,10 @@ declare namespace Stage {
     // deprecated clear(forward: any): this;
 
     /** @deprecated */
-    tween(duration: any, delay: any): this;
+    tween(duration: number, delay: any): this;
+    /** @deprecated */
+    tween(duration: number): this;
 
-    // next
     /** chain another tween */
     tween(options?: {
       duration?: number,
