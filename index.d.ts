@@ -15,6 +15,8 @@ interface AtlasDefinition {
     src: string,
     ratio?: number
   };
+  /** @deprecated */
+  trim?: number;
   ppu?: number;
   textures?: Record<string, AtlasTextureDefinition | (AtlasTextureDefinition | string)[] | Record<string, (AtlasTextureDefinition | string)>>
 
