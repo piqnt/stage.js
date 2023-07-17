@@ -2212,7 +2212,10 @@ var __publicField = (obj, key, value) => {
       return this;
     }
     /**
-     * Set/get viewport. This is combined with viewbox to determine the scale and position of the viewbox within the viewport.
+     * Set/Get viewport.
+     * This is used along with viewbox to determine the scale and position of the viewbox within the viewport.
+     * Viewport is the size of the container, for example size of the canvas element.
+     * Viewbox is provided by the user, and is the ideal size of the content.
      */
     viewport(width, height, ratio) {
       if (typeof width === "undefined") {
@@ -2242,27 +2245,58 @@ var __publicField = (obj, key, value) => {
       return this;
     }
     /**
-     * Set/get viewbox. This is combined with viewport to determine the scale and position of the viewbox within the viewport.
+     * Set viewbox.
      * 
      * @param {mode} string - One of: 'in-pad' (like css object-fit: 'contain'), 'in', 'out-crop' (like css object-fit: 'cover'), 'out'
      */
     // TODO: static/fixed viewbox
+    // TODO: use css object-fit values
     viewbox(width, height, mode) {
       if (typeof width === "number" && typeof height === "number") {
         this._viewbox = {
           width,
           height,
-          mode: /^(in|out|in-pad|out-crop)$/.test(mode) ? mode : "in-pad"
+          mode
+        };
+      } else if (typeof width === "object" && width !== null) {
+        this._viewbox = {
+          ...width
         };
       }
+      this.rescale();
+      return this;
+    }
+    camera(matrix) {
+      this._camera = matrix;
+      this.rescale();
+      return this;
+    }
+    rescale() {
       let viewbox = this._viewbox;
       let viewport = this._viewport;
+      let camera = this._camera;
       if (viewport && viewbox) {
+        const viewportWidth = viewport.width;
+        const viewportHeight = viewport.height;
+        const viewboxMode = /^(in|out|in-pad|out-crop)$/.test(viewbox.mode) ? viewbox.mode : "in-pad";
+        const viewboxWidth = viewbox.width;
+        const viewboxHeight = viewbox.height;
         this.pin({
-          width: viewbox.width,
-          height: viewbox.height
+          width: viewboxWidth,
+          height: viewboxHeight
         });
-        this.scaleTo(viewport.width, viewport.height, viewbox.mode);
+        this.scaleTo(viewportWidth, viewportHeight, viewboxMode);
+        const viewboxX = viewbox.x || 0;
+        const viewboxY = viewbox.y || 0;
+        const cameraZoom = (camera == null ? void 0 : camera.a) || 1;
+        const cameraX = (camera == null ? void 0 : camera.e) || 0;
+        const cameraY = (camera == null ? void 0 : camera.f) || 0;
+        const scaleX = this.pin("scaleX");
+        const scaleY = this.pin("scaleY");
+        this.pin("scaleX", scaleX * cameraZoom);
+        this.pin("scaleY", scaleY * cameraZoom);
+        this.pin("offsetX", cameraX - viewboxX * scaleX * cameraZoom);
+        this.pin("offsetY", cameraY - viewboxY * scaleY * cameraZoom);
       } else if (viewport) {
         this.pin({
           width: viewport.width,

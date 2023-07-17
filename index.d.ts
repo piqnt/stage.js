@@ -55,6 +55,63 @@ interface XY {
   y: number;
 }
 
+type FitMode = 'in' | 'out' | 'out-crop' | 'in-pad';
+
+interface PinGetters {
+  alpha: number;
+  textureAlpha: number;
+  width: number;
+  height: number;
+  boxWidth: number;
+  boxHeight: number;
+  scaleX: number;
+  scaleY: number;
+  skewX: number;
+  skewY: number;
+  rotation: number;
+  pivotX: number;
+  pivotY: number;
+  offsetX: number;
+  offsetY: number;
+  alignX: number;
+  alignY: number;
+  handleX: number;
+  handleY: number;
+}
+
+interface PinSetters {
+  alpha: number;
+  textureAlpha: number;
+  width: number;
+  height: number;
+  scale: number;
+  scaleX: number;
+  scaleY: number;
+  skew: number;
+  skewX: number;
+  skewY: number;
+  rotation: number;
+  pivot: number;
+  pivotX: number;
+  pivotY: number;
+  offset: number;
+  offsetX: number;
+  offsetY: number;
+  align: number;
+  alignX: number;
+  alignY: number;
+  handle: number;
+  handleX: number;
+  handleY: number;
+  resizeMode: FitMode;
+  resizeWidth: number;
+  resizeHeight: number;
+  scaleMode: FitMode;
+  scaleWidth: number;
+  scaleHeight: number;
+  matrix: Stage.Matrix;
+}
+
 export default Stage;
 export as namespace Stage;
 
@@ -139,8 +196,8 @@ declare namespace Stage {
     pin(a: string, b: any): this;
     pin(a: string): any;
 
-    pin(a: Record<string, any>): this;
-    pin(): Record<string, any>;
+    pin(pin: Partial<PinSetters>): this;
+    pin(): PinGetters;
 
     offset(x: number, y: number): this;
     offset(value: XY): this;
@@ -213,7 +270,19 @@ declare namespace Stage {
 
   interface Root extends Node {
     background(color: string): this;
-    viewbox(width: number, height: number, mode?: 'in' | 'out' | 'out-crop' | 'in-pad'): this;
+    
+    viewbox(viewbox: {
+      width: number,
+      height: number,
+      mode?: FitMode,
+      x?: number,
+      y?: number,
+    }): this;
+
+    // /** @deprecated */
+    viewbox(width: number, height: number, mode?: FitMode): this;
+
+    camera(camera: Stage.Matrix): this;
 
     // for internal use only
     // viewport(): { width: number, height: number, ratio: number };
@@ -318,6 +387,7 @@ declare namespace Stage {
     e: number;
     f: number;
     constructor(a: number, b: number, c: number, d: number, e: number, f: number);
+    constructor();
     clone(): this;
     concat(m: Matrix): this;
     identity(): this;

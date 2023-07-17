@@ -1,2 +1,29 @@
-/node_modules
-.idea
+# misc
+.DS_Store
+*.pem
+
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+
+# testing
+/coverage
+
+# ide
+.idea/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+.VSCodeCounter/

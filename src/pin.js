@@ -506,8 +506,10 @@ function scaleTo(pin, width, height, mode) {
   }
   if (w && h && m) {
     if (mode == 'out' || mode == 'out-crop') {
+      // css object-fit: cover
       pin._scaleX = pin._scaleY = Math.max(pin._scaleX, pin._scaleY);
     } else if (mode == 'in' || mode == 'in-pad') {
+      // css object-fit: cover
       pin._scaleX = pin._scaleY = Math.min(pin._scaleX, pin._scaleY);
     }
     if (mode == 'out-crop' || mode == 'in-pad') {

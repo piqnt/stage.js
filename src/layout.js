@@ -72,6 +72,7 @@ export const box = function() {
   return create().box().label('Box');
 };
 
+// set size to match largest child size
 Node.prototype.box = function() {
   this._padding = this._padding || 0;
 
@@ -104,6 +105,7 @@ export const layer = function() {
   return create().layer().label('Layer');
 };
 
+// set size node to match parent size
 Node.prototype.layer = function() {
 
   this.untick(this._layoutTiker);
