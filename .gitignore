@@ -21,9 +21,8 @@ yarn-error.log*
 
 # ide
 .idea/
+.vscode*/
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-.VSCodeCounter/
