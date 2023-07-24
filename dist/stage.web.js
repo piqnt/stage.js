@@ -1,6 +1,6 @@
 /*!
  * 
- * Stage.js v0.9.4
+ * Stage.js v0.9.5
  * 
  * @copyright Copyright (c) 2020 Ali Shakiba http://shakiba.me/stage.js  
  * @license The MIT License (MIT)  
@@ -125,8 +125,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-if (false)
-  {}
+var STAGE_DEBUG =  false ? undefined : !!false;
 
 var stats = __webpack_require__(4);
 var extend = __webpack_require__(5);
@@ -190,16 +189,16 @@ Class.app = function(app, opts) {
     _app_queue.push(arguments);
     return;
   }
-   false && false;
+  STAGE_DEBUG && console.log('Creating app...');
   var loader = Class.config('app-loader');
   loader(function(stage, canvas) {
-     false && false;
+    STAGE_DEBUG && console.log('Initing app...');
     for (var i = 0; i < _load.length; i++) {
       _load[i].call(this, stage, canvas);
     }
     app(stage, canvas);
     _stages.push(stage);
-     false && false;
+    STAGE_DEBUG && console.log('Starting app...');
     stage.start();
   }, opts);
 };
@@ -210,7 +209,7 @@ Class.preload = function(load) {
   if (typeof load === 'string') {
     var url = Class.resolve(load);
     if (/\.js($|\?|\#)/.test(url)) {
-       false && false;
+      STAGE_DEBUG && console.log('Loading script: ' + url);
       load = function(callback) {
         loadScript(url, callback);
       };
@@ -227,11 +226,11 @@ Class.preload = function(load) {
 };
 
 Class.start = function(config) {
-   false && false;
+  STAGE_DEBUG && console.log('Starting...');
 
   Class.config(config);
 
-  // DEBUG && console.log('Preloading...');
+  // STAGE_DEBUG && console.log('Preloading...');
   // _started = true;
   // while (_preload_queue.length) {
   // var load = _preload_queue.shift();
@@ -239,7 +238,7 @@ Class.start = function(config) {
   // }
 
   loading.then(function() {
-     false && false;
+    STAGE_DEBUG && console.log('Loading apps...');
     _loaded = true;
     while (_app_queue.length) {
       var args = _app_queue.shift();
@@ -1718,8 +1717,7 @@ module.exports = function() {
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-if (false)
-  {}
+var STAGE_DEBUG =  false ? undefined : !!false;
 
 var Class = __webpack_require__(0);
 var Texture = __webpack_require__(7);
@@ -1758,16 +1756,16 @@ Class.atlas = function(def) {
   }
   url && Class.preload(function(done) {
     url = Class.resolve(url);
-     false && false;
+    STAGE_DEBUG && console.log('Loading atlas: ' + url);
     var imageloader = Class.config('image-loader');
 
     imageloader(url, function(image) {
-       false && false;
+      STAGE_DEBUG && console.log('Image loaded: ' + url);
       atlas.src(image, ratio);
       done();
 
     }, function(err) {
-       false && false;
+      STAGE_DEBUG && console.log('Error loading atlas: ' + url, err);
       done();
     });
   });
@@ -3594,8 +3592,7 @@ module.exports = Easing;
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-if (false)
-  {}
+var STAGE_DEBUG =  false ? undefined : !!false;
 
 __webpack_require__(0)._load(function(stage, elem) {
   Mouse.subscribe(stage, elem);
@@ -3636,7 +3633,7 @@ Mouse.subscribe = function(stage, elem) {
   function handleStart(event) {
     event.preventDefault();
     stage.mouse.locate(event);
-    // DEBUG && console.log('Mouse Start: ' + event.type + ' ' + mouse);
+    // STAGE_DEBUG && console.log('Mouse Start: ' + event.type + ' ' + mouse);
     stage.mouse.publish(event.type, event);
 
     stage.mouse.lookup('click', clicklist);
@@ -3652,11 +3649,11 @@ Mouse.subscribe = function(stage, elem) {
   function handleEnd(event) {
     event.preventDefault();
     // up/end location is not available, last one is used instead
-    // DEBUG && console.log('Mouse End: ' + event.type + ' ' + mouse);
+    // STAGE_DEBUG && console.log('Mouse End: ' + event.type + ' ' + mouse);
     stage.mouse.publish(event.type, event);
 
     if (clicklist.length) {
-      // DEBUG && console.log('Mouse Click: ' + clicklist.length);
+      // STAGE_DEBUG && console.log('Mouse Click: ' + clicklist.length);
       stage.mouse.publish('click', event, clicklist);
     }
     cancellist.length = 0;
@@ -3664,7 +3661,7 @@ Mouse.subscribe = function(stage, elem) {
 
   function handleCancel(event) {
     if (cancellist.length) {
-      // DEBUG && console.log('Mouse Cancel: ' + event.type);
+      // STAGE_DEBUG && console.log('Mouse Cancel: ' + event.type);
       stage.mouse.publish('mousecancel', event, cancellist);
     }
     clicklist.length = 0;
@@ -3710,7 +3707,7 @@ function Mouse(stage, elem) {
     this.timeStamp = Date.now();
 
     if (type !== 'mousemove' && type !== 'touchmove') {
-       false && false;
+      STAGE_DEBUG && console.log(this.type + ' ' + this);
     }
 
     if (targets) {
@@ -3832,8 +3829,7 @@ __webpack_require__(28);
  * Default loader for web.
  */
 
-if (false)
-  {}
+var STAGE_DEBUG =  false ? undefined : !!false;
 
 var Class = __webpack_require__(0);
 
@@ -3843,7 +3839,7 @@ Class._supported = (function() {
 })();
 
 window.addEventListener('load', function() {
-   false && false;
+  STAGE_DEBUG && console.log('On load.');
   if (Class._supported) {
     Class.start();
   }
@@ -3871,7 +3867,7 @@ function AppLoader(app, configs) {
 
   if (!canvas) {
     full = true;
-     false && false;
+    STAGE_DEBUG && console.log('Creating Canvas...');
     canvas = document.createElement('canvas');
     canvas.style.position = 'absolute';
     canvas.style.top = '0';
@@ -3896,7 +3892,7 @@ function AppLoader(app, configs) {
         return window.setTimeout(callback, 1000 / 60);
       };
 
-   false && false;
+  STAGE_DEBUG && console.log('Creating stage...');
   var root = Class.root(requestAnimationFrame, render);
 
   function render() {
@@ -3963,7 +3959,7 @@ function AppLoader(app, configs) {
     canvas.width = width;
     canvas.height = height;
 
-     false && false;
+    STAGE_DEBUG && console.log('Resize: ' + width + ' x ' + height + ' / ' + ratio);
 
     root.viewport(width, height, ratio);
 
@@ -3972,7 +3968,7 @@ function AppLoader(app, configs) {
 }
 
 function ImageLoader(src, success, error) {
-   false && false;
+  STAGE_DEBUG && console.log('Loading image: ' + src);
   var image = new Image();
   image.onload = function() {
     success(image);

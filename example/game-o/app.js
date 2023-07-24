@@ -1,3 +1,5 @@
+var STAGE_DEBUG = typeof DEBUG === 'undefined' ? false : !!DEBUG;
+
 var Conf = {};
 
 Conf.width = 240;
@@ -68,10 +70,10 @@ var Data = {
 
 Data.load = function() {
   var key = Data.key;
-  DEBUG && console.log('game load', key);
+  STAGE_DEBUG && console.log('game load', key);
   try {
     var data = localStorage.getItem(key);
-    DEBUG && console.log('game load', key, data);
+    STAGE_DEBUG && console.log('game load', key, data);
     return (data && JSON.parse(data)) || {};
   } catch (e) {
     console.log(e);
@@ -81,10 +83,10 @@ Data.load = function() {
 
 Data.save = function(data) {
   var key = Data.key;
-  DEBUG && console.log('game save', key);
+  STAGE_DEBUG && console.log('game save', key);
   try {
     data = JSON.stringify(data);
-    DEBUG && console.log('game save', key, data);
+    STAGE_DEBUG && console.log('game save', key, data);
     localStorage.setItem(key, data);
     return true;
   } catch (e) {
@@ -122,7 +124,7 @@ function Game() {
 
   this.upgrade = function(name) {
     var price = this.price(name);
-    DEBUG && console.log('upgrade: ' + name + ' at ' + price);
+    STAGE_DEBUG && console.log('upgrade: ' + name + ' at ' + price);
     if (price > 0 && price <= stats.coins) {
       stats.coins -= price;
       upgrades[name] += 1;
@@ -294,7 +296,7 @@ function Game() {
   };
 
   this.start = function() {
-    DEBUG && console.log('game start');
+    STAGE_DEBUG && console.log('game start');
 
     this.clear();
 
@@ -332,7 +334,7 @@ function Game() {
   };
 
   this.end = function(die) {
-    DEBUG && console.log('game end');
+    STAGE_DEBUG && console.log('game end');
     if (this.speed <= 0) {
       return;
     }
@@ -359,7 +361,7 @@ function Game() {
   };
 
   this.clear = function() {
-    DEBUG && console.log('game clear');
+    STAGE_DEBUG && console.log('game clear');
 
     for (var i = 0; i < objects.length; i++) {
       objects[i].remove();
@@ -1192,7 +1194,7 @@ Stage(function(stage, display) {
         '#ffda3e', '#ffb843' ]);
 
     game.uiStart = function() {
-      DEBUG && console.log('app start');
+      STAGE_DEBUG && console.log('app start');
       stage.background(bgcolors());
       tilt.start();
     };
@@ -1203,7 +1205,7 @@ Stage(function(stage, display) {
     };
 
     game.uiEnd = function() {
-      DEBUG && console.log('app end');
+      STAGE_DEBUG && console.log('app end');
       setTimeout(function() {
         open('home');
         stage.background('#000');
@@ -1224,13 +1226,13 @@ Stage(function(stage, display) {
     };
 
     game.uiNewPlayer = function(obj) {
-      DEBUG && console.log('player create');
+      STAGE_DEBUG && console.log('player create');
       obj.ui = Stage.anim(obj.name).pin('handle', 0.5).appendTo(l3);
       obj.uiXY = function() {
         this.ui.offset(this);
       };
       obj.uiLive = function(anim, callback, freeze) {
-        DEBUG && console.log('player live');
+        STAGE_DEBUG && console.log('player live');
         this.freeze = !!freeze;
         !this.freeze && Sound.play('start');
         // cursor.show();
@@ -1239,7 +1241,7 @@ Stage(function(stage, display) {
         callback && callback();
       };
       obj.uiDie = function(anim, callback) {
-        DEBUG && console.log('player die');
+        STAGE_DEBUG && console.log('player die');
         if (anim) {
           !this.freeze && Sound.play('die');
           cursor.hide();
