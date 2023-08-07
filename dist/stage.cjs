@@ -1510,9 +1510,9 @@ const canvas = function(type, attributes, plotter) {
   }
   return texture2;
 };
-const PIXEL_RATIO = window.devicePixelRatio || 1;
 let M;
 function memoizeDraw(callback, memoKey = () => null) {
+  const PIXEL_RATIO = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
   let lastRatio = 0;
   let lastSelection = void 0;
   let texture2 = Stage.canvas();

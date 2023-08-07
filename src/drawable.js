@@ -402,12 +402,11 @@ export const canvas = function(type, attributes, plotter) {
   return texture;
 };
 
-const PIXEL_RATIO = (window.devicePixelRatio || 1);
-
 let M;
 // todo: merge with canvas, probably use Texture.draw parameters to memoize
 // the wrapper sprite is used for ticking and centering the texture
 export function memoizeDraw(callback, memoKey = () => null) {
+  const PIXEL_RATIO = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   let lastRatio = 0;
   let lastSelection = undefined;
   let texture = Stage.canvas();
