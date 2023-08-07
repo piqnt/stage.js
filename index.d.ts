@@ -119,9 +119,6 @@ declare namespace Stage {
   function mount(config?: Record<string, any>): Root;
   function atlas(def: AtlasDefinition): Promise<Texture>;
 
-  function pause(): void;
-  function resume(): void;
-
   function create(): Node;
 
   /** @deprecated */
@@ -269,6 +266,9 @@ declare namespace Stage {
   }
 
   interface Root extends Node {
+    pause(): this;
+    resume(): this;
+  
     background(color: string): this;
     
     viewbox(viewbox: {
