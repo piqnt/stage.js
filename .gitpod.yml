@@ -1,0 +1,6 @@
+tasks:
+  - init: npm install
+    command: npm run dev
+ports:
+  - port: 6565
+    onOpen: open-preview

@@ -635,6 +635,15 @@ To try examples with a live build run following command and check output for the
 npm run dev
 ```
 
+### Develop using one-click online setup
+
+You can use Gitpod(a free online VS Code-like IDE) for contributing. With a single click it'll launch a workspace and automatically: 
+
+- clone the stage.js repo.
+- install the dependencies.
+- run `yarn run dev`.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/from-referrer/)
 
 ## License
 Copyright 2020 Ali Shakiba http://shakiba.me/stage.js  
