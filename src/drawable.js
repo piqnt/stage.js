@@ -405,10 +405,10 @@ export const canvas = function(type, attributes, plotter) {
 let M;
 // todo: merge with canvas, probably use Texture.draw parameters to memoize
 // the wrapper sprite is used for ticking and centering the texture
-export function memoizeDraw(callback, memoKey = () => null) {
+export function memoizeDraw(callback, keyFn = () => null) {
   const PIXEL_RATIO = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   let lastRatio = 0;
-  let lastSelection = undefined;
+  let lastKey = undefined;
   let texture = Stage.canvas();
   let sprite = Stage.sprite();
   let first = true;
@@ -424,15 +424,15 @@ export function memoizeDraw(callback, memoKey = () => null) {
     M = m;
     let newRatio = Math.max(Math.abs(m.a), Math.abs(m.b));
     let rationChange = lastRatio / newRatio;
-    if (lastRatio === 0 || rationChange > 1.25 || rationChange < 0.8) {
-      const newSelection = memoKey();
-      if (lastSelection !== newSelection) {
-        lastSelection === newSelection;
-        lastRatio = newRatio;
-        callback(2.5 * newRatio / PIXEL_RATIO, texture, sprite);
-        sprite.texture(texture);
-        sprite.__timestamp = Date.now();
-      }
+    const ratioChanged = lastRatio === 0 || rationChange > 1.25 || rationChange < 0.8;
+    const newKey = keyFn();
+    const keyChanged = lastKey !== newKey;
+    if (ratioChanged || keyChanged) {
+      lastKey = newKey;
+      lastRatio = newRatio;
+      callback(2.5 * newRatio / PIXEL_RATIO, texture, sprite);
+      sprite.texture(texture);
+      sprite.__timestamp = Date.now();
     }
   }, false);
   return sprite;

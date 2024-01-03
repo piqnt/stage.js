@@ -1511,10 +1511,10 @@ const canvas = function(type, attributes, plotter) {
   return texture2;
 };
 let M;
-function memoizeDraw(callback, memoKey = () => null) {
+function memoizeDraw(callback, keyFn = () => null) {
   const PIXEL_RATIO = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
   let lastRatio = 0;
-  let lastSelection = void 0;
+  let lastKey = void 0;
   let texture2 = Stage.canvas();
   let sprite2 = Stage.sprite();
   let first = true;
@@ -1529,14 +1529,15 @@ function memoizeDraw(callback, memoKey = () => null) {
     M = m;
     let newRatio = Math.max(Math.abs(m.a), Math.abs(m.b));
     let rationChange = lastRatio / newRatio;
-    if (lastRatio === 0 || rationChange > 1.25 || rationChange < 0.8) {
-      const newSelection = memoKey();
-      if (lastSelection !== newSelection) {
-        lastRatio = newRatio;
-        callback(2.5 * newRatio / PIXEL_RATIO, texture2, sprite2);
-        sprite2.texture(texture2);
-        sprite2.__timestamp = Date.now();
-      }
+    const ratioChanged = lastRatio === 0 || rationChange > 1.25 || rationChange < 0.8;
+    const newKey = keyFn();
+    const keyChanged = lastKey !== newKey;
+    if (ratioChanged || keyChanged) {
+      lastKey = newKey;
+      lastRatio = newRatio;
+      callback(2.5 * newRatio / PIXEL_RATIO, texture2, sprite2);
+      sprite2.texture(texture2);
+      sprite2.__timestamp = Date.now();
     }
   }, false);
   return sprite2;
