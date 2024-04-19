@@ -1,43 +1,42 @@
-import Stage from '../../src';
-import './textures';
+import Stage from "../../src";
+import "./textures";
 
-var math = Stage.math;
-var Mouse = Stage.Mouse;
+let math = Stage.math;
 
 function Game(ui, width, height) {
+  let tiles = [];
+  let tilesMap = {};
 
-  var tiles = [];
-  var tilesMap = {};
-
-  this.start = function(colors) {
+  this.start = function (colors) {
     colors = colors || 4;
     while (tiles.length) {
       tiles[0].remove();
     }
-    tilesMap = {}, tiles = [];
-    for (var i = 0; i < width; i++) {
-      for (var j = 0; j < height; j++) {
-        new Tile((math.random() * colors + 1 | 0)).insert(i, j);
+    tilesMap = {};
+    tiles = [];
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        new Tile((math.random() * colors + 1) | 0).insert(i, j);
       }
     }
   };
 
-  this.click = function(tile) {
+  this.click = function (tile) {
     if (matchTile(tile)) {
       collapseDown();
-      setTimeout(function() {
+      setTimeout(function () {
         collapseLeft();
       }, 200);
     }
   };
 
   function matchTile(tile) {
-    var matched = [];
+    let matched = [];
     tile.match(matched);
     if (matched.length <= 1) {
       return false;
     }
-    for (var i = 0; i < matched.length; i++) {
+    for (let i = 0; i < matched.length; i++) {
       matched[i].remove();
     }
     return true;
@@ -45,9 +44,9 @@ function Game(ui, width, height) {
 
   function collapseDown() {
     do {
-      var moved = false;
-      for (var i = 0; i < tiles.length; i++) {
-        var tile = tiles[i];
+      let moved = false;
+      for (let i = 0; i < tiles.length; i++) {
+        let tile = tiles[i];
         if (tile.j + 1 < height && tile.move(tile.i, tile.j + 1)) {
           moved = true;
         }
@@ -58,17 +57,17 @@ function Game(ui, width, height) {
 
   function collapseLeft() {
     do {
-      var moved = false;
-      for (var i = 0; i < width - 1; i++) {
-        var empty = true;
-        for (var j = 0; j < height && empty; j++) {
+      let moved = false;
+      for (let i = 0; i < width - 1; i++) {
+        let empty = true;
+        for (let j = 0; j < height && empty; j++) {
           empty = !getTile(i, j);
         }
         if (!empty) {
           continue;
         }
-        for (var j = 0; j < height; j++) {
-          var tile = getTile(i + 1, j);
+        for (let j = 0; j < height; j++) {
+          let tile = getTile(i + 1, j);
           if (tile) {
             tile.move(i, j);
             moved = true;
@@ -80,27 +79,27 @@ function Game(ui, width, height) {
   }
 
   function getTile(i, j) {
-    return tilesMap[i + ':' + j];
+    return tilesMap[i + ":" + j];
   }
 
   function setTile(i, j, tile) {
-    if (tilesMap[i + ':' + j]) {
-      console.log('Location unavailable: ' + i + ':' + j);
+    if (tilesMap[i + ":" + j]) {
+      console.log("Location unavailable: " + i + ":" + j);
       return;
     }
-    tilesMap[i + ':' + j] = tile;
+    tilesMap[i + ":" + j] = tile;
   }
 
   function unsetTile(i, j, tile) {
-    if (tilesMap[i + ':' + j] !== tile) {
-      console.log('Invalid location: ' + i + ':' + j);
+    if (tilesMap[i + ":" + j] !== tile) {
+      console.log("Invalid location: " + i + ":" + j);
       return;
     }
-    delete tilesMap[i + ':' + j];
+    delete tilesMap[i + ":" + j];
   }
 
   function updateTiles() {
-    for (var i = 0; i < tiles.length; i++) {
+    for (let i = 0; i < tiles.length; i++) {
       tiles[i].update();
     }
   }
@@ -110,7 +109,7 @@ function Game(ui, width, height) {
     this.ui = ui.tile(this);
   }
 
-  Tile.prototype.match = function(list, search, color) {
+  Tile.prototype.match = function (list, search, color) {
     search = search || +new Date();
     if (search == this.search) {
       return;
@@ -121,22 +120,22 @@ function Game(ui, width, height) {
       return;
     }
     list.push(this);
-    var next
-    if (next = getTile(this.i + 1, this.j)) {
+    let next;
+    if ((next = getTile(this.i + 1, this.j))) {
       next.match(list, search, color);
     }
-    if (next = getTile(this.i - 1, this.j)) {
+    if ((next = getTile(this.i - 1, this.j))) {
       next.match(list, search, color);
     }
-    if (next = getTile(this.i, this.j + 1)) {
+    if ((next = getTile(this.i, this.j + 1))) {
       next.match(list, search, color);
     }
-    if (next = getTile(this.i, this.j - 1)) {
+    if ((next = getTile(this.i, this.j - 1))) {
       next.match(list, search, color);
     }
   };
 
-  Tile.prototype.insert = function(i, j) {
+  Tile.prototype.insert = function (i, j) {
     setTile(i, j, this);
     this.i = i;
     this.j = j;
@@ -144,86 +143,101 @@ function Game(ui, width, height) {
     this.ui.add();
   };
 
-  Tile.prototype.move = function(i, j) {
+  Tile.prototype.move = function (i, j) {
     if (getTile(i, j)) {
       return false;
     }
     unsetTile(this.i, this.j, this);
-    setTile(this.i = i, this.j = j, this);
+    setTile((this.i = i), (this.j = j), this);
     this.dirty = true;
     return true;
   };
 
-  Tile.prototype.update = function(i, j) {
+  Tile.prototype.update = function (i, j) {
     if (this.dirty) {
       this.dirty = false;
       this.ui.update();
     }
   };
 
-  Tile.prototype.remove = function() {
+  Tile.prototype.remove = function () {
     unsetTile(this.i, this.j, this);
     tiles.splice(tiles.indexOf(this), 1);
     this.ui.remove();
   };
-
 }
 
-var stage = Stage.mount();
+let stage = Stage.mount();
 
-stage.background('#222222');
+stage.background("#222222");
 stage.viewbox(24, 24);
 
-var width = 8, height = 8;
+let width = 8,
+  height = 8;
 
-var board = Stage.create().appendTo(stage).pin({
-  width : width * 2,
-  height : height * 2,
-  align : 0.5
-});
+let board = Stage.layout()
+  .appendTo(stage)
+  .pin({
+    width: width * 2,
+    height: height * 2,
+    align: 0.5,
+  });
 
-Stage.sprite('easy').appendTo(board).pin({
-  alignX : 1,
-  alignY : 1,
-  handleY : 0,
-  offsetX : -2,
-  offsetY : 0.5
-}).on(Mouse.CLICK, function() {
-  game.start(4);
-});
+Stage.sprite("easy")
+  .appendTo(board)
+  .pin({
+    alignX: 1,
+    alignY: 1,
+    handleY: 0,
+    offsetX: -2,
+    offsetY: 0.5,
+  })
+  .on("click", function () {
+    game.start(4);
+  });
 
-Stage.sprite('hard').appendTo(board).pin({
-  alignX : 1,
-  alignY : 1,
-  handleY : 0,
-  offsetX : 0.1,
-  offsetY : 0.5
-}).on(Mouse.CLICK, function() {
-  game.start(5);
-});
+Stage.sprite("hard")
+  .appendTo(board)
+  .pin({
+    alignX: 1,
+    alignY: 1,
+    handleY: 0,
+    offsetX: 0.1,
+    offsetY: 0.5,
+  })
+  .on("click", function () {
+    game.start(5);
+  });
 
 // create game with ui callbacks
-var game = new Game({
-  tile : function(tile) {
-    var img = Stage.sprite('tile-' + tile.color).pin({
-      handle : 0.5
-    }).on(Mouse.CLICK, function(point) {
-      game.click(tile);
-    });
-    return {
-      add : function() {
-        img.appendTo(board).offset(tile.i * 2 + 1, tile.j * 2 + 1);
-      },
-      update : function() {
-        img.tween(200).ease('quad-out')
+const game = new Game(
+  {
+    tile: function (tile) {
+      let img = Stage.sprite("tile-" + tile.color)
+        .pin({
+          handle: 0.5,
+        })
+        .on("click", function (point) {
+          game.click(tile);
+        });
+      return {
+        add: function () {
+          img.appendTo(board).offset(tile.i * 2 + 1, tile.j * 2 + 1);
+        },
+        update: function () {
+          img
+            .tween(200)
+            .ease("quad-out")
             .offset(tile.i * 2 + 1, tile.j * 2 + 1);
-      },
-      remove : function() {
-        img.tween(150).alpha(0).remove();
-      }
-    };
-  }
-}, width, height);
+        },
+        remove: function () {
+          img.tween(150).alpha(0).remove();
+        },
+      };
+    },
+  },
+  width,
+  height,
+);
 
 game.start();
-

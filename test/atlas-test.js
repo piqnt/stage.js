@@ -1,21 +1,17 @@
-var expect = require('./util/expect');
-var sandboxed = require('sandboxed-module');
-var sinon = require('sinon');
+const expect = require("./util/expect");
+const sandboxed = require("sandboxed-module");
 
-var Stage = require('../src/tree');
-var Texture = require('../src/texture');
-var Atlas = require('../src/atlas');
+const Atlas = require("../src/atlas");
 
-var mario = {
-  x : 1,
-  y : 2,
-  width : 3,
-  height : 4
+const mario = {
+  x: 1,
+  y: 2,
+  width: 3,
+  height: 4,
 };
 
 function bemario(obj) {
-
-  expect(obj.draw).be.a('function');
+  expect(obj.draw).be.a("function");
 
   expect(obj.width).be(mario.width);
   expect(obj.height).be(mario.height);
@@ -31,144 +27,163 @@ function bemario(obj) {
   expect(obj._dh).be(mario.height);
 }
 
-it('Atlas', function() {
-  var selected;
+it("Atlas", function () {
+  let selected;
 
   selected = new Atlas({
-    textures : {
-      mario : mario
-    }
-  }).select('mario').one();
+    textures: {
+      mario: mario,
+    },
+  })
+    .select("mario")
+    .one();
   bemario(selected);
 
   selected = new Atlas({
-    textures : {
-      mario : function() {
+    textures: {
+      mario: function () {
         return mario;
-      }
-    }
-  }).select('mario').one();
+      },
+    },
+  })
+    .select("mario")
+    .one();
   bemario(selected);
 
   selected = new Atlas({
-    textures : {
-      mario : mario,
-      him : 'mario'
-    }
-  }).select('mario').one();
+    textures: {
+      mario: mario,
+      him: "mario",
+    },
+  })
+    .select("mario")
+    .one();
   bemario(selected);
 
   selected = new Atlas({
-    textures : {
-      mario : mario,
-      him : function() {
-        return 'mario';
-      }
-    }
-  }).select('mario').one();
+    textures: {
+      mario: mario,
+      him: function () {
+        return "mario";
+      },
+    },
+  })
+    .select("mario")
+    .one();
   bemario(selected);
 
   selected = new Atlas({
-    textures : {
-      char : {
-        mario : mario
-      }
-    }
-  }).select('char').one('mario');
+    textures: {
+      char: {
+        mario: mario,
+      },
+    },
+  })
+    .select("char")
+    .one("mario");
   bemario(selected);
 
   selected = new Atlas({
-    textures : {
-      mario : mario,
-      char : {
-        mario : 'mario'
-      }
-    }
-  }).select('char').one('mario');
+    textures: {
+      mario: mario,
+      char: {
+        mario: "mario",
+      },
+    },
+  })
+    .select("char")
+    .one("mario");
   bemario(selected);
 
   selected = new Atlas({
-    textures : {
-      walk : [ mario, mario, mario ]
-    }
-  }).select('walk').array();
+    textures: {
+      walk: [mario, mario, mario],
+    },
+  })
+    .select("walk")
+    .array();
   expect(selected.length).be(3);
   bemario(selected[0]);
 
   selected = new Atlas({
-    textures : {
-      mario : mario,
-      walk : [ 'mario', 'mario', 'mario' ]
-    }
-  }).select('walk').array();
+    textures: {
+      mario: mario,
+      walk: ["mario", "mario", "mario"],
+    },
+  })
+    .select("walk")
+    .array();
   expect(selected.length).be(3);
   bemario(selected[0]);
 });
 
-describe('Stage.texture()', function() {
-  it('atlas.textures', function() {
-    var Stage = sandboxed.require('../src/');
+describe("Stage.texture()", function () {
+  it("atlas.textures", function () {
+    let Stage = sandboxed.require("../src/");
 
     Stage.atlas({
-      name : 'name',
-      textures : {
-        'mario' : mario,
-        'walk' : [ 'mario', 'mario', 'mario' ]
-      }
+      name: "name",
+      textures: {
+        mario: mario,
+        walk: ["mario", "mario", "mario"],
+      },
     });
 
-    var obj, selected;
+    let obj, selected;
 
-    selected = Stage.texture('name:mario').one();
+    selected = Stage.texture("name:mario").one();
     bemario(selected);
 
-    selected = Stage.texture('mario').one();
+    selected = Stage.texture("mario").one();
     bemario(selected);
 
-    selected = Stage.texture('walk').one();
+    selected = Stage.texture("walk").one();
     bemario(selected);
 
-    selected = Stage.texture('mario').array(obj = []);
+    selected = Stage.texture("mario").array((obj = []));
     expect(selected).be(obj);
     expect(selected.length).be(1);
     bemario(selected[0]);
 
-    selected = Stage.texture('walk').array(obj = []);
+    selected = Stage.texture("walk").array((obj = []));
     expect(selected).be(obj);
     expect(selected.length).be(3);
     bemario(selected[0]);
   });
 
-  it('atlas.cutouts', function() {
-    var Stage = sandboxed.require('../src/');
+  it("atlas.cutouts", function () {
+    const Stage = sandboxed.require("../src/");
 
     Stage.atlas({
-      name : "main",
+      name: "main",
       // imagePath : "main.png",
       // imageRatio : 4,
-      trim : 0.1,
-      cutouts : [ {
-        name : "color_dark",
-        x : 0,
-        y : 0,
-        width : 16,
-        height : 16
-      }, {
-        name : "color_light",
-        x : 16,
-        y : 16,
-        width : 16,
-        height : 16
-      } ]
+      trim: 0.1,
+      cutouts: [
+        {
+          name: "color_dark",
+          x: 0,
+          y: 0,
+          width: 16,
+          height: 16,
+        },
+        {
+          name: "color_light",
+          x: 16,
+          y: 16,
+          width: 16,
+          height: 16,
+        },
+      ],
     });
 
-    var dark = Stage.texture("main:color_dark").one();
-    var both = Stage.texture("main:color_").array();
+    let dark = Stage.texture("main:color_dark").one();
+    let both = Stage.texture("main:color_").array();
 
-    expect(dark).be.an('object');
-    expect(both).be.an('array');
+    expect(dark).be.an("object");
+    expect(both).be.an("array");
     expect(both.length).be(2);
-    expect(both[0]).be.an('object');
-    expect(both[1]).be.an('object');
+    expect(both[0]).be.an("object");
+    expect(both[1]).be.an("object");
   });
 });

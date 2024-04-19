@@ -1,5 +1,5 @@
-import Stage from '../../src';
-import './p2';
+import Stage from "../../src";
+import "./p2";
 
 /**
  * P2.js viewer for Stage.js
@@ -8,9 +8,9 @@ import './p2';
 export class P2Stage extends Stage.Node {
   constructor(world, options) {
     super();
-    this.label('P2');
+    this.label("P2");
 
-    var self = this;
+    let self = this;
     this.world = world;
 
     this.options = {
@@ -19,35 +19,36 @@ export class P2Stage extends Stage.Node {
       debug: false,
       debugPolygons: false,
       lineWidth: 0.025,
-      lineColor: '#000000',
+      lineColor: "#000000",
       fillColor: function () {
-        var red = Stage.math.random(192, 256) | 0;
-        var green = Stage.math.random(192, 256) | 0;
-        var blue = Stage.math.random(192, 256) | 0;
+        let red = Stage.math.random(192, 256) | 0;
+        let green = Stage.math.random(192, 256) | 0;
+        let blue = Stage.math.random(192, 256) | 0;
         return "#" + red.toString(16) + green.toString(16) + blue.toString(16);
       },
       ratio: 128,
       get: function (key) {
-        var value = this[key];
-        return typeof value === 'function' ? value() : value;
+        let value = this[key];
+        return typeof value === "function" ? value() : value;
       },
       extend: function (options) {
         return Object.assign({}, this, options);
-      }
+      },
     }.extend(options);
 
-    world.on("addBody", function (e) {
-      self.addRenderable(e.body);
-
-    }).on("removeBody", function (e) {
-      self.removeRenderable(e.body);
-
-    }).on("addSpring", function (e) {
-      self.addRenderable(e.spring);
-
-    }).on("removeSpring", function (e) {
-      self.removeRenderable(e.spring);
-    });
+    world
+      .on("addBody", function (e) {
+        self.addRenderable(e.body);
+      })
+      .on("removeBody", function (e) {
+        self.removeRenderable(e.body);
+      })
+      .on("addSpring", function (e) {
+        self.addRenderable(e.spring);
+      })
+      .on("removeSpring", function (e) {
+        self.removeRenderable(e.spring);
+      });
 
     this.drawContacts = false;
     this.toggleContact = function (toggle) {
@@ -60,10 +61,10 @@ export class P2Stage extends Stage.Node {
     };
 
     // Add initial bodies
-    for (var i = 0; i < world.bodies.length; i++) {
+    for (let i = 0; i < world.bodies.length; i++) {
       this.addRenderable(world.bodies[i]);
     }
-    for (var i = 0; i < world.springs.length; i++) {
+    for (let i = 0; i < world.springs.length; i++) {
       this.addRenderable(world.springs[i]);
     }
 
@@ -76,123 +77,117 @@ export class P2Stage extends Stage.Node {
   step(t) {
     this.world.step(this.options.timeStep, t, this.options.maxSubSteps);
 
-    for (var i = 0; i < this.world.bodies.length; i++) {
-      var body = this.world.bodies[i];
+    for (let i = 0; i < this.world.bodies.length; i++) {
+      let body = this.world.bodies[i];
       if (body.ui) {
         body.ui.pin({
           offsetX: body.position[0],
           offsetY: -body.position[1],
-          rotation: -body.angle
+          rotation: -body.angle,
         });
       }
     }
-    for (var i = 0; i < this.world.springs.length; i++) {
-      var spring = this.world.springs[i];
+    for (let i = 0; i < this.world.springs.length; i++) {
+      let spring = this.world.springs[i];
 
       spring.getWorldAnchorA(this.tempv);
-      var ax = this.tempv[0];
-      var ay = this.tempv[1];
+      let ax = this.tempv[0];
+      let ay = this.tempv[1];
 
       spring.getWorldAnchorB(this.tempv);
-      var bx = this.tempv[0];
-      var by = this.tempv[1];
+      let bx = this.tempv[0];
+      let by = this.tempv[1];
 
       // Spring position is the mean point between the anchors
-      var x = (ax + bx) / 2;
-      var y = (ay + by) / 2;
+      let x = (ax + bx) / 2;
+      let y = (ay + by) / 2;
 
       // Compute distance vector between anchors, in screen coords
-      var dx = ax - bx;
-      var dy = ay - by;
+      let dx = ax - bx;
+      let dy = ay - by;
 
-      var a = Math.atan2(dx, dy) + Math.PI / 2;
+      let a = Math.atan2(dx, dy) + Math.PI / 2;
 
-      var s = Stage.math.length(dx, dy) / spring.restLength;
+      let s = Stage.math.length(dx, dy) / spring.restLength;
 
       spring.ui.pin({
         offsetX: x,
         offsetY: -y,
         scaleX: s,
-        rotation: a
+        rotation: a,
       });
     }
   }
   addRenderable(obj) {
-
     if (!this.options.debug && typeof obj.ui !== "undefined") {
       obj.ui && obj.ui.appendTo(this);
       return;
     }
 
-    obj.ui = Stage.create().appendTo(this);
+    obj.ui = Stage.layout().appendTo(this);
 
     if (obj instanceof p2.Body && obj.shapes.length) {
       if (obj.concavePath && !this.options.debugPolygons) {
-        var texture = this.drawConvex(obj.concavePath, obj.render);
-        Stage.sprite(texture).appendTo(obj.ui).pin({
-          handle: 0.5,
-          offsetX: obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
-          offsetY: -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
-          rotation: -obj.shapeAngles[i] || 0
-        });
-
+        let texture = this.drawConvex(obj.concavePath, obj.render);
+        Stage.sprite(texture)
+          .appendTo(obj.ui)
+          .pin({
+            handle: 0.5,
+            offsetX: obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
+            offsetY: -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
+            rotation: -obj.shapeAngles[i] || 0,
+          });
       } else {
-        for (var i = 0; i < obj.shapes.length; i++) {
-          var shape = obj.shapes[i];
-          var options = shape.render || obj.render;
+        for (let i = 0; i < obj.shapes.length; i++) {
+          let shape = obj.shapes[i];
+          let options = shape.render || obj.render;
 
-          var texture = null;
+          let texture = null;
           if (shape instanceof p2.Circle) {
             texture = this.drawCircle(shape.radius, options);
-
           } else if (shape instanceof p2.Particle) {
             texture = this.drawParticle(options);
-
           } else if (shape instanceof p2.Plane) {
             texture = this.drawPlane(-10, 10, 10, options);
-
           } else if (shape instanceof p2.Line) {
             texture = this.drawLine(shape.length, options);
-
           } else if (shape instanceof p2.Rectangle) {
             texture = this.drawRectangle(shape.width, shape.height, options);
-
           } else if (shape instanceof p2.Capsule) {
             texture = this.drawCapsule(shape.length, shape.radius, options);
-
           } else if (shape instanceof p2.Convex) {
             if (shape.vertices.length) {
               texture = this.drawConvex(shape.vertices, options);
             }
           }
-          Stage.sprite(texture).appendTo(obj.ui).pin({
-            handle: 0.5,
-            offsetX: obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
-            offsetY: -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
-            rotation: -obj.shapeAngles[i] || 0
-          });
+          Stage.sprite(texture)
+            .appendTo(obj.ui)
+            .pin({
+              handle: 0.5,
+              offsetX: obj.shapeOffsets[i] ? obj.shapeOffsets[i][0] : 0,
+              offsetY: -(obj.shapeOffsets[i] ? obj.shapeOffsets[i][1] : 0),
+              rotation: -obj.shapeAngles[i] || 0,
+            });
         }
       }
-
     } else if (obj instanceof p2.Spring) {
-      var texture = this.drawSpring(obj.restLength, obj.render);
+      let texture = this.drawSpring(obj.restLength, obj.render);
       Stage.sprite(texture).appendTo(obj.ui).pin({
-        handle: 0.5
+        handle: 0.5,
       });
     }
-
   }
   removeRenderable(obj) {
     obj.ui && (obj.ui.drop ? obj.ui.drop() : obj.ui.remove());
   }
   drawLine(length, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth');
-    var lineColor = options.get('lineColor');
-    var fillColor = options.get('fillColor');
+    let lineWidth = options.get("lineWidth");
+    let lineColor = options.get("lineColor");
+    let fillColor = options.get("fillColor");
 
     lineWidth *= 2;
-    var ratio = options.ratio;
+    let ratio = options.ratio;
 
     return Stage.canvas(function (ctx) {
       this.size(length + 2 * lineWidth, lineWidth, ratio);
@@ -210,13 +205,13 @@ export class P2Stage extends Stage.Node {
   }
   drawRectangle(w, h, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth');
-    var lineColor = options.get('lineColor');
-    var fillColor = options.get('fillColor');
+    let lineWidth = options.get("lineWidth");
+    let lineColor = options.get("lineColor");
+    let fillColor = options.get("fillColor");
 
-    var width = w + 2 * lineWidth;
-    var height = h + 2 * lineWidth;
-    var ratio = options.ratio;
+    let width = w + 2 * lineWidth;
+    let height = h + 2 * lineWidth;
+    let ratio = options.ratio;
 
     return Stage.canvas(function (ctx) {
       this.size(width, height, ratio);
@@ -235,13 +230,13 @@ export class P2Stage extends Stage.Node {
   }
   drawCircle(radius, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth');
-    var lineColor = options.get('lineColor');
-    var fillColor = options.get('fillColor');
+    let lineWidth = options.get("lineWidth");
+    let lineColor = options.get("lineColor");
+    let fillColor = options.get("fillColor");
 
-    var width = radius * 2 + lineWidth * 2;
-    var height = radius * 2 + lineWidth * 2;
-    var ratio = options.ratio;
+    let width = radius * 2 + lineWidth * 2;
+    let height = radius * 2 + lineWidth * 2;
+    let ratio = options.ratio;
 
     return Stage.canvas(function (ctx) {
       this.size(width, height, ratio);
@@ -267,15 +262,15 @@ export class P2Stage extends Stage.Node {
   drawParticle(options) {
     options = this.options.extend(options);
 
-    var lineWidth = options.get('lineWidth');
-    var lineColor = '';
-    var fillColor = options.get('fillColor') || options.get('lineColor');
+    let lineWidth = options.get("lineWidth");
+    let lineColor = "";
+    let fillColor = options.get("fillColor") || options.get("lineColor");
 
-    var radius = 2 * options.get('lineWidth');
+    let radius = 2 * options.get("lineWidth");
 
-    var width = radius * 2 + lineWidth * 2;
-    var height = radius * 2 + lineWidth * 2;
-    var ratio = options.ratio;
+    let width = radius * 2 + lineWidth * 2;
+    let height = radius * 2 + lineWidth * 2;
+    let ratio = options.ratio;
 
     return Stage.canvas(function (ctx) {
       this.size(width, height, ratio);
@@ -300,13 +295,13 @@ export class P2Stage extends Stage.Node {
   }
   drawCapsule(len, radius, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth');
-    var lineColor = options.get('lineColor');
-    var fillColor = options.get('fillColor');
+    let lineWidth = options.get("lineWidth");
+    let lineColor = options.get("lineColor");
+    let fillColor = options.get("fillColor");
 
-    var width = len + 2 * radius + 2 * lineWidth;
-    var height = 2 * radius + 2 * lineWidth;
-    var ratio = options.ratio;
+    let width = len + 2 * radius + 2 * lineWidth;
+    let height = 2 * radius + 2 * lineWidth;
+    let ratio = options.ratio;
 
     return Stage.canvas(function (ctx) {
       this.size(width, height, ratio);
@@ -315,11 +310,9 @@ export class P2Stage extends Stage.Node {
       ctx.beginPath();
       ctx.moveTo(radius + lineWidth, lineWidth);
       ctx.lineTo(len + radius + lineWidth, lineWidth);
-      ctx.arc(len + radius + lineWidth, radius + lineWidth, radius,
-        -Math.PI / 2, Math.PI / 2);
+      ctx.arc(len + radius + lineWidth, radius + lineWidth, radius, -Math.PI / 2, Math.PI / 2);
       ctx.lineTo(radius + lineWidth, 2 * radius + lineWidth);
-      ctx.arc(radius + lineWidth, radius + lineWidth, radius, Math.PI / 2,
-        -Math.PI / 2);
+      ctx.arc(radius + lineWidth, radius + lineWidth, radius, Math.PI / 2, -Math.PI / 2);
       ctx.closePath();
       if (fillColor) {
         ctx.fillStyle = fillColor;
@@ -332,17 +325,17 @@ export class P2Stage extends Stage.Node {
   }
   drawSpring(length, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth');
-    var lineColor = options.get('lineColor');
-    var fillColor = options.get('fillColor');
+    let lineWidth = options.get("lineWidth");
+    let lineColor = options.get("lineColor");
+    let fillColor = options.get("fillColor");
 
     length = Math.max(length, lineWidth * 10);
 
-    var N = 12;
-    var dx = length / N;
-    var dy = 0.2 * length;
+    let N = 12;
+    let dx = length / N;
+    let dy = 0.2 * length;
 
-    var ratio = options.ratio;
+    let ratio = options.ratio;
 
     return Stage.canvas(function (ctx) {
       this.size(length, dy * 2, ratio);
@@ -353,9 +346,9 @@ export class P2Stage extends Stage.Node {
       ctx.lineJoin = "round";
 
       ctx.moveTo(0, dy);
-      for (var i = 1; i < N; i++) {
-        var x = dx * i;
-        var y = dy;
+      for (let i = 1; i < N; i++) {
+        let x = dx * i;
+        let y = dy;
         if (i <= 1 || i >= N - 1) {
           // Do nothing
         } else if (i % 2 === 0) {
@@ -372,11 +365,11 @@ export class P2Stage extends Stage.Node {
   }
   drawPlane(x0, x1, max, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth');
-    var lineColor = options.get('lineColor');
-    var fillColor = options.get('fillColor');
+    let lineWidth = options.get("lineWidth");
+    let lineColor = options.get("lineColor");
+    let fillColor = options.get("fillColor");
 
-    var ratio = options.ratio;
+    let ratio = options.ratio;
 
     return Stage.canvas(function (ctx) {
       this.size(max * 2, max * 2, ratio);
@@ -403,23 +396,25 @@ export class P2Stage extends Stage.Node {
 
       ctx.stroke();
     });
-
   }
   drawConvex(verts, options) {
     options = this.options.extend(options);
-    var lineWidth = options.get('lineWidth');
-    var lineColor = options.get('lineColor');
-    var fillColor = options.get('fillColor');
+    let lineWidth = options.get("lineWidth");
+    let lineColor = options.get("lineColor");
+    let fillColor = options.get("fillColor");
 
     if (!verts.length) {
       return;
     }
 
-    var width = 0, height = 0;
-    var ratio = options.ratio;
+    let width = 0,
+      height = 0;
+    let ratio = options.ratio;
 
-    for (var i = 0; i < verts.length; i++) {
-      var v = verts[i], x = v[0], y = -v[1];
+    for (let i = 0; i < verts.length; i++) {
+      let v = verts[i],
+        x = v[0],
+        y = -v[1];
       width = Math.max(Math.abs(x), width);
       height = Math.max(Math.abs(y), height);
     }
@@ -429,14 +424,12 @@ export class P2Stage extends Stage.Node {
 
       ctx.scale(ratio, ratio);
       ctx.beginPath();
-      for (var i = 0; i < verts.length; i++) {
-        var v = verts[i], x = v[0] + width + lineWidth, y = -v[1] + height
-          + lineWidth;
-        if (i == 0)
-          ctx.moveTo(x, y);
-
-        else
-          ctx.lineTo(x, y);
+      for (let i = 0; i < verts.length; i++) {
+        let v = verts[i],
+          x = v[0] + width + lineWidth,
+          y = -v[1] + height + lineWidth;
+        if (i == 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
 
       if (verts.length > 2) {

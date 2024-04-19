@@ -1,16 +1,15 @@
-var expect = require('./util/expect');
-var sinon = require('sinon');
+let expect = require("./util/expect");
 
-var Stage = require('../src/');
+let Stage = require("../src/");
 
-it('static methods', function() {
-  expect(Stage.start).be.a('function');
-  expect(Stage.pause).be.a('function');
-  expect(Stage.resume).be.a('function');
-  expect(Stage.app).be.a('function');
-  expect(Stage.atlas).be.a('function');
+it("static methods", function () {
+  expect(Stage.start).be.a("function");
+  expect(Stage.pause).be.a("function");
+  expect(Stage.resume).be.a("function");
+  expect(Stage.app).be.a("function");
+  expect(Stage.atlas).be.a("function");
 
-  expect(Stage.create).be.a('function');
+  expect(Stage.create).be.a("function");
 
   // expect(Stage.stage).be.a('function');
   // expect(Stage.sprite).be.a('function');

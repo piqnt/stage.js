@@ -1,9 +1,9 @@
-var Timeout = (function() {
-  var map = {};
-  var list = [];
+let Timeout = (function () {
+  let map = {};
+  let list = [];
   function set(fn, delay, name) {
-    var id = setTimeout(function() {
-      var i = list.indexOf(id);
+    let id = setTimeout(function () {
+      let i = list.indexOf(id);
       i >= 0 && list.splice(i, 1);
       fn();
     }, delay);
@@ -17,14 +17,19 @@ var Timeout = (function() {
   function unset(name) {
     clearTimeout(map[name]);
     clearTimeout(name);
-    var i = list.indexOf(id);
+    let i = list.indexOf(id);
     i >= 0 && list.splice(i, 1);
   }
   function loop(fn, delay, name) {
     delay = delay || fn();
-    delay && set(function() {
-      loop(fn, 0, name);
-    }, delay, name);
+    delay &&
+      set(
+        function () {
+          loop(fn, 0, name);
+        },
+        delay,
+        name,
+      );
   }
   function reset() {
     while (list.length) {
@@ -32,10 +37,10 @@ var Timeout = (function() {
     }
   }
   return {
-    set : set,
-    unset : unset,
-    reset : reset,
-    loop : loop
+    set: set,
+    unset: unset,
+    reset: reset,
+    loop: loop,
   };
 })();
 

@@ -1,32 +1,36 @@
 function bezier(ps, conf) {
-
   if (!ps || !ps.length) {
     return null;
   }
 
   conf = conf || {};
 
-  var fx = conf.fx || function(p) {
-    return p.x || p[0];
-  };
-  var fy = conf.fy || function(p) {
-    return p.y || p[1];
-  };
+  let fx =
+    conf.fx ||
+    function (p) {
+      return p.x || p[0];
+    };
+  let fy =
+    conf.fy ||
+    function (p) {
+      return p.y || p[1];
+    };
 
-  var dx = fx(ps[0]);
-  var cx = 3 * (fx(ps[1]) - fx(ps[0]));
-  var bx = 3 * (fx(ps[2]) - fx(ps[1])) - cx;
-  var ax = fx(ps[3]) - fx(ps[0]) - cx - bx;
+  let dx = fx(ps[0]);
+  let cx = 3 * (fx(ps[1]) - fx(ps[0]));
+  let bx = 3 * (fx(ps[2]) - fx(ps[1])) - cx;
+  let ax = fx(ps[3]) - fx(ps[0]) - cx - bx;
 
-  var dy = fy(ps[0]);
-  var cy = 3 * (fy(ps[1]) - fy(ps[0]));
-  var by = 3 * (fy(ps[2]) - fy(ps[1])) - cy;
-  var ay = fy(ps[3]) - fy(ps[0]) - cy - by;
+  let dy = fy(ps[0]);
+  let cy = 3 * (fy(ps[1]) - fy(ps[0]));
+  let by = 3 * (fy(ps[2]) - fy(ps[1])) - cy;
+  let ay = fy(ps[3]) - fy(ps[0]) - cy - by;
 
-  return function(t, xy) {
-    var t2 = t * t, t3 = t * t * t;
-    var x = ax * t3 + bx * t2 + cx * t + dx;
-    var y = ay * t3 + by * t2 + cy * t + dy;
+  return function (t, xy) {
+    let t2 = t * t,
+      t3 = t * t * t;
+    let x = ax * t3 + bx * t2 + cx * t + dx;
+    let y = ay * t3 + by * t2 + cy * t + dy;
     return __xy(x, y, xy);
   };
 }
@@ -34,8 +38,8 @@ function bezier(ps, conf) {
 function __xy(x, y, xy) {
   if (!xy) {
     return {
-      x : x,
-      y : y
+      x: x,
+      y: y,
     };
   } else if (typeof xy === "function") {
     return xy(x, y);
@@ -49,8 +53,8 @@ function __xy(x, y, xy) {
     return xy;
   } else {
     return {
-      x : x,
-      y : y
+      x: x,
+      y: y,
     };
   }
 }

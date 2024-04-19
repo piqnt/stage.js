@@ -1,21 +1,21 @@
-import Stage from '../../src';
-import '../common/texture';
+import Stage from "../../src";
+import "../common/texture";
 
 const stage = Stage.mount();
 
 stage.viewbox(100, 100);
 
 let toggle = true;
-Stage.anim('rainbow')
+Stage.anim("rainbow")
   .appendTo(stage)
-  .pin('align', 0.5)
+  .pin("align", 0.5)
   .fps(4)
-  .on(Stage.Mouse.CLICK, function(point) {
+  .on("click", function (point) {
     if (toggle) {
-      console.log('play');
+      console.log("play");
       this.play();
     } else {
-      console.log('stop');
+      console.log("stop");
       this.stop();
     }
     toggle = !toggle;

@@ -1,6 +1,6 @@
 {
   "name": "stage-js",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
   "author": "Ali Shakiba (http://shakiba.me/stage.js)",
@@ -38,19 +38,33 @@
   "ignore": [
     "example/"
   ],
-  "devDependencies": {
-    "@vue/compiler-sfc": "^3.3.4",
-    "expect.js": "^0.3.1",
-    "glob": "^10.2.6",
-    "mocha": "^6.2.3",
-    "sandboxed-module": "^2.0.0",
-    "sinon": "^9.0.2",
-    "vite": "^4.3.8",
-    "vite-plugin-pages": "^0.30.1"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "mocha test/*.js"
+    "test": "mocha test/*.js",
+    "lint": "eslint './src/**/*.ts'",
+    "pretty": "prettier --write .",
+    "preflight": "npm run pretty && npm run lint",
+    "typedef": "dts-bundle-generator ./src/index.ts -o ./dist/stage.d.ts --no-banner",
+    "typedoc": "typedoc --options typedoc.json"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
+    "@vue/compiler-sfc": "^3.3.4",
+    "dts-bundle-generator": "^9.5.0",
+    "eslint": "^8.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "expect.js": "^0.3.1",
+    "glob": "^10.2.6",
+    "mocha": "^6.2.3",
+    "prettier": "^3.2.5",
+    "sandboxed-module": "^2.0.0",
+    "sinon": "^9.0.2",
+    "typedoc": "^0.17.8",
+    "typedoc-plugin-markdown": "^2.4.2",
+    "typescript": "^4.2.4",
+    "vite": "^4.3.8",
+    "vite-plugin-pages": "^0.30.1"
   }
 }

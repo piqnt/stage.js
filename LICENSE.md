@@ -1,5 +1,5 @@
-@copyright Copyright (c) 2023 Ali Shakiba http://shakiba.me/stage.js  
-@license The MIT License (MIT)  
+@copyright Copyright (c) 2024 Ali Shakiba  
+@license The MIT License (MIT)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

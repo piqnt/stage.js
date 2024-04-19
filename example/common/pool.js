@@ -1,29 +1,34 @@
 function Pool() {
-  var _create, _exit, _enter, _discard;
-  var _list = [], _max = 4, _name = "";
-  var _created = 0, _checkedout = 0, _checkedin = 0, _discarded = 0;
+  let _create, _exit, _enter, _discard;
+  let _list = [],
+    _max = 4,
+    _name = "";
+  let _created = 0,
+    _checkedout = 0,
+    _checkedin = 0,
+    _discarded = 0;
 
-  this.create = function(create) {
+  this.create = function (create) {
     _create = create;
     return this;
   };
 
-  this.exit = function(exit) {
+  this.exit = function (exit) {
     _exit = exit;
     return this;
   };
 
-  this.enter = function(enter) {
+  this.enter = function (enter) {
     _enter = enter;
     return this;
   };
 
-  this.discard = function(discard) {
+  this.discard = function (discard) {
     _discard = discard;
     return this;
   };
 
-  this.max = function(max) {
+  this.max = function (max) {
     if (!arguments.length) {
       return _max;
     }
@@ -31,7 +36,7 @@ function Pool() {
     return this;
   };
 
-  this.name = function(name) {
+  this.name = function (name) {
     if (!arguments.length) {
       return _name;
     }
@@ -39,8 +44,8 @@ function Pool() {
     return this;
   };
 
-  this.checkOut = function(create) {
-    var item;
+  this.checkOut = function (create) {
+    let item;
     if (_list.length) {
       item = _list.shift();
     } else {
@@ -52,7 +57,7 @@ function Pool() {
     return item;
   };
 
-  this.checkIn = function(item, discard) {
+  this.checkIn = function (item, discard) {
     if (_list.length < _max) {
       _checkedin++;
       _enter && _enter.call(this, item);
@@ -63,10 +68,24 @@ function Pool() {
     }
   };
 
-  this.toString = function() {
-    return "Pool" + (_name ? " (" + _name + ")" : "") + ":" + " +" + _created
-        + " >" + _checkedout + " <" + _checkedin + " -" + _discarded + " ="
-        + _list.length + "/" + _max;
+  this.toString = function () {
+    return (
+      "Pool" +
+      (_name ? " (" + _name + ")" : "") +
+      ":" +
+      " +" +
+      _created +
+      " >" +
+      _checkedout +
+      " <" +
+      _checkedin +
+      " -" +
+      _discarded +
+      " =" +
+      _list.length +
+      "/" +
+      _max
+    );
   };
 }
 
