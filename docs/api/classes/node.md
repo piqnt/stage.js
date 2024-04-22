@@ -6,11 +6,11 @@
 
 * **Node**
 
-  ↳ [Root](root.md)
-
   ↳ [Sprite](sprite.md)
 
   ↳ [Anim](anim.md)
+
+  ↳ [Root](root.md)
 
   ↳ [Str](str.md)
 
@@ -40,6 +40,7 @@
 * [column](node.md#column)
 * [empty](node.md#empty)
 * [first](node.md#first)
+* [fit](node.md#fit)
 * [height](node.md#height)
 * [hide](node.md#hide)
 * [id](node.md#id)
@@ -71,7 +72,6 @@
 * [rotate](node.md#rotate)
 * [row](node.md#row)
 * [scale](node.md#scale)
-* [scaleTo](node.md#scaleto)
 * [setTimeout](node.md#settimeout)
 * [show](node.md#show)
 * [size](node.md#size)
@@ -135,14 +135,23 @@ ___
 
 ###  append
 
-▸ **append**(`child`: [Node](node.md), `more?`: any): *this*
+▸ **append**(...`child`: [Node](node.md)[]): *this*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`child` | [Node](node.md) |
-`more?` | any |
+`...child` | [Node](node.md)[] |
+
+**Returns:** *this*
+
+▸ **append**(`child`: [Node](node.md)[]): *this*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`child` | [Node](node.md)[] |
 
 **Returns:** *this*
 
@@ -244,6 +253,32 @@ Name | Type |
 `visible?` | boolean |
 
 **Returns:** *[Node](node.md)‹›*
+
+___
+
+###  fit
+
+▸ **fit**(`width`: number, `height`: number, `mode?`: [FitMode](../globals.md#fitmode)): *this*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`width` | number |
+`height` | number |
+`mode?` | [FitMode](../globals.md#fitmode) |
+
+**Returns:** *this*
+
+▸ **fit**(`fit`: object): *this*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`fit` | object |
+
+**Returns:** *this*
 
 ___
 
@@ -567,14 +602,23 @@ ___
 
 ###  prepend
 
-▸ **prepend**(`child`: [Node](node.md), `more?`: any): *this*
+▸ **prepend**(...`child`: [Node](node.md)[]): *this*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`child` | [Node](node.md) |
-`more?` | any |
+`...child` | [Node](node.md)[] |
+
+**Returns:** *this*
+
+▸ **prepend**(`child`: [Node](node.md)[]): *this*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`child` | [Node](node.md)[] |
 
 **Returns:** *this*
 
@@ -708,22 +752,6 @@ Name | Type |
 ------ | ------ |
 `x` | number |
 `y` | number |
-
-**Returns:** *this*
-
-___
-
-###  scaleTo
-
-▸ **scaleTo**(`a`: any, `b`: any, `c`: any): *this*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`a` | any |
-`b` | any |
-`c` | any |
 
 **Returns:** *this*
 

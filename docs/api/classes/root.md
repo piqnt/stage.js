@@ -42,6 +42,7 @@
 * [column](root.md#column)
 * [empty](root.md#empty)
 * [first](root.md#first)
+* [fit](root.md#fit)
 * [height](root.md#height)
 * [hide](root.md#hide)
 * [id](root.md#id)
@@ -76,7 +77,6 @@
 * [rotate](root.md#rotate)
 * [row](root.md#row)
 * [scale](root.md#scale)
-* [scaleTo](root.md#scaleto)
 * [setTimeout](root.md#settimeout)
 * [show](root.md#show)
 * [size](root.md#size)
@@ -110,7 +110,7 @@
 
 • **MAX_ELAPSE**: *number* = Infinity
 
-*Inherited from [Root](root.md).[MAX_ELAPSE](root.md#max_elapse)*
+*Inherited from [Node](node.md).[MAX_ELAPSE](node.md#max_elapse)*
 
 ___
 
@@ -154,7 +154,7 @@ ___
 
 ▸ **align**(`type`: "row" | "column", `align`: number): *this*
 
-*Inherited from [Root](root.md).[align](root.md#align)*
+*Inherited from [Node](node.md).[align](node.md#align)*
 
 **Parameters:**
 
@@ -171,7 +171,7 @@ ___
 
 ▸ **alpha**(`a`: number, `ta?`: number): *this*
 
-*Inherited from [Root](root.md).[alpha](root.md#alpha)*
+*Inherited from [Node](node.md).[alpha](node.md#alpha)*
 
 **Parameters:**
 
@@ -186,16 +186,27 @@ ___
 
 ###  append
 
-▸ **append**(`child`: [Node](node.md), `more?`: any): *this*
+▸ **append**(...`child`: [Node](node.md)[]): *this*
 
-*Inherited from [Root](root.md).[append](root.md#append)*
+*Inherited from [Node](node.md).[append](node.md#append)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`child` | [Node](node.md) |
-`more?` | any |
+`...child` | [Node](node.md)[] |
+
+**Returns:** *this*
+
+▸ **append**(`child`: [Node](node.md)[]): *this*
+
+*Inherited from [Node](node.md).[append](node.md#append)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`child` | [Node](node.md)[] |
 
 **Returns:** *this*
 
@@ -205,7 +216,7 @@ ___
 
 ▸ **appendTo**(`parent`: [Node](node.md)): *this*
 
-*Inherited from [Root](root.md).[appendTo](root.md#appendto)*
+*Inherited from [Node](node.md).[appendTo](node.md#appendto)*
 
 **Parameters:**
 
@@ -221,7 +232,7 @@ ___
 
 ▸ **attr**(`name`: string, `value`: any): *this*
 
-*Inherited from [Root](root.md).[attr](root.md#attr)*
+*Inherited from [Node](node.md).[attr](node.md#attr)*
 
 **Parameters:**
 
@@ -234,7 +245,7 @@ Name | Type |
 
 ▸ **attr**(`name`: string): *any*
 
-*Inherited from [Root](root.md).[attr](root.md#attr)*
+*Inherited from [Node](node.md).[attr](node.md#attr)*
 
 **Parameters:**
 
@@ -264,7 +275,7 @@ ___
 
 ▸ **box**(): *this*
 
-*Inherited from [Root](root.md).[box](root.md#box)*
+*Inherited from [Node](node.md).[box](node.md#box)*
 
 **`deprecated`** Use minimize()
 
@@ -290,7 +301,7 @@ ___
 
 ▸ **clearTimeout**(`timer`: [NodeTickListener](../globals.md#nodeticklistener)‹this›): *void*
 
-*Inherited from [Root](root.md).[clearTimeout](root.md#cleartimeout)*
+*Inherited from [Node](node.md).[clearTimeout](node.md#cleartimeout)*
 
 **Parameters:**
 
@@ -306,7 +317,7 @@ ___
 
 ▸ **column**(`align`: number): *this*
 
-*Inherited from [Root](root.md).[column](root.md#column)*
+*Inherited from [Node](node.md).[column](node.md#column)*
 
 **Parameters:**
 
@@ -322,7 +333,7 @@ ___
 
 ▸ **empty**(): *this*
 
-*Inherited from [Root](root.md).[empty](root.md#empty)*
+*Inherited from [Node](node.md).[empty](node.md#empty)*
 
 **Returns:** *this*
 
@@ -332,7 +343,7 @@ ___
 
 ▸ **first**(`visible?`: boolean): *[Node](node.md)‹›*
 
-*Inherited from [Root](root.md).[first](root.md#first)*
+*Inherited from [Node](node.md).[first](node.md#first)*
 
 **Parameters:**
 
@@ -344,11 +355,41 @@ Name | Type |
 
 ___
 
+###  fit
+
+▸ **fit**(`width`: number, `height`: number, `mode?`: [FitMode](../globals.md#fitmode)): *this*
+
+*Inherited from [Node](node.md).[fit](node.md#fit)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`width` | number |
+`height` | number |
+`mode?` | [FitMode](../globals.md#fitmode) |
+
+**Returns:** *this*
+
+▸ **fit**(`fit`: object): *this*
+
+*Inherited from [Node](node.md).[fit](node.md#fit)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`fit` | object |
+
+**Returns:** *this*
+
+___
+
 ###  height
 
 ▸ **height**(`h`: number): *this*
 
-*Inherited from [Root](root.md).[height](root.md#height)*
+*Inherited from [Node](node.md).[height](node.md#height)*
 
 **Parameters:**
 
@@ -360,7 +401,7 @@ Name | Type |
 
 ▸ **height**(): *number*
 
-*Inherited from [Root](root.md).[height](root.md#height)*
+*Inherited from [Node](node.md).[height](node.md#height)*
 
 **Returns:** *number*
 
@@ -370,7 +411,7 @@ ___
 
 ▸ **hide**(): *this*
 
-*Inherited from [Root](root.md).[hide](root.md#hide)*
+*Inherited from [Node](node.md).[hide](node.md#hide)*
 
 **Returns:** *this*
 
@@ -380,7 +421,7 @@ ___
 
 ▸ **id**(`id`: string): *string | this*
 
-*Inherited from [Root](root.md).[id](root.md#id)*
+*Inherited from [Node](node.md).[id](node.md#id)*
 
 **`deprecated`** Use label()
 
@@ -398,7 +439,7 @@ ___
 
 ▸ **insertAfter**(`prev`: [Node](node.md)): *this*
 
-*Inherited from [Root](root.md).[insertAfter](root.md#insertafter)*
+*Inherited from [Node](node.md).[insertAfter](node.md#insertafter)*
 
 **Parameters:**
 
@@ -414,7 +455,7 @@ ___
 
 ▸ **insertBefore**(`next`: [Node](node.md)): *this*
 
-*Inherited from [Root](root.md).[insertBefore](root.md#insertbefore)*
+*Inherited from [Node](node.md).[insertBefore](node.md#insertbefore)*
 
 **Parameters:**
 
@@ -430,7 +471,7 @@ ___
 
 ▸ **insertNext**(`sibling`: [Node](node.md), `more?`: [Node](node.md)): *this*
 
-*Inherited from [Root](root.md).[insertNext](root.md#insertnext)*
+*Inherited from [Node](node.md).[insertNext](node.md#insertnext)*
 
 **Parameters:**
 
@@ -447,7 +488,7 @@ ___
 
 ▸ **insertPrev**(`sibling`: [Node](node.md), `more?`: [Node](node.md)): *this*
 
-*Inherited from [Root](root.md).[insertPrev](root.md#insertprev)*
+*Inherited from [Node](node.md).[insertPrev](node.md#insertprev)*
 
 **Parameters:**
 
@@ -464,7 +505,7 @@ ___
 
 ▸ **label**(`label`: string): *string | this*
 
-*Inherited from [Root](root.md).[label](root.md#label)*
+*Inherited from [Node](node.md).[label](node.md#label)*
 
 **Parameters:**
 
@@ -480,7 +521,7 @@ ___
 
 ▸ **last**(`visible?`: boolean): *[Node](node.md)‹›*
 
-*Inherited from [Root](root.md).[last](root.md#last)*
+*Inherited from [Node](node.md).[last](node.md#last)*
 
 **Parameters:**
 
@@ -496,7 +537,7 @@ ___
 
 ▸ **layer**(): *this*
 
-*Inherited from [Root](root.md).[layer](root.md#layer)*
+*Inherited from [Node](node.md).[layer](node.md#layer)*
 
 **`deprecated`** Use minimize()
 
@@ -508,7 +549,7 @@ ___
 
 ▸ **listeners**(`type`: string): *function[]*
 
-*Inherited from [Root](root.md).[listeners](root.md#listeners)*
+*Inherited from [Node](node.md).[listeners](node.md#listeners)*
 
 **Parameters:**
 
@@ -524,7 +565,7 @@ ___
 
 ▸ **matrix**(`relative`: boolean): *[Matrix](matrix.md)‹›*
 
-*Inherited from [Root](root.md).[matrix](root.md#matrix)*
+*Inherited from [Node](node.md).[matrix](node.md#matrix)*
 
 **Parameters:**
 
@@ -540,7 +581,7 @@ ___
 
 ▸ **maximize**(): *this*
 
-*Inherited from [Root](root.md).[maximize](root.md#maximize)*
+*Inherited from [Node](node.md).[maximize](node.md#maximize)*
 
 Set size to match parent size.
 
@@ -552,7 +593,7 @@ ___
 
 ▸ **minimize**(): *this*
 
-*Inherited from [Root](root.md).[minimize](root.md#minimize)*
+*Inherited from [Node](node.md).[minimize](node.md#minimize)*
 
 Set size to match largest child size.
 
@@ -578,7 +619,7 @@ ___
 
 ▸ **next**(`visible?`: boolean): *[Node](node.md)‹›*
 
-*Inherited from [Root](root.md).[next](root.md#next)*
+*Inherited from [Node](node.md).[next](node.md#next)*
 
 **Parameters:**
 
@@ -594,7 +635,7 @@ ___
 
 ▸ **off**(`types`: string, `listener`: [NodeEventListener](../globals.md#nodeeventlistener)‹this›): *this*
 
-*Inherited from [Root](root.md).[off](root.md#off)*
+*Inherited from [Node](node.md).[off](node.md#off)*
 
 **Parameters:**
 
@@ -611,7 +652,7 @@ ___
 
 ▸ **offset**(`value`: [Vec2Value](../interfaces/vec2value.md)): *this*
 
-*Inherited from [Root](root.md).[offset](root.md#offset)*
+*Inherited from [Node](node.md).[offset](node.md#offset)*
 
 **Parameters:**
 
@@ -623,7 +664,7 @@ Name | Type |
 
 ▸ **offset**(`x`: number, `y`: number): *this*
 
-*Inherited from [Root](root.md).[offset](root.md#offset)*
+*Inherited from [Node](node.md).[offset](node.md#offset)*
 
 **Parameters:**
 
@@ -640,7 +681,7 @@ ___
 
 ▸ **on**(`types`: string, `listener`: [NodeEventListener](../globals.md#nodeeventlistener)‹this›): *this*
 
-*Inherited from [Root](root.md).[on](root.md#on)*
+*Inherited from [Node](node.md).[on](node.md#on)*
 
 **Parameters:**
 
@@ -657,7 +698,7 @@ ___
 
 ▸ **padding**(`pad`: number): *this*
 
-*Inherited from [Root](root.md).[padding](root.md#padding)*
+*Inherited from [Node](node.md).[padding](node.md#padding)*
 
 Set cell spacing for layout.
 
@@ -675,7 +716,7 @@ ___
 
 ▸ **parent**(): *[Node](node.md)‹›*
 
-*Inherited from [Root](root.md).[parent](root.md#parent)*
+*Inherited from [Node](node.md).[parent](node.md#parent)*
 
 **Returns:** *[Node](node.md)‹›*
 
@@ -693,7 +734,7 @@ ___
 
 ▸ **pin**(`key`: string): *any*
 
-*Inherited from [Root](root.md).[pin](root.md#pin)*
+*Inherited from [Node](node.md).[pin](node.md#pin)*
 
 **Parameters:**
 
@@ -705,7 +746,7 @@ Name | Type |
 
 ▸ **pin**(`key`: string, `value`: any): *this*
 
-*Inherited from [Root](root.md).[pin](root.md#pin)*
+*Inherited from [Node](node.md).[pin](node.md#pin)*
 
 **Parameters:**
 
@@ -718,7 +759,7 @@ Name | Type |
 
 ▸ **pin**(`obj`: object): *this*
 
-*Inherited from [Root](root.md).[pin](root.md#pin)*
+*Inherited from [Node](node.md).[pin](node.md#pin)*
 
 **Parameters:**
 
@@ -730,7 +771,7 @@ Name | Type |
 
 ▸ **pin**(): *[Pin](pin.md)*
 
-*Inherited from [Root](root.md).[pin](root.md#pin)*
+*Inherited from [Node](node.md).[pin](node.md#pin)*
 
 **Returns:** *[Pin](pin.md)*
 
@@ -738,16 +779,27 @@ ___
 
 ###  prepend
 
-▸ **prepend**(`child`: [Node](node.md), `more?`: any): *this*
+▸ **prepend**(...`child`: [Node](node.md)[]): *this*
 
-*Inherited from [Root](root.md).[prepend](root.md#prepend)*
+*Inherited from [Node](node.md).[prepend](node.md#prepend)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`child` | [Node](node.md) |
-`more?` | any |
+`...child` | [Node](node.md)[] |
+
+**Returns:** *this*
+
+▸ **prepend**(`child`: [Node](node.md)[]): *this*
+
+*Inherited from [Node](node.md).[prepend](node.md#prepend)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`child` | [Node](node.md)[] |
 
 **Returns:** *this*
 
@@ -757,7 +809,7 @@ ___
 
 ▸ **prependTo**(`parent`: [Node](node.md)): *this*
 
-*Inherited from [Root](root.md).[prependTo](root.md#prependto)*
+*Inherited from [Node](node.md).[prependTo](node.md#prependto)*
 
 **Parameters:**
 
@@ -773,7 +825,7 @@ ___
 
 ▸ **prerender**(): *void*
 
-*Inherited from [Root](root.md).[prerender](root.md#prerender)*
+*Inherited from [Node](node.md).[prerender](node.md#prerender)*
 
 **Returns:** *void*
 
@@ -783,7 +835,7 @@ ___
 
 ▸ **prev**(`visible?`: boolean): *[Node](node.md)‹›*
 
-*Inherited from [Root](root.md).[prev](root.md#prev)*
+*Inherited from [Node](node.md).[prev](node.md#prev)*
 
 **Parameters:**
 
@@ -799,7 +851,7 @@ ___
 
 ▸ **publish**(`name`: string, `args?`: any): *number*
 
-*Inherited from [Root](root.md).[publish](root.md#publish)*
+*Inherited from [Node](node.md).[publish](node.md#publish)*
 
 **Parameters:**
 
@@ -816,7 +868,7 @@ ___
 
 ▸ **remove**(`child?`: [Node](node.md), `more?`: any): *this*
 
-*Inherited from [Root](root.md).[remove](root.md#remove)*
+*Inherited from [Node](node.md).[remove](node.md#remove)*
 
 **Parameters:**
 
@@ -833,7 +885,7 @@ ___
 
 ▸ **render**(`context`: CanvasRenderingContext2D): *void*
 
-*Inherited from [Root](root.md).[render](root.md#render)*
+*Inherited from [Node](node.md).[render](node.md#render)*
 
 **Parameters:**
 
@@ -857,7 +909,7 @@ ___
 
 ▸ **rotate**(`a`: number): *this*
 
-*Inherited from [Root](root.md).[rotate](root.md#rotate)*
+*Inherited from [Node](node.md).[rotate](node.md#rotate)*
 
 **Parameters:**
 
@@ -873,7 +925,7 @@ ___
 
 ▸ **row**(`align`: number): *this*
 
-*Inherited from [Root](root.md).[row](root.md#row)*
+*Inherited from [Node](node.md).[row](node.md#row)*
 
 **Parameters:**
 
@@ -889,7 +941,7 @@ ___
 
 ▸ **scale**(`value`: [Vec2Value](../interfaces/vec2value.md)): *this*
 
-*Inherited from [Root](root.md).[scale](root.md#scale)*
+*Inherited from [Node](node.md).[scale](node.md#scale)*
 
 **Parameters:**
 
@@ -901,7 +953,7 @@ Name | Type |
 
 ▸ **scale**(`x`: number, `y`: number): *this*
 
-*Inherited from [Root](root.md).[scale](root.md#scale)*
+*Inherited from [Node](node.md).[scale](node.md#scale)*
 
 **Parameters:**
 
@@ -914,29 +966,11 @@ Name | Type |
 
 ___
 
-###  scaleTo
-
-▸ **scaleTo**(`a`: any, `b`: any, `c`: any): *this*
-
-*Inherited from [Root](root.md).[scaleTo](root.md#scaleto)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`a` | any |
-`b` | any |
-`c` | any |
-
-**Returns:** *this*
-
-___
-
 ###  setTimeout
 
 ▸ **setTimeout**(`callback`: function, `time`: number): *timer*
 
-*Inherited from [Root](root.md).[setTimeout](root.md#settimeout)*
+*Inherited from [Node](node.md).[setTimeout](node.md#settimeout)*
 
 **Parameters:**
 
@@ -954,7 +988,7 @@ ___
 
 ▸ **show**(): *this*
 
-*Inherited from [Root](root.md).[show](root.md#show)*
+*Inherited from [Node](node.md).[show](node.md#show)*
 
 **Returns:** *this*
 
@@ -964,7 +998,7 @@ ___
 
 ▸ **size**(`w`: number, `h`: number): *this*
 
-*Inherited from [Root](root.md).[size](root.md#size)*
+*Inherited from [Node](node.md).[size](node.md#size)*
 
 **Parameters:**
 
@@ -981,7 +1015,7 @@ ___
 
 ▸ **skew**(`value`: [Vec2Value](../interfaces/vec2value.md)): *this*
 
-*Inherited from [Root](root.md).[skew](root.md#skew)*
+*Inherited from [Node](node.md).[skew](node.md#skew)*
 
 **Parameters:**
 
@@ -993,7 +1027,7 @@ Name | Type |
 
 ▸ **skew**(`x`: number, `y`: number): *this*
 
-*Inherited from [Root](root.md).[skew](root.md#skew)*
+*Inherited from [Node](node.md).[skew](node.md#skew)*
 
 **Parameters:**
 
@@ -1010,7 +1044,7 @@ ___
 
 ▸ **spacing**(`space`: number): *this*
 
-*Inherited from [Root](root.md).[spacing](root.md#spacing)*
+*Inherited from [Node](node.md).[spacing](node.md#spacing)*
 
 Set cell spacing for row and column layout.
 
@@ -1028,7 +1062,7 @@ ___
 
 ▸ **tick**(`callback`: [NodeTickListener](../globals.md#nodeticklistener)‹this›, `before`: boolean): *void*
 
-*Inherited from [Root](root.md).[tick](root.md#tick)*
+*Inherited from [Node](node.md).[tick](node.md#tick)*
 
 **Parameters:**
 
@@ -1045,7 +1079,7 @@ ___
 
 ▸ **timeout**(`callback`: function, `time`: number): *void*
 
-*Inherited from [Root](root.md).[timeout](root.md#timeout)*
+*Inherited from [Node](node.md).[timeout](node.md#timeout)*
 
 **Parameters:**
 
@@ -1063,7 +1097,7 @@ ___
 
 ▸ **toString**(): *string*
 
-*Inherited from [Root](root.md).[toString](root.md#tostring)*
+*Inherited from [Node](node.md).[toString](node.md#tostring)*
 
 **Returns:** *string*
 
@@ -1073,7 +1107,7 @@ ___
 
 ▸ **tween**(`opts?`: [TransitionOptions](../globals.md#transitionoptions)): *[Transition](transition.md)*
 
-*Inherited from [Root](root.md).[tween](root.md#tween)*
+*Inherited from [Node](node.md).[tween](node.md#tween)*
 
 **Parameters:**
 
@@ -1085,7 +1119,7 @@ Name | Type |
 
 ▸ **tween**(`duration?`: number, `delay?`: number, `append?`: boolean): *[Transition](transition.md)*
 
-*Inherited from [Root](root.md).[tween](root.md#tween)*
+*Inherited from [Node](node.md).[tween](node.md#tween)*
 
 **Parameters:**
 
@@ -1111,7 +1145,7 @@ ___
 
 ▸ **untick**(`callback`: [NodeTickListener](../globals.md#nodeticklistener)‹this›): *void*
 
-*Inherited from [Root](root.md).[untick](root.md#untick)*
+*Inherited from [Node](node.md).[untick](node.md#untick)*
 
 **Parameters:**
 
@@ -1190,7 +1224,7 @@ ___
 
 ▸ **visible**(`visible`: boolean): *this*
 
-*Inherited from [Root](root.md).[visible](root.md#visible)*
+*Inherited from [Node](node.md).[visible](node.md#visible)*
 
 **Parameters:**
 
@@ -1202,7 +1236,7 @@ Name | Type |
 
 ▸ **visible**(): *boolean*
 
-*Inherited from [Root](root.md).[visible](root.md#visible)*
+*Inherited from [Node](node.md).[visible](node.md#visible)*
 
 **Returns:** *boolean*
 
@@ -1212,7 +1246,7 @@ ___
 
 ▸ **visit**‹**P**›(`visitor`: [NodeVisitor](../interfaces/nodevisitor.md)‹P›, `payload?`: P): *false | true | void*
 
-*Inherited from [Root](root.md).[visit](root.md#visit)*
+*Inherited from [Node](node.md).[visit](node.md#visit)*
 
 **Type parameters:**
 
@@ -1233,7 +1267,7 @@ ___
 
 ▸ **width**(`w`: number): *this*
 
-*Inherited from [Root](root.md).[width](root.md#width)*
+*Inherited from [Node](node.md).[width](node.md#width)*
 
 **Parameters:**
 
@@ -1245,6 +1279,6 @@ Name | Type |
 
 ▸ **width**(): *number*
 
-*Inherited from [Root](root.md).[width](root.md#width)*
+*Inherited from [Node](node.md).[width](node.md#width)*
 
 **Returns:** *number*

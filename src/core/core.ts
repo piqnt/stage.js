@@ -1,17 +1,20 @@
 import stats from "../common/stats";
 import { Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
+import { getPixelRatio } from "../common/browser";
 
 import { Texture } from "../texture";
 
-import { Pin, Pinned } from "./pin";
+import { Pin, Pinned, FitMode } from "./pin";
 import { Transition, TransitionOptions } from "./transition";
 
 // todo: why there are two iids (other in pin)?
-/** @internal */ let iid = 0;
+/** @internal */
+let iid = 0;
 stats.create = 0;
 
-/** @internal */ function assertType<T>(obj: T): T {
+/** @internal */
+function assertType<T>(obj: T): T {
   if (obj && obj instanceof Node) {
     return obj;
   }
@@ -80,69 +83,46 @@ export const maximize = function () {
 // - events handling
 
 export class Node implements Pinned {
-  /** @internal */
-  uid = "node:" + uid();
+  /** @internal */ uid = "node:" + uid();
 
-  /** @internal */
-  _label = "";
+  /** @internal */ _label = "";
 
-  /** @internal */
-  _parent: Node | null = null;
-  /** @internal */
-  _next: Node | null = null;
-  /** @internal */
-  _prev: Node | null = null;
+  /** @internal */ _parent: Node | null = null;
+  /** @internal */ _next: Node | null = null;
+  /** @internal */ _prev: Node | null = null;
 
-  /** @internal */
-  _first: Node | null = null;
-  /** @internal */
-  _last: Node | null = null;
+  /** @internal */ _first: Node | null = null;
+  /** @internal */ _last: Node | null = null;
 
-  /** @internal */
-  _visible = true;
+  /** @internal */ _visible = true;
 
   // this is computed on every render, and used by children
-  /** @internal */
-  _alpha: number = 1;
+  /** @internal */ _alpha: number = 1;
 
-  /** @internal */
-  _padding: number = 0;
-  /** @internal */
-  _spacing: number = 0;
+  /** @internal */ _padding: number = 0;
+  /** @internal */ _spacing: number = 0;
 
-  /** @internal */
-  _pin = new Pin(this);
+  /** @internal */ _pin = new Pin(this);
 
-  /** @internal */
-  _ts_pin: number;
-  /** @internal */
-  _ts_parent: number;
-  /** @internal */
-  _ts_children: number;
-  /** @internal */
-  _ts_touch: number;
+  /** @internal */ _ts_pin: number;
+  /** @internal */ _ts_parent: number;
+  /** @internal */ _ts_children: number;
+  /** @internal */ _ts_touch: number;
 
-  /** @internal */
-  _textures: Texture[];
+  /** @internal */ _textures: Texture[];
 
   // todo: don't need to check if these fields are initialized anymore
-  /** @internal */
-  _listeners: Record<string, NodeEventListener<this>[]> = {};
-  /** @internal */
-  _attrs: Record<string, any> = {};
-  /** @internal */
-  _flags: Record<string, any> = {};
-  /** @internal */
-  _transitions: Transition[] = [];
+  /** @internal */ _listeners: Record<string, NodeEventListener<this>[]> = {};
+  /** @internal */ _attrs: Record<string, any> = {};
+  /** @internal */ _flags: Record<string, any> = {};
+  /** @internal */ _transitions: Transition[] = [];
 
-  /** @internal */
-  _tickBefore: NodeTickListener<any>[] = [];
-  /** @internal */
-  _tickAfter: NodeTickListener<any>[] = [];
+  /** @internal */ _tickBefore: NodeTickListener<any>[] = [];
+  /** @internal */ _tickAfter: NodeTickListener<any>[] = [];
 
-  /** @internal */
-  _layoutTicker?: () => void;
+  /** @internal */ _layoutTicker?: () => void;
 
+  // todo: remove this
   MAX_ELAPSE = Infinity;
 
   /** @internal */ _mo_seq: number;
@@ -158,6 +138,15 @@ export class Node implements Pinned {
       return this._pin.relativeMatrix();
     }
     return this._pin.absoluteMatrix();
+  }
+
+  /** @internal */
+  getPixelRatio() {
+    // todo: parent matrix is not available in the first call
+    const m = this._parent?.matrix();
+    // todo: why "divide by" pixel ratio
+    const pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getPixelRatio();
+    return pixelRatio;
   }
 
   pin(key: string): any;
@@ -180,14 +169,21 @@ export class Node implements Pinned {
     }
   }
 
-  scaleTo(a, b, c) {
+  fit(width: number, height: number, mode?: FitMode): this;
+  fit(fit: object): this;
+  fit(a, b?, c?) {
     if (typeof a === "object") {
       c = b;
       b = a.y;
       a = a.x;
     }
-    this._pin.scaleTo(a, b, c);
+    this._pin.fit(a, b, c);
     return this;
+  }
+
+  /** @hidden @deprecated Use fit */
+  scaleTo(a, b?, c?): this {
+    return this.fit(a, b, c);
   }
 
   toString() {
@@ -293,7 +289,9 @@ export class Node implements Pinned {
     return visitor.end && visitor.end(this, payload);
   }
 
-  append(child: Node, more?: any) {
+  append(...child: Node[]): this;
+  append(child: Node[]): this;
+  append(child: Node | Node[], more?: Node) {
     if (Array.isArray(child)) {
       for (let i = 0; i < child.length; i++) {
         Node.append(this, child[i]);
@@ -308,7 +306,9 @@ export class Node implements Pinned {
     return this;
   }
 
-  prepend(child: Node, more?: any) {
+  prepend(...child: Node[]): this;
+  prepend(child: Node[]): this;
+  prepend(child: Node | Node[], more?: Node) {
     if (Array.isArray(child)) {
       for (let i = child.length - 1; i >= 0; i--) {
         Node.prepend(this, child[i]);
@@ -873,7 +873,10 @@ export class Node implements Pinned {
   offset(x: number, y: number): this;
   offset(a?: Vec2Value | number, b?: number) {
     // Pin shortcut, used by Transition and Node
-    if (typeof a === "object") (b = a.y), (a = a.x);
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    }
     this.pin("offsetX", a);
     this.pin("offsetY", b);
     return this;
@@ -889,8 +892,10 @@ export class Node implements Pinned {
   skew(x: number, y: number): this;
   skew(a?: Vec2Value | number, b?: number) {
     // Pin shortcut, used by Transition and Node
-    if (typeof a === "object") (b = a.y), (a = a.x);
-    else if (typeof b === "undefined") b = a;
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    } else if (typeof b === "undefined") b = a;
     this.pin("skewX", a);
     this.pin("skewY", b);
     return this;
@@ -900,8 +905,10 @@ export class Node implements Pinned {
   scale(x: number, y: number): this;
   scale(a?: Vec2Value | number, b?: number) {
     // Pin shortcut, used by Transition and Node
-    if (typeof a === "object") (b = a.y), (a = a.x);
-    else if (typeof b === "undefined") b = a;
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    } else if (typeof b === "undefined") b = a;
     this.pin("scaleX", a);
     this.pin("scaleY", b);
     return this;
@@ -956,10 +963,8 @@ export class Node implements Pinned {
     return transition;
   }
 
-  /** @internal */
-  _transitionTickInitied = false;
-  /** @internal */
-  _transitionTickLastTime = 0;
+  /** @internal */ _transitionTickInitied = false;
+  /** @internal */ _transitionTickLastTime = 0;
   /** @internal */
   _transitionTick = (elapsed: number, now: number, last: number) => {
     if (!this._transitions.length) {

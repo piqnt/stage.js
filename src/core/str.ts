@@ -9,11 +9,9 @@ export const string = function (
 };
 
 export class Str extends Node {
-  /** @internal */
-  _font: (value: string) => Texture;
+  /** @internal */ _font: (value: string) => Texture;
 
-  /** @internal */
-  _value: string | number | string[] | number[];
+  /** @internal */ _value: string | number | string[] | number[];
 
   constructor() {
     super();
@@ -44,7 +42,7 @@ export class Str extends Node {
   }
 
   /** @deprecated Use value */
-  setValue(value) {
+  setValue(value: string | number | string[] | number[]) {
     return this.value(value);
   }
 
@@ -72,8 +70,8 @@ export class Str extends Node {
       const texture = (this._textures[i] = this._font(typeof v === "string" ? v : v + ""));
       width += i > 0 ? this._spacing : 0;
       texture.setDestinationCoordinate(width, 0);
-      width = width + texture.width;
-      height = Math.max(height, texture.height);
+      width = width + texture.getWidth();
+      height = Math.max(height, texture.getHeight());
     }
     this.pin("width", width);
     this.pin("height", height);

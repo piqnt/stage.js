@@ -1,7 +1,7 @@
 import { isFn, isHash } from "../common/is";
 
 import { Atlas, AtlasDefinition, AtlasTextureDefinition } from "./atlas";
-import { Texture } from "./texture";
+import { Texture, TexturePrerenderContext } from "./texture";
 
 export type TextureSelectionInputOne = Texture | AtlasTextureDefinition | string;
 export type TextureSelectionInputMap = Record<string, TextureSelectionInputOne>;
@@ -97,14 +97,30 @@ export class TextureSelection {
 
 /** @internal */
 const NO_TEXTURE = new (class extends Texture {
+  getWidth(): number {
+    return 0;
+  }
+  getHeight(): number {
+    return 0;
+  }
+  prerender(context: TexturePrerenderContext): boolean {
+    return false;
+  }
+  drawWithNormalizedArgs(
+    context: CanvasRenderingContext2D,
+    sx: number,
+    sy: number,
+    sw: number,
+    sh: number,
+    dx: number,
+    dy: number,
+    dw: number,
+    dh: number,
+  ): void {}
   constructor() {
     super();
     this.setSourceDimension(0, 0);
   }
-  pipe() {
-    return this;
-  }
-  setSourceImage(image: any, pixelRatio?: number): void {}
   setSourceCoordinate(x: any, y: any): void {}
   setSourceDimension(w: any, h: any): void {}
   setDestinationCoordinate(x: number, y: number): void {}
@@ -133,8 +149,8 @@ export const atlas = async function (def: AtlasDefinition | Atlas): Promise<Atla
     atlas = new Atlas(def);
   }
 
-  if (atlas._name) {
-    ATLAS_MEMO_BY_NAME[atlas._name] = atlas;
+  if (atlas.name) {
+    ATLAS_MEMO_BY_NAME[atlas.name] = atlas;
   }
   ATLAS_ARRAY.push(atlas);
 

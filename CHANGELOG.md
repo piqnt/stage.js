@@ -24,6 +24,7 @@
 - dropped texture.draw(x, y) sub-signature
 - removed cutouts, sprites, factory fields from atlas definition
 - replaced Ease() with Ease.get()
+- scaleTo renamed to fit
 
 #### v0.8.2
 

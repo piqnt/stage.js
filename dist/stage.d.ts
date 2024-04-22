@@ -36,24 +36,16 @@ export declare class Matrix {
 	mapX(x: number | Vec2Value, y?: number): number;
 	mapY(x: number | Vec2Value, y?: number): number;
 }
-export type TextureSource = Texture | CanvasImageSource;
 /**
- * Textures are used to clip and resize a drawable object, for example atlas sprites.
+ * Textures are used to clip and resize image objects.
  */
-export declare class Texture {
-	width: number;
-	height: number;
-	top: number;
-	bottom: number;
-	left: number;
-	right: number;
-	constructor(source?: TextureSource, pixelRatio?: number);
-	pipe(): Texture;
-	setSourceImage(image: TextureSource, pixelRatio?: number): void;
+export declare abstract class Texture {
 	setSourceCoordinate(x: number, y: number): void;
 	setSourceDimension(w: number, h: number): void;
 	setDestinationCoordinate(x: number, y: number): void;
 	setDestinationDimension(w: number, h: number): void;
+	abstract getWidth(): number;
+	abstract getHeight(): number;
 	/**
 	 * Signatures:
 	 * - (): This is used when a sprite draws its textures
@@ -66,39 +58,13 @@ export declare class Texture {
 	draw(context: CanvasRenderingContext2D, x1: number, y1: number, w1: number, h1: number): void;
 	draw(context: CanvasRenderingContext2D, x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number): void;
 }
-export type TextureSelectionInputOne = Texture | AtlasTextureDefinition | string;
-export type TextureSelectionInputMap = Record<string, TextureSelectionInputOne>;
-export type TextureSelectionInputArray = TextureSelectionInputOne[];
-export type TextureSelectionInputFactory = (subquery: string) => TextureSelectionInputOne;
-/**
- * Texture selection input could be one:
- * - texture
- * - sprite definition (and an atlas): atlas sprite texture
- * - string (with an atlas): string used as key to find sprite in the atlas, re-resolve
- * - hash object: use subquery as key, then re-resolve value
- * - array: re-resolve first item
- * - function: call function with subquery, then re-resolve
- */
-export type TextureSelectionInput = TextureSelectionInputOne | TextureSelectionInputMap | TextureSelectionInputArray | TextureSelectionInputFactory;
-/**
- * TextureSelection holds reference to one or many textures or something that
- * can be resolved to one or many textures. This is used to decouple resolving
- * references to textures from rendering them in various ways.
- */
-export declare class TextureSelection {
-	selection: TextureSelectionInput;
-	atlas: Atlas;
-	constructor(selection: TextureSelectionInput, atlas?: Atlas);
-	one(subquery?: string): Texture;
-	array(arr?: Texture[]): Texture[];
+export type TextureImageSource = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas;
+export declare class ImageTexture extends Texture {
+	constructor(source?: TextureImageSource, pixelRatio?: number);
+	setSourceImage(image: TextureImageSource, pixelRatio?: number): void;
+	getWidth(): number;
+	getHeight(): number;
 }
-export declare const atlas: (def: AtlasDefinition | Atlas) => Promise<Atlas>;
-/**
- * When query argument is string, this function parses the query; looks up registered atlases; and returns a texture selection object.
- *
- * When query argument is an object, the object is used to create a new selection.
- */
-export declare const texture: (query: string | TextureSelectionInput) => TextureSelection;
 export interface AtlasTextureDefinition {
 	x: number;
 	y: number;
@@ -134,30 +100,59 @@ export interface AtlasDefinition {
 	/** @deprecated Use map */
 	imageRatio?: number;
 }
-export declare class Atlas extends Texture {
+export declare class Atlas extends ImageTexture {
 	constructor(def?: AtlasDefinition);
 	load(): Promise<void>;
 	select: (query?: string) => TextureSelection;
 }
-export type CanvasTextureDrawer = (this: CanvasTexture) => void;
-export type CanvasTextureMemoizer = (this: CanvasTexture) => any;
+export type TextureSelectionInputOne = Texture | AtlasTextureDefinition | string;
+export type TextureSelectionInputMap = Record<string, TextureSelectionInputOne>;
+export type TextureSelectionInputArray = TextureSelectionInputOne[];
+export type TextureSelectionInputFactory = (subquery: string) => TextureSelectionInputOne;
 /**
- * A texture with off-screen canvas.
+ * Texture selection input could be one:
+ * - texture
+ * - sprite definition (and an atlas): atlas sprite texture
+ * - string (with an atlas): string used as key to find sprite in the atlas, re-resolve
+ * - hash object: use subquery as key, then re-resolve value
+ * - array: re-resolve first item
+ * - function: call function with subquery, then re-resolve
  */
-export declare class CanvasTexture extends Texture {
-	constructor(type?: string, attributes?: any);
-	/**
-	 * Note: texture size is set to width and height, and canvas size is texture size multiply by pixelRatio.
-	 */
-	setSize(width: number, height: number, pixelRatio?: number): void;
-	getContext(): any;
-	setMemoizer(memoizer: CanvasTextureMemoizer): void;
-	setDrawer(drawer: CanvasTextureDrawer): void;
+export type TextureSelectionInput = TextureSelectionInputOne | TextureSelectionInputMap | TextureSelectionInputArray | TextureSelectionInputFactory;
+/**
+ * TextureSelection holds reference to one or many textures or something that
+ * can be resolved to one or many textures. This is used to decouple resolving
+ * references to textures from rendering them in various ways.
+ */
+export declare class TextureSelection {
+	selection: TextureSelectionInput;
+	atlas: Atlas;
+	constructor(selection: TextureSelectionInput, atlas?: Atlas);
+	one(subquery?: string): Texture;
+	array(arr?: Texture[]): Texture[];
 }
+export declare const atlas: (def: AtlasDefinition | Atlas) => Promise<Atlas>;
 /**
- * Create CanvasTexture (a texture with off-screen canvas).
+ * When query argument is string, this function parses the query; looks up registered atlases; and returns a texture selection object.
+ *
+ * When query argument is an object, the object is used to create a new selection.
  */
-export declare function canvas(): CanvasTexture;
+export declare const texture: (query: string | TextureSelectionInput) => TextureSelection;
+/**
+ * @deprecated
+ * - 'in-pad': same as 'contain'
+ * - 'in': similar to 'contain' without centering
+ * - 'out-crop': same as 'cover'
+ * - 'out': similar to 'cover' without centering
+ */
+export type LegacyFitMode = "in" | "out" | "out-crop" | "in-pad";
+/**
+ * - 'contain': contain within the provided space, maintain aspect ratio
+ * - 'cover': cover the provided space, maintain aspect ratio
+ * - 'fill': fill provided space without maintaining aspect ratio
+ */
+export type FitMode = "contain" | "cover" | "fill" | LegacyFitMode;
+export declare function isValidFitMode(value: string): boolean;
 /** @hidden */
 export interface Pinned {
 	pin(pin: object): this;
@@ -266,7 +261,10 @@ declare class Node$1 implements Pinned {
 	pin(key: string, value: any): this;
 	pin(obj: object): this;
 	pin(): Pin;
-	scaleTo(a: any, b: any, c: any): this;
+	fit(width: number, height: number, mode?: FitMode): this;
+	fit(fit: object): this;
+	/** @hidden @deprecated Use fit */
+	scaleTo(a: any, b?: any, c?: any): this;
 	toString(): string;
 	/** @deprecated Use label() */
 	id(id: string): string | this;
@@ -283,8 +281,10 @@ declare class Node$1 implements Pinned {
 	first(visible?: boolean): Node$1;
 	last(visible?: boolean): Node$1;
 	visit<P>(visitor: NodeVisitor<P>, payload?: P): boolean | void;
-	append(child: Node$1, more?: any): this;
-	prepend(child: Node$1, more?: any): this;
+	append(...child: Node$1[]): this;
+	append(child: Node$1[]): this;
+	prepend(...child: Node$1[]): this;
+	prepend(child: Node$1[]): this;
 	appendTo(parent: Node$1): this;
 	prependTo(parent: Node$1): this;
 	insertNext(sibling: Node$1, more?: Node$1): this;
@@ -344,6 +344,69 @@ declare class Node$1 implements Pinned {
 	 */
 	spacing(space: number): this;
 }
+export declare const sprite: (frame?: TextureSelectionInput) => Sprite;
+export declare class Sprite extends Node$1 {
+	constructor();
+	texture(frame: TextureSelectionInput): this;
+	/** @deprecated */
+	image(frame: TextureSelectionInput): this;
+	tile(inner?: boolean): this;
+	stretch(inner?: boolean): this;
+	prerender(): void;
+	render(context: CanvasRenderingContext2D): void;
+}
+export type CanvasTextureDrawer = (this: CanvasTexture) => void;
+export type CanvasTextureMemoizer = (this: CanvasTexture) => any;
+/** @hidden @deprecated */
+export type LegacyCanvasTextureDrawer = (this: CanvasTexture, context: CanvasRenderingContext2D) => void;
+/** @hidden @deprecated */
+export type LegacyCanvasSpriteMemoizer = () => any;
+/** @hidden @deprecated */
+export type LegacyCanvasSpriteDrawer = (ratio: number, texture: CanvasTexture, sprite: Sprite) => void;
+/**
+ * A texture with off-screen canvas.
+ */
+export declare class CanvasTexture extends ImageTexture {
+	constructor();
+	/**
+	 * Note: provided width and height will be texture size, and canvas size is texture size multiply by pixelRatio.
+	 */
+	setSize(textureWidth: number, textureHeight: number, pixelRatio?: number): void;
+	getContext(type?: string, attributes?: any): CanvasRenderingContext2D;
+	/**
+	 * @experimental
+	 *
+	 * This is the ratio of screen pixel to this canvas pixel.
+	 */
+	getOptimalPixelRatio(): number;
+	setMemoizer(memoizer: CanvasTextureMemoizer): void;
+	setDrawer(drawer: CanvasTextureDrawer): void;
+	/** @hidden @deprecated */
+	size(width: number, height: number, pixelRatio: number): this;
+	/** @hidden @deprecated */
+	context(type?: string, attributes?: any): CanvasRenderingContext2D;
+	/** @hidden @deprecated */
+	canvas(legacyTextureDrawer: LegacyCanvasTextureDrawer): this;
+}
+/**
+ * Create CanvasTexture (a texture with off-screen canvas).
+ */
+export declare function canvas(): CanvasTexture;
+/** @hidden @deprecated */
+export declare function memoizeDraw(legacySpriteDrawer: LegacyCanvasSpriteDrawer, legacySpriteMemoizer?: LegacyCanvasSpriteMemoizer): Sprite;
+export declare class PipeTexture extends Texture {
+	constructor(source: Texture);
+	setSourceTexture(texture: Texture): void;
+	getWidth(): number;
+	getHeight(): number;
+}
+export type ResizableTextureMode = "stretch" | "tile";
+export declare class ResizableTexture extends Texture {
+	constructor(source: Texture, mode: ResizableTextureMode);
+	getWidth(): number;
+	getHeight(): number;
+	drawWithNormalizedArgs(context: CanvasRenderingContext2D, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
+}
 export declare const POINTER_CLICK = "click";
 export declare const POINTER_START = "touchstart mousedown";
 export declare const POINTER_MOVE = "touchmove mousemove";
@@ -373,13 +436,6 @@ export type Viewbox = {
 	height: number;
 	mode?: FitMode;
 };
-/**
- * - 'in-pad': similar to css object-fit: 'contain'
- * - 'in'
- * - 'out-crop': similar css object-fit: 'cover'
- * - 'out'
- */
-export type FitMode = "in" | "out" | "out-crop" | "in-pad";
 export declare class Root extends Node$1 {
 	canvas: HTMLCanvasElement | null;
 	dom: HTMLCanvasElement | null;
@@ -409,16 +465,6 @@ export declare class Root extends Node$1 {
 	viewbox(width?: number, height?: number, mode?: FitMode): this;
 	camera(matrix: Matrix): this;
 }
-export declare const sprite: (frame?: TextureSelectionInput) => Sprite;
-export declare class Sprite extends Node$1 {
-	constructor();
-	texture(frame: TextureSelectionInput): this;
-	/** @deprecated */
-	image(frame: TextureSelectionInput): this;
-	tile(inner: boolean): this;
-	stretch(inner: boolean): this;
-	prerender(): void;
-}
 export declare const anim: (frames: string | TextureSelectionInputArray, fps?: number) => Anim;
 export declare class Anim extends Node$1 {
 	constructor();
@@ -440,12 +486,12 @@ export declare class Str extends Node$1 {
 	setFont(frames: string | Record<string, Texture> | ((char: string) => Texture)): this;
 	frames(frames: string | Record<string, Texture> | ((char: string) => Texture)): this;
 	/** @deprecated Use value */
-	setValue(value: any): string | number | string[] | number[] | this;
+	setValue(value: string | number | string[] | number[]): string | number | string[] | number[] | this;
 	value(value: string | number | string[] | number[]): string | number | string[] | number[] | this;
 }
 
 declare namespace Stage {
-	export { Anim, Atlas, AtlasDefinition, AtlasTextureDefinition, CanvasTexture, FitMode, Matrix, MatrixValue, Node$1 as Node, NodeEventListener, NodeTickListener, POINTER_CANCEL, POINTER_CLICK, POINTER_END, POINTER_MOVE, POINTER_START, Pin, Pinned, Root, Sprite, Str, Texture, TextureSelection, TextureSelectionInput, TextureSelectionInputArray, TextureSelectionInputFactory, TextureSelectionInputMap, TextureSelectionInputOne, TextureSource, Transition, TransitionEndListener, TransitionOptions, Vec2Value, Viewbox, Viewport, anim, atlas, box, canvas, column, create, layer, layout, math, maximize, minimize, mount, pause, resume, row, sprite, string, texture };
+	export { Anim, Atlas, AtlasDefinition, AtlasTextureDefinition, CanvasTexture, FitMode, ImageTexture, LegacyFitMode, Matrix, MatrixValue, Node$1 as Node, NodeEventListener, NodeTickListener, POINTER_CANCEL, POINTER_CLICK, POINTER_END, POINTER_MOVE, POINTER_START, Pin, Pinned, PipeTexture, ResizableTexture, ResizableTextureMode, Root, Sprite, Str, Texture, TextureSelection, TextureSelectionInput, TextureSelectionInputArray, TextureSelectionInputFactory, TextureSelectionInputMap, TextureSelectionInputOne, Transition, TransitionEndListener, TransitionOptions, Vec2Value, Viewbox, Viewport, anim, atlas, box, canvas, column, create, isValidFitMode, layer, layout, math, maximize, memoizeDraw, minimize, mount, pause, resume, row, sprite, string, texture };
 }
 
 export {

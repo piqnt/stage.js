@@ -14,8 +14,7 @@ export type TransitionOptions = {
 export type TransitionEndListener = (this: Node) => void;
 
 export class Transition implements Pinned {
-  /** @internal */
-  uid = "transition:" + uid();
+  /** @internal */ uid = "transition:" + uid();
 
   /** @internal */ _end: object;
   /** @internal */ _start: object;
@@ -206,7 +205,10 @@ export class Transition implements Pinned {
   offset(x: number, y: number): this;
   offset(a: number | Vec2Value, b?: number) {
     // Pin shortcut, used by Transition and Node
-    if (typeof a === "object") (b = a.y), (a = a.x);
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    }
     this.pin("offsetX", a);
     this.pin("offsetY", b);
     return this;
@@ -222,8 +224,12 @@ export class Transition implements Pinned {
   skew(x: number, y: number): this;
   skew(a: number | Vec2Value, b?: number) {
     // Pin shortcut, used by Transition and Node
-    if (typeof a === "object") (b = a.y), (a = a.x);
-    else if (typeof b === "undefined") b = a;
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    } else if (typeof b === "undefined") {
+      b = a;
+    }
     this.pin("skewX", a);
     this.pin("skewY", b);
     return this;
@@ -233,8 +239,12 @@ export class Transition implements Pinned {
   scale(x: number, y: number): this;
   scale(a: number | Vec2Value, b?: number) {
     // Pin shortcut, used by Transition and Node
-    if (typeof a === "object") (b = a.y), (a = a.x);
-    else if (typeof b === "undefined") b = a;
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    } else if (typeof b === "undefined") {
+      b = a;
+    }
     this.pin("scaleX", a);
     this.pin("scaleY", b);
     return this;

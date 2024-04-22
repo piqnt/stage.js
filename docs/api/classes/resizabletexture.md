@@ -1,47 +1,44 @@
-[Stage.js API Doc](../README.md) › [Globals](../globals.md) › [Atlas](atlas.md)
+[Stage.js API Doc](../README.md) › [Globals](../globals.md) › [ResizableTexture](resizabletexture.md)
 
-# Class: Atlas
+# Class: ResizableTexture
 
 ## Hierarchy
 
-  ↳ [ImageTexture](imagetexture.md)
+* [Texture](texture.md)
 
-  ↳ **Atlas**
+  ↳ **ResizableTexture**
 
 ## Index
 
 ### Constructors
 
-* [constructor](atlas.md#constructor)
+* [constructor](resizabletexture.md#constructor)
 
 ### Methods
 
-* [draw](atlas.md#draw)
-* [getHeight](atlas.md#getheight)
-* [getWidth](atlas.md#getwidth)
-* [load](atlas.md#load)
-* [select](atlas.md#select)
-* [setDestinationCoordinate](atlas.md#setdestinationcoordinate)
-* [setDestinationDimension](atlas.md#setdestinationdimension)
-* [setSourceCoordinate](atlas.md#setsourcecoordinate)
-* [setSourceDimension](atlas.md#setsourcedimension)
-* [setSourceImage](atlas.md#setsourceimage)
+* [draw](resizabletexture.md#draw)
+* [drawWithNormalizedArgs](resizabletexture.md#drawwithnormalizedargs)
+* [getHeight](resizabletexture.md#getheight)
+* [getWidth](resizabletexture.md#getwidth)
+* [setDestinationCoordinate](resizabletexture.md#setdestinationcoordinate)
+* [setDestinationDimension](resizabletexture.md#setdestinationdimension)
+* [setSourceCoordinate](resizabletexture.md#setsourcecoordinate)
+* [setSourceDimension](resizabletexture.md#setsourcedimension)
 
 ## Constructors
 
 ###  constructor
 
-\+ **new Atlas**(`def`: [AtlasDefinition](../interfaces/atlasdefinition.md)): *[Atlas](atlas.md)*
-
-*Overrides [ImageTexture](imagetexture.md).[constructor](imagetexture.md#constructor)*
+\+ **new ResizableTexture**(`source`: [Texture](texture.md), `mode`: [ResizableTextureMode](../globals.md#resizabletexturemode)): *[ResizableTexture](resizabletexture.md)*
 
 **Parameters:**
 
-Name | Type | Default |
------- | ------ | ------ |
-`def` | [AtlasDefinition](../interfaces/atlasdefinition.md) | {} |
+Name | Type |
+------ | ------ |
+`source` | [Texture](texture.md) |
+`mode` | [ResizableTextureMode](../globals.md#resizabletexturemode) |
 
-**Returns:** *[Atlas](atlas.md)*
+**Returns:** *[ResizableTexture](resizabletexture.md)*
 
 ## Methods
 
@@ -104,11 +101,33 @@ Name | Type |
 
 ___
 
+###  drawWithNormalizedArgs
+
+▸ **drawWithNormalizedArgs**(`context`: CanvasRenderingContext2D, `sx`: number, `sy`: number, `sw`: number, `sh`: number, `dx`: number, `dy`: number, `dw`: number, `dh`: number): *void*
+
+*Overrides void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`context` | CanvasRenderingContext2D |
+`sx` | number |
+`sy` | number |
+`sw` | number |
+`sh` | number |
+`dx` | number |
+`dy` | number |
+`dw` | number |
+`dh` | number |
+
+**Returns:** *void*
+
+___
+
 ###  getHeight
 
 ▸ **getHeight**(): *number*
-
-*Inherited from [ImageTexture](imagetexture.md).[getHeight](imagetexture.md#getheight)*
 
 *Overrides [Texture](texture.md).[getHeight](texture.md#abstract-getheight)*
 
@@ -120,33 +139,9 @@ ___
 
 ▸ **getWidth**(): *number*
 
-*Inherited from [ImageTexture](imagetexture.md).[getWidth](imagetexture.md#getwidth)*
-
 *Overrides [Texture](texture.md).[getWidth](texture.md#abstract-getwidth)*
 
 **Returns:** *number*
-
-___
-
-###  load
-
-▸ **load**(): *Promise‹void›*
-
-**Returns:** *Promise‹void›*
-
-___
-
-###  select
-
-▸ **select**(`query?`: string): *[TextureSelection](textureselection.md)‹›*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`query?` | string |
-
-**Returns:** *[TextureSelection](textureselection.md)‹›*
 
 ___
 
@@ -213,22 +208,5 @@ Name | Type |
 ------ | ------ |
 `w` | number |
 `h` | number |
-
-**Returns:** *void*
-
-___
-
-###  setSourceImage
-
-▸ **setSourceImage**(`image`: [TextureImageSource](../globals.md#textureimagesource), `pixelRatio`: number): *void*
-
-*Inherited from [ImageTexture](imagetexture.md).[setSourceImage](imagetexture.md#setsourceimage)*
-
-**Parameters:**
-
-Name | Type | Default |
------- | ------ | ------ |
-`image` | [TextureImageSource](../globals.md#textureimagesource) | - |
-`pixelRatio` | number | 1 |
 
 **Returns:** *void*

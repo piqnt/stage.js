@@ -2,7 +2,35 @@ import { Matrix, Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
 
 import type { Node } from "./core";
-import type { FitMode } from "./root";
+
+/**
+ * @deprecated
+ * - 'in-pad': same as 'contain'
+ * - 'in': similar to 'contain' without centering
+ * - 'out-crop': same as 'cover'
+ * - 'out': similar to 'cover' without centering
+ */
+export type LegacyFitMode = "in" | "out" | "out-crop" | "in-pad";
+
+/**
+ * - 'contain': contain within the provided space, maintain aspect ratio
+ * - 'cover': cover the provided space, maintain aspect ratio
+ * - 'fill': fill provided space without maintaining aspect ratio
+ */
+export type FitMode = "contain" | "cover" | "fill" | LegacyFitMode;
+
+export function isValidFitMode(value: string) {
+  return (
+    value &&
+    (value === "cover" ||
+      value === "contain" ||
+      value === "fill" ||
+      value === "in" ||
+      value === "in-pad" ||
+      value === "out" ||
+      value === "out-crop")
+  );
+}
 
 /** @internal */ let iid = 0;
 
@@ -35,102 +63,63 @@ export interface Pinned {
 }
 
 export class Pin {
-  /** @internal */
-  uid = "pin:" + uid();
+  /** @internal */ uid = "pin:" + uid();
 
-  /** @internal */
-  _owner: Node;
+  /** @internal */ _owner: Node;
 
   // todo: maybe this should be a getter instead?
-  /** @internal */
-  _parent: Pin | null;
+  /** @internal */ _parent: Pin | null;
 
-  /** @internal */
-  _relativeMatrix: Matrix;
-  /** @internal */
-  _absoluteMatrix: Matrix;
+  /** @internal */ _relativeMatrix: Matrix;
+  /** @internal */ _absoluteMatrix: Matrix;
 
-  /** @internal */
-  _x: number;
-  /** @internal */
-  _y: number;
+  /** @internal */ _x: number;
+  /** @internal */ _y: number;
 
-  /** @internal */
-  _unscaled_width: number;
-  /** @internal */
-  _width: number;
-  /** @internal */
-  _height_: number;
-  /** @internal */
-  _height: number;
+  /** @internal */ _unscaled_width: number;
+  /** @internal */ _unscaled_height: number;
 
-  /** @internal */
-  _textureAlpha: number;
-  /** @internal */
-  _alpha: number;
+  /** @internal */ _width: number;
+  /** @internal */ _height: number;
 
-  /** @internal */
-  _scaleX: number;
-  /** @internal */
-  _scaleY: number;
+  /** @internal */ _textureAlpha: number;
+  /** @internal */ _alpha: number;
 
-  /** @internal */
-  _skewX: number;
-  /** @internal */
-  _skewY: number;
-  /** @internal */
-  _rotation: number;
+  /** @internal */ _scaleX: number;
+  /** @internal */ _scaleY: number;
 
-  /** @internal */
-  _pivoted: boolean;
-  /** @internal */
-  _pivotX: number;
-  /** @internal */
-  _pivotY: number;
+  /** @internal */ _skewX: number;
+  /** @internal */ _skewY: number;
+  /** @internal */ _rotation: number;
 
-  /** @internal */
-  _handled: boolean;
-  /** @internal */
-  _handleX: number;
-  /** @internal */
-  _handleY: number;
+  /** @internal */ _pivoted: boolean;
+  /** @internal */ _pivotX: number;
+  /** @internal */ _pivotY: number;
 
-  /** @internal */
-  _aligned: boolean;
-  /** @internal */
-  _alignX: number;
-  /** @internal */
-  _alignY: number;
+  /** @internal */ _handled: boolean;
+  /** @internal */ _handleX: number;
+  /** @internal */ _handleY: number;
 
-  /** @internal */
-  _offsetX: number;
-  /** @internal */
-  _offsetY: number;
+  /** @internal */ _aligned: boolean;
+  /** @internal */ _alignX: number;
+  /** @internal */ _alignY: number;
 
-  /** @internal */
-  _boxX: number;
-  /** @internal */
-  _boxY: number;
-  /** @internal */
-  _boxWidth: number;
-  /** @internal */
-  _boxHeight: number;
+  /** @internal */ _offsetX: number;
+  /** @internal */ _offsetY: number;
 
-  /** @internal */
-  _ts_transform: number;
-  /** @internal */
-  _ts_translate: number;
-  /** @internal */
-  _ts_matrix: number;
+  /** @internal */ _boxX: number;
+  /** @internal */ _boxY: number;
+  /** @internal */ _boxWidth: number;
+  /** @internal */ _boxHeight: number;
 
-  /** @internal */
-  _mo_handle: number;
-  /** @internal */
-  _mo_align: number;
-  /** @internal */
-  _mo_abs: number;
-  /** @internal */
-  _mo_rel: number;
+  /** @internal */ _ts_transform: number;
+  /** @internal */ _ts_translate: number;
+  /** @internal */ _ts_matrix: number;
+
+  /** @internal */ _mo_handle: number;
+  /** @internal */ _mo_align: number;
+  /** @internal */ _mo_abs: number;
+  /** @internal */ _mo_rel: number;
 
   /** @internal */
   constructor(owner: Node) {
@@ -272,9 +261,11 @@ export class Pin {
       let p;
       let q;
       if ((rel.a > 0 && rel.c > 0) || (rel.a < 0 && rel.c < 0)) {
-        (p = 0), (q = rel.a * this._width + rel.c * this._height);
+        p = 0;
+        q = rel.a * this._width + rel.c * this._height;
       } else {
-        (p = rel.a * this._width), (q = rel.c * this._height);
+        p = rel.a * this._width;
+        q = rel.c * this._height;
       }
       if (p > q) {
         this._boxX = q;
@@ -284,9 +275,11 @@ export class Pin {
         this._boxWidth = q - p;
       }
       if ((rel.b > 0 && rel.d > 0) || (rel.b < 0 && rel.d < 0)) {
-        (p = 0), (q = rel.b * this._width + rel.d * this._height);
+        p = 0;
+        q = rel.b * this._width + rel.d * this._height;
       } else {
-        (p = rel.b * this._width), (q = rel.d * this._height);
+        p = rel.b * this._width;
+        q = rel.d * this._height;
       }
       if (p > q) {
         this._boxY = q;
@@ -344,9 +337,35 @@ export class Pin {
 
   // todo: should this be public?
   /** @internal */
-  scaleTo = function (width: number, height: number, mode?: FitMode) {
-    scaleTo(this, width, height, mode);
-  };
+  fit(width: number | null, height: number | null, mode?: FitMode) {
+    this._ts_transform = ++iid;
+    if (mode === "contain") {
+      mode = "in-pad";
+    }
+    if (mode === "cover") {
+      mode = "out-crop";
+    }
+    if (typeof width === "number") {
+      this._scaleX = width / this._unscaled_width;
+      this._width = this._unscaled_width;
+    }
+    if (typeof height === "number") {
+      this._scaleY = height / this._unscaled_height;
+      this._height = this._unscaled_height;
+    }
+    if (typeof width === "number" && typeof height === "number" && typeof mode === "string") {
+      if (mode === "fill") {
+      } else if (mode === "out" || mode === "out-crop") {
+        this._scaleX = this._scaleY = Math.max(this._scaleX, this._scaleY);
+      } else if (mode === "in" || mode === "in-pad") {
+        this._scaleX = this._scaleY = Math.min(this._scaleX, this._scaleY);
+      }
+      if (mode === "out-crop" || mode === "in-pad") {
+        this._width = width / this._scaleX;
+        this._height = height / this._scaleY;
+      }
+    }
+  }
 }
 
 /** @internal */ const getters = {
@@ -473,7 +492,7 @@ type ScaleParams = {
   },
 
   height: function (pin: Pin, value: number) {
-    pin._height_ = value;
+    pin._unscaled_height = value;
     pin._height = value;
     pin._ts_transform = ++iid;
   },
@@ -595,37 +614,37 @@ type ScaleParams = {
       } else if (value == "out") {
         value = "out-crop";
       }
-      scaleTo(pin, all.resizeWidth, all.resizeHeight, value);
+      pin.fit(all.resizeWidth, all.resizeHeight, value);
     }
   },
 
   resizeWidth: function (pin: Pin, value: number, all: ResizeParams) {
     if (!all || !all.resizeMode) {
-      scaleTo(pin, value, null);
+      pin.fit(value, null);
     }
   },
 
   resizeHeight: function (pin: Pin, value: number, all: ResizeParams) {
     if (!all || !all.resizeMode) {
-      scaleTo(pin, null, value);
+      pin.fit(null, value);
     }
   },
 
   scaleMode: function (pin: Pin, value: FitMode, all: ScaleParams) {
     if (all) {
-      scaleTo(pin, all.scaleWidth, all.scaleHeight, value);
+      pin.fit(all.scaleWidth, all.scaleHeight, value);
     }
   },
 
   scaleWidth: function (pin: Pin, value: number, all: ScaleParams) {
     if (!all || !all.scaleMode) {
-      scaleTo(pin, value, null);
+      pin.fit(value, null);
     }
   },
 
   scaleHeight: function (pin: Pin, value: number, all: ScaleParams) {
     if (!all || !all.scaleMode) {
-      scaleTo(pin, null, value);
+      pin.fit(null, value);
     }
   },
 
@@ -639,30 +658,3 @@ type ScaleParams = {
     this.rotation(pin, 0);
   },
 };
-
-// why is this here?
-/** @internal */
-function scaleTo(pin: Pin, width: number | null, height: number | null, mode?: FitMode) {
-  pin._ts_transform = ++iid;
-  if (typeof width === "number") {
-    pin._scaleX = width / pin._unscaled_width;
-    pin._width = pin._unscaled_width;
-  }
-  if (typeof height === "number") {
-    pin._scaleY = height / pin._height_;
-    pin._height = pin._height_;
-  }
-  if (typeof width === "number" && typeof height === "number" && typeof mode === "string") {
-    if (mode == "out" || mode == "out-crop") {
-      // css object-fit: cover
-      pin._scaleX = pin._scaleY = Math.max(pin._scaleX, pin._scaleY);
-    } else if (mode == "in" || mode == "in-pad") {
-      // css object-fit: cover
-      pin._scaleX = pin._scaleY = Math.min(pin._scaleX, pin._scaleY);
-    }
-    if (mode == "out-crop" || mode == "in-pad") {
-      pin._width = width / pin._scaleX;
-      pin._height = height / pin._scaleY;
-    }
-  }
-}

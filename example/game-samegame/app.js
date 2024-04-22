@@ -43,8 +43,9 @@ function Game(ui, width, height) {
   }
 
   function collapseDown() {
+    let moved = false;
     do {
-      let moved = false;
+      moved = false;
       for (let i = 0; i < tiles.length; i++) {
         let tile = tiles[i];
         if (tile.j + 1 < height && tile.move(tile.i, tile.j + 1)) {

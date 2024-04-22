@@ -158,11 +158,11 @@ export class Pointer {
   handleEnd = (event: TouchEvent | MouseEvent) => {
     event.preventDefault();
     // up/end location is not available, last one is used instead
-    // DEBUG && console.log('pointer-end', EVENT);
+    DEBUG && console.log("pointer-end", event.type);
     this.dispatchEvent(event.type, event);
 
     if (this.clickList.length) {
-      // DEBUG && console.log('pointer-click: ', this.clicklist.length);
+      DEBUG && console.log("pointer-click: ", event.type, this.clickList?.length);
       this.dispatchEvent("click", event, this.clickList);
     }
     this.cancelList.length = 0;
@@ -170,7 +170,7 @@ export class Pointer {
 
   handleCancel = (event: TouchEvent | MouseEvent | FocusEvent) => {
     if (this.cancelList.length) {
-      // DEBUG && console.log('pointer-click', event);
+      DEBUG && console.log("pointer-cancel", event.type, this.clickList?.length);
       this.dispatchEvent("mousecancel", event, this.cancelList);
     }
     this.clickList.length = 0;

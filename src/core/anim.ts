@@ -96,8 +96,8 @@ export class Anim extends Node {
     resize = resize || !this._textures[0];
     this._textures[0] = this._frames[this._index];
     if (resize) {
-      this.pin("width", this._textures[0].width);
-      this.pin("height", this._textures[0].height);
+      this.pin("width", this._textures[0].getWidth());
+      this.pin("height", this._textures[0].getHeight());
     }
     this.touch();
     return this;

@@ -11,10 +11,13 @@
 * [CanvasTexture](classes/canvastexture.md)
 * [Easing](classes/easing.md)
 * [EventPoint](classes/eventpoint.md)
+* [ImageTexture](classes/imagetexture.md)
 * [Matrix](classes/matrix.md)
 * [Node](classes/node.md)
 * [Pin](classes/pin.md)
+* [PipeTexture](classes/pipetexture.md)
 * [PointerSyntheticEvent](classes/pointersyntheticevent.md)
+* [ResizableTexture](classes/resizabletexture.md)
 * [Root](classes/root.md)
 * [Sprite](classes/sprite.md)
 * [Str](classes/str.md)
@@ -40,17 +43,19 @@
 * [EasingFunction](globals.md#easingfunction)
 * [EasingFunctionName](globals.md#easingfunctionname)
 * [FitMode](globals.md#fitmode)
+* [LegacyFitMode](globals.md#legacyfitmode)
 * [NodeEventListener](globals.md#nodeeventlistener)
 * [NodeTickListener](globals.md#nodeticklistener)
+* [ResizableTextureMode](globals.md#resizabletexturemode)
 * [ResizeParams](globals.md#resizeparams)
 * [RootConfig](globals.md#rootconfig)
 * [ScaleParams](globals.md#scaleparams)
+* [TextureImageSource](globals.md#textureimagesource)
 * [TextureSelectionInput](globals.md#textureselectioninput)
 * [TextureSelectionInputArray](globals.md#textureselectioninputarray)
 * [TextureSelectionInputFactory](globals.md#textureselectioninputfactory)
 * [TextureSelectionInputMap](globals.md#textureselectioninputmap)
 * [TextureSelectionInputOne](globals.md#textureselectioninputone)
-* [TextureSource](globals.md#texturesource)
 * [TransitionEndListener](globals.md#transitionendlistener)
 * [TransitionOptions](globals.md#transitionoptions)
 * [Viewbox](globals.md#viewbox)
@@ -73,6 +78,7 @@
 * [canvas](globals.md#canvas)
 * [column](globals.md#const-column)
 * [create](globals.md#const-create)
+* [isValidFitMode](globals.md#isvalidfitmode)
 * [layer](globals.md#const-layer)
 * [layout](globals.md#const-layout)
 * [maximize](globals.md#const-maximize)
@@ -173,12 +179,23 @@ ___
 
 ###  FitMode
 
-Ƭ **FitMode**: *"in" | "out" | "out-crop" | "in-pad"*
+Ƭ **FitMode**: *"contain" | "cover" | "fill" | [LegacyFitMode](globals.md#legacyfitmode)*
 
-- 'in-pad': similar to css object-fit: 'contain'
-- 'in'
-- 'out-crop': similar css object-fit: 'cover'
-- 'out'
+- 'contain': contain within the provided space, maintain aspect ratio
+- 'cover': cover the provided space, maintain aspect ratio
+- 'fill': fill provided space without maintaining aspect ratio
+
+___
+
+###  LegacyFitMode
+
+Ƭ **LegacyFitMode**: *"in" | "out" | "out-crop" | "in-pad"*
+
+**`deprecated`** 
+- 'in-pad': same as 'contain'
+- 'in': similar to 'contain' without centering
+- 'out-crop': same as 'cover'
+- 'out': similar to 'cover' without centering
 
 ___
 
@@ -218,6 +235,12 @@ Name | Type |
 
 ___
 
+###  ResizableTextureMode
+
+Ƭ **ResizableTextureMode**: *"stretch" | "tile"*
+
+___
+
 ###  ResizeParams
 
 Ƭ **ResizeParams**: *object*
@@ -253,6 +276,12 @@ ___
 * **scaleMode**: *[FitMode](globals.md#fitmode)*
 
 * **scaleWidth**: *number*
+
+___
+
+###  TextureImageSource
+
+Ƭ **TextureImageSource**: *HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas*
 
 ___
 
@@ -301,12 +330,6 @@ ___
 ###  TextureSelectionInputOne
 
 Ƭ **TextureSelectionInputOne**: *[Texture](classes/texture.md) | [AtlasTextureDefinition](interfaces/atlastexturedefinition.md) | string*
-
-___
-
-###  TextureSource
-
-Ƭ **TextureSource**: *[Texture](classes/texture.md) | CanvasImageSource*
 
 ___
 
@@ -482,6 +505,20 @@ ___
 **`deprecated`** Use layout()
 
 **Returns:** *[Node](classes/node.md)‹›*
+
+___
+
+###  isValidFitMode
+
+▸ **isValidFitMode**(`value`: string): *boolean*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`value` | string |
+
+**Returns:** *boolean*
 
 ___
 

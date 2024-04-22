@@ -2,6 +2,8 @@ import { isFn, isHash } from "../common/is";
 
 import { Texture } from "./texture";
 import { TextureSelection } from "./selection";
+import { ImageTexture } from "./image";
+import { PipeTexture } from "./pipe";
 
 /** @internal */ const DEBUG = true;
 
@@ -52,19 +54,19 @@ export interface AtlasDefinition {
   imageRatio?: number;
 }
 
-export class Atlas extends Texture {
-  /** @internal */ _name: any;
+export class Atlas extends ImageTexture {
+  /** @internal */ name: any;
+
   /** @internal */ _ppu: any;
   /** @internal */ _trim: any;
   /** @internal */ _map: any;
   /** @internal */ _textures: any;
   /** @internal */ _imageSrc: string;
-  /** @internal */ _imagePixelRatio: number = 1;
 
   constructor(def: AtlasDefinition = {}) {
     super();
 
-    this._name = def.name;
+    this.name = def.name;
     this._ppu = def.ppu || def.ratio || 1;
     this._trim = def.trim || 0;
 
@@ -74,7 +76,7 @@ export class Atlas extends Texture {
     if (typeof def.image === "object" && isHash(def.image)) {
       this._imageSrc = def.image.src || def.image.url;
       if (typeof def.image.ratio === "number") {
-        this._imagePixelRatio = def.image.ratio;
+        this._pixelRatio = def.image.ratio;
       }
     } else {
       if (typeof def.imagePath === "string") {
@@ -83,40 +85,17 @@ export class Atlas extends Texture {
         this._imageSrc = def.image;
       }
       if (typeof def.imageRatio === "number") {
-        this._imagePixelRatio = def.imageRatio;
+        this._pixelRatio = def.imageRatio;
       }
     }
 
-    this.deprecatedWarning(def);
-  }
-
-  /** @internal */
-  deprecatedWarning(def: AtlasDefinition) {
-    if ("filter" in def) console.warn("'filter' field of atlas definition is deprecated");
-
-    // todo: throw error here?
-    if ("cutouts" in def) console.warn("'cutouts' field of atlas definition is deprecated");
-
-    // todo: throw error here?
-    if ("sprites" in def) console.warn("'sprites' field of atlas definition is deprecated");
-
-    // todo: throw error here?
-    if ("factory" in def) console.warn("'factory' field of atlas definition is deprecated");
-
-    if ("ratio" in def) console.warn("'ratio' field of atlas definition is deprecated");
-
-    if ("imagePath" in def) console.warn("'imagePath' field of atlas definition is deprecated");
-
-    if ("imageRatio" in def) console.warn("'imageRatio' field of atlas definition is deprecated");
-
-    if (typeof def.image === "object" && "url" in def.image)
-      console.warn("'image.url' field of atlas definition is deprecated");
+    deprecatedWarning(def);
   }
 
   async load() {
     if (this._imageSrc) {
       const image = await asyncLoadImage(this._imageSrc);
-      this.setSourceImage(image, this._imagePixelRatio);
+      this.setSourceImage(image, this._pixelRatio);
     }
   }
 
@@ -161,7 +140,7 @@ export class Atlas extends Texture {
       def.right -= trim;
     }
 
-    const texture = this.pipe();
+    const texture = new PipeTexture(this);
     texture.top = def.top;
     texture.bottom = def.bottom;
     texture.left = def.left;
@@ -191,7 +170,7 @@ export class Atlas extends Texture {
   select = (query?: string) => {
     if (!query) {
       // TODO: if `textures` is texture def, map or fn?
-      return new TextureSelection(this.pipe());
+      return new TextureSelection(new PipeTexture(this));
     }
     const textureDefinition = this.findSpriteDefinition(query);
     if (textureDefinition) {
@@ -200,7 +179,8 @@ export class Atlas extends Texture {
   };
 }
 
-/** @internal */ function asyncLoadImage(src: string) {
+/** @internal */
+function asyncLoadImage(src: string) {
   DEBUG && console.log("Loading image: " + src);
   return new Promise<HTMLImageElement>(function (resolve, reject) {
     const img = new Image();
@@ -209,9 +189,32 @@ export class Atlas extends Texture {
       resolve(img);
     };
     img.onerror = function (error) {
-      DEBUG && console.log("Loading failed: " + src);
+      console.error("Loading failed: " + src);
       reject(error);
     };
     img.src = src;
   });
+}
+
+/** @internal */
+function deprecatedWarning(def: AtlasDefinition) {
+  if ("filter" in def) console.warn("'filter' field of atlas definition is deprecated");
+
+  // todo: throw error here?
+  if ("cutouts" in def) console.warn("'cutouts' field of atlas definition is deprecated");
+
+  // todo: throw error here?
+  if ("sprites" in def) console.warn("'sprites' field of atlas definition is deprecated");
+
+  // todo: throw error here?
+  if ("factory" in def) console.warn("'factory' field of atlas definition is deprecated");
+
+  if ("ratio" in def) console.warn("'ratio' field of atlas definition is deprecated");
+
+  if ("imagePath" in def) console.warn("'imagePath' field of atlas definition is deprecated");
+
+  if ("imageRatio" in def) console.warn("'imageRatio' field of atlas definition is deprecated");
+
+  if (typeof def.image === "object" && "url" in def.image)
+    console.warn("'image.url' field of atlas definition is deprecated");
 }

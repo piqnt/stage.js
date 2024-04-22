@@ -3,7 +3,7 @@ import Pages from "vite-plugin-pages";
 
 export default {
   define: {
-    DEBUG: "true",
+    DEBUG: "false",
   },
   plugins: [
     Pages({

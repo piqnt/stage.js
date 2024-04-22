@@ -1,36 +1,51 @@
-[Stage.js API Doc](../README.md) › [Globals](../globals.md) › [Texture](texture.md)
+[Stage.js API Doc](../README.md) › [Globals](../globals.md) › [PipeTexture](pipetexture.md)
 
-# Class: Texture
-
-Textures are used to clip and resize image objects.
+# Class: PipeTexture
 
 ## Hierarchy
 
-* **Texture**
+* [Texture](texture.md)
 
-  ↳ [ImageTexture](imagetexture.md)
-
-  ↳ [PipeTexture](pipetexture.md)
-
-  ↳ [ResizableTexture](resizabletexture.md)
+  ↳ **PipeTexture**
 
 ## Index
 
+### Constructors
+
+* [constructor](pipetexture.md#constructor)
+
 ### Methods
 
-* [draw](texture.md#draw)
-* [getHeight](texture.md#abstract-getheight)
-* [getWidth](texture.md#abstract-getwidth)
-* [setDestinationCoordinate](texture.md#setdestinationcoordinate)
-* [setDestinationDimension](texture.md#setdestinationdimension)
-* [setSourceCoordinate](texture.md#setsourcecoordinate)
-* [setSourceDimension](texture.md#setsourcedimension)
+* [draw](pipetexture.md#draw)
+* [getHeight](pipetexture.md#getheight)
+* [getWidth](pipetexture.md#getwidth)
+* [setDestinationCoordinate](pipetexture.md#setdestinationcoordinate)
+* [setDestinationDimension](pipetexture.md#setdestinationdimension)
+* [setSourceCoordinate](pipetexture.md#setsourcecoordinate)
+* [setSourceDimension](pipetexture.md#setsourcedimension)
+* [setSourceTexture](pipetexture.md#setsourcetexture)
+
+## Constructors
+
+###  constructor
+
+\+ **new PipeTexture**(`source`: [Texture](texture.md)): *[PipeTexture](pipetexture.md)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`source` | [Texture](texture.md) |
+
+**Returns:** *[PipeTexture](pipetexture.md)*
 
 ## Methods
 
 ###  draw
 
 ▸ **draw**(`context`: CanvasRenderingContext2D): *void*
+
+*Inherited from [Texture](texture.md).[draw](texture.md#draw)*
 
 Signatures:
 - (): This is used when a sprite draws its textures
@@ -49,6 +64,8 @@ Name | Type |
 
 ▸ **draw**(`context`: CanvasRenderingContext2D, `x1`: number, `y1`: number, `w1`: number, `h1`: number): *void*
 
+*Inherited from [Texture](texture.md).[draw](texture.md#draw)*
+
 **Parameters:**
 
 Name | Type |
@@ -62,6 +79,8 @@ Name | Type |
 **Returns:** *void*
 
 ▸ **draw**(`context`: CanvasRenderingContext2D, `x1`: number, `y1`: number, `w1`: number, `h1`: number, `x2`: number, `y2`: number, `w2`: number, `h2`: number): *void*
+
+*Inherited from [Texture](texture.md).[draw](texture.md#draw)*
 
 **Parameters:**
 
@@ -81,17 +100,21 @@ Name | Type |
 
 ___
 
-### `Abstract` getHeight
+###  getHeight
 
 ▸ **getHeight**(): *number*
+
+*Overrides [Texture](texture.md).[getHeight](texture.md#abstract-getheight)*
 
 **Returns:** *number*
 
 ___
 
-### `Abstract` getWidth
+###  getWidth
 
 ▸ **getWidth**(): *number*
+
+*Overrides [Texture](texture.md).[getWidth](texture.md#abstract-getwidth)*
 
 **Returns:** *number*
 
@@ -100,6 +123,8 @@ ___
 ###  setDestinationCoordinate
 
 ▸ **setDestinationCoordinate**(`x`: number, `y`: number): *void*
+
+*Inherited from [Texture](texture.md).[setDestinationCoordinate](texture.md#setdestinationcoordinate)*
 
 **Parameters:**
 
@@ -116,6 +141,8 @@ ___
 
 ▸ **setDestinationDimension**(`w`: number, `h`: number): *void*
 
+*Inherited from [Texture](texture.md).[setDestinationDimension](texture.md#setdestinationdimension)*
+
 **Parameters:**
 
 Name | Type |
@@ -130,6 +157,8 @@ ___
 ###  setSourceCoordinate
 
 ▸ **setSourceCoordinate**(`x`: number, `y`: number): *void*
+
+*Inherited from [Texture](texture.md).[setSourceCoordinate](texture.md#setsourcecoordinate)*
 
 **Parameters:**
 
@@ -146,11 +175,27 @@ ___
 
 ▸ **setSourceDimension**(`w`: number, `h`: number): *void*
 
+*Inherited from [Texture](texture.md).[setSourceDimension](texture.md#setsourcedimension)*
+
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `w` | number |
 `h` | number |
+
+**Returns:** *void*
+
+___
+
+###  setSourceTexture
+
+▸ **setSourceTexture**(`texture`: [Texture](texture.md)): *void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`texture` | [Texture](texture.md) |
 
 **Returns:** *void*

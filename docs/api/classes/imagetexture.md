@@ -1,46 +1,48 @@
-[Stage.js API Doc](../README.md) › [Globals](../globals.md) › [CanvasTexture](canvastexture.md)
+[Stage.js API Doc](../README.md) › [Globals](../globals.md) › [ImageTexture](imagetexture.md)
 
-# Class: CanvasTexture
-
-A texture with off-screen canvas.
+# Class: ImageTexture
 
 ## Hierarchy
 
-  ↳ [ImageTexture](imagetexture.md)
+* [Texture](texture.md)
 
-  ↳ **CanvasTexture**
+  ↳ **ImageTexture**
+
+  ↳ [Atlas](atlas.md)
+
+  ↳ [CanvasTexture](canvastexture.md)
 
 ## Index
 
 ### Constructors
 
-* [constructor](canvastexture.md#constructor)
+* [constructor](imagetexture.md#constructor)
 
 ### Methods
 
-* [draw](canvastexture.md#draw)
-* [getContext](canvastexture.md#getcontext)
-* [getHeight](canvastexture.md#getheight)
-* [getOptimalPixelRatio](canvastexture.md#getoptimalpixelratio)
-* [getWidth](canvastexture.md#getwidth)
-* [setDestinationCoordinate](canvastexture.md#setdestinationcoordinate)
-* [setDestinationDimension](canvastexture.md#setdestinationdimension)
-* [setDrawer](canvastexture.md#setdrawer)
-* [setMemoizer](canvastexture.md#setmemoizer)
-* [setSize](canvastexture.md#setsize)
-* [setSourceCoordinate](canvastexture.md#setsourcecoordinate)
-* [setSourceDimension](canvastexture.md#setsourcedimension)
-* [setSourceImage](canvastexture.md#setsourceimage)
+* [draw](imagetexture.md#draw)
+* [getHeight](imagetexture.md#getheight)
+* [getWidth](imagetexture.md#getwidth)
+* [setDestinationCoordinate](imagetexture.md#setdestinationcoordinate)
+* [setDestinationDimension](imagetexture.md#setdestinationdimension)
+* [setSourceCoordinate](imagetexture.md#setsourcecoordinate)
+* [setSourceDimension](imagetexture.md#setsourcedimension)
+* [setSourceImage](imagetexture.md#setsourceimage)
 
 ## Constructors
 
 ###  constructor
 
-\+ **new CanvasTexture**(): *[CanvasTexture](canvastexture.md)*
+\+ **new ImageTexture**(`source?`: [TextureImageSource](../globals.md#textureimagesource), `pixelRatio?`: number): *[ImageTexture](imagetexture.md)*
 
-*Overrides [ImageTexture](imagetexture.md).[constructor](imagetexture.md#constructor)*
+**Parameters:**
 
-**Returns:** *[CanvasTexture](canvastexture.md)*
+Name | Type |
+------ | ------ |
+`source?` | [TextureImageSource](../globals.md#textureimagesource) |
+`pixelRatio?` | number |
+
+**Returns:** *[ImageTexture](imagetexture.md)*
 
 ## Methods
 
@@ -103,40 +105,11 @@ Name | Type |
 
 ___
 
-###  getContext
-
-▸ **getContext**(`type`: string, `attributes?`: any): *CanvasRenderingContext2D*
-
-**Parameters:**
-
-Name | Type | Default |
------- | ------ | ------ |
-`type` | string | "2d" |
-`attributes?` | any | - |
-
-**Returns:** *CanvasRenderingContext2D*
-
-___
-
 ###  getHeight
 
 ▸ **getHeight**(): *number*
 
-*Inherited from [ImageTexture](imagetexture.md).[getHeight](imagetexture.md#getheight)*
-
 *Overrides [Texture](texture.md).[getHeight](texture.md#abstract-getheight)*
-
-**Returns:** *number*
-
-___
-
-###  getOptimalPixelRatio
-
-▸ **getOptimalPixelRatio**(): *number*
-
-**`experimental`** 
-
-This is the ratio of screen pixel to this canvas pixel.
 
 **Returns:** *number*
 
@@ -145,8 +118,6 @@ ___
 ###  getWidth
 
 ▸ **getWidth**(): *number*
-
-*Inherited from [ImageTexture](imagetexture.md).[getWidth](imagetexture.md#getwidth)*
 
 *Overrides [Texture](texture.md).[getWidth](texture.md#abstract-getwidth)*
 
@@ -183,52 +154,6 @@ Name | Type |
 ------ | ------ |
 `w` | number |
 `h` | number |
-
-**Returns:** *void*
-
-___
-
-###  setDrawer
-
-▸ **setDrawer**(`drawer`: [CanvasTextureDrawer](../globals.md#canvastexturedrawer)): *void*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`drawer` | [CanvasTextureDrawer](../globals.md#canvastexturedrawer) |
-
-**Returns:** *void*
-
-___
-
-###  setMemoizer
-
-▸ **setMemoizer**(`memoizer`: [CanvasTextureMemoizer](../globals.md#canvastexturememoizer)): *void*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`memoizer` | [CanvasTextureMemoizer](../globals.md#canvastexturememoizer) |
-
-**Returns:** *void*
-
-___
-
-###  setSize
-
-▸ **setSize**(`textureWidth`: number, `textureHeight`: number, `pixelRatio`: number): *void*
-
-Note: provided width and height will be texture size, and canvas size is texture size multiply by pixelRatio.
-
-**Parameters:**
-
-Name | Type | Default |
------- | ------ | ------ |
-`textureWidth` | number | - |
-`textureHeight` | number | - |
-`pixelRatio` | number | 1 |
 
 **Returns:** *void*
 
@@ -271,8 +196,6 @@ ___
 ###  setSourceImage
 
 ▸ **setSourceImage**(`image`: [TextureImageSource](../globals.md#textureimagesource), `pixelRatio`: number): *void*
-
-*Inherited from [ImageTexture](imagetexture.md).[setSourceImage](imagetexture.md#setsourceimage)*
 
 **Parameters:**
 

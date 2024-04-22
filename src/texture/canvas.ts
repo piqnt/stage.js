@@ -1,52 +1,54 @@
 import { Sprite } from "../core/sprite";
 
-import { Texture, TexturePrerenderContext } from "./texture";
+import { ImageTexture } from "./image";
+import { TexturePrerenderContext } from "./texture";
 
-// todo: update signature and use this
 type CanvasTextureDrawer = (this: CanvasTexture) => void;
 type CanvasTextureMemoizer = (this: CanvasTexture) => any;
 
-/** @hidden @deprecated @internal */
+/** @hidden @deprecated */
 type LegacyCanvasTextureDrawer = (this: CanvasTexture, context: CanvasRenderingContext2D) => void;
-/** @hidden @deprecated @internal */
+/** @hidden @deprecated */
 type LegacyCanvasSpriteMemoizer = () => any;
 
-/** @hidden @deprecated @internal */
+/** @hidden @deprecated */
 type LegacyCanvasSpriteDrawer = (ratio: number, texture: CanvasTexture, sprite: Sprite) => void;
 
 /**
  * A texture with off-screen canvas.
  */
-export class CanvasTexture extends Texture {
-  // just casting the type
-  /** @internal */ _canvas: HTMLCanvasElement;
-  /** @internal */ _context: any;
+export class CanvasTexture extends ImageTexture {
+  /** @internal */ _source: HTMLCanvasElement;
   /** @internal */ _drawer?: CanvasTextureDrawer;
   /** @internal */ _memoizer: CanvasTextureMemoizer;
 
   /** @internal */ _lastPixelRatio = 0;
   /** @internal */ _lastMemoKey: any;
 
-  constructor(type = "2d", attributes?: any) {
-    super();
-    this._canvas = document.createElement("canvas");
-    this._context = this._canvas.getContext(type, attributes);
-    this.setSourceImage(this._canvas);
+  constructor() {
+    super(document.createElement("canvas"));
   }
 
   /**
-   * Note: texture size is set to width and height, and canvas size is texture size multiply by pixelRatio.
+   * Note: provided width and height will be texture size, and canvas size is texture size multiply by pixelRatio.
    */
-  setSize(width: number, height: number, pixelRatio = 1) {
-    this._canvas.width = width * pixelRatio;
-    this._canvas.height = height * pixelRatio;
+  setSize(textureWidth: number, textureHeight: number, pixelRatio = 1) {
+    this._source.width = textureWidth * pixelRatio;
+    this._source.height = textureHeight * pixelRatio;
     this._pixelRatio = pixelRatio;
-    this.setSourceDimension(width, height);
-    this.setDestinationDimension(width, height);
   }
 
-  getContext() {
-    return this._context;
+  getContext(type = "2d", attributes?: any): CanvasRenderingContext2D {
+    return this._source.getContext(type, attributes) as CanvasRenderingContext2D;
+  }
+
+  /**
+   * @experimental
+   *
+   * This is the ratio of screen pixel to this canvas pixel.
+   */
+  getOptimalPixelRatio() {
+    return Math.ceil(this._lastPixelRatio);
   }
 
   setMemoizer(memoizer: CanvasTextureMemoizer) {
@@ -77,23 +79,25 @@ export class CanvasTexture extends Texture {
       this._lastMemoKey = newMemoKey;
       this._lastPixelRatio = newPixelRatio;
 
-      this._drawer.call(this);
+      if (typeof this._drawer === "function") {
+        this._drawer.call(this);
+      }
       return true;
     }
   }
 
-  /** @hidden @deprecated @internal */
+  /** @hidden @deprecated */
   size(width: number, height: number, pixelRatio: number) {
     this.setSize(width, height, pixelRatio);
     return this;
   }
 
-  /** @hidden @deprecated @internal */
-  context() {
-    return this.getContext();
+  /** @hidden @deprecated */
+  context(type = "2d", attributes?: any) {
+    return this.getContext(type, attributes);
   }
 
-  /** @hidden @deprecated @internal */
+  /** @hidden @deprecated */
   canvas(legacyTextureDrawer: LegacyCanvasTextureDrawer) {
     if (typeof legacyTextureDrawer === "function") {
       legacyTextureDrawer.call(this, this.getContext());
@@ -134,25 +138,25 @@ export function canvas(type?, attributes?, legacyTextureDrawer?): CanvasTexture 
     });
     return texture;
   } else if (typeof attributes === "function") {
-    const texture = new CanvasTexture(type);
+    const texture = new CanvasTexture();
     legacyTextureDrawer = attributes;
     texture.setDrawer(function () {
-      legacyTextureDrawer.call(texture, texture.getContext());
+      legacyTextureDrawer.call(texture, texture.getContext(type));
     });
     return texture;
   } else if (typeof legacyTextureDrawer === "function") {
-    const texture = new CanvasTexture(type, attributes);
+    const texture = new CanvasTexture();
     texture.setDrawer(function () {
-      legacyTextureDrawer.call(texture, texture.getContext());
+      legacyTextureDrawer.call(texture, texture.getContext(type, attributes));
     });
     return texture;
   } else {
-    const texture = new CanvasTexture(type, attributes);
+    const texture = new CanvasTexture();
     return texture;
   }
 }
 
-/** @hidden @deprecated @internal */
+/** @hidden @deprecated */
 export function memoizeDraw(
   legacySpriteDrawer: LegacyCanvasSpriteDrawer,
   legacySpriteMemoizer: LegacyCanvasSpriteMemoizer = () => null,

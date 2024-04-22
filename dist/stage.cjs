@@ -226,142 +226,262 @@ const stats = {
   draw: 0,
   fps: 0
 };
+const uid = function() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+};
 class Texture {
-  constructor(source, pixelRatio) {
-    this._draw_failed = false;
-    if (typeof source === "object") {
-      this.setSourceImage(source, pixelRatio);
-    }
-  }
-  pipe() {
-    return new Texture(this);
-  }
-  /**
-   * @internal
-   * This is used by subclasses such as CanvasTexture to rerender offscreen texture if needed.
-   */
-  prerender(context) {
-    if ("prerender" in this._source) {
-      return this._source.prerender(context);
-    }
-  }
-  /** @hidden @deprecated @internal */
-  src(x, y, w, h) {
-    if (typeof x === "object") {
-      this.setSourceImage(x, y);
-    } else {
-      if (typeof w === "undefined") {
-        this.setSourceDimension(x, y);
-      } else {
-        this.setSourceCoordinate(x, y);
-        this.setSourceDimension(w, h);
-      }
-    }
-    return this;
-  }
-  setSourceImage(image2, pixelRatio = 1) {
-    this._source = image2;
-    this._pixelRatio = pixelRatio;
-    if ("width" in image2 && "height" in image2 && typeof image2.width === "number" && typeof image2.height === "number") {
-      const pixelWidth = image2.width;
-      const pixelHeight = image2.height;
-      const geoWidth = pixelWidth / pixelRatio;
-      const geoHeight = pixelHeight / pixelRatio;
-      this.setSourceCoordinate(0, 0);
-      this.setSourceDimension(geoWidth, geoHeight);
-      this.setDestinationCoordinate(0, 0);
-      this.setDestinationDimension(geoWidth, geoHeight);
-    }
+  constructor() {
+    this.uid = "texture:" + uid();
+    this.sx = 0;
+    this.sy = 0;
+    this.dx = 0;
+    this.dy = 0;
   }
   // Geometrical values
   setSourceCoordinate(x, y) {
-    this._sx = x;
-    this._sy = y;
+    this.sx = x;
+    this.sy = y;
   }
   // Geometrical values
   setSourceDimension(w, h) {
-    this._sw = w;
-    this._sh = h;
-    this.setDestinationDimension(w, h);
-  }
-  /** @hidden @deprecated @internal */
-  dest(x, y, w, h) {
-    this.setDestinationCoordinate(x, y);
-    if (typeof w !== "undefined") {
-      this.setDestinationDimension(w, h);
-    }
-    return this;
+    this.sw = w;
+    this.sh = h;
   }
   // Geometrical values
   setDestinationCoordinate(x, y) {
-    this._dx = x;
-    this._dy = y;
+    this.dx = x;
+    this.dy = y;
   }
   // Geometrical values
   setDestinationDimension(w, h) {
-    this._dw = w;
-    this._dh = h;
-    this.width = w;
-    this.height = h;
+    this.dw = w;
+    this.dh = h;
   }
   draw(context, x1, y1, w1, h1, x2, y2, w2, h2) {
-    let sx = this._sx;
-    let sy = this._sy;
-    let sw = this._sw;
-    let sh = this._sh;
-    let dx = this._dx;
-    let dy = this._dy;
-    let dw = this._dw;
-    let dh = this._dh;
-    if (typeof x1 === "number" && typeof y1 === "number" && typeof w1 === "number" && typeof h1 === "number") {
-      if (typeof x2 === "number" && typeof y2 === "number" && typeof w2 === "number" && typeof h2 === "number") {
-        x1 = clamp(x1, 0, this._sw);
-        w1 = clamp(w1, 0, this._sw - x1);
-        y1 = clamp(y1, 0, this._sh);
-        h1 = clamp(h1, 0, this._sh - y1);
+    let sx = this.sx;
+    let sy = this.sy;
+    let sw = this.sw;
+    let sh = this.sh;
+    let dx = this.dx;
+    let dy = this.dy;
+    let dw = this.dw;
+    let dh = this.dh;
+    if (typeof x1 === "number" || typeof y1 === "number" || typeof w1 === "number" || typeof h1 === "number" || typeof x2 === "number" || typeof y2 === "number" || typeof w2 === "number" || typeof h2 === "number") {
+      if (typeof x2 === "number" || typeof y2 === "number" || typeof w2 === "number" || typeof h2 === "number") {
         sx += x1;
         sy += y1;
-        sw = w1;
-        sh = h1;
-        dx = x2;
-        dy = y2;
-        dw = w2;
-        dh = h2;
+        sw = w1 ?? sw;
+        sh = h1 ?? sh;
+        dx += x2;
+        dy += y2;
+        dw = w2 ?? dw;
+        dh = h2 ?? dh;
       } else {
-        dx = x1;
-        dy = y1;
+        dx += x1;
+        dy += y1;
         dw = w1;
         dh = h1;
       }
     }
-    const pixelRatio = this._pixelRatio || 1;
-    const spx = sx * pixelRatio;
-    const spy = sy * pixelRatio;
-    const spw = sw * pixelRatio;
-    const sph = sh * pixelRatio;
-    this.draw0(context, spx, spy, spw, sph, dx, dy, dw, dh);
+    this.drawWithNormalizedArgs(context, sx, sy, sw, sh, dx, dy, dw, dh);
+  }
+}
+class ImageTexture extends Texture {
+  constructor(source, pixelRatio) {
+    super();
+    this._pixelRatio = 1;
+    if (typeof source === "object") {
+      this.setSourceImage(source, pixelRatio);
+    }
+  }
+  setSourceImage(image2, pixelRatio = 1) {
+    this._source = image2;
+    this._pixelRatio = pixelRatio;
+  }
+  getWidth() {
+    return this._source.width / this._pixelRatio;
+  }
+  getHeight() {
+    return this._source.height / this._pixelRatio;
   }
   /** @internal */
-  draw0(context, sx, sy, sw, sh, dx, dy, dw, dh) {
-    const drawable = this._source;
-    if (drawable === null || typeof drawable !== "object") {
+  prerender(context) {
+    return false;
+  }
+  /** @internal */
+  drawWithNormalizedArgs(context, sx, sy, sw, sh, dx, dy, dw, dh) {
+    const image2 = this._source;
+    if (image2 === null || typeof image2 !== "object") {
       return;
     }
+    sw = sw ?? this.getWidth();
+    sh = sh ?? this.getHeight();
+    dw = dw ?? sw;
+    dh = dh ?? sh;
+    sx *= this._pixelRatio;
+    sy *= this._pixelRatio;
+    sw *= this._pixelRatio;
+    sh *= this._pixelRatio;
     try {
-      if ("draw" in drawable && typeof drawable.draw === "function") {
-        drawable.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
-      } else {
-        stats.draw++;
-        context.drawImage(drawable, sx, sy, sw, sh, dx, dy, dw, dh);
-      }
+      stats.draw++;
+      context.drawImage(image2, sx, sy, sw, sh, dx, dy, dw, dh);
     } catch (ex) {
       if (!this._draw_failed) {
-        console.log("Unable to draw: ", drawable);
+        console.log("Unable to draw: ", image2);
         console.log(ex);
         this._draw_failed = true;
       }
     }
   }
+}
+class PipeTexture extends Texture {
+  constructor(source) {
+    super();
+    this._source = source;
+  }
+  setSourceTexture(texture2) {
+    this._source = texture2;
+  }
+  getWidth() {
+    return this.dw ?? this.sw ?? this._source.getWidth();
+  }
+  getHeight() {
+    return this.dh ?? this.sh ?? this._source.getHeight();
+  }
+  /** @internal */
+  prerender(context) {
+    return this._source.prerender(context);
+  }
+  /** @internal */
+  drawWithNormalizedArgs(context, sx, sy, sw, sh, dx, dy, dw, dh) {
+    const texture2 = this._source;
+    if (texture2 === null || typeof texture2 !== "object") {
+      return;
+    }
+    texture2.draw(context, sx, sy, sw, sh, dx, dy, dw, dh);
+  }
+}
+class Atlas extends ImageTexture {
+  constructor(def = {}) {
+    super();
+    this.pipeSpriteTexture = (def2) => {
+      const map = this._map;
+      const ppu = this._ppu;
+      const trim = this._trim;
+      if (!def2) {
+        return void 0;
+      }
+      def2 = Object.assign({}, def2);
+      if (isFn(map)) {
+        def2 = map(def2);
+      }
+      if (ppu != 1) {
+        def2.x *= ppu;
+        def2.y *= ppu;
+        def2.width *= ppu;
+        def2.height *= ppu;
+        def2.top *= ppu;
+        def2.bottom *= ppu;
+        def2.left *= ppu;
+        def2.right *= ppu;
+      }
+      if (trim != 0) {
+        def2.x += trim;
+        def2.y += trim;
+        def2.width -= 2 * trim;
+        def2.height -= 2 * trim;
+        def2.top -= trim;
+        def2.bottom -= trim;
+        def2.left -= trim;
+        def2.right -= trim;
+      }
+      const texture2 = new PipeTexture(this);
+      texture2.top = def2.top;
+      texture2.bottom = def2.bottom;
+      texture2.left = def2.left;
+      texture2.right = def2.right;
+      texture2.setSourceCoordinate(def2.x, def2.y);
+      texture2.setSourceDimension(def2.width, def2.height);
+      return texture2;
+    };
+    this.findSpriteDefinition = (query) => {
+      const textures = this._textures;
+      if (textures) {
+        if (isFn(textures)) {
+          return textures(query);
+        } else if (isHash(textures)) {
+          return textures[query];
+        }
+      }
+    };
+    this.select = (query) => {
+      if (!query) {
+        return new TextureSelection(new PipeTexture(this));
+      }
+      const textureDefinition = this.findSpriteDefinition(query);
+      if (textureDefinition) {
+        return new TextureSelection(textureDefinition, this);
+      }
+    };
+    this.name = def.name;
+    this._ppu = def.ppu || def.ratio || 1;
+    this._trim = def.trim || 0;
+    this._map = def.map || def.filter;
+    this._textures = def.textures;
+    if (typeof def.image === "object" && isHash(def.image)) {
+      this._imageSrc = def.image.src || def.image.url;
+      if (typeof def.image.ratio === "number") {
+        this._pixelRatio = def.image.ratio;
+      }
+    } else {
+      if (typeof def.imagePath === "string") {
+        this._imageSrc = def.imagePath;
+      } else if (typeof def.image === "string") {
+        this._imageSrc = def.image;
+      }
+      if (typeof def.imageRatio === "number") {
+        this._pixelRatio = def.imageRatio;
+      }
+    }
+    deprecatedWarning(def);
+  }
+  async load() {
+    if (this._imageSrc) {
+      const image2 = await asyncLoadImage(this._imageSrc);
+      this.setSourceImage(image2, this._pixelRatio);
+    }
+  }
+}
+function asyncLoadImage(src) {
+  return new Promise(function(resolve, reject) {
+    const img = new Image();
+    img.onload = function() {
+      resolve(img);
+    };
+    img.onerror = function(error) {
+      console.error("Loading failed: " + src);
+      reject(error);
+    };
+    img.src = src;
+  });
+}
+function deprecatedWarning(def) {
+  if ("filter" in def)
+    console.warn("'filter' field of atlas definition is deprecated");
+  if ("cutouts" in def)
+    console.warn("'cutouts' field of atlas definition is deprecated");
+  if ("sprites" in def)
+    console.warn("'sprites' field of atlas definition is deprecated");
+  if ("factory" in def)
+    console.warn("'factory' field of atlas definition is deprecated");
+  if ("ratio" in def)
+    console.warn("'ratio' field of atlas definition is deprecated");
+  if ("imagePath" in def)
+    console.warn("'imagePath' field of atlas definition is deprecated");
+  if ("imageRatio" in def)
+    console.warn("'imageRatio' field of atlas definition is deprecated");
+  if (typeof def.image === "object" && "url" in def.image)
+    console.warn("'image.url' field of atlas definition is deprecated");
 }
 function isAtlasSpriteDefinition(selection) {
   return typeof selection === "object" && isHash(selection) && "number" === typeof selection.width && "number" === typeof selection.height;
@@ -414,14 +534,20 @@ class TextureSelection {
   }
 }
 const NO_TEXTURE = new class extends Texture {
+  getWidth() {
+    return 0;
+  }
+  getHeight() {
+    return 0;
+  }
+  prerender(context) {
+    return false;
+  }
+  drawWithNormalizedArgs(context, sx, sy, sw, sh, dx, dy, dw, dh) {
+  }
   constructor() {
     super();
     this.setSourceDimension(0, 0);
-  }
-  pipe() {
-    return this;
-  }
-  setSourceImage(image2, pixelRatio) {
   }
   setSourceCoordinate(x, y) {
   }
@@ -444,8 +570,8 @@ const atlas = async function(def) {
   } else {
     atlas2 = new Atlas(def);
   }
-  if (atlas2._name) {
-    ATLAS_MEMO_BY_NAME[atlas2._name] = atlas2;
+  if (atlas2.name) {
+    ATLAS_MEMO_BY_NAME[atlas2.name] = atlas2;
   }
   ATLAS_ARRAY.push(atlas2);
   await atlas2.load();
@@ -479,143 +605,141 @@ const texture = function(query) {
   }
   return result;
 };
-class Atlas extends Texture {
-  constructor(def = {}) {
+class ResizableTexture extends Texture {
+  constructor(source, mode) {
     super();
-    this._imagePixelRatio = 1;
-    this.pipeSpriteTexture = (def2) => {
-      const map = this._map;
-      const ppu = this._ppu;
-      const trim = this._trim;
-      if (!def2) {
-        return void 0;
-      }
-      def2 = Object.assign({}, def2);
-      if (isFn(map)) {
-        def2 = map(def2);
-      }
-      if (ppu != 1) {
-        def2.x *= ppu;
-        def2.y *= ppu;
-        def2.width *= ppu;
-        def2.height *= ppu;
-        def2.top *= ppu;
-        def2.bottom *= ppu;
-        def2.left *= ppu;
-        def2.right *= ppu;
-      }
-      if (trim != 0) {
-        def2.x += trim;
-        def2.y += trim;
-        def2.width -= 2 * trim;
-        def2.height -= 2 * trim;
-        def2.top -= trim;
-        def2.bottom -= trim;
-        def2.left -= trim;
-        def2.right -= trim;
-      }
-      const texture2 = this.pipe();
-      texture2.top = def2.top;
-      texture2.bottom = def2.bottom;
-      texture2.left = def2.left;
-      texture2.right = def2.right;
-      texture2.setSourceCoordinate(def2.x, def2.y);
-      texture2.setSourceDimension(def2.width, def2.height);
-      return texture2;
-    };
-    this.findSpriteDefinition = (query) => {
-      const textures = this._textures;
-      if (textures) {
-        if (isFn(textures)) {
-          return textures(query);
-        } else if (isHash(textures)) {
-          return textures[query];
-        }
-      }
-    };
-    this.select = (query) => {
-      if (!query) {
-        return new TextureSelection(this.pipe());
-      }
-      const textureDefinition = this.findSpriteDefinition(query);
-      if (textureDefinition) {
-        return new TextureSelection(textureDefinition, this);
-      }
-    };
-    this._name = def.name;
-    this._ppu = def.ppu || def.ratio || 1;
-    this._trim = def.trim || 0;
-    this._map = def.map || def.filter;
-    this._textures = def.textures;
-    if (typeof def.image === "object" && isHash(def.image)) {
-      this._imageSrc = def.image.src || def.image.url;
-      if (typeof def.image.ratio === "number") {
-        this._imagePixelRatio = def.image.ratio;
-      }
-    } else {
-      if (typeof def.imagePath === "string") {
-        this._imageSrc = def.imagePath;
-      } else if (typeof def.image === "string") {
-        this._imageSrc = def.image;
-      }
-      if (typeof def.imageRatio === "number") {
-        this._imagePixelRatio = def.imageRatio;
-      }
-    }
-    this.deprecatedWarning(def);
+    this._source = source;
+    this._resizeMode = mode;
+  }
+  getWidth() {
+    return this.dw ?? this._source.getWidth();
+  }
+  getHeight() {
+    return this.dh ?? this._source.getHeight();
   }
   /** @internal */
-  deprecatedWarning(def) {
-    if ("filter" in def)
-      console.warn("'filter' field of atlas definition is deprecated");
-    if ("cutouts" in def)
-      console.warn("'cutouts' field of atlas definition is deprecated");
-    if ("sprites" in def)
-      console.warn("'sprites' field of atlas definition is deprecated");
-    if ("factory" in def)
-      console.warn("'factory' field of atlas definition is deprecated");
-    if ("ratio" in def)
-      console.warn("'ratio' field of atlas definition is deprecated");
-    if ("imagePath" in def)
-      console.warn("'imagePath' field of atlas definition is deprecated");
-    if ("imageRatio" in def)
-      console.warn("'imageRatio' field of atlas definition is deprecated");
-    if (typeof def.image === "object" && "url" in def.image)
-      console.warn("'image.url' field of atlas definition is deprecated");
+  prerender(context) {
+    return false;
   }
-  async load() {
-    if (this._imageSrc) {
-      const image2 = await asyncLoadImage(this._imageSrc);
-      this.setSourceImage(image2, this._imagePixelRatio);
+  drawWithNormalizedArgs(context, sx, sy, sw, sh, dx, dy, dw, dh) {
+    const texture2 = this._source;
+    if (texture2 === null || typeof texture2 !== "object") {
+      return;
+    }
+    let outWidth = dw;
+    let outHeight = dh;
+    const left = Number.isFinite(texture2.left) ? texture2.left : 0;
+    const right = Number.isFinite(texture2.right) ? texture2.right : 0;
+    const top = Number.isFinite(texture2.top) ? texture2.top : 0;
+    const bottom = Number.isFinite(texture2.bottom) ? texture2.bottom : 0;
+    const width = texture2.getWidth() - left - right;
+    const height = texture2.getHeight() - top - bottom;
+    if (!this._innerSize) {
+      outWidth = Math.max(outWidth - left - right, 0);
+      outHeight = Math.max(outHeight - top - bottom, 0);
+    }
+    if (top > 0 && left > 0) {
+      texture2.draw(context, 0, 0, left, top, 0, 0, left, top);
+    }
+    if (bottom > 0 && left > 0) {
+      texture2.draw(context, 0, height + top, left, bottom, 0, outHeight + top, left, bottom);
+    }
+    if (top > 0 && right > 0) {
+      texture2.draw(context, width + left, 0, right, top, outWidth + left, 0, right, top);
+    }
+    if (bottom > 0 && right > 0) {
+      texture2.draw(
+        context,
+        width + left,
+        height + top,
+        right,
+        bottom,
+        outWidth + left,
+        outHeight + top,
+        right,
+        bottom
+      );
+    }
+    if (this._resizeMode === "stretch") {
+      if (top > 0) {
+        texture2.draw(context, left, 0, width, top, left, 0, outWidth, top);
+      }
+      if (bottom > 0) {
+        texture2.draw(
+          context,
+          left,
+          height + top,
+          width,
+          bottom,
+          left,
+          outHeight + top,
+          outWidth,
+          bottom
+        );
+      }
+      if (left > 0) {
+        texture2.draw(context, 0, top, left, height, 0, top, left, outHeight);
+      }
+      if (right > 0) {
+        texture2.draw(
+          context,
+          width + left,
+          top,
+          right,
+          height,
+          outWidth + left,
+          top,
+          right,
+          outHeight
+        );
+      }
+      texture2.draw(context, left, top, width, height, left, top, outWidth, outHeight);
+    } else if (this._resizeMode === "tile") {
+      let l = left;
+      let r = outWidth;
+      let w;
+      while (r > 0) {
+        w = Math.min(width, r);
+        r -= width;
+        let t = top;
+        let b = outHeight;
+        let h;
+        while (b > 0) {
+          h = Math.min(height, b);
+          b -= height;
+          texture2.draw(context, left, top, w, h, l, t, w, h);
+          if (r <= 0) {
+            if (left) {
+              texture2.draw(context, 0, top, left, h, 0, t, left, h);
+            }
+            if (right) {
+              texture2.draw(context, width + left, top, right, h, l + w, t, right, h);
+            }
+          }
+          t += h;
+        }
+        if (top) {
+          texture2.draw(context, left, 0, w, top, l, 0, w, top);
+        }
+        if (bottom) {
+          texture2.draw(context, left, height + top, w, bottom, l, t, w, bottom);
+        }
+        l += w;
+      }
     }
   }
 }
-function asyncLoadImage(src) {
-  console.log("Loading image: " + src);
-  return new Promise(function(resolve, reject) {
-    const img = new Image();
-    img.onload = function() {
-      console.log("Image loaded: " + src);
-      resolve(img);
-    };
-    img.onerror = function(error) {
-      console.log("Loading failed: " + src);
-      reject(error);
-    };
-    img.src = src;
-  });
+function getPixelRatio() {
+  return typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
 }
-const uid = function() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2);
-};
+function isValidFitMode(value) {
+  return value && (value === "cover" || value === "contain" || value === "fill" || value === "in" || value === "in-pad" || value === "out" || value === "out-crop");
+}
 let iid$1 = 0;
 class Pin {
   /** @internal */
   constructor(owner) {
     this.uid = "pin:" + uid();
-    this.scaleTo = function(width, height, mode) {
-      scaleTo(this, width, height, mode);
-    };
     this._owner = owner;
     this._parent = null;
     this._relativeMatrix = new Matrix();
@@ -716,9 +840,11 @@ class Pin {
       let p;
       let q;
       if (rel.a > 0 && rel.c > 0 || rel.a < 0 && rel.c < 0) {
-        p = 0, q = rel.a * this._width + rel.c * this._height;
+        p = 0;
+        q = rel.a * this._width + rel.c * this._height;
       } else {
-        p = rel.a * this._width, q = rel.c * this._height;
+        p = rel.a * this._width;
+        q = rel.c * this._height;
       }
       if (p > q) {
         this._boxX = q;
@@ -728,9 +854,11 @@ class Pin {
         this._boxWidth = q - p;
       }
       if (rel.b > 0 && rel.d > 0 || rel.b < 0 && rel.d < 0) {
-        p = 0, q = rel.b * this._width + rel.d * this._height;
+        p = 0;
+        q = rel.b * this._width + rel.d * this._height;
       } else {
-        p = rel.b * this._width, q = rel.d * this._height;
+        p = rel.b * this._width;
+        q = rel.d * this._height;
       }
       if (p > q) {
         this._boxY = q;
@@ -777,6 +905,38 @@ class Pin {
       this._owner.touch();
     }
     return this;
+  }
+  // todo: should this be public?
+  /** @internal */
+  fit(width, height, mode) {
+    this._ts_transform = ++iid$1;
+    if (mode === "contain") {
+      mode = "in-pad";
+    }
+    if (mode === "cover") {
+      mode = "out-crop";
+    }
+    if (typeof width === "number") {
+      this._scaleX = width / this._unscaled_width;
+      this._width = this._unscaled_width;
+    }
+    if (typeof height === "number") {
+      this._scaleY = height / this._unscaled_height;
+      this._height = this._unscaled_height;
+    }
+    if (typeof width === "number" && typeof height === "number" && typeof mode === "string") {
+      if (mode === "fill")
+        ;
+      else if (mode === "out" || mode === "out-crop") {
+        this._scaleX = this._scaleY = Math.max(this._scaleX, this._scaleY);
+      } else if (mode === "in" || mode === "in-pad") {
+        this._scaleX = this._scaleY = Math.min(this._scaleX, this._scaleY);
+      }
+      if (mode === "out-crop" || mode === "in-pad") {
+        this._width = width / this._scaleX;
+        this._height = height / this._scaleY;
+      }
+    }
   }
 }
 const getters = {
@@ -863,7 +1023,7 @@ const setters = {
     pin._ts_transform = ++iid$1;
   },
   height: function(pin, value) {
-    pin._height_ = value;
+    pin._unscaled_height = value;
     pin._height = value;
     pin._ts_transform = ++iid$1;
   },
@@ -963,32 +1123,32 @@ const setters = {
       } else if (value == "out") {
         value = "out-crop";
       }
-      scaleTo(pin, all.resizeWidth, all.resizeHeight, value);
+      pin.fit(all.resizeWidth, all.resizeHeight, value);
     }
   },
   resizeWidth: function(pin, value, all) {
     if (!all || !all.resizeMode) {
-      scaleTo(pin, value, null);
+      pin.fit(value, null);
     }
   },
   resizeHeight: function(pin, value, all) {
     if (!all || !all.resizeMode) {
-      scaleTo(pin, null, value);
+      pin.fit(null, value);
     }
   },
   scaleMode: function(pin, value, all) {
     if (all) {
-      scaleTo(pin, all.scaleWidth, all.scaleHeight, value);
+      pin.fit(all.scaleWidth, all.scaleHeight, value);
     }
   },
   scaleWidth: function(pin, value, all) {
     if (!all || !all.scaleMode) {
-      scaleTo(pin, value, null);
+      pin.fit(value, null);
     }
   },
   scaleHeight: function(pin, value, all) {
     if (!all || !all.scaleMode) {
-      scaleTo(pin, null, value);
+      pin.fit(null, value);
     }
   },
   matrix: function(pin, value) {
@@ -1001,28 +1161,6 @@ const setters = {
     this.rotation(pin, 0);
   }
 };
-function scaleTo(pin, width, height, mode) {
-  pin._ts_transform = ++iid$1;
-  if (typeof width === "number") {
-    pin._scaleX = width / pin._unscaled_width;
-    pin._width = pin._unscaled_width;
-  }
-  if (typeof height === "number") {
-    pin._scaleY = height / pin._height_;
-    pin._height = pin._height_;
-  }
-  if (typeof width === "number" && typeof height === "number" && typeof mode === "string") {
-    if (mode == "out" || mode == "out-crop") {
-      pin._scaleX = pin._scaleY = Math.max(pin._scaleX, pin._scaleY);
-    } else if (mode == "in" || mode == "in-pad") {
-      pin._scaleX = pin._scaleY = Math.min(pin._scaleX, pin._scaleY);
-    }
-    if (mode == "out-crop" || mode == "in-pad") {
-      pin._width = width / pin._scaleX;
-      pin._height = height / pin._scaleY;
-    }
-  }
-}
 function IDENTITY(x) {
   return x;
 }
@@ -1313,8 +1451,10 @@ class Transition {
     return this;
   }
   offset(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    }
     this.pin("offsetX", a);
     this.pin("offsetY", b);
     return this;
@@ -1324,19 +1464,23 @@ class Transition {
     return this;
   }
   skew(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
-    else if (typeof b === "undefined")
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    } else if (typeof b === "undefined") {
       b = a;
+    }
     this.pin("skewX", a);
     this.pin("skewY", b);
     return this;
   }
   scale(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
-    else if (typeof b === "undefined")
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    } else if (typeof b === "undefined") {
       b = a;
+    }
     this.pin("scaleX", a);
     this.pin("scaleY", b);
     return this;
@@ -1442,6 +1586,13 @@ class Node {
     }
     return this._pin.absoluteMatrix();
   }
+  /** @internal */
+  getPixelRatio() {
+    var _a;
+    const m = (_a = this._parent) == null ? void 0 : _a.matrix();
+    const pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getPixelRatio();
+    return pixelRatio;
+  }
   pin(a, b) {
     if (typeof a === "object") {
       this._pin.set(a);
@@ -1457,14 +1608,18 @@ class Node {
       return this._pin;
     }
   }
-  scaleTo(a, b, c) {
+  fit(a, b, c) {
     if (typeof a === "object") {
       c = b;
       b = a.y;
       a = a.x;
     }
-    this._pin.scaleTo(a, b, c);
+    this._pin.fit(a, b, c);
     return this;
+  }
+  /** @hidden @deprecated Use fit */
+  scaleTo(a, b, c) {
+    return this.fit(a, b, c);
   }
   toString() {
     return "[" + this._label + "]";
@@ -2008,8 +2163,10 @@ class Node {
     return this;
   }
   offset(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    }
     this.pin("offsetX", a);
     this.pin("offsetY", b);
     return this;
@@ -2019,18 +2176,20 @@ class Node {
     return this;
   }
   skew(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
-    else if (typeof b === "undefined")
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    } else if (typeof b === "undefined")
       b = a;
     this.pin("skewX", a);
     this.pin("skewY", b);
     return this;
   }
   scale(a, b) {
-    if (typeof a === "object")
-      b = a.y, a = a.x;
-    else if (typeof b === "undefined")
+    if (typeof a === "object") {
+      b = a.y;
+      a = a.x;
+    } else if (typeof b === "undefined")
       b = a;
     this.pin("scaleX", a);
     this.pin("scaleY", b);
@@ -2207,6 +2366,181 @@ class Node {
     return this;
   }
 }
+const sprite = function(frame) {
+  const sprite2 = new Sprite();
+  frame && sprite2.texture(frame);
+  return sprite2;
+};
+class Sprite extends Node {
+  constructor() {
+    super();
+    this.prerenderContext = {};
+    this.label("Sprite");
+    this._textures = [];
+    this._image = null;
+  }
+  texture(frame) {
+    this._image = texture(frame).one();
+    if (this._image) {
+      this.pin("width", this._image.getWidth());
+      this.pin("height", this._image.getHeight());
+      this._textures[0] = new PipeTexture(this._image);
+      this._textures.length = 1;
+    } else {
+      this.pin("width", 0);
+      this.pin("height", 0);
+      this._textures.length = 0;
+    }
+    return this;
+  }
+  /** @deprecated */
+  image(frame) {
+    return this.texture(frame);
+  }
+  tile(inner = false) {
+    const texture2 = new ResizableTexture(this._image, "tile");
+    this._textures[0] = texture2;
+    return this;
+  }
+  stretch(inner = false) {
+    const texture2 = new ResizableTexture(this._image, "stretch");
+    this._textures[0] = texture2;
+    return this;
+  }
+  prerender() {
+    if (!this._visible) {
+      return;
+    }
+    if (this._image) {
+      const pixelRatio = this.getPixelRatio();
+      this.prerenderContext.pixelRatio = pixelRatio;
+      const updated = this._image.prerender(this.prerenderContext);
+      if (updated === true) {
+        const w = this._image.getWidth();
+        const h = this._image.getHeight();
+        this.size(w, h);
+      }
+    }
+    super.prerender();
+  }
+  render(context) {
+    const texture2 = this._textures[0];
+    if (texture2 == null ? void 0 : texture2["_resizeMode"]) {
+      texture2.dw = this.pin("width");
+      texture2.dh = this.pin("height");
+    }
+    super.render(context);
+  }
+}
+const image = sprite;
+const Image$1 = Sprite;
+class CanvasTexture extends ImageTexture {
+  constructor() {
+    super(document.createElement("canvas"));
+    this._lastPixelRatio = 0;
+  }
+  /**
+   * Note: provided width and height will be texture size, and canvas size is texture size multiply by pixelRatio.
+   */
+  setSize(textureWidth, textureHeight, pixelRatio = 1) {
+    this._source.width = textureWidth * pixelRatio;
+    this._source.height = textureHeight * pixelRatio;
+    this._pixelRatio = pixelRatio;
+  }
+  getContext(type = "2d", attributes) {
+    return this._source.getContext(type, attributes);
+  }
+  /**
+   * @experimental
+   *
+   * This is the ratio of screen pixel to this canvas pixel.
+   */
+  getOptimalPixelRatio() {
+    return Math.ceil(this._lastPixelRatio);
+  }
+  setMemoizer(memoizer) {
+    this._memoizer = memoizer;
+  }
+  setDrawer(drawer) {
+    this._drawer = drawer;
+  }
+  /** @internal */
+  prerender(context) {
+    const newPixelRatio = context.pixelRatio;
+    const lastPixelRatio = this._lastPixelRatio;
+    const pixelRationChange = lastPixelRatio / newPixelRatio;
+    const pixelRatioChanged = lastPixelRatio === 0 || pixelRationChange > 1.25 || pixelRationChange < 0.8;
+    if (pixelRatioChanged) {
+      this._lastPixelRatio = newPixelRatio;
+    }
+    const newMemoKey = this._memoizer ? this._memoizer.call(this) : null;
+    const memoKeyChanged = this._lastMemoKey !== newMemoKey;
+    if (pixelRatioChanged || memoKeyChanged) {
+      this._lastMemoKey = newMemoKey;
+      this._lastPixelRatio = newPixelRatio;
+      if (typeof this._drawer === "function") {
+        this._drawer.call(this);
+      }
+      return true;
+    }
+  }
+  /** @hidden @deprecated */
+  size(width, height, pixelRatio) {
+    this.setSize(width, height, pixelRatio);
+    return this;
+  }
+  /** @hidden @deprecated */
+  context(type = "2d", attributes) {
+    return this.getContext(type, attributes);
+  }
+  /** @hidden @deprecated */
+  canvas(legacyTextureDrawer) {
+    if (typeof legacyTextureDrawer === "function") {
+      legacyTextureDrawer.call(this, this.getContext());
+    } else if (typeof legacyTextureDrawer === "undefined") {
+      if (typeof this._drawer === "function") {
+        this._drawer.call(this);
+      }
+    }
+    return this;
+  }
+}
+function canvas(type, attributes, legacyTextureDrawer) {
+  if (typeof type === "function") {
+    const texture2 = new CanvasTexture();
+    legacyTextureDrawer = type;
+    texture2.setDrawer(function() {
+      legacyTextureDrawer.call(texture2, texture2.getContext());
+    });
+    return texture2;
+  } else if (typeof attributes === "function") {
+    const texture2 = new CanvasTexture();
+    legacyTextureDrawer = attributes;
+    texture2.setDrawer(function() {
+      legacyTextureDrawer.call(texture2, texture2.getContext(type));
+    });
+    return texture2;
+  } else if (typeof legacyTextureDrawer === "function") {
+    const texture2 = new CanvasTexture();
+    texture2.setDrawer(function() {
+      legacyTextureDrawer.call(texture2, texture2.getContext(type, attributes));
+    });
+    return texture2;
+  } else {
+    const texture2 = new CanvasTexture();
+    return texture2;
+  }
+}
+function memoizeDraw(legacySpriteDrawer, legacySpriteMemoizer = () => null) {
+  const sprite2 = new Sprite();
+  const texture2 = new CanvasTexture();
+  sprite2.texture(texture2);
+  texture2.setDrawer(function() {
+    legacySpriteDrawer(2.5 * texture2._lastPixelRatio, texture2, sprite2);
+  });
+  texture2.setMemoizer(legacySpriteMemoizer);
+  return sprite2;
+}
 const POINTER_CLICK = "click";
 const POINTER_START = "touchstart mousedown";
 const POINTER_MOVE = "touchmove mousemove";
@@ -2271,7 +2605,6 @@ class Pointer {
     this.clickList = [];
     this.cancelList = [];
     this.handleStart = (event) => {
-      console.log("pointer-start", event.type);
       event.preventDefault();
       this.localPoint(event);
       this.dispatchEvent(event.type, event);
@@ -2408,9 +2741,6 @@ class Pointer {
     payload.event = event;
     payload.timeStamp = Date.now();
     payload.collected = null;
-    if (type !== "mousemove" && type !== "touchmove") {
-      console.log("pointer:dispatchEvent", payload, targets == null ? void 0 : targets.length);
-    }
     if (targets) {
       while (targets.length) {
         const node = targets.shift();
@@ -2473,15 +2803,18 @@ class Root extends Node {
     this.mount = (configs = {}) => {
       if (typeof configs.canvas === "string") {
         this.canvas = document.getElementById(configs.canvas);
+        if (!this.canvas) {
+          console.error("Canvas element not found: ", configs.canvas);
+        }
       } else if (configs.canvas instanceof HTMLCanvasElement) {
         this.canvas = configs.canvas;
-      } else if (configs.canvas)
-        ;
+      } else if (configs.canvas) {
+        console.error("Unknown value for canvas:", configs.canvas);
+      }
       if (!this.canvas) {
         this.canvas = document.getElementById("cutjs") || document.getElementById("stage");
       }
       if (!this.canvas) {
-        console.log("Creating Canvas...");
         this.canvas = document.createElement("canvas");
         Object.assign(this.canvas.style, {
           position: "absolute",
@@ -2521,7 +2854,7 @@ class Root extends Node {
         requestAnimationFrame(this.onFrame);
       }
     };
-    this.lastTime = 0;
+    this._lastFrameTime = 0;
     this._mo_touch = null;
     this.onFrame = (now) => {
       this.frameRequested = false;
@@ -2539,9 +2872,6 @@ class Root extends Node {
         if (this.canvas.width !== this.drawingWidth || this.canvas.height !== this.drawingHeight) {
           this.canvas.width = this.drawingWidth;
           this.canvas.height = this.drawingHeight;
-          console.log(
-            "Resize: [" + this.drawingWidth + ", " + this.drawingHeight + "] = " + this.pixelRatio + " x [" + this.pixelWidth + ", " + this.pixelHeight + "]"
-          );
           this.viewport({
             width: this.drawingWidth,
             height: this.drawingHeight,
@@ -2549,12 +2879,12 @@ class Root extends Node {
           });
         }
       }
-      const last = this.lastTime || now;
+      const last = this._lastFrameTime || now;
       const elapsed = now - last;
       if (!this.mounted || this.paused || this.sleep) {
         return;
       }
-      this.lastTime = now;
+      this._lastFrameTime = now;
       this.prerender();
       const tickRequest = this._tick(elapsed, now, last);
       if (this._mo_touch != this._ts_touch) {
@@ -2671,7 +3001,7 @@ class Root extends Node {
     if (viewport && viewbox) {
       const viewportWidth = viewport.width;
       const viewportHeight = viewport.height;
-      const viewboxMode = viewbox.mode && /^(in|out|in-pad|out-crop)$/.test(viewbox.mode) ? viewbox.mode : "in-pad";
+      const viewboxMode = isValidFitMode(viewbox.mode) ? viewbox.mode : "in-pad";
       const viewboxWidth = viewbox.width;
       const viewboxHeight = viewbox.height;
       this.pin({
@@ -2698,283 +3028,6 @@ class Root extends Node {
     }
     return this;
   }
-}
-function getPixelRatio() {
-  return typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-}
-const sprite = function(frame) {
-  const sprite2 = new Sprite();
-  frame && sprite2.texture(frame);
-  return sprite2;
-};
-class Sprite extends Node {
-  constructor() {
-    super();
-    this.prerenderContext = {};
-    this.label("Sprite");
-    this._textures = [];
-    this._image = null;
-  }
-  texture(frame) {
-    this._image = texture(frame).one();
-    if (this._image) {
-      this.pin("width", this._image.width);
-      this.pin("height", this._image.height);
-      this._textures[0] = this._image.pipe();
-      this._textures.length = 1;
-    } else {
-      this.pin("width", 0);
-      this.pin("height", 0);
-      this._textures.length = 0;
-    }
-    return this;
-  }
-  /** @deprecated */
-  image(frame) {
-    return this.texture(frame);
-  }
-  tile(inner) {
-    this._repeat(false, inner);
-    return this;
-  }
-  stretch(inner) {
-    this._repeat(true, inner);
-    return this;
-  }
-  /** @internal */
-  _repeat(stretch, inner) {
-    const insert = (i, sx, sy, sw, sh, dx, dy, dw, dh) => {
-      if (!this._image) {
-        return;
-      }
-      const repeat2 = this._textures.length > i ? this._textures[i] : this._textures[i] = this._image.pipe();
-      repeat2.setSourceCoordinate(sx, sy);
-      repeat2.setSourceDimension(sw, sh);
-      repeat2.setDestinationCoordinate(dx, dy);
-      repeat2.setDestinationDimension(dw, dh);
-    };
-    this.untick(this._repeatTicker);
-    this.tick(
-      this._repeatTicker = () => {
-        if (this._mo_stretch == this._pin._ts_transform) {
-          return;
-        }
-        this._mo_stretch = this._pin._ts_transform;
-        const width = this.pin("width");
-        const height = this.pin("height");
-        this._textures.length = repeat(this._image, width, height, stretch, inner, insert);
-      }
-    );
-  }
-  prerender() {
-    var _a;
-    if (!this._visible) {
-      return;
-    }
-    if (this._image) {
-      const m = (_a = this._parent) == null ? void 0 : _a.matrix();
-      const pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getPixelRatio();
-      this.prerenderContext.pixelRatio = pixelRatio;
-      const updated = this._image.prerender(this.prerenderContext);
-      if (updated === true) {
-        this.texture(this._image);
-      }
-    }
-    super.prerender();
-  }
-}
-function repeat(img, owidth, oheight, stretch, inner, insert) {
-  let width = img.width;
-  let height = img.height;
-  let left = img.left;
-  let right = img.right;
-  let top = img.top;
-  let bottom = img.bottom;
-  left = typeof left === "number" && left === left ? left : 0;
-  right = typeof right === "number" && right === right ? right : 0;
-  top = typeof top === "number" && top === top ? top : 0;
-  bottom = typeof bottom === "number" && bottom === bottom ? bottom : 0;
-  width = width - left - right;
-  height = height - top - bottom;
-  if (!inner) {
-    owidth = Math.max(owidth - left - right, 0);
-    oheight = Math.max(oheight - top - bottom, 0);
-  }
-  let i = 0;
-  if (top > 0 && left > 0) {
-    insert(i++, 0, 0, left, top, 0, 0, left, top);
-  }
-  if (bottom > 0 && left > 0) {
-    insert(i++, 0, height + top, left, bottom, 0, oheight + top, left, bottom);
-  }
-  if (top > 0 && right > 0) {
-    insert(i++, width + left, 0, right, top, owidth + left, 0, right, top);
-  }
-  if (bottom > 0 && right > 0) {
-    insert(
-      i++,
-      width + left,
-      height + top,
-      right,
-      bottom,
-      owidth + left,
-      oheight + top,
-      right,
-      bottom
-    );
-  }
-  if (stretch) {
-    if (top > 0) {
-      insert(i++, left, 0, width, top, left, 0, owidth, top);
-    }
-    if (bottom > 0) {
-      insert(i++, left, height + top, width, bottom, left, oheight + top, owidth, bottom);
-    }
-    if (left > 0) {
-      insert(i++, 0, top, left, height, 0, top, left, oheight);
-    }
-    if (right > 0) {
-      insert(i++, width + left, top, right, height, owidth + left, top, right, oheight);
-    }
-    insert(i++, left, top, width, height, left, top, owidth, oheight);
-  } else {
-    let l = left;
-    let r = owidth;
-    let w;
-    while (r > 0) {
-      w = Math.min(width, r);
-      r -= width;
-      let t = top;
-      let b = oheight;
-      let h;
-      while (b > 0) {
-        h = Math.min(height, b);
-        b -= height;
-        insert(i++, left, top, w, h, l, t, w, h);
-        if (r <= 0) {
-          if (left) {
-            insert(i++, 0, top, left, h, 0, t, left, h);
-          }
-          if (right) {
-            insert(i++, width + left, top, right, h, l + w, t, right, h);
-          }
-        }
-        t += h;
-      }
-      if (top) {
-        insert(i++, left, 0, w, top, l, 0, w, top);
-      }
-      if (bottom) {
-        insert(i++, left, height + top, w, bottom, l, t, w, bottom);
-      }
-      l += w;
-    }
-  }
-  return i;
-}
-const image = sprite;
-const Image$1 = Sprite;
-class CanvasTexture extends Texture {
-  constructor(type = "2d", attributes) {
-    super();
-    this._lastPixelRatio = 0;
-    this._canvas = document.createElement("canvas");
-    this._context = this._canvas.getContext(type, attributes);
-    this.setSourceImage(this._canvas);
-  }
-  /**
-   * Note: texture size is set to width and height, and canvas size is texture size multiply by pixelRatio.
-   */
-  setSize(width, height, pixelRatio = 1) {
-    this._canvas.width = width * pixelRatio;
-    this._canvas.height = height * pixelRatio;
-    this._pixelRatio = pixelRatio;
-    this.setSourceDimension(width, height);
-    this.setDestinationDimension(width, height);
-  }
-  getContext() {
-    return this._context;
-  }
-  setMemoizer(memoizer) {
-    this._memoizer = memoizer;
-  }
-  setDrawer(drawer) {
-    this._drawer = drawer;
-  }
-  /** @internal */
-  prerender(context) {
-    const newPixelRatio = context.pixelRatio;
-    const lastPixelRatio = this._lastPixelRatio;
-    const pixelRationChange = lastPixelRatio / newPixelRatio;
-    const pixelRatioChanged = lastPixelRatio === 0 || pixelRationChange > 1.25 || pixelRationChange < 0.8;
-    if (pixelRatioChanged) {
-      this._lastPixelRatio = newPixelRatio;
-    }
-    const newMemoKey = this._memoizer ? this._memoizer.call(this) : null;
-    const memoKeyChanged = this._lastMemoKey !== newMemoKey;
-    if (pixelRatioChanged || memoKeyChanged) {
-      this._lastMemoKey = newMemoKey;
-      this._lastPixelRatio = newPixelRatio;
-      this._drawer.call(this);
-      return true;
-    }
-  }
-  /** @hidden @deprecated @internal */
-  size(width, height, pixelRatio) {
-    this.setSize(width, height, pixelRatio);
-    return this;
-  }
-  /** @hidden @deprecated @internal */
-  context() {
-    return this.getContext();
-  }
-  /** @hidden @deprecated @internal */
-  canvas(legacyTextureDrawer) {
-    if (typeof legacyTextureDrawer === "function") {
-      legacyTextureDrawer.call(this, this.getContext());
-    } else if (typeof legacyTextureDrawer === "undefined") {
-      if (typeof this._drawer === "function") {
-        this._drawer.call(this);
-      }
-    }
-    return this;
-  }
-}
-function canvas(type, attributes, legacyTextureDrawer) {
-  if (typeof type === "function") {
-    const texture2 = new CanvasTexture();
-    legacyTextureDrawer = type;
-    texture2.setDrawer(function() {
-      legacyTextureDrawer.call(texture2, texture2.getContext());
-    });
-    return texture2;
-  } else if (typeof attributes === "function") {
-    const texture2 = new CanvasTexture(type);
-    legacyTextureDrawer = attributes;
-    texture2.setDrawer(function() {
-      legacyTextureDrawer.call(texture2, texture2.getContext());
-    });
-    return texture2;
-  } else if (typeof legacyTextureDrawer === "function") {
-    const texture2 = new CanvasTexture(type, attributes);
-    texture2.setDrawer(function() {
-      legacyTextureDrawer.call(texture2, texture2.getContext());
-    });
-    return texture2;
-  } else {
-    const texture2 = new CanvasTexture(type, attributes);
-    return texture2;
-  }
-}
-function memoizeDraw(legacySpriteDrawer, legacySpriteMemoizer = () => null) {
-  const sprite2 = new Sprite();
-  const texture2 = new CanvasTexture();
-  sprite2.texture(texture2);
-  texture2.setDrawer(function() {
-    legacySpriteDrawer(2.5 * texture2._lastPixelRatio, texture2, sprite2);
-  });
-  texture2.setMemoizer(legacySpriteMemoizer);
-  return sprite2;
 }
 const anim = function(frames, fps) {
   const anim2 = new Anim();
@@ -3045,8 +3098,8 @@ class Anim extends Node {
     resize = resize || !this._textures[0];
     this._textures[0] = this._frames[this._index];
     if (resize) {
-      this.pin("width", this._textures[0].width);
-      this.pin("height", this._textures[0].height);
+      this.pin("width", this._textures[0].getWidth());
+      this.pin("height", this._textures[0].getHeight());
     }
     this.touch();
     return this;
@@ -3054,8 +3107,8 @@ class Anim extends Node {
   moveFrame(move) {
     return this.gotoFrame(this._index + move);
   }
-  repeat(repeat2, callback) {
-    this._repeat = repeat2 * this._frames.length - 1;
+  repeat(repeat, callback) {
+    this._repeat = repeat * this._frames.length - 1;
     this._callback = callback;
     this.play();
     return this;
@@ -3132,8 +3185,8 @@ class Str extends Node {
       const texture2 = this._textures[i] = this._font(typeof v === "string" ? v : v + "");
       width += i > 0 ? this._spacing : 0;
       texture2.setDestinationCoordinate(width, 0);
-      width = width + texture2.width;
-      height = Math.max(height, texture2.height);
+      width = width + texture2.getWidth();
+      height = Math.max(height, texture2.getHeight());
     }
     this.pin("width", width);
     this.pin("height", height);
@@ -3147,6 +3200,7 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   Atlas,
   CanvasTexture,
   Image: Image$1,
+  ImageTexture,
   Math: math,
   Matrix,
   Mouse,
@@ -3157,7 +3211,9 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   POINTER_MOVE,
   POINTER_START,
   Pin,
+  PipeTexture,
   Pointer,
+  ResizableTexture,
   Root,
   Sprite,
   Str,
@@ -3171,8 +3227,8 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   clamp,
   column,
   create,
-  getPixelRatio,
   image,
+  isValidFitMode,
   layer,
   layout,
   length,
@@ -3194,6 +3250,7 @@ exports.Anim = Anim;
 exports.Atlas = Atlas;
 exports.CanvasTexture = CanvasTexture;
 exports.Image = Image$1;
+exports.ImageTexture = ImageTexture;
 exports.Math = math;
 exports.Matrix = Matrix;
 exports.Mouse = Mouse;
@@ -3204,7 +3261,9 @@ exports.POINTER_END = POINTER_END;
 exports.POINTER_MOVE = POINTER_MOVE;
 exports.POINTER_START = POINTER_START;
 exports.Pin = Pin;
+exports.PipeTexture = PipeTexture;
 exports.Pointer = Pointer;
+exports.ResizableTexture = ResizableTexture;
 exports.Root = Root;
 exports.Sprite = Sprite;
 exports.Str = Str;
@@ -3219,8 +3278,8 @@ exports.clamp = clamp;
 exports.column = column;
 exports.create = create;
 exports.default = Stage;
-exports.getPixelRatio = getPixelRatio;
 exports.image = image;
+exports.isValidFitMode = isValidFitMode;
 exports.layer = layer;
 exports.layout = layout;
 exports.length = length;

@@ -96,11 +96,13 @@ export class Easing {
   }
 }
 
-/** @internal */ function addMode(name: string, fn: EasingMode) {
+/** @internal */
+function addMode(name: string, fn: EasingMode) {
   MODE_BY_NAME[name] = fn;
 }
 
-/** @internal */ function addEaseFn(data: EasingType) {
+/** @internal */
+function addEaseFn(data: EasingType) {
   const names = data.name.split(/\s+/);
   for (let i = 0; i < names.length; i++) {
     const key = names[i];

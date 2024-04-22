@@ -3,6 +3,7 @@ import { Matrix } from "../common/matrix";
 
 import { Node } from "./core";
 import { Pointer } from "./pointer";
+import { FitMode, isValidFitMode } from "./pin";
 
 /** @internal */ const DEBUG = true;
 
@@ -53,48 +54,29 @@ export type Viewbox = {
   mode?: FitMode;
 };
 
-/**
- * - 'in-pad': similar to css object-fit: 'contain'
- * - 'in'
- * - 'out-crop': similar css object-fit: 'cover'
- * - 'out'
- */
-export type FitMode = "in" | "out" | "out-crop" | "in-pad";
-
 export class Root extends Node {
   canvas: HTMLCanvasElement | null = null;
   dom: HTMLCanvasElement | null = null;
   context: CanvasRenderingContext2D | null = null;
 
-  /** @internal */
-  pixelWidth = -1;
-  /** @internal */
-  pixelHeight = -1;
-  /** @internal */
-  pixelRatio = 1;
-  /** @internal */
-  drawingWidth = 0;
-  /** @internal */
-  drawingHeight = 0;
+  /** @internal */ pixelWidth = -1;
+  /** @internal */ pixelHeight = -1;
+  /** @internal */ pixelRatio = 1;
+  /** @internal */ drawingWidth = 0;
+  /** @internal */ drawingHeight = 0;
 
   mounted = false;
   paused = false;
   sleep = false;
 
-  /** @internal */
-  devicePixelRatio: number;
-  /** @internal */
-  backingStoreRatio: any;
+  /** @internal */ devicePixelRatio: number;
+  /** @internal */ backingStoreRatio: any;
 
-  /** @internal */
-  pointer: Pointer;
+  /** @internal */ pointer: Pointer;
 
-  /** @internal */
-  _viewport: Viewport;
-  /** @internal */
-  _viewbox: Viewbox;
-  /** @internal */
-  _camera: Matrix;
+  /** @internal */ _viewport: Viewport;
+  /** @internal */ _viewbox: Viewbox;
+  /** @internal */ _camera: Matrix;
 
   constructor() {
     super();
@@ -104,10 +86,13 @@ export class Root extends Node {
   mount = (configs: RootConfig = {}) => {
     if (typeof configs.canvas === "string") {
       this.canvas = document.getElementById(configs.canvas) as HTMLCanvasElement;
+      if (!this.canvas) {
+        console.error("Canvas element not found: ", configs.canvas);
+      }
     } else if (configs.canvas instanceof HTMLCanvasElement) {
       this.canvas = configs.canvas;
     } else if (configs.canvas) {
-      // should we error here
+      console.error("Unknown value for canvas:", configs.canvas);
     }
 
     if (!this.canvas) {
@@ -116,7 +101,7 @@ export class Root extends Node {
     }
 
     if (!this.canvas) {
-      DEBUG && console.log("Creating Canvas...");
+      DEBUG && console.log("Creating canvas element...");
       this.canvas = document.createElement("canvas");
       Object.assign(this.canvas.style, {
         position: "absolute",
@@ -164,8 +149,7 @@ export class Root extends Node {
     this.requestFrame();
   };
 
-  /** @internal */
-  frameRequested = false;
+  /** @internal */ frameRequested = false;
 
   /** @internal */
   requestFrame = () => {
@@ -176,10 +160,8 @@ export class Root extends Node {
     }
   };
 
-  /** @internal */
-  lastTime = 0;
-  /** @internal */
-  _mo_touch: number | null = null; // monitor touch
+  /** @internal */ _lastFrameTime = 0;
+  /** @internal */ _mo_touch: number | null = null; // monitor touch
 
   /** @internal */
   onFrame = (now: number) => {
@@ -230,14 +212,14 @@ export class Root extends Node {
       }
     }
 
-    const last = this.lastTime || now;
+    const last = this._lastFrameTime || now;
     const elapsed = now - last;
 
     if (!this.mounted || this.paused || this.sleep) {
       return;
     }
 
-    this.lastTime = now;
+    this._lastFrameTime = now;
 
     this.prerender();
 
@@ -390,8 +372,7 @@ export class Root extends Node {
     if (viewport && viewbox) {
       const viewportWidth = viewport.width;
       const viewportHeight = viewport.height;
-      const viewboxMode =
-        viewbox.mode && /^(in|out|in-pad|out-crop)$/.test(viewbox.mode) ? viewbox.mode : "in-pad";
+      const viewboxMode = isValidFitMode(viewbox.mode) ? viewbox.mode : "in-pad";
       const viewboxWidth = viewbox.width;
       const viewboxHeight = viewbox.height;
 
@@ -421,10 +402,4 @@ export class Root extends Node {
 
     return this;
   }
-}
-
-/** @internal */
-export function getPixelRatio() {
-  // todo: do we need to divide by backingStoreRatio?
-  return typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
 }
