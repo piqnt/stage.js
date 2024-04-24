@@ -501,7 +501,7 @@ p2view.on([Stage.POINTER_START, Stage.POINTER_MOVE], function (point) {
   physics.movePaddle(point.x);
 });
 
-let maxscore = Stage.string("d_")
+let maxscore = Stage.monotype("d_")
   .appendTo(board)
   .pin({
     alignX: 1,
@@ -510,7 +510,7 @@ let maxscore = Stage.string("d_")
     offsetY: -0.5 * 16,
   });
 
-let myscore = Stage.string("d_")
+let myscore = Stage.monotype("d_")
   .appendTo(board)
   .pin({
     alignX: 0,

@@ -17,7 +17,7 @@ let window = Stage.sprite("dark")
 
 let column = Stage.column(1).pin("align", 0.5).spacing(5).appendTo(window);
 
-let text = Stage.string("digit").value("0123456789").appendTo(column);
+let text = Stage.monotype("digit").value("0123456789").appendTo(column);
 
 let row = Stage.row().appendTo(column).spacing(1);
 
@@ -25,7 +25,7 @@ Stage.sprite("red")
   .box()
   .stretch()
   .appendTo(row)
-  .append(Stage.string("digit").value("1"))
+  .append(Stage.monotype("digit").value("1"))
   .on("click", function () {
     let range = math.pow(10, math.random(0, 10) | 0);
     text.value(math.random(0, range) | 0);
@@ -35,7 +35,7 @@ Stage.sprite("blue")
   .box()
   .stretch()
   .appendTo(row)
-  .append(Stage.string("digit").value("2"))
+  .append(Stage.monotype("digit").value("2"))
   .on("click", function () {
     let range = math.pow(10, math.random(0, 10) | 0);
     text.value(math.random(0, range) | 0);

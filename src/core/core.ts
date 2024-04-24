@@ -38,42 +38,42 @@ export type NodeTickListener<T> = (
 export type NodeEventListener<T> = (this: T, ...args: any[]) => void;
 
 /** @deprecated Use layout() */
-export const create = function () {
+export function create() {
   return layout();
-};
+}
 
 /** @deprecated Use maximize() */
-export const layer = function () {
+export function layer() {
   return maximize();
-};
+}
 
 /** @deprecated Use minimize() */
-export const box = function () {
+export function box() {
   return minimize();
-};
+}
 
 // todo: create a new subclass called layout, and make node abstract
 // discussion: in some cases sprites are used as parent node, like a window
 
-export const layout = function () {
+export function layout() {
   return new Node();
-};
+}
 
-export const row = function (align: number) {
+export function row(align: number) {
   return layout().row(align).label("Row");
-};
+}
 
-export const column = function (align: number) {
+export function column(align: number) {
   return layout().column(align).label("Column");
-};
+}
 
-export const minimize = function () {
+export function minimize() {
   return layout().minimize().label("Minimize");
-};
+}
 
-export const maximize = function () {
+export function maximize() {
   return layout().maximize().label("Maximize");
-};
+}
 
 // TODO: do not clear next/prev/parent on remove (why?)
 

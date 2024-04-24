@@ -7,19 +7,19 @@ stage.viewbox(400, 100);
 
 let x = 50;
 
-let result = Stage.string("digit")
+let result = Stage.monotype("digit")
   .appendTo(stage)
   .pin("align", 0.5)
   .alpha(1.0)
   .offset(x, -20)
   .value(0);
-let eager = Stage.string("digit")
+let eager = Stage.monotype("digit")
   .appendTo(stage)
   .pin("align", 0.5)
   .alpha(0.7)
   .offset(x, 0)
   .value(0);
-let lazy = Stage.string("digit")
+let lazy = Stage.monotype("digit")
   .appendTo(stage)
   .pin("align", 0.5)
   .alpha(0.4)

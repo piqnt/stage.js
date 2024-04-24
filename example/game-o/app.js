@@ -1085,7 +1085,7 @@ function createHomeScreen() {
       if (i <= game.data.upgrades.flags) {
         let value = Format.k(game.data.flags[i - 1]);
         value = i > 0 ? value || "-" : 0;
-        Stage.string("d")
+        Stage.monotype("d")
           .appendTo(button)
           .pin({
             alignY: 0.5,
@@ -1098,7 +1098,7 @@ function createHomeScreen() {
       }
       let price = game.price("flags");
       if (i == game.data.upgrades.flags + 1) {
-        Stage.string("d")
+        Stage.monotype("d")
           .value(Format.coin(price))
           .pin({
             alignY: 0.5,
@@ -1115,7 +1115,7 @@ function createHomeScreen() {
     }
 
     tombstone.empty();
-    Stage.string("d")
+    Stage.monotype("d")
       .appendTo(tombstone)
       .pin({
         alignX: 0.5,
@@ -1127,7 +1127,7 @@ function createHomeScreen() {
       })
       .value(0 + "-" + Format.k(game.data.stats.dist));
 
-    Stage.string("d")
+    Stage.monotype("d")
       .appendTo(tombstone)
       .pin({
         alignX: 0.5,
@@ -1149,7 +1149,7 @@ function createHomeScreen() {
         .pin("align", 0.5)
         .appendTo(button);
       // price
-      Stage.string("d")
+      Stage.monotype("d")
         .value(Format.coin(price))
         .pin({
           align: 1,
@@ -1161,7 +1161,7 @@ function createHomeScreen() {
         .appendTo(button);
       // level
       if (level <= 6) {
-        Stage.string("up")
+        Stage.monotype("up")
           .pin({
             alignX: 0,
             alignY: 0,
@@ -1251,14 +1251,14 @@ function createPlayScreen() {
     offsetY: 2,
   });
 
-  let dist = Stage.string("d").appendTo(playScreen).pin({
+  let dist = Stage.monotype("d").appendTo(playScreen).pin({
     alignX: 0,
     alignY: 0,
     offsetX: 3,
     offsetY: 9,
   });
 
-  let coins = Stage.string("d").appendTo(playScreen).pin({
+  let coins = Stage.monotype("d").appendTo(playScreen).pin({
     alignX: 1,
     alignY: 0,
     offsetX: -3,
@@ -1273,7 +1273,7 @@ function createPlayScreen() {
       offsetX: 10,
       offsetY: 2,
     })
-    .append(Stage.sprite(), Stage.string("d").pin("scale", 0.8))
+    .append(Stage.sprite(), Stage.monotype("d").pin("scale", 0.8))
     .hide();
 
   let lastCoinTimeout = null;

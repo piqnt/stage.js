@@ -1,5 +1,6 @@
 import path from "path";
 import Pages from "vite-plugin-pages";
+import license from "rollup-plugin-license";
 
 export default {
   define: {
@@ -8,6 +9,26 @@ export default {
   plugins: [
     Pages({
       dirs: "example",
+    }),
+    license({
+      sourcemap: true,
+      cwd: process.cwd(),
+
+      banner: {
+        commentStyle: "regular",
+
+        content: {
+          file: path.join(__dirname, "LICENSE.md"),
+          encoding: "utf-8",
+        },
+
+        // Optional, may be an object or a function returning an object.
+        data() {
+          return {
+            foo: "foo",
+          };
+        },
+      },
     }),
   ],
   build: {

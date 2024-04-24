@@ -2,18 +2,18 @@
 
 #### Application
 
-- [mount()](../api/globals.md#const-mount)
-- [pause()](../api/globals.md#const-pause)
-- [resume()](../api/globals.md#const-resume)
+- [mount()](../api/globals.md#mount)
+- [pause()](../api/globals.md#pause)
+- [resume()](../api/globals.md#resume)
 - [Root](../api/classes/root.md)
 
 #### Layout and Positioning
 
-- [layout()](../api/globals.md#const-layout)
-- [maximize()](../api/globals.md#const-maximize)
-- [minimize()](../api/globals.md#const-minimize)
-- [row()](../api/globals.md#const-row)
-- [column()](../api/globals.md#const-column)
+- [layout()](../api/globals.md#layout)
+- [maximize()](../api/globals.md#maximize)
+- [minimize()](../api/globals.md#minimize)
+- [row()](../api/globals.md#row)
+- [column()](../api/globals.md#column)
 
 - [Pin](../api/classes/pin.md)
 - [Transition](../api/classes/transition.md)
@@ -22,11 +22,11 @@
 
 #### Visual and Textures
 
-- [Sprite](../api/classes/sprite.md), [sprite()](../api/globals.md#const-sprite)
-- [Str](../api/classes/str.md), [string()](../api/globals.md#const-string)
-- [Anim](../api/classes/anim.md), [anim()](../api/globals.md#const-anim)
+- [Sprite](../api/classes/sprite.md), [sprite()](../api/globals.md#sprite)
+- [Monotype](../api/classes/monotype.md), [monotype()](../api/globals.md#monotype)
+- [Anim](../api/classes/anim.md), [anim()](../api/globals.md#anim)
 
-- [Atlas](../api/classes/atlas.md), [atlas()](../api/globals.md#const-atlas)
+- [Atlas](../api/classes/atlas.md), [atlas()](../api/globals.md#atlas)
 - [AtlasDefinition](../api/interfaces/atlasdefinition.md)
 - [AtlasTextureDefinition](../api/interfaces/atlastexturedefinition.md)
 - [Texture](../api/classes/texture.md)

@@ -13,6 +13,7 @@
 * [EventPoint](classes/eventpoint.md)
 * [ImageTexture](classes/imagetexture.md)
 * [Matrix](classes/matrix.md)
+* [Monotype](classes/monotype.md)
 * [Node](classes/node.md)
 * [Pin](classes/pin.md)
 * [PipeTexture](classes/pipetexture.md)
@@ -20,7 +21,6 @@
 * [ResizableTexture](classes/resizabletexture.md)
 * [Root](classes/root.md)
 * [Sprite](classes/sprite.md)
-* [Str](classes/str.md)
 * [Texture](classes/texture.md)
 * [TextureSelection](classes/textureselection.md)
 * [Transition](classes/transition.md)
@@ -72,24 +72,23 @@
 
 ### Functions
 
-* [anim](globals.md#const-anim)
-* [atlas](globals.md#const-atlas)
-* [box](globals.md#const-box)
+* [anim](globals.md#anim)
+* [atlas](globals.md#atlas)
+* [box](globals.md#box)
 * [canvas](globals.md#canvas)
-* [column](globals.md#const-column)
-* [create](globals.md#const-create)
-* [isValidFitMode](globals.md#isvalidfitmode)
-* [layer](globals.md#const-layer)
-* [layout](globals.md#const-layout)
-* [maximize](globals.md#const-maximize)
-* [minimize](globals.md#const-minimize)
-* [mount](globals.md#const-mount)
-* [pause](globals.md#const-pause)
-* [resume](globals.md#const-resume)
-* [row](globals.md#const-row)
-* [sprite](globals.md#const-sprite)
-* [string](globals.md#const-string)
-* [texture](globals.md#const-texture)
+* [column](globals.md#column)
+* [create](globals.md#create)
+* [layer](globals.md#layer)
+* [layout](globals.md#layout)
+* [maximize](globals.md#maximize)
+* [minimize](globals.md#minimize)
+* [monotype](globals.md#monotype)
+* [mount](globals.md#mount)
+* [pause](globals.md#pause)
+* [resume](globals.md#resume)
+* [row](globals.md#row)
+* [sprite](globals.md#sprite)
+* [texture](globals.md#texture)
 
 ## Type aliases
 
@@ -435,7 +434,7 @@ ___
 
 ## Functions
 
-### `Const` anim
+###  anim
 
 ▸ **anim**(`frames`: string | [TextureSelectionInputArray](globals.md#textureselectioninputarray), `fps?`: number): *[Anim](classes/anim.md)‹›*
 
@@ -450,7 +449,7 @@ Name | Type |
 
 ___
 
-### `Const` atlas
+###  atlas
 
 ▸ **atlas**(`def`: [AtlasDefinition](interfaces/atlasdefinition.md) | [Atlas](classes/atlas.md)): *Promise‹[Atlas](classes/atlas.md)›*
 
@@ -464,7 +463,7 @@ Name | Type |
 
 ___
 
-### `Const` box
+###  box
 
 ▸ **box**(): *string | [Node](classes/node.md)‹›*
 
@@ -484,7 +483,7 @@ Create CanvasTexture (a texture with off-screen canvas).
 
 ___
 
-### `Const` column
+###  column
 
 ▸ **column**(`align`: number): *string | [Node](classes/node.md)‹›*
 
@@ -498,7 +497,7 @@ Name | Type |
 
 ___
 
-### `Const` create
+###  create
 
 ▸ **create**(): *[Node](classes/node.md)‹›*
 
@@ -508,21 +507,7 @@ ___
 
 ___
 
-###  isValidFitMode
-
-▸ **isValidFitMode**(`value`: string): *boolean*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`value` | string |
-
-**Returns:** *boolean*
-
-___
-
-### `Const` layer
+###  layer
 
 ▸ **layer**(): *string | [Node](classes/node.md)‹›*
 
@@ -532,7 +517,7 @@ ___
 
 ___
 
-### `Const` layout
+###  layout
 
 ▸ **layout**(): *[Node](classes/node.md)‹›*
 
@@ -540,7 +525,7 @@ ___
 
 ___
 
-### `Const` maximize
+###  maximize
 
 ▸ **maximize**(): *string | [Node](classes/node.md)‹›*
 
@@ -548,7 +533,7 @@ ___
 
 ___
 
-### `Const` minimize
+###  minimize
 
 ▸ **minimize**(): *string | [Node](classes/node.md)‹›*
 
@@ -556,7 +541,21 @@ ___
 
 ___
 
-### `Const` mount
+###  monotype
+
+▸ **monotype**(`chars`: string | Record‹string, [Texture](classes/texture.md)› | function): *[Monotype](classes/monotype.md)‹›*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`chars` | string &#124; Record‹string, [Texture](classes/texture.md)› &#124; function |
+
+**Returns:** *[Monotype](classes/monotype.md)‹›*
+
+___
+
+###  mount
 
 ▸ **mount**(`configs`: [RootConfig](globals.md#rootconfig)): *[Root](classes/root.md)‹›*
 
@@ -570,7 +569,7 @@ Name | Type | Default |
 
 ___
 
-### `Const` pause
+###  pause
 
 ▸ **pause**(): *void*
 
@@ -578,7 +577,7 @@ ___
 
 ___
 
-### `Const` resume
+###  resume
 
 ▸ **resume**(): *void*
 
@@ -586,7 +585,7 @@ ___
 
 ___
 
-### `Const` row
+###  row
 
 ▸ **row**(`align`: number): *string | [Node](classes/node.md)‹›*
 
@@ -600,7 +599,7 @@ Name | Type |
 
 ___
 
-### `Const` sprite
+###  sprite
 
 ▸ **sprite**(`frame?`: [TextureSelectionInput](globals.md#textureselectioninput)): *[Sprite](classes/sprite.md)‹›*
 
@@ -614,21 +613,7 @@ Name | Type |
 
 ___
 
-### `Const` string
-
-▸ **string**(`chars`: string | Record‹string, [Texture](classes/texture.md)› | function): *[Str](classes/str.md)‹›*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`chars` | string &#124; Record‹string, [Texture](classes/texture.md)› &#124; function |
-
-**Returns:** *[Str](classes/str.md)‹›*
-
-___
-
-### `Const` texture
+###  texture
 
 ▸ **texture**(`query`: string | [TextureSelectionInput](globals.md#textureselectioninput)): *[TextureSelection](classes/textureselection.md)*
 

@@ -1,12 +1,12 @@
-[Stage.js API Doc](../README.md) › [Globals](../globals.md) › [Str](str.md)
+[Stage.js API Doc](../README.md) › [Globals](../globals.md) › [Monotype](monotype.md)
 
-# Class: Str
+# Class: Monotype
 
 ## Hierarchy
 
 * [Node](node.md)
 
-  ↳ **Str**
+  ↳ **Monotype**
 
 ## Implements
 
@@ -16,84 +16,84 @@
 
 ### Constructors
 
-* [constructor](str.md#constructor)
+* [constructor](monotype.md#constructor)
 
 ### Properties
 
-* [MAX_ELAPSE](str.md#max_elapse)
+* [MAX_ELAPSE](monotype.md#max_elapse)
 
 ### Methods
 
-* [align](str.md#align)
-* [alpha](str.md#alpha)
-* [append](str.md#append)
-* [appendTo](str.md#appendto)
-* [attr](str.md#attr)
-* [box](str.md#box)
-* [clearTimeout](str.md#cleartimeout)
-* [column](str.md#column)
-* [empty](str.md#empty)
-* [first](str.md#first)
-* [fit](str.md#fit)
-* [frames](str.md#frames)
-* [height](str.md#height)
-* [hide](str.md#hide)
-* [id](str.md#id)
-* [insertAfter](str.md#insertafter)
-* [insertBefore](str.md#insertbefore)
-* [insertNext](str.md#insertnext)
-* [insertPrev](str.md#insertprev)
-* [label](str.md#label)
-* [last](str.md#last)
-* [layer](str.md#layer)
-* [listeners](str.md#listeners)
-* [matrix](str.md#matrix)
-* [maximize](str.md#maximize)
-* [minimize](str.md#minimize)
-* [next](str.md#next)
-* [off](str.md#off)
-* [offset](str.md#offset)
-* [on](str.md#on)
-* [padding](str.md#padding)
-* [parent](str.md#parent)
-* [pin](str.md#pin)
-* [prepend](str.md#prepend)
-* [prependTo](str.md#prependto)
-* [prerender](str.md#prerender)
-* [prev](str.md#prev)
-* [publish](str.md#publish)
-* [remove](str.md#remove)
-* [render](str.md#render)
-* [rotate](str.md#rotate)
-* [row](str.md#row)
-* [scale](str.md#scale)
-* [setFont](str.md#setfont)
-* [setTimeout](str.md#settimeout)
-* [setValue](str.md#setvalue)
-* [show](str.md#show)
-* [size](str.md#size)
-* [skew](str.md#skew)
-* [spacing](str.md#spacing)
-* [tick](str.md#tick)
-* [timeout](str.md#timeout)
-* [toString](str.md#tostring)
-* [touch](str.md#touch)
-* [tween](str.md#tween)
-* [untick](str.md#untick)
-* [value](str.md#value)
-* [visible](str.md#visible)
-* [visit](str.md#visit)
-* [width](str.md#width)
+* [align](monotype.md#align)
+* [alpha](monotype.md#alpha)
+* [append](monotype.md#append)
+* [appendTo](monotype.md#appendto)
+* [attr](monotype.md#attr)
+* [box](monotype.md#box)
+* [clearTimeout](monotype.md#cleartimeout)
+* [column](monotype.md#column)
+* [empty](monotype.md#empty)
+* [first](monotype.md#first)
+* [fit](monotype.md#fit)
+* [frames](monotype.md#frames)
+* [height](monotype.md#height)
+* [hide](monotype.md#hide)
+* [id](monotype.md#id)
+* [insertAfter](monotype.md#insertafter)
+* [insertBefore](monotype.md#insertbefore)
+* [insertNext](monotype.md#insertnext)
+* [insertPrev](monotype.md#insertprev)
+* [label](monotype.md#label)
+* [last](monotype.md#last)
+* [layer](monotype.md#layer)
+* [listeners](monotype.md#listeners)
+* [matrix](monotype.md#matrix)
+* [maximize](monotype.md#maximize)
+* [minimize](monotype.md#minimize)
+* [next](monotype.md#next)
+* [off](monotype.md#off)
+* [offset](monotype.md#offset)
+* [on](monotype.md#on)
+* [padding](monotype.md#padding)
+* [parent](monotype.md#parent)
+* [pin](monotype.md#pin)
+* [prepend](monotype.md#prepend)
+* [prependTo](monotype.md#prependto)
+* [prerender](monotype.md#prerender)
+* [prev](monotype.md#prev)
+* [publish](monotype.md#publish)
+* [remove](monotype.md#remove)
+* [render](monotype.md#render)
+* [rotate](monotype.md#rotate)
+* [row](monotype.md#row)
+* [scale](monotype.md#scale)
+* [setFont](monotype.md#setfont)
+* [setTimeout](monotype.md#settimeout)
+* [setValue](monotype.md#setvalue)
+* [show](monotype.md#show)
+* [size](monotype.md#size)
+* [skew](monotype.md#skew)
+* [spacing](monotype.md#spacing)
+* [tick](monotype.md#tick)
+* [timeout](monotype.md#timeout)
+* [toString](monotype.md#tostring)
+* [touch](monotype.md#touch)
+* [tween](monotype.md#tween)
+* [untick](monotype.md#untick)
+* [value](monotype.md#value)
+* [visible](monotype.md#visible)
+* [visit](monotype.md#visit)
+* [width](monotype.md#width)
 
 ## Constructors
 
 ###  constructor
 
-\+ **new Str**(): *[Str](str.md)*
+\+ **new Monotype**(): *[Monotype](monotype.md)*
 
 *Overrides [Node](node.md).[constructor](node.md#constructor)*
 
-**Returns:** *[Str](str.md)*
+**Returns:** *[Monotype](monotype.md)*
 
 ## Properties
 
@@ -913,7 +913,7 @@ ___
 
 ###  setValue
 
-▸ **setValue**(`value`: string | number | string[] | number[]): *string | number | number[] | string[] | this*
+▸ **setValue**(`value`: string | number | string[] | number[]): *this*
 
 **`deprecated`** Use value
 
@@ -923,7 +923,7 @@ Name | Type |
 ------ | ------ |
 `value` | string &#124; number &#124; string[] &#124; number[] |
 
-**Returns:** *string | number | number[] | string[] | this*
+**Returns:** *this*
 
 ___
 
@@ -1104,7 +1104,7 @@ ___
 
 ###  value
 
-▸ **value**(`value`: string | number | string[] | number[]): *string | number | number[] | string[] | this*
+▸ **value**(`value`: string | number | string[] | number[]): *this*
 
 **Parameters:**
 
@@ -1112,7 +1112,7 @@ Name | Type |
 ------ | ------ |
 `value` | string &#124; number &#124; string[] &#124; number[] |
 
-**Returns:** *string | number | number[] | string[] | this*
+**Returns:** *this*
 
 ___
 

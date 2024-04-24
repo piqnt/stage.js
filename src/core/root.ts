@@ -9,26 +9,26 @@ import { FitMode, isValidFitMode } from "./pin";
 
 /** @internal */ const ROOTS: Root[] = [];
 
-export const pause = function () {
+export function pause() {
   for (let i = ROOTS.length - 1; i >= 0; i--) {
     ROOTS[i].pause();
   }
-};
+}
 
-export const resume = function () {
+export function resume() {
   for (let i = ROOTS.length - 1; i >= 0; i--) {
     ROOTS[i].resume();
   }
-};
+}
 
-export const mount = function (configs: RootConfig = {}) {
+export function mount(configs: RootConfig = {}) {
   const root = new Root();
   // todo: root.use(new Pointer());
   root.mount(configs);
   // todo: maybe just pass root? or do root.use(pointer)
   root.pointer = new Pointer().mount(root, root.dom as HTMLElement);
   return root;
-};
+}
 
 type RootConfig = {
   canvas?: string | HTMLCanvasElement;

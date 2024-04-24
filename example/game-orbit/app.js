@@ -363,10 +363,10 @@ let playView = Stage.layout()
 let space = Stage.layout().pin("align", 0.5).appendTo(playView);
 
 // score number
-let score = Stage.string("digit").scale(0.8);
+let score = Stage.monotype("digit").scale(0.8);
 
 // life number
-let life = Stage.string("digit").scale(0.8);
+let life = Stage.monotype("digit").scale(0.8);
 
 // place score and life in a row on top-left
 Stage.row()

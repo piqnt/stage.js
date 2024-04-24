@@ -140,7 +140,7 @@ const ATLAS_ARRAY: Atlas[] = [];
 // TODO: print subquery not found error
 // TODO: index textures
 
-export const atlas = async function (def: AtlasDefinition | Atlas): Promise<Atlas> {
+export async function atlas(def: AtlasDefinition | Atlas): Promise<Atlas> {
   // todo: where is this used?
   let atlas: Atlas;
   if (def instanceof Atlas) {
@@ -157,14 +157,14 @@ export const atlas = async function (def: AtlasDefinition | Atlas): Promise<Atla
   await atlas.load();
 
   return atlas;
-};
+}
 
 /**
  * When query argument is string, this function parses the query; looks up registered atlases; and returns a texture selection object.
  *
  * When query argument is an object, the object is used to create a new selection.
  */
-export const texture = function (query: string | TextureSelectionInput): TextureSelection {
+export function texture(query: string | TextureSelectionInput): TextureSelection {
   if ("string" !== typeof query) {
     return new TextureSelection(query);
   }
@@ -200,4 +200,4 @@ export const texture = function (query: string | TextureSelectionInput): Texture
   }
 
   return result;
-};
+}

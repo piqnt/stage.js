@@ -3,12 +3,12 @@ import { Texture, TextureSelectionInputArray, texture } from "../texture";
 
 import { Node } from "./core";
 
-export const anim = function (frames: string | TextureSelectionInputArray, fps?: number) {
+export function anim(frames: string | TextureSelectionInputArray, fps?: number) {
   const anim = new Anim();
   anim.frames(frames).gotoFrame(0);
   fps && anim.fps(fps);
   return anim;
-};
+}
 
 // TODO: replace with atlas fps or texture time
 /** @internal */ const FPS = 15;

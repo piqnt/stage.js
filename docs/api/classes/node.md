@@ -10,9 +10,9 @@
 
   ↳ [Anim](anim.md)
 
-  ↳ [Root](root.md)
+  ↳ [Monotype](monotype.md)
 
-  ↳ [Str](str.md)
+  ↳ [Root](root.md)
 
 ## Implements
 

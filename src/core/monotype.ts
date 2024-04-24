@@ -2,13 +2,11 @@ import { Texture, texture } from "../texture";
 
 import { Node } from "./core";
 
-export const string = function (
-  chars: string | Record<string, Texture> | ((char: string) => Texture),
-) {
-  return new Str().frames(chars);
-};
+export function monotype(chars: string | Record<string, Texture> | ((char: string) => Texture)) {
+  return new Monotype().frames(chars);
+}
 
-export class Str extends Node {
+export class Monotype extends Node {
   /** @internal */ _font: (value: string) => Texture;
 
   /** @internal */ _value: string | number | string[] | number[];
@@ -46,6 +44,7 @@ export class Str extends Node {
     return this.value(value);
   }
 
+  value(value: string | number | string[] | number[]): this;
   value(value: string | number | string[] | number[]) {
     if (typeof value === "undefined") {
       return this._value;
@@ -79,3 +78,8 @@ export class Str extends Node {
     return this;
   }
 }
+
+/** @hidden @deprecated @internal */
+export const str = monotype;
+/** @hidden @deprecated @internal */
+export const Str = Monotype;

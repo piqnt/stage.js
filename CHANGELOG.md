@@ -14,6 +14,7 @@
 - removed Stage.config()
 - removed \_create, \_extend
 - renamed Image/image to Sprite/sprite, and sprite.image() to sprite.texture()
+- renamed Str/string to Monotype/monotype
 - renamed node.sequence() to node.align()
 - renamed create()/layer()/box() to layout()/maximize()/minimize()
 - replaced Stage.Math with Stage.math with different function names

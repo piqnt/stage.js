@@ -10,7 +10,7 @@ export * from "./core/transition";
 export * from "./core/root";
 export * from "./core/sprite";
 export * from "./core/anim";
-export * from "./core/str";
+export * from "./core/monotype";
 
 /** @hidden @deprecated @internal */
 export { math as Math } from "./common/math";

@@ -351,7 +351,7 @@ Stage.sprite('mario:stand');
 
 Stage.anim('mario:walk').play();
 
-Stage.string('mario:number').value(100);
+Stage.monotype('mario:number').value(100);
 ```
 
 ### Sprite
@@ -405,36 +405,36 @@ anim.stop((frameName = undefined));
 anim.repeat(repeat, (callback = null));
 ```
 
-### String
+### Monotype
 
-String is a row of textures that are dynamically selected from `frames` using characters of a string value, or items of an array value.
+Monotype is a row of textures that are dynamically selected from `frames` using characters of a string, or items of an array.
 
 ```javascript
-// Create a new string instance with frames
-const string = Stage.string(frames);
+// Create a new monotype instance with frames
+const monotype = Stage.monotype(frames);
 
 // Set frames, a string referencing a map in an atlas
-string.frames("digits");
+monotype.frames("digits");
 
 // Set frames, a map with textures as values and frame names as keys
-string.frames({
+monotype.frames({
   '0' : zeroTexture,
   '1' : oneTexture,
   ...
 });
 
 // Set frames, a function which takes a char (or item) and returns a texture
-string.frames(function(char) {
+monotype.frames(function(char) {
   // create a texture for char
   return texture;
 });
 
 // Set value, it can be a string (or an array)
 // Characters (or items) are used to select frames and create a row of images
-string.value(value);
+monotype.value(value);
 
 // Get assigned value
-string.value();
+monotype.value();
 ```
 
 ### Row and Column

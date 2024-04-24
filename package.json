@@ -1,6 +1,6 @@
 {
   "name": "stage-js",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
   "author": "Ali Shakiba (http://shakiba.me/stage.js)",
@@ -59,6 +59,7 @@
     "glob": "^10.2.6",
     "mocha": "^6.2.3",
     "prettier": "^3.2.5",
+    "rollup-plugin-license": "^3.3.1",
     "sandboxed-module": "^2.0.0",
     "sinon": "^9.0.2",
     "typedoc": "^0.17.8",

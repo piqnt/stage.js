@@ -411,9 +411,12 @@ stage.tick(physics.tick);
 
 meta = Stage.layout().pin({ width: 1000, height: 1000 }).appendTo(stage);
 
-status = Stage.string("text").pin({ align: 0, offset: 20 }).appendTo(meta);
+status = Stage.monotype("text").pin({ align: 0, offset: 20 }).appendTo(meta);
 
-gameover = Stage.string("text").value("Game Over!").pin({ align: 0.5, scale: 1.6 }).appendTo(meta);
+gameover = Stage.monotype("text")
+  .value("Game Over!")
+  .pin({ align: 0.5, scale: 1.6 })
+  .appendTo(meta);
 
 function startGame() {
   gameover.hide();

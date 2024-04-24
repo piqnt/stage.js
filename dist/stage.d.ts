@@ -131,13 +131,13 @@ export declare class TextureSelection {
 	one(subquery?: string): Texture;
 	array(arr?: Texture[]): Texture[];
 }
-export declare const atlas: (def: AtlasDefinition | Atlas) => Promise<Atlas>;
+export declare function atlas(def: AtlasDefinition | Atlas): Promise<Atlas>;
 /**
  * When query argument is string, this function parses the query; looks up registered atlases; and returns a texture selection object.
  *
  * When query argument is an object, the object is used to create a new selection.
  */
-export declare const texture: (query: string | TextureSelectionInput) => TextureSelection;
+export declare function texture(query: string | TextureSelectionInput): TextureSelection;
 /**
  * @deprecated
  * - 'in-pad': same as 'contain'
@@ -152,7 +152,6 @@ export type LegacyFitMode = "in" | "out" | "out-crop" | "in-pad";
  * - 'fill': fill provided space without maintaining aspect ratio
  */
 export type FitMode = "contain" | "cover" | "fill" | LegacyFitMode;
-export declare function isValidFitMode(value: string): boolean;
 /** @hidden */
 export interface Pinned {
 	pin(pin: object): this;
@@ -243,16 +242,16 @@ export interface NodeVisitor<D> {
 export type NodeTickListener<T> = (this: T, elapsed: number, now: number, last: number) => boolean | void;
 export type NodeEventListener<T> = (this: T, ...args: any[]) => void;
 /** @deprecated Use layout() */
-export declare const create: () => Node$1;
+export declare function create(): Node$1;
 /** @deprecated Use maximize() */
-export declare const layer: () => string | Node$1;
+export declare function layer(): string | Node$1;
 /** @deprecated Use minimize() */
-export declare const box: () => string | Node$1;
-export declare const layout: () => Node$1;
-export declare const row: (align: number) => string | Node$1;
-export declare const column: (align: number) => string | Node$1;
-export declare const minimize: () => string | Node$1;
-export declare const maximize: () => string | Node$1;
+export declare function box(): string | Node$1;
+export declare function layout(): Node$1;
+export declare function row(align: number): string | Node$1;
+export declare function column(align: number): string | Node$1;
+export declare function minimize(): string | Node$1;
+export declare function maximize(): string | Node$1;
 declare class Node$1 implements Pinned {
 	MAX_ELAPSE: number;
 	constructor();
@@ -344,7 +343,7 @@ declare class Node$1 implements Pinned {
 	 */
 	spacing(space: number): this;
 }
-export declare const sprite: (frame?: TextureSelectionInput) => Sprite;
+export declare function sprite(frame?: TextureSelectionInput): Sprite;
 export declare class Sprite extends Node$1 {
 	constructor();
 	texture(frame: TextureSelectionInput): this;
@@ -412,9 +411,9 @@ export declare const POINTER_START = "touchstart mousedown";
 export declare const POINTER_MOVE = "touchmove mousemove";
 export declare const POINTER_END = "touchend mouseup";
 export declare const POINTER_CANCEL = "touchcancel mousecancel";
-export declare const pause: () => void;
-export declare const resume: () => void;
-export declare const mount: (configs?: RootConfig) => Root;
+export declare function pause(): void;
+export declare function resume(): void;
+export declare function mount(configs?: RootConfig): Root;
 export type RootConfig = {
 	canvas?: string | HTMLCanvasElement;
 };
@@ -465,7 +464,7 @@ export declare class Root extends Node$1 {
 	viewbox(width?: number, height?: number, mode?: FitMode): this;
 	camera(matrix: Matrix): this;
 }
-export declare const anim: (frames: string | TextureSelectionInputArray, fps?: number) => Anim;
+export declare function anim(frames: string | TextureSelectionInputArray, fps?: number): Anim;
 export declare class Anim extends Node$1 {
 	constructor();
 	fps(fps?: number): number | this;
@@ -479,19 +478,19 @@ export declare class Anim extends Node$1 {
 	play(frame?: number): this;
 	stop(frame?: number): this;
 }
-export declare const string: (chars: string | Record<string, Texture> | ((char: string) => Texture)) => Str;
-export declare class Str extends Node$1 {
+export declare function monotype(chars: string | Record<string, Texture> | ((char: string) => Texture)): Monotype;
+export declare class Monotype extends Node$1 {
 	constructor();
 	/** @deprecated Use frames */
 	setFont(frames: string | Record<string, Texture> | ((char: string) => Texture)): this;
 	frames(frames: string | Record<string, Texture> | ((char: string) => Texture)): this;
 	/** @deprecated Use value */
-	setValue(value: string | number | string[] | number[]): string | number | string[] | number[] | this;
-	value(value: string | number | string[] | number[]): string | number | string[] | number[] | this;
+	setValue(value: string | number | string[] | number[]): this;
+	value(value: string | number | string[] | number[]): this;
 }
 
 declare namespace Stage {
-	export { Anim, Atlas, AtlasDefinition, AtlasTextureDefinition, CanvasTexture, FitMode, ImageTexture, LegacyFitMode, Matrix, MatrixValue, Node$1 as Node, NodeEventListener, NodeTickListener, POINTER_CANCEL, POINTER_CLICK, POINTER_END, POINTER_MOVE, POINTER_START, Pin, Pinned, PipeTexture, ResizableTexture, ResizableTextureMode, Root, Sprite, Str, Texture, TextureSelection, TextureSelectionInput, TextureSelectionInputArray, TextureSelectionInputFactory, TextureSelectionInputMap, TextureSelectionInputOne, Transition, TransitionEndListener, TransitionOptions, Vec2Value, Viewbox, Viewport, anim, atlas, box, canvas, column, create, isValidFitMode, layer, layout, math, maximize, memoizeDraw, minimize, mount, pause, resume, row, sprite, string, texture };
+	export { Anim, Atlas, AtlasDefinition, AtlasTextureDefinition, CanvasTexture, FitMode, ImageTexture, LegacyFitMode, Matrix, MatrixValue, Monotype, Node$1 as Node, NodeEventListener, NodeTickListener, POINTER_CANCEL, POINTER_CLICK, POINTER_END, POINTER_MOVE, POINTER_START, Pin, Pinned, PipeTexture, ResizableTexture, ResizableTextureMode, Root, Sprite, Texture, TextureSelection, TextureSelectionInput, TextureSelectionInputArray, TextureSelectionInputFactory, TextureSelectionInputMap, TextureSelectionInputOne, Transition, TransitionEndListener, TransitionOptions, Vec2Value, Viewbox, Viewport, anim, atlas, box, canvas, column, create, layer, layout, math, maximize, memoizeDraw, minimize, monotype, mount, pause, resume, row, sprite, texture };
 }
 
 export {

@@ -9,11 +9,11 @@ import { ResizableTexture } from "../texture/resizable";
 
 import { Node } from "./core";
 
-export const sprite = function (frame?: TextureSelectionInput) {
+export function sprite(frame?: TextureSelectionInput) {
   const sprite = new Sprite();
   frame && sprite.texture(frame);
   return sprite;
-};
+}
 
 export class Sprite extends Node {
   /** @internal */ _image: Texture | null;

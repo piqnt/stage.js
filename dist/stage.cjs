@@ -1,4 +1,28 @@
 "use strict";
+/**
+ * Stage.js 1.0.0-alpha.3
+ *
+ * @copyright Copyright (c) 2024 Ali Shakiba
+ * @license The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const math_random = Math.random;
 const math_sqrt = Math.sqrt;
@@ -213,8 +237,8 @@ class Matrix {
 }
 const objectToString = Object.prototype.toString;
 function isFn(value) {
-  const str = objectToString.call(value);
-  return str === "[object Function]" || str === "[object GeneratorFunction]" || str === "[object AsyncFunction]";
+  const str2 = objectToString.call(value);
+  return str2 === "[object Function]" || str2 === "[object GeneratorFunction]" || str2 === "[object AsyncFunction]";
 }
 function isHash(value) {
   return objectToString.call(value) === "[object Object]" && value.constructor === Object;
@@ -563,7 +587,7 @@ const NO_TEXTURE = new class extends Texture {
 const NO_SELECTION = new TextureSelection(NO_TEXTURE);
 const ATLAS_MEMO_BY_NAME = {};
 const ATLAS_ARRAY = [];
-const atlas = async function(def) {
+async function atlas(def) {
   let atlas2;
   if (def instanceof Atlas) {
     atlas2 = def;
@@ -576,8 +600,8 @@ const atlas = async function(def) {
   ATLAS_ARRAY.push(atlas2);
   await atlas2.load();
   return atlas2;
-};
-const texture = function(query) {
+}
+function texture(query) {
   if ("string" !== typeof query) {
     return new TextureSelection(query);
   }
@@ -604,7 +628,7 @@ const texture = function(query) {
     result = NO_SELECTION;
   }
   return result;
-};
+}
 class ResizableTexture extends Texture {
   constructor(source, mode) {
     super();
@@ -1509,30 +1533,30 @@ function assertType(obj) {
   }
   throw "Invalid node: " + obj;
 }
-const create = function() {
+function create() {
   return layout();
-};
-const layer = function() {
+}
+function layer() {
   return maximize();
-};
-const box = function() {
+}
+function box() {
   return minimize();
-};
-const layout = function() {
+}
+function layout() {
   return new Node();
-};
-const row = function(align) {
+}
+function row(align) {
   return layout().row(align).label("Row");
-};
-const column = function(align) {
+}
+function column(align) {
   return layout().column(align).label("Column");
-};
-const minimize = function() {
+}
+function minimize() {
   return layout().minimize().label("Minimize");
-};
-const maximize = function() {
+}
+function maximize() {
   return layout().maximize().label("Maximize");
-};
+}
 class Node {
   constructor() {
     this.uid = "node:" + uid();
@@ -2366,11 +2390,11 @@ class Node {
     return this;
   }
 }
-const sprite = function(frame) {
+function sprite(frame) {
   const sprite2 = new Sprite();
   frame && sprite2.texture(frame);
   return sprite2;
-};
+}
 class Sprite extends Node {
   constructor() {
     super();
@@ -2770,22 +2794,22 @@ const Mouse = {
   CANCEL: "touchcancel mousecancel"
 };
 const ROOTS = [];
-const pause = function() {
+function pause() {
   for (let i = ROOTS.length - 1; i >= 0; i--) {
     ROOTS[i].pause();
   }
-};
-const resume = function() {
+}
+function resume() {
   for (let i = ROOTS.length - 1; i >= 0; i--) {
     ROOTS[i].resume();
   }
-};
-const mount = function(configs = {}) {
+}
+function mount(configs = {}) {
   const root = new Root();
   root.mount(configs);
   root.pointer = new Pointer().mount(root, root.dom);
   return root;
-};
+}
 class Root extends Node {
   constructor() {
     super();
@@ -3029,12 +3053,12 @@ class Root extends Node {
     return this;
   }
 }
-const anim = function(frames, fps) {
+function anim(frames, fps) {
   const anim2 = new Anim();
   anim2.frames(frames).gotoFrame(0);
   fps && anim2.fps(fps);
   return anim2;
-};
+}
 const FPS = 15;
 class Anim extends Node {
   constructor() {
@@ -3131,10 +3155,10 @@ class Anim extends Node {
     return this;
   }
 }
-const string = function(chars) {
-  return new Str().frames(chars);
-};
-class Str extends Node {
+function monotype(chars) {
+  return new Monotype().frames(chars);
+}
+class Monotype extends Node {
   constructor() {
     super();
     this.label("String");
@@ -3194,6 +3218,8 @@ class Str extends Node {
     return this;
   }
 }
+const str = monotype;
+const Str = Monotype;
 const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   Anim,
@@ -3203,6 +3229,7 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   ImageTexture,
   Math: math,
   Matrix,
+  Monotype,
   Mouse,
   Node,
   POINTER_CANCEL,
@@ -3236,13 +3263,14 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   maximize,
   memoizeDraw,
   minimize,
+  monotype,
   mount,
   pause,
   random,
   resume,
   row,
   sprite,
-  string,
+  str,
   texture,
   wrap
 }, Symbol.toStringTag, { value: "Module" }));
@@ -3253,6 +3281,7 @@ exports.Image = Image$1;
 exports.ImageTexture = ImageTexture;
 exports.Math = math;
 exports.Matrix = Matrix;
+exports.Monotype = Monotype;
 exports.Mouse = Mouse;
 exports.Node = Node;
 exports.POINTER_CANCEL = POINTER_CANCEL;
@@ -3287,12 +3316,13 @@ exports.math = math;
 exports.maximize = maximize;
 exports.memoizeDraw = memoizeDraw;
 exports.minimize = minimize;
+exports.monotype = monotype;
 exports.mount = mount;
 exports.pause = pause;
 exports.random = random;
 exports.resume = resume;
 exports.row = row;
 exports.sprite = sprite;
-exports.string = string;
+exports.str = str;
 exports.texture = texture;
 exports.wrap = wrap;

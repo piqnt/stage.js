@@ -1,3 +1,5 @@
+Stage.js <%= pkg.version %>
+
 @copyright Copyright (c) 2024 Ali Shakiba  
 @license The MIT License (MIT)
 

@@ -19,6 +19,7 @@ export type LegacyFitMode = "in" | "out" | "out-crop" | "in-pad";
  */
 export type FitMode = "contain" | "cover" | "fill" | LegacyFitMode;
 
+/** @internal */
 export function isValidFitMode(value: string) {
   return (
     value &&
