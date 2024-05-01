@@ -148,7 +148,7 @@ Drone.prototype.tick = function (t) {
 // Extending game logic and adding UI callbacks
 
 Drone.prototype.uiCreate = function () {
-  this.ui = Stage.layout().pin("handle", 0.5);
+  this.ui = Stage.component().pin("handle", 0.5);
   this.ui.drone = Stage.sprite("drone").pin("handle", 0.5).appendTo(this.ui);
   this.ui.shadow = Stage.sprite("drone")
     .pin("handle", 0.5)

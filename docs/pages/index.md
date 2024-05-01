@@ -13,10 +13,3 @@ Stage.js provides an intuitive api to create interactive graphics on HTM5 2D Can
 
 - Components tree object model
 - Layouts, positioning, and transitions
-
-
----
-
-[**Documentations**](http://piqnt.com/stage.js/docs/)
-
-[**Examples & Demos**](http://piqnt.com/stage.js/)

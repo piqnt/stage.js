@@ -1,8 +1,9 @@
 {
-  "name": "Stage.js API Doc",
-  "readme": "./docs/misc/API.md",
+  "name": "API Reference",
+  "readme": "./docs/pages/misc/api-reference.md",
   "inputFiles": ["./src"],
-  "out": "./docs/api/",
+  "out": "./docs/pages/api/",
+  "publicPath": "/api/",
   "mode": "file",
   "includeDeclarations": false,
   "exclude": [
@@ -11,11 +12,13 @@
     "**/*.test.js",
     "**/index.ts",
     "**/main.ts",
+    "docs/*",
     "dist/*"
   ],
   "disableSources": true,
   "excludeExternals": true,
   "excludePrivate": true,
   "stripInternal": true,
-  "excludeNotExported": true
+  "excludeNotExported": true,
+  "hideBreadcrumbs": true
 }

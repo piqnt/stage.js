@@ -409,7 +409,7 @@ world = new Stage.planck(physics.world, { ratio: 80 })
 
 stage.tick(physics.tick);
 
-meta = Stage.layout().pin({ width: 1000, height: 1000 }).appendTo(stage);
+meta = Stage.component().pin({ width: 1000, height: 1000 }).appendTo(stage);
 
 status = Stage.monotype("text").pin({ align: 0, offset: 20 }).appendTo(meta);
 

@@ -316,8 +316,8 @@ Stage.sprite("background")
   })
   .appendTo(stage);
 
-// an element which views only one child at a time
-let singleView = Stage.layout().appendTo(stage);
+// a component which views only one child at a time
+let singleView = Stage.component().appendTo(stage);
 singleView.view = function (active) {
   if (active.parent() !== this) {
     active.remove().appendTo(this);
@@ -331,7 +331,7 @@ singleView.view = function (active) {
 };
 
 // game home view
-let homeView = Stage.layout()
+let homeView = Stage.component()
   .on("viewport", function () {
     this.pin({
       width: stage.width(),
@@ -350,7 +350,7 @@ Stage.sprite("play")
   .appendTo(homeView);
 
 // game play view
-let playView = Stage.layout()
+let playView = Stage.component()
   .on("viewport", function () {
     this.pin({
       width: stage.width(),
@@ -360,7 +360,7 @@ let playView = Stage.layout()
   .hide()
   .appendTo(stage);
 
-let space = Stage.layout().pin("align", 0.5).appendTo(playView);
+let space = Stage.component().pin("align", 0.5).appendTo(playView);
 
 // score number
 let score = Stage.monotype("digit").scale(0.8);

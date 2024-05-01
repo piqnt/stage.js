@@ -23,7 +23,7 @@ box.pin("align", 0.5);
 
 // On mouse click...
 box.on("click", function (point) {
-  // ...tween scale values of this node
+  // ...tween scale values of this component
   this.tween()
     .ease("bounce")
     .pin({

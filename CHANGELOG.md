@@ -3,10 +3,11 @@
 - rewrite with typescript
 - change package type to module
 - all classes are exported under Stage namespace
-- Stage is not callable
+- Stage is not callable, and is not a class anymore
 - removed Stage.app(callback)
 - added Stage.mount() to create a new app
 - added await Stage.atlas({ }) to preload images
+- added Component class as the base class
 - removed Stage.internal namespace
 - removed cordova/fastcontext loader and build
 - removed script loader `preload(url)`
@@ -15,8 +16,8 @@
 - removed \_create, \_extend
 - renamed Image/image to Sprite/sprite, and sprite.image() to sprite.texture()
 - renamed Str/string to Monotype/monotype
-- renamed node.sequence() to node.align()
-- renamed create()/layer()/box() to layout()/maximize()/minimize()
+- renamed create()/layer()/box() to component()/maximize()/minimize()
+- renamed component.sequence() to component.align()
 - replaced Stage.Math with Stage.math with different function names
 - removed Matrix.reverse (use inverse)
 - renamed Mouse to Pointer and made it internal

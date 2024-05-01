@@ -18,6 +18,18 @@ yarn-error.log*
 
 # testing
 /coverage
+/.nyc_output
+
+# production
+build
+docs/dist/*
+
+# next.js
+.next/
+# out/
+
+# vercel
+.vercel
 
 # ide
 .idea/

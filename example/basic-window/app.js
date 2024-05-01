@@ -8,7 +8,7 @@ let math = Stage.math;
 stage.viewbox(300, 200);
 
 let window = Stage.sprite("dark")
-  .box()
+  .minimize()
   .stretch()
   .pin("align", 0.5)
   .pin("textureAlpha", 0.5)
@@ -22,7 +22,7 @@ let text = Stage.monotype("digit").value("0123456789").appendTo(column);
 let row = Stage.row().appendTo(column).spacing(1);
 
 Stage.sprite("red")
-  .box()
+  .minimize()
   .stretch()
   .appendTo(row)
   .append(Stage.monotype("digit").value("1"))
@@ -32,7 +32,7 @@ Stage.sprite("red")
   });
 
 Stage.sprite("blue")
-  .box()
+  .minimize()
   .stretch()
   .appendTo(row)
   .append(Stage.monotype("digit").value("2"))

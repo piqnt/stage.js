@@ -7,7 +7,12 @@ let math = Stage.math;
 
 stage.viewbox(300, 200);
 
-let box = Stage.sprite("box").box().stretch().padding(10).pin("align", 0.5).appendTo(stage);
+let box = Stage.sprite("box")
+  .minimize()
+  .stretch()
+  .padding(10)
+  .pin("align", 0.5)
+  .appendTo(stage);
 
 let number = Stage.monotype("digit").value("0123456789").pin("align", 0.5).appendTo(box);
 

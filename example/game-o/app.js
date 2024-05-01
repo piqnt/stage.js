@@ -1006,7 +1006,7 @@ function setActiveScreen(view) {
 
 function createHomeScreen() {
   // home screen
-  let homeScreen = Stage.layout().label("HomeScreen").appendTo(stage).hide().pin({
+  let homeScreen = Stage.component().label("HomeScreen").appendTo(stage).hide().pin({
     align: 0.5,
   });
 
@@ -1183,7 +1183,7 @@ function createHomeScreen() {
 
 function createPlayScreen() {
   // play screen
-  let playScreen = Stage.layout().label("PlayScreen").appendTo(stage).hide().pin({
+  let playScreen = Stage.component().label("PlayScreen").appendTo(stage).hide().pin({
     align: 0.5,
   });
 
@@ -1236,7 +1236,7 @@ function createPlayScreen() {
 
   let top = Stage.sprite("shadow").stretch().appendTo(playScreen);
 
-  let field = Stage.layout().appendTo(playScreen).attr("spy", true).pin({
+  let field = Stage.component().appendTo(playScreen).attr("spy", true).pin({
     width: Conf.width,
     height: Conf.height,
     alignX: 0.5,
@@ -1297,9 +1297,9 @@ function createPlayScreen() {
 
   let cursor = Stage.sprite("cursor").pin("handle", 0.5).appendTo(field).hide();
 
-  let l1 = Stage.layout().appendTo(field);
-  let l2 = Stage.layout().appendTo(field);
-  let l3 = Stage.layout().appendTo(field);
+  let l1 = Stage.component().appendTo(field);
+  let l2 = Stage.component().appendTo(field);
+  let l3 = Stage.component().appendTo(field);
 
   function setCursor(point) {
     if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) {

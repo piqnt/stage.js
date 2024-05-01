@@ -176,7 +176,7 @@ stage.viewbox(24, 24);
 let width = 8,
   height = 8;
 
-let board = Stage.layout()
+let board = Stage.component()
   .appendTo(stage)
   .pin({
     width: width * 2,

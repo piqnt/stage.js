@@ -5,7 +5,7 @@ import "./p2";
  * P2.js viewer for Stage.js
  */
 
-export class P2Stage extends Stage.Node {
+export class P2Stage extends Stage.Component {
   constructor(world, options) {
     super();
     this.label("P2");
@@ -124,7 +124,7 @@ export class P2Stage extends Stage.Node {
       return;
     }
 
-    obj.ui = Stage.layout().appendTo(this);
+    obj.ui = Stage.component().appendTo(this);
 
     if (obj instanceof p2.Body && obj.shapes.length) {
       if (obj.concavePath && !this.options.debugPolygons) {
