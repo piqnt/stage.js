@@ -1,5 +1,4 @@
-
-## Example
+## Hello World
 
 ```js
 // Define and preload a texture
@@ -22,15 +21,15 @@ await Stage.atlas({
   },
 });
 
-// Create and mount a new app
-const app = Stage.mount();
+// Create and mount a new instance of stage
+const stage = Stage.mount();
 
 // Set view box
-app.viewbox(300, 200);
+stage.viewbox(300, 200);
 
-// Create a scores component and append it to app
+// Create a scores component and append it to stage
 const score = Stage.monotype("example:digit");
-score.appendTo(app);
+score.appendTo(stage);
 
 // Align box to center
 score.pin("align", 0.5);

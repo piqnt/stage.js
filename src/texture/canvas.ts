@@ -57,6 +57,10 @@ export class CanvasTexture extends ImageTexture {
 
   setDrawer(drawer: CanvasTextureDrawer) {
     this._drawer = drawer;
+    // to get width/height for the texture
+    this.prerender({
+      pixelRatio: 1,
+    });
   }
 
   /** @internal */

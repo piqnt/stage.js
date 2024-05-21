@@ -1,5 +1,4 @@
-
-### Events
+## Events
 
 Event listeners can be registered and unregistered to components, listeners are called when an event is published to an component.
 Some events may be published to multiple components, but events do not propagate by default.
@@ -21,7 +20,7 @@ component.listeners(name);
 component.publish(name, args);
 ```
 
-### Pointer Events
+## Pointer Events
 
 Native mouse and touch events are captured, processed and published to application components.
 Components receive mouse events in local coordinates, i.e. mouse location is specified as the distance to the top-left of the component.

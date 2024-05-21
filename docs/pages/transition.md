@@ -1,5 +1,4 @@
-
-### Transition
+## Transition
 
 Transition (tweening) is used to apply smooth changes to pinning values.
 

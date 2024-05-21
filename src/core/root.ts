@@ -1,9 +1,10 @@
 import stats from "../common/stats";
 import { Matrix } from "../common/matrix";
 
-import { Node } from "./core";
+import { Component } from "./component";
 import { Pointer } from "./pointer";
 import { FitMode, isValidFitMode } from "./pin";
+import { Memo } from "../common/memo";
 
 /** @internal */ const DEBUG = true;
 
@@ -54,7 +55,7 @@ export type Viewbox = {
   mode?: FitMode;
 };
 
-export class Root extends Node {
+export class Root extends Component {
   canvas: HTMLCanvasElement | null = null;
   dom: HTMLCanvasElement | null = null;
   context: CanvasRenderingContext2D | null = null;
@@ -161,7 +162,8 @@ export class Root extends Node {
   };
 
   /** @internal */ _lastFrameTime = 0;
-  /** @internal */ _mo_touch: number | null = null; // monitor touch
+
+  /** @internal */ _memo_touch = Memo.init();
 
   /** @internal */
   onFrame = (now: number) => {
@@ -221,24 +223,23 @@ export class Root extends Node {
 
     this._lastFrameTime = now;
 
-    this.prerender();
+    this.prerenderTree();
 
-    const tickRequest = this._tick(elapsed, now, last);
-    if (this._mo_touch != this._ts_touch) {
+    const tickRequest = this.tickTree(elapsed, now, last);
+    if (!this._memo_touch.recall(this._revision)) {
       // something changed since last call
-      this._mo_touch = this._ts_touch;
       this.sleep = false;
 
       if (this.drawingWidth > 0 && this.drawingHeight > 0) {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);
-        this.render(this.context);
+        this.renderTree(this.context);
       }
     } else if (tickRequest) {
-      // nothing changed, but a node requested next tick
+      // nothing changed, but a component requested next tick
       this.sleep = false;
     } else {
-      // nothing changed, and no node requested next tick
+      // nothing changed, and no component requested next tick
       this.sleep = true;
     }
 
@@ -292,9 +293,10 @@ export class Root extends Node {
 
   /**
    * Set/Get viewport.
-   * This is used along with viewbox to determine the scale and position of the viewbox within the viewport.
+   *
    * Viewport is the size of the container, for example size of the canvas element.
-   * Viewbox is provided by the user, and is the ideal size of the content.
+   *
+   * Viewbox is provided by the user, and defines a rectangle that is projected (scaled and positioned) into the viewport.
    */
   viewport(): Viewport;
   viewport(width: number, height: number, ratio?: number): this;
@@ -321,11 +323,11 @@ export class Root extends Node {
       this.viewbox();
       const data = Object.assign({}, this._viewport);
       this.visit({
-        start: function (node) {
-          if (!node._flag("viewport")) {
+        start: function (component: Component) {
+          if (!component.evalDeepFlag("viewport")) {
             return true;
           }
-          node.publish("viewport", [data]);
+          component.publish("viewport", [data]);
         },
       });
     }
@@ -335,12 +337,13 @@ export class Root extends Node {
 
   /**
    * Set viewbox.
+   *
+   * The provided dimension is automatically scaled to fit in the available container viewport.
    */
   viewbox(viewbox: Viewbox): this;
   viewbox(width?: number, height?: number, mode?: FitMode): this;
   viewbox(width?: number | Viewbox, height?: number, mode?: FitMode): this {
     // TODO: static/fixed viewbox
-    // TODO: use css object-fit values
     if (typeof width === "number" && typeof height === "number") {
       this._viewbox = {
         width,
@@ -372,32 +375,39 @@ export class Root extends Node {
     if (viewport && viewbox) {
       const viewportWidth = viewport.width;
       const viewportHeight = viewport.height;
+
       const viewboxMode = isValidFitMode(viewbox.mode) ? viewbox.mode : "in-pad";
       const viewboxWidth = viewbox.width;
       const viewboxHeight = viewbox.height;
 
-      this.pin({
-        width: viewboxWidth,
-        height: viewboxHeight,
-      });
-      this.scaleTo(viewportWidth, viewportHeight, viewboxMode);
+      this.width(viewboxWidth);
+      this.height(viewboxHeight);
 
-      const viewboxX = viewbox.x || 0;
-      const viewboxY = viewbox.y || 0;
-      const cameraZoom = camera?.a || 1;
-      const cameraX = camera?.e || 0;
-      const cameraY = camera?.f || 0;
+      this.fit(viewportWidth, viewportHeight, viewboxMode);
+
+      const viewboxX = viewbox.x ?? 0;
+      const viewboxY = viewbox.y ?? 0;
+
+      const cameraZoom = camera?.a ?? 1;
+      const cameraX = camera?.e ?? 0;
+      const cameraY = camera?.f ?? 0;
+
       const scaleX = this.pin("scaleX");
       const scaleY = this.pin("scaleY");
-      this.pin("scaleX", scaleX * cameraZoom);
-      this.pin("scaleY", scaleY * cameraZoom);
-      this.pin("offsetX", cameraX - viewboxX * scaleX * cameraZoom);
-      this.pin("offsetY", cameraY - viewboxY * scaleY * cameraZoom);
+
+      const withCameraScaleX = scaleX * cameraZoom;
+      const withCameraScaleY = scaleY * cameraZoom;
+
+      const withCameraOffsetX = cameraX - viewboxX * withCameraScaleX;
+      const withCameraOffsetY = cameraY - viewboxY * withCameraScaleY;
+
+      this.pin("scaleX", withCameraScaleX);
+      this.pin("scaleY", withCameraScaleY);
+      this.pin("offsetX", withCameraOffsetX);
+      this.pin("offsetY", withCameraOffsetY);
     } else if (viewport) {
-      this.pin({
-        width: viewport.width,
-        height: viewport.height,
-      });
+      this.width(viewport.width);
+      this.height(viewport.height);
     }
 
     return this;

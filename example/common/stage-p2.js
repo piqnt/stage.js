@@ -407,14 +407,14 @@ export class P2Stage extends Stage.Component {
       return;
     }
 
-    let width = 0,
-      height = 0;
+    let width = 0;
+    let height = 0;
     let ratio = options.ratio;
 
     for (let i = 0; i < verts.length; i++) {
-      let v = verts[i],
-        x = v[0],
-        y = -v[1];
+      let v = verts[i];
+      let x = v[0];
+      let y = -v[1];
       width = Math.max(Math.abs(x), width);
       height = Math.max(Math.abs(y), height);
     }
@@ -425,11 +425,14 @@ export class P2Stage extends Stage.Component {
       ctx.scale(ratio, ratio);
       ctx.beginPath();
       for (let i = 0; i < verts.length; i++) {
-        let v = verts[i],
-          x = v[0] + width + lineWidth,
-          y = -v[1] + height + lineWidth;
-        if (i == 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        let v = verts[i];
+        let x = v[0] + width + lineWidth;
+        let y = -v[1] + height + lineWidth;
+        if (i == 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
       }
 
       if (verts.length > 2) {

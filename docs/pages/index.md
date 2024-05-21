@@ -2,7 +2,7 @@
 
 Stage.js is a lightweight and fast 2D rendering and layout library for web and mobile game development.
 
-Stage.js provides an intuitive api to create interactive graphics on HTM5 2D Canvas.
+Stage.js provides an intuitive and extensible API to create interactive graphics on HTM5 2D Canvas.
 
 ##### Features
 

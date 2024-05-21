@@ -1,5 +1,4 @@
-
-### Animation
+## Animation Component
 
 An animation or anim is an component with an array of textures as frames.
 

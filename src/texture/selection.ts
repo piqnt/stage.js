@@ -1,4 +1,4 @@
-import { isFn, isHash } from "../common/is";
+import { isHash } from "../common/is";
 
 import { Atlas, AtlasDefinition, AtlasTextureDefinition } from "./atlas";
 import { Texture, TexturePrerenderContext } from "./texture";
@@ -68,7 +68,7 @@ export class TextureSelection {
       typeof subquery !== "undefined"
     ) {
       return this.resolve(selection[subquery]);
-    } else if (typeof selection === "function" && isFn(selection)) {
+    } else if (typeof selection === "function") {
       return this.resolve(selection(subquery));
     } else if (typeof selection === "string") {
       if (!this.atlas) {

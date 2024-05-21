@@ -7,25 +7,26 @@ import {
 } from "../texture";
 import { ResizableTexture } from "../texture/resizable";
 
-import { Node } from "./core";
+import { Component } from "./component";
+
+type SpriteTextureInput = TextureSelectionInput;
 
 export function sprite(frame?: TextureSelectionInput) {
-  const sprite = new Sprite();
-  frame && sprite.texture(frame);
-  return sprite;
+  return new Sprite(frame);
 }
 
-export class Sprite extends Node {
+export class Sprite extends Component {
+  /** @internal */ _textures: Texture[] = [];
   /** @internal */ _image: Texture | null;
 
-  constructor() {
+  constructor(frame?: SpriteTextureInput) {
     super();
     this.label("Sprite");
-    this._textures = [];
     this._image = null;
+    frame && this.texture(frame);
   }
 
-  texture(frame: TextureSelectionInput) {
+  texture(frame: SpriteTextureInput) {
     this._image = texture(frame).one();
     if (this._image) {
       this.pin("width", this._image.getWidth());
@@ -41,7 +42,7 @@ export class Sprite extends Node {
   }
 
   /** @deprecated */
-  image(frame: TextureSelectionInput) {
+  image(frame: SpriteTextureInput) {
     return this.texture(frame);
   }
 
@@ -61,14 +62,6 @@ export class Sprite extends Node {
   private prerenderContext = {} as TexturePrerenderContext;
 
   prerender(): void {
-    if (!this._visible) {
-      return;
-    }
-
-    // if (!this._parent) {
-    //   return;
-    // }
-
     if (this._image) {
       const pixelRatio = this.getPixelRatio();
       this.prerenderContext.pixelRatio = pixelRatio;
@@ -80,17 +73,19 @@ export class Sprite extends Node {
         this.size(w, h);
       }
     }
-
-    super.prerender();
   }
 
-  render(context: CanvasRenderingContext2D): void {
+  render(context: CanvasRenderingContext2D) {
     const texture = this._textures[0];
     if (texture?.["_resizeMode"]) {
       texture.dw = this.pin("width");
       texture.dh = this.pin("height");
     }
-    super.render(context);
+    if (this._textures && this._textures.length) {
+      for (let i = 0, n = this._textures.length; i < n; i++) {
+        this._textures[i].draw(context);
+      }
+    }
   }
 }
 

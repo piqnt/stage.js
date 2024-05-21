@@ -40,13 +40,13 @@
 
 ###  constructor
 
-\+ **new Transition**(`owner`: [Node](/api/classes/node), `options`: [TransitionOptions](/api/globals#transitionoptions)): *[Transition](/api/classes/transition)*
+\+ **new Transition**(`owner`: [Component](/api/classes/component), `options`: [TransitionOptions](/api/globals#transitionoptions)): *[Transition](/api/classes/transition)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`owner` | [Node](/api/classes/node) | - |
+`owner` | [Component](/api/classes/component) | - |
 `options` | [TransitionOptions](/api/globals#transitionoptions) | {} |
 
 **Returns:** *[Transition](/api/classes/transition)*
@@ -72,7 +72,7 @@ ___
 
 ▸ **clear**(`forward`: boolean): *this*
 
-**`deprecated`** this doesn't do anything anymore, call transition on the node instead.
+**`deprecated`** this doesn't do anything anymore, call transition on the component instead.
 
 **Parameters:**
 
@@ -260,14 +260,14 @@ Name | Type |
 
 **Returns:** *this*
 
-▸ **scale**(`x`: number, `y`: number): *this*
+▸ **scale**(`x`: number, `y?`: number): *this*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `x` | number |
-`y` | number |
+`y?` | number |
 
 **Returns:** *this*
 

@@ -1,29 +1,32 @@
 import { Texture, texture } from "../texture";
 
-import { Node } from "./core";
+import { Component } from "./component";
 
-export function monotype(chars: string | Record<string, Texture> | ((char: string) => Texture)) {
-  return new Monotype().frames(chars);
+export function monotype(font: MonotypeTextureInput) {
+  return new Monotype(font);
 }
 
-export class Monotype extends Node {
+type MonotypeTextureInput = string | Record<string, Texture> | ((char: string) => Texture);
+type MonotypeValue = string | number | string[] | number[];
+
+export class Monotype extends Component {
+  /** @internal */ _textures: Texture[] = [];
   /** @internal */ _font: (value: string) => Texture;
+  /** @internal */ _value: MonotypeValue;
 
-  /** @internal */ _value: string | number | string[] | number[];
-
-  constructor() {
+  constructor(font?: MonotypeTextureInput) {
     super();
     this.label("String");
-    this._textures = [];
+    font && this.frames(font);
   }
 
   /** @deprecated Use frames */
-  setFont(frames: string | Record<string, Texture> | ((char: string) => Texture)) {
+  setFont(frames: MonotypeTextureInput) {
     return this.frames(frames);
   }
 
-  frames(frames: string | Record<string, Texture> | ((char: string) => Texture)) {
-    this._textures = [];
+  frames(frames: MonotypeTextureInput) {
+    this._textures.length = 0;
     if (typeof frames == "string") {
       const selection = texture(frames);
       this._font = function (value: string) {
@@ -40,12 +43,13 @@ export class Monotype extends Node {
   }
 
   /** @deprecated Use value */
-  setValue(value: string | number | string[] | number[]) {
+  setValue(value: MonotypeValue) {
     return this.value(value);
   }
 
-  value(value: string | number | string[] | number[]): this;
-  value(value: string | number | string[] | number[]) {
+  value(): MonotypeValue;
+  value(value: MonotypeValue): this;
+  value(value?: MonotypeValue) {
     if (typeof value === "undefined") {
       return this._value;
     }
@@ -60,14 +64,13 @@ export class Monotype extends Node {
       value = value.toString();
     }
 
-    this._spacing = this._spacing || 0;
-
     let width = 0;
     let height = 0;
     for (let i = 0; i < value.length; i++) {
       const v = value[i];
       const texture = (this._textures[i] = this._font(typeof v === "string" ? v : v + ""));
-      width += i > 0 ? this._spacing : 0;
+      // todo: use independent spacing, maybe rename to letterSpacing
+      width += i > 0 ? this.spacing() : 0;
       texture.setDestinationCoordinate(width, 0);
       width = width + texture.getWidth();
       height = Math.max(height, texture.getHeight());
@@ -76,6 +79,14 @@ export class Monotype extends Node {
     this.pin("height", height);
     this._textures.length = value.length;
     return this;
+  }
+
+  render(context: CanvasRenderingContext2D) {
+    if (this._textures && this._textures.length) {
+      for (let i = 0, n = this._textures.length; i < n; i++) {
+        this._textures[i].draw(context);
+      }
+    }
   }
 }
 

@@ -17,7 +17,7 @@
 - renamed Image/image to Sprite/sprite, and sprite.image() to sprite.texture()
 - renamed Str/string to Monotype/monotype
 - renamed create()/layer()/box() to component()/maximize()/minimize()
-- renamed component.sequence() to component.align()
+- removed component.sequence()
 - replaced Stage.Math with Stage.math with different function names
 - removed Matrix.reverse (use inverse)
 - renamed Mouse to Pointer and made it internal

@@ -1,5 +1,4 @@
-
-### Sprite
+## Sprite Component
 
 A sprite is an component with one texture.
 

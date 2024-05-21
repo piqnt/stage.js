@@ -217,6 +217,10 @@ Name | Type |
 
 **Returns:** *this*
 
+▸ **reset**(): *this*
+
+**Returns:** *this*
+
 ___
 
 ###  rotate

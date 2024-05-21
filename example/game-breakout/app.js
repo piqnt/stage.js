@@ -66,10 +66,10 @@ function Physics(ui, width, height) {
   ]);
   miniPaddleShape.material = paddleMater;
 
-  let BALL = 1,
-    WALL = 2,
-    BRICK = 4,
-    DROP = 8;
+  let BALL = 1;
+  let WALL = 2;
+  let BRICK = 4;
+  let DROP = 8;
 
   vwallShape.collisionGroup = WALL;
   hwallShape.collisionGroup = WALL;
@@ -199,8 +199,8 @@ function Physics(ui, width, height) {
   }
 
   world.on("impact", function (evt) {
-    let a = evt.bodyA,
-      b = evt.bodyB;
+    let a = evt.bodyA;
+    let b = evt.bodyB;
     let ball = (a.isBall && a) || (b.isBall && b);
     let brick = (a.isBrick && a) || (b.isBrick && b);
     let bottom = (a.isBottom && a) || (b.isBottom && b);
@@ -296,9 +296,9 @@ function Physics(ui, width, height) {
     }
 
     for (let i = 0; i < row.length; i++) {
-      let cell = row[i],
-        x = (i - 3) * 2,
-        y = 9;
+      let cell = row[i];
+      let x = (i - 3) * 2;
+      let y = 9;
 
       if (cell.type == "none") {
       } else if (cell.type == "small") {
@@ -378,8 +378,8 @@ let stage = Stage.mount();
 
 let STORE_KEY = "breakout-v1";
 
-let width = 20,
-  height = 26;
+let width = 20;
+let height = 26;
 
 let state = {
   score: 0,
@@ -600,8 +600,8 @@ function addRow() {
       continue;
     }
     let color = ["b", "r", "y", "g", "p"][(Math.random() * 5) | 0];
-    let one = state.score + 1,
-      four = Math.max(0, state.score * 1.1 - 60);
+    let one = state.score + 1;
+    let four = Math.max(0, state.score * 1.1 - 60);
     if (Math.random() < one / (four + one)) {
       row.push({
         type: "normal",

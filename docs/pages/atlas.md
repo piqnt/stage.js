@@ -1,4 +1,4 @@
-### Texture Atlas
+## Texture Atlas
 
 A texture atlas (sprite sheet) consists of a set of named textures that are referenced by name in an application.
 

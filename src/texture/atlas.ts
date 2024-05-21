@@ -1,4 +1,4 @@
-import { isFn, isHash } from "../common/is";
+import { isHash } from "../common/is";
 
 import { Texture } from "./texture";
 import { TextureSelection } from "./selection";
@@ -23,25 +23,47 @@ type AtlasTextureReferenceOne = AtlasTextureDefinition | string;
 type AtlasTextureReferenceMap = Record<string, AtlasTextureReferenceOne>;
 type AtlasTextureReferenceArray = AtlasTextureReferenceOne[];
 
+export type AtlasImageDefinition =
+  | string
+  | {
+      src: string;
+      ratio?: number;
+    }
+  | {
+      url: string;
+      ratio?: number;
+    };
+
+export type AtlasTexturesDefinitionRecords = Record<
+  string,
+  AtlasTextureDefinition | AtlasTextureReferenceMap | AtlasTextureReferenceArray
+>;
+
+export type AtlasTexturesDefinitionFunction = (
+  key: string,
+) => AtlasTextureDefinition | AtlasTextureReferenceMap | AtlasTextureReferenceArray;
+
+export type AtlasTexturesDefinition =
+  | AtlasTexturesDefinitionRecords
+  | AtlasTexturesDefinitionFunction;
+
+export type AtlasTexturesMapFunction = (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
+
+export type AtlasTexturesFilterFunction = (
+  texture: AtlasTextureDefinition,
+) => AtlasTextureDefinition;
+
 export interface AtlasDefinition {
   name?: string;
-  image?: {
-    /** @deprecated */
-    url: string;
-    src: string;
-    ratio?: number;
-  };
+  image?: AtlasImageDefinition;
 
   ppu?: number;
-  textures?: Record<
-    string,
-    AtlasTextureDefinition | AtlasTextureReferenceMap | AtlasTextureReferenceArray
-  >;
+  textures?: AtlasTexturesDefinitionRecords | AtlasTexturesDefinitionFunction;
 
-  map?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
+  map?: AtlasTexturesMapFunction;
 
   /** @deprecated Use map */
-  filter?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
+  filter?: AtlasTexturesFilterFunction;
 
   /** @deprecated */
   trim?: number;
@@ -55,12 +77,12 @@ export interface AtlasDefinition {
 }
 
 export class Atlas extends ImageTexture {
-  /** @internal */ name: any;
+  /** @internal */ name: string;
 
-  /** @internal */ _ppu: any;
-  /** @internal */ _trim: any;
-  /** @internal */ _map: any;
-  /** @internal */ _textures: any;
+  /** @internal */ _ppu: number;
+  /** @internal */ _trim: number;
+  /** @internal */ _map: AtlasTexturesMapFunction;
+  /** @internal */ _textures: AtlasTexturesDefinition;
   /** @internal */ _imageSrc: string;
 
   constructor(def: AtlasDefinition = {}) {
@@ -74,7 +96,11 @@ export class Atlas extends ImageTexture {
     this._textures = def.textures;
 
     if (typeof def.image === "object" && isHash(def.image)) {
-      this._imageSrc = def.image.src || def.image.url;
+      if ("src" in def.image) {
+        this._imageSrc = def.image.src;
+      } else if ("url" in def.image) {
+        this._imageSrc = def.image.url;
+      }
       if (typeof def.image.ratio === "number") {
         this._pixelRatio = def.image.ratio;
       }
@@ -114,7 +140,7 @@ export class Atlas extends ImageTexture {
 
     def = Object.assign({}, def);
 
-    if (isFn(map)) {
+    if (typeof map === "function") {
       def = map(def);
     }
 
@@ -158,7 +184,7 @@ export class Atlas extends ImageTexture {
     const textures = this._textures;
 
     if (textures) {
-      if (isFn(textures)) {
+      if (typeof textures === "function") {
         return textures(query);
       } else if (isHash(textures)) {
         return textures[query];

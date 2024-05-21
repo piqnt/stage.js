@@ -1,7 +1,8 @@
 import { Matrix, Vec2Value } from "../common/matrix";
+import { Memo } from "../common/memo";
 import { uid } from "../common/uid";
 
-import type { Node } from "./core";
+import { Component } from "./component";
 
 /**
  * @deprecated
@@ -33,7 +34,17 @@ export function isValidFitMode(value: string) {
   );
 }
 
-/** @internal */ let iid = 0;
+type ResizeParams = {
+  resizeMode: FitMode;
+  resizeWidth: number;
+  resizeHeight: number;
+};
+
+type ScaleParams = {
+  scaleMode: FitMode;
+  scaleWidth: number;
+  scaleHeight: number;
+};
 
 /** @hidden */
 export interface Pinned {
@@ -66,16 +77,9 @@ export interface Pinned {
 export class Pin {
   /** @internal */ uid = "pin:" + uid();
 
-  /** @internal */ _owner: Node;
+  /** @internal */ _owner: Component;
 
-  // todo: maybe this should be a getter instead?
-  /** @internal */ _parent: Pin | null;
-
-  /** @internal */ _relativeMatrix: Matrix;
-  /** @internal */ _absoluteMatrix: Matrix;
-
-  /** @internal */ _x: number;
-  /** @internal */ _y: number;
+  /** @internal */ _matrix: Matrix;
 
   /** @internal */ _unscaled_width: number;
   /** @internal */ _unscaled_height: number;
@@ -97,11 +101,9 @@ export class Pin {
   /** @internal */ _pivotX: number;
   /** @internal */ _pivotY: number;
 
-  /** @internal */ _handled: boolean;
   /** @internal */ _handleX: number;
   /** @internal */ _handleY: number;
 
-  /** @internal */ _aligned: boolean;
   /** @internal */ _alignX: number;
   /** @internal */ _alignY: number;
 
@@ -113,29 +115,25 @@ export class Pin {
   /** @internal */ _boxWidth: number;
   /** @internal */ _boxHeight: number;
 
-  /** @internal */ _ts_transform: number;
-  /** @internal */ _ts_translate: number;
-  /** @internal */ _ts_matrix: number;
+  /** @internal */ _padding: number;
+  /** @internal */ _spacing: number;
 
-  /** @internal */ _mo_handle: number;
-  /** @internal */ _mo_align: number;
-  /** @internal */ _mo_abs: number;
-  /** @internal */ _mo_rel: number;
+  /** @internal */ _memo_handle = Memo.init();
+  /** @internal */ _memo_align = Memo.init();
+  /** @internal */ _memo_abs = Memo.init();
+  /** @internal */ _memo_rel = Memo.init();
 
   /** @internal */
-  constructor(owner: Node) {
+  constructor(owner: Component) {
     this._owner = owner;
-    this._parent = null;
 
     // relative to parent
-    this._relativeMatrix = new Matrix();
-
-    // relative to stage
-    this._absoluteMatrix = new Matrix();
+    this._matrix = new Matrix();
 
     this.reset();
   }
 
+  /** @internal */
   reset() {
     this._textureAlpha = 1;
     this._alpha = 1;
@@ -156,12 +154,10 @@ export class Pin {
     this._pivotY = 0;
 
     // self pin point
-    this._handled = false;
     this._handleX = 0;
     this._handleY = 0;
 
     // parent pin point
-    this._aligned = false;
     this._alignX = 0;
     this._alignY = 0;
 
@@ -174,70 +170,42 @@ export class Pin {
     this._boxWidth = this._width;
     this._boxHeight = this._height;
 
-    // TODO: also set for owner
-    this._ts_translate = ++iid;
-    this._ts_transform = ++iid;
-    this._ts_matrix = ++iid;
-  }
-
-  /** @internal */
-  _update() {
-    this._parent = this._owner._parent && this._owner._parent._pin;
-
-    // if handled and transformed then be translated
-    if (this._handled && this._mo_handle != this._ts_transform) {
-      this._mo_handle = this._ts_transform;
-      this._ts_translate = ++iid;
-    }
-
-    if (this._aligned && this._parent && this._mo_align != this._parent._ts_transform) {
-      this._mo_align = this._parent._ts_transform;
-      this._ts_translate = ++iid;
-    }
-
-    return this;
+    this._padding = 0;
+    this._spacing = 0;
   }
 
   toString() {
-    return this._owner + " (" + (this._parent ? this._parent._owner : null) + ")";
+    return this.uid + " (" + this._owner + ")";
   }
 
-  // TODO: ts fields require refactoring
-  absoluteMatrix() {
-    this._update();
-    const ts = Math.max(
-      this._ts_transform,
-      this._ts_translate,
-      this._parent ? this._parent._ts_matrix : 0,
-    );
-    if (this._mo_abs == ts) {
-      return this._absoluteMatrix;
+  toMatrix() {
+    const parent = this._owner?.parent();
+
+    if (
+      this._memo_rel.recall(
+        this._pivotX,
+        this._pivotY,
+        this._scaleX,
+        this._scaleY,
+        this._rotation,
+        this._skewX,
+        this._skewY,
+        this._width,
+        this._height,
+        this._offsetX,
+        this._offsetY,
+        this._handleX,
+        this._handleY,
+        this._alignX,
+        this._alignY,
+        parent?.getHeight(),
+        parent?.getWidth(),
+      )
+    ) {
+      return this._matrix;
     }
-    this._mo_abs = ts;
 
-    const abs = this._absoluteMatrix;
-    abs.reset(this.relativeMatrix());
-
-    this._parent && abs.concat(this._parent._absoluteMatrix);
-
-    this._ts_matrix = ++iid;
-
-    return abs;
-  }
-
-  relativeMatrix() {
-    this._update();
-    const ts = Math.max(
-      this._ts_transform,
-      this._ts_translate,
-      this._parent ? this._parent._ts_transform : 0,
-    );
-    if (this._mo_rel == ts) {
-      return this._relativeMatrix;
-    }
-    this._mo_rel = ts;
-
-    const rel = this._relativeMatrix;
+    const rel = this._matrix;
 
     rel.identity();
     if (this._pivoted) {
@@ -291,27 +259,27 @@ export class Pin {
       }
     }
 
-    this._x = this._offsetX;
-    this._y = this._offsetY;
+    let translateX = this._offsetX;
+    let translateY = this._offsetY;
 
-    this._x -= this._boxX + this._handleX * this._boxWidth;
-    this._y -= this._boxY + this._handleY * this._boxHeight;
+    translateX -= this._boxX + this._handleX * this._boxWidth;
+    translateY -= this._boxY + this._handleY * this._boxHeight;
 
-    if (this._aligned && this._parent) {
-      this._parent.relativeMatrix();
-      this._x += this._alignX * this._parent._width;
-      this._y += this._alignY * this._parent._height;
+    if (parent && (this._alignX !== 0 || this._alignY !== 0)) {
+      translateX += this._alignX * parent.getWidth();
+      translateY += this._alignY * parent.getHeight();
     }
 
-    rel.translate(this._x, this._y);
+    rel.translate(translateX, translateY);
 
-    return this._relativeMatrix;
+    return this._matrix;
   }
 
   /** @internal */
   get(key: string) {
     if (typeof getters[key] === "function") {
-      return getters[key](this);
+      const value = getters[key](this);
+      return value;
     }
   }
 
@@ -330,7 +298,6 @@ export class Pin {
       }
     }
     if (this._owner) {
-      this._owner._ts_pin = ++iid;
       this._owner.touch();
     }
     return this;
@@ -339,7 +306,6 @@ export class Pin {
   // todo: should this be public?
   /** @internal */
   fit(width: number | null, height: number | null, mode?: FitMode) {
-    this._ts_transform = ++iid;
     if (mode === "contain") {
       mode = "in-pad";
     }
@@ -463,18 +429,14 @@ export class Pin {
   handleY: function (pin: Pin) {
     return pin._handleY;
   },
-};
 
-type ResizeParams = {
-  resizeMode: FitMode;
-  resizeWidth: number;
-  resizeHeight: number;
-};
+  padding: function (pin: Pin) {
+    return pin._padding;
+  },
 
-type ScaleParams = {
-  scaleMode: FitMode;
-  scaleWidth: number;
-  scaleHeight: number;
+  spacing: function (pin: Pin) {
+    return pin._spacing;
+  },
 };
 
 /** @internal */ const setters = {
@@ -489,85 +451,70 @@ type ScaleParams = {
   width: function (pin: Pin, value: number) {
     pin._unscaled_width = value;
     pin._width = value;
-    pin._ts_transform = ++iid;
   },
 
   height: function (pin: Pin, value: number) {
     pin._unscaled_height = value;
     pin._height = value;
-    pin._ts_transform = ++iid;
   },
 
   scale: function (pin: Pin, value: number) {
     pin._scaleX = value;
     pin._scaleY = value;
-    pin._ts_transform = ++iid;
   },
 
   scaleX: function (pin: Pin, value: number) {
     pin._scaleX = value;
-    pin._ts_transform = ++iid;
   },
 
   scaleY: function (pin: Pin, value: number) {
     pin._scaleY = value;
-    pin._ts_transform = ++iid;
   },
 
   skew: function (pin: Pin, value: number) {
     pin._skewX = value;
     pin._skewY = value;
-    pin._ts_transform = ++iid;
   },
 
   skewX: function (pin: Pin, value: number) {
     pin._skewX = value;
-    pin._ts_transform = ++iid;
   },
 
   skewY: function (pin: Pin, value: number) {
     pin._skewY = value;
-    pin._ts_transform = ++iid;
   },
 
   rotation: function (pin: Pin, value: number) {
     pin._rotation = value;
-    pin._ts_transform = ++iid;
   },
 
   pivot: function (pin: Pin, value: number) {
     pin._pivotX = value;
     pin._pivotY = value;
     pin._pivoted = true;
-    pin._ts_transform = ++iid;
   },
 
   pivotX: function (pin: Pin, value: number) {
     pin._pivotX = value;
     pin._pivoted = true;
-    pin._ts_transform = ++iid;
   },
 
   pivotY: function (pin: Pin, value: number) {
     pin._pivotY = value;
     pin._pivoted = true;
-    pin._ts_transform = ++iid;
   },
 
   offset: function (pin: Pin, value: number) {
     pin._offsetX = value;
     pin._offsetY = value;
-    pin._ts_translate = ++iid;
   },
 
   offsetX: function (pin: Pin, value: number) {
     pin._offsetX = value;
-    pin._ts_translate = ++iid;
   },
 
   offsetY: function (pin: Pin, value: number) {
     pin._offsetY = value;
-    pin._ts_translate = ++iid;
   },
 
   align: function (pin: Pin, value: number) {
@@ -577,16 +524,12 @@ type ScaleParams = {
 
   alignX: function (pin: Pin, value: number) {
     pin._alignX = value;
-    pin._aligned = true;
-    pin._ts_translate = ++iid;
 
     this.handleX(pin, value);
   },
 
   alignY: function (pin: Pin, value: number) {
     pin._alignY = value;
-    pin._aligned = true;
-    pin._ts_translate = ++iid;
 
     this.handleY(pin, value);
   },
@@ -598,14 +541,10 @@ type ScaleParams = {
 
   handleX: function (pin: Pin, value: number) {
     pin._handleX = value;
-    pin._handled = true;
-    pin._ts_translate = ++iid;
   },
 
   handleY: function (pin: Pin, value: number) {
     pin._handleY = value;
-    pin._handled = true;
-    pin._ts_translate = ++iid;
   },
 
   resizeMode: function (pin: Pin, value: FitMode, all: ResizeParams) {
@@ -657,5 +596,13 @@ type ScaleParams = {
     this.offsetX(pin, value.e);
     this.offsetY(pin, value.f);
     this.rotation(pin, 0);
+  },
+
+  padding: function (pin: Pin, value: number) {
+    pin._padding = value;
+  },
+
+  spacing: function (pin: Pin, value: number) {
+    pin._spacing = value;
   },
 };

@@ -236,10 +236,6 @@ class Matrix {
   }
 }
 const objectToString = Object.prototype.toString;
-function isFn(value) {
-  const str2 = objectToString.call(value);
-  return str2 === "[object Function]" || str2 === "[object GeneratorFunction]" || str2 === "[object AsyncFunction]";
-}
 function isHash(value) {
   return objectToString.call(value) === "[object Object]" && value.constructor === Object;
 }
@@ -396,7 +392,7 @@ class Atlas extends ImageTexture {
         return void 0;
       }
       def2 = Object.assign({}, def2);
-      if (isFn(map)) {
+      if (typeof map === "function") {
         def2 = map(def2);
       }
       if (ppu != 1) {
@@ -431,7 +427,7 @@ class Atlas extends ImageTexture {
     this.findSpriteDefinition = (query) => {
       const textures = this._textures;
       if (textures) {
-        if (isFn(textures)) {
+        if (typeof textures === "function") {
           return textures(query);
         } else if (isHash(textures)) {
           return textures[query];
@@ -453,7 +449,11 @@ class Atlas extends ImageTexture {
     this._map = def.map || def.filter;
     this._textures = def.textures;
     if (typeof def.image === "object" && isHash(def.image)) {
-      this._imageSrc = def.image.src || def.image.url;
+      if ("src" in def.image) {
+        this._imageSrc = def.image.src;
+      } else if ("url" in def.image) {
+        this._imageSrc = def.image.url;
+      }
       if (typeof def.image.ratio === "number") {
         this._pixelRatio = def.image.ratio;
       }
@@ -533,7 +533,7 @@ class TextureSelection {
       return this.atlas.pipeSpriteTexture(selection);
     } else if (typeof selection === "object" && isHash(selection) && typeof subquery !== "undefined") {
       return this.resolve(selection[subquery]);
-    } else if (typeof selection === "function" && isFn(selection)) {
+    } else if (typeof selection === "function") {
       return this.resolve(selection(subquery));
     } else if (typeof selection === "string") {
       if (!this.atlas) {
@@ -753,23 +753,45 @@ class ResizableTexture extends Texture {
     }
   }
 }
+class Memo {
+  constructor() {
+    this.memory = [];
+  }
+  static init() {
+    return new Memo();
+  }
+  recall(...rest) {
+    let equal = this.memory.length === rest.length;
+    for (let i = 0; equal && i < rest.length; i++) {
+      equal = equal && this.memory[i] === rest[i];
+      this.memory[i] = rest[i];
+    }
+    this.memory.length = rest.length;
+    return equal;
+  }
+  reset() {
+    this.memory.length = 0;
+  }
+}
 function getPixelRatio() {
   return typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
 }
 function isValidFitMode(value) {
   return value && (value === "cover" || value === "contain" || value === "fill" || value === "in" || value === "in-pad" || value === "out" || value === "out-crop");
 }
-let iid$1 = 0;
 class Pin {
   /** @internal */
   constructor(owner) {
     this.uid = "pin:" + uid();
+    this._memo_handle = Memo.init();
+    this._memo_align = Memo.init();
+    this._memo_abs = Memo.init();
+    this._memo_rel = Memo.init();
     this._owner = owner;
-    this._parent = null;
-    this._relativeMatrix = new Matrix();
-    this._absoluteMatrix = new Matrix();
+    this._matrix = new Matrix();
     this.reset();
   }
+  /** @internal */
   reset() {
     this._textureAlpha = 1;
     this._alpha = 1;
@@ -783,10 +805,8 @@ class Pin {
     this._pivoted = false;
     this._pivotX = 0;
     this._pivotY = 0;
-    this._handled = false;
     this._handleX = 0;
     this._handleY = 0;
-    this._aligned = false;
     this._alignX = 0;
     this._alignY = 0;
     this._offsetX = 0;
@@ -795,56 +815,37 @@ class Pin {
     this._boxY = 0;
     this._boxWidth = this._width;
     this._boxHeight = this._height;
-    this._ts_translate = ++iid$1;
-    this._ts_transform = ++iid$1;
-    this._ts_matrix = ++iid$1;
-  }
-  /** @internal */
-  _update() {
-    this._parent = this._owner._parent && this._owner._parent._pin;
-    if (this._handled && this._mo_handle != this._ts_transform) {
-      this._mo_handle = this._ts_transform;
-      this._ts_translate = ++iid$1;
-    }
-    if (this._aligned && this._parent && this._mo_align != this._parent._ts_transform) {
-      this._mo_align = this._parent._ts_transform;
-      this._ts_translate = ++iid$1;
-    }
-    return this;
+    this._padding = 0;
+    this._spacing = 0;
   }
   toString() {
-    return this._owner + " (" + (this._parent ? this._parent._owner : null) + ")";
+    return this.uid + " (" + this._owner + ")";
   }
-  // TODO: ts fields require refactoring
-  absoluteMatrix() {
-    this._update();
-    const ts = Math.max(
-      this._ts_transform,
-      this._ts_translate,
-      this._parent ? this._parent._ts_matrix : 0
-    );
-    if (this._mo_abs == ts) {
-      return this._absoluteMatrix;
+  toMatrix() {
+    var _a;
+    const parent = (_a = this._owner) == null ? void 0 : _a.parent();
+    if (this._memo_rel.recall(
+      this._pivotX,
+      this._pivotY,
+      this._scaleX,
+      this._scaleY,
+      this._rotation,
+      this._skewX,
+      this._skewY,
+      this._width,
+      this._height,
+      this._offsetX,
+      this._offsetY,
+      this._handleX,
+      this._handleY,
+      this._alignX,
+      this._alignY,
+      parent == null ? void 0 : parent.getHeight(),
+      parent == null ? void 0 : parent.getWidth()
+    )) {
+      return this._matrix;
     }
-    this._mo_abs = ts;
-    const abs = this._absoluteMatrix;
-    abs.reset(this.relativeMatrix());
-    this._parent && abs.concat(this._parent._absoluteMatrix);
-    this._ts_matrix = ++iid$1;
-    return abs;
-  }
-  relativeMatrix() {
-    this._update();
-    const ts = Math.max(
-      this._ts_transform,
-      this._ts_translate,
-      this._parent ? this._parent._ts_transform : 0
-    );
-    if (this._mo_rel == ts) {
-      return this._relativeMatrix;
-    }
-    this._mo_rel = ts;
-    const rel = this._relativeMatrix;
+    const rel = this._matrix;
     rel.identity();
     if (this._pivoted) {
       rel.translate(-this._pivotX * this._width, -this._pivotY * this._height);
@@ -892,22 +893,22 @@ class Pin {
         this._boxHeight = q - p;
       }
     }
-    this._x = this._offsetX;
-    this._y = this._offsetY;
-    this._x -= this._boxX + this._handleX * this._boxWidth;
-    this._y -= this._boxY + this._handleY * this._boxHeight;
-    if (this._aligned && this._parent) {
-      this._parent.relativeMatrix();
-      this._x += this._alignX * this._parent._width;
-      this._y += this._alignY * this._parent._height;
+    let translateX = this._offsetX;
+    let translateY = this._offsetY;
+    translateX -= this._boxX + this._handleX * this._boxWidth;
+    translateY -= this._boxY + this._handleY * this._boxHeight;
+    if (parent && (this._alignX !== 0 || this._alignY !== 0)) {
+      translateX += this._alignX * parent.getWidth();
+      translateY += this._alignY * parent.getHeight();
     }
-    rel.translate(this._x, this._y);
-    return this._relativeMatrix;
+    rel.translate(translateX, translateY);
+    return this._matrix;
   }
   /** @internal */
   get(key) {
     if (typeof getters[key] === "function") {
-      return getters[key](this);
+      const value = getters[key](this);
+      return value;
     }
   }
   // TODO: Use defineProperty instead? What about multi-field pinning?
@@ -925,7 +926,6 @@ class Pin {
       }
     }
     if (this._owner) {
-      this._owner._ts_pin = ++iid$1;
       this._owner.touch();
     }
     return this;
@@ -933,7 +933,6 @@ class Pin {
   // todo: should this be public?
   /** @internal */
   fit(width, height, mode) {
-    this._ts_transform = ++iid$1;
     if (mode === "contain") {
       mode = "in-pad";
     }
@@ -1032,6 +1031,12 @@ const getters = {
   },
   handleY: function(pin) {
     return pin._handleY;
+  },
+  padding: function(pin) {
+    return pin._padding;
+  },
+  spacing: function(pin) {
+    return pin._spacing;
   }
 };
 const setters = {
@@ -1044,71 +1049,56 @@ const setters = {
   width: function(pin, value) {
     pin._unscaled_width = value;
     pin._width = value;
-    pin._ts_transform = ++iid$1;
   },
   height: function(pin, value) {
     pin._unscaled_height = value;
     pin._height = value;
-    pin._ts_transform = ++iid$1;
   },
   scale: function(pin, value) {
     pin._scaleX = value;
     pin._scaleY = value;
-    pin._ts_transform = ++iid$1;
   },
   scaleX: function(pin, value) {
     pin._scaleX = value;
-    pin._ts_transform = ++iid$1;
   },
   scaleY: function(pin, value) {
     pin._scaleY = value;
-    pin._ts_transform = ++iid$1;
   },
   skew: function(pin, value) {
     pin._skewX = value;
     pin._skewY = value;
-    pin._ts_transform = ++iid$1;
   },
   skewX: function(pin, value) {
     pin._skewX = value;
-    pin._ts_transform = ++iid$1;
   },
   skewY: function(pin, value) {
     pin._skewY = value;
-    pin._ts_transform = ++iid$1;
   },
   rotation: function(pin, value) {
     pin._rotation = value;
-    pin._ts_transform = ++iid$1;
   },
   pivot: function(pin, value) {
     pin._pivotX = value;
     pin._pivotY = value;
     pin._pivoted = true;
-    pin._ts_transform = ++iid$1;
   },
   pivotX: function(pin, value) {
     pin._pivotX = value;
     pin._pivoted = true;
-    pin._ts_transform = ++iid$1;
   },
   pivotY: function(pin, value) {
     pin._pivotY = value;
     pin._pivoted = true;
-    pin._ts_transform = ++iid$1;
   },
   offset: function(pin, value) {
     pin._offsetX = value;
     pin._offsetY = value;
-    pin._ts_translate = ++iid$1;
   },
   offsetX: function(pin, value) {
     pin._offsetX = value;
-    pin._ts_translate = ++iid$1;
   },
   offsetY: function(pin, value) {
     pin._offsetY = value;
-    pin._ts_translate = ++iid$1;
   },
   align: function(pin, value) {
     this.alignX(pin, value);
@@ -1116,14 +1106,10 @@ const setters = {
   },
   alignX: function(pin, value) {
     pin._alignX = value;
-    pin._aligned = true;
-    pin._ts_translate = ++iid$1;
     this.handleX(pin, value);
   },
   alignY: function(pin, value) {
     pin._alignY = value;
-    pin._aligned = true;
-    pin._ts_translate = ++iid$1;
     this.handleY(pin, value);
   },
   handle: function(pin, value) {
@@ -1132,13 +1118,9 @@ const setters = {
   },
   handleX: function(pin, value) {
     pin._handleX = value;
-    pin._handled = true;
-    pin._ts_translate = ++iid$1;
   },
   handleY: function(pin, value) {
     pin._handleY = value;
-    pin._handled = true;
-    pin._ts_translate = ++iid$1;
   },
   resizeMode: function(pin, value, all) {
     if (all) {
@@ -1183,6 +1165,12 @@ const setters = {
     this.offsetX(pin, value.e);
     this.offsetY(pin, value.f);
     this.rotation(pin, 0);
+  },
+  padding: function(pin, value) {
+    pin._padding = value;
+  },
+  spacing: function(pin, value) {
+    pin._spacing = value;
   }
 };
 function IDENTITY(x) {
@@ -1353,7 +1341,7 @@ class Transition {
     this._time = 0;
   }
   /** @internal */
-  tick(node, elapsed, now, last) {
+  tick(component2, elapsed, now, last) {
     this._time += elapsed;
     if (this._time < this._delay) {
       return;
@@ -1435,10 +1423,10 @@ class Transition {
   pin(a, b) {
     if (typeof a === "object") {
       for (const attr in a) {
-        pinning(this._owner, this._end, attr, a[attr]);
+        toPinObject(this._owner, this._end, attr, a[attr]);
       }
     } else if (typeof b !== "undefined") {
-      pinning(this._owner, this._end, a, b);
+      toPinObject(this._owner, this._end, a, b);
     }
     return this;
   }
@@ -1450,7 +1438,7 @@ class Transition {
     return this;
   }
   /**
-   * @deprecated this doesn't do anything anymore, call transition on the node instead.
+   * @deprecated this doesn't do anything anymore, call transition on the component instead.
    */
   clear(forward) {
     return this;
@@ -1517,133 +1505,481 @@ class Transition {
     return this;
   }
 }
-function pinning(node, map, key, value) {
-  if (typeof node.pin(key) === "number") {
+function toPinObject(component2, map, key, value) {
+  if (typeof component2.pin(key) === "number") {
     map[key] = value;
-  } else if (typeof node.pin(key + "X") === "number" && typeof node.pin(key + "Y") === "number") {
+  } else if (typeof component2.pin(key + "X") === "number" && typeof component2.pin(key + "Y") === "number") {
     map[key + "X"] = value;
     map[key + "Y"] = value;
   }
 }
-let iid = 0;
-stats.create = 0;
-function assertType(obj) {
-  if (obj && obj instanceof Node) {
+const _BasicLayoutManager = class {
+  getTransform(component2) {
+    return component2.__pin.toMatrix();
+  }
+  getTransparency(component2) {
+    return component2.__pin._alpha;
+  }
+  getTextureTransparency(component2) {
+    return component2.__pin._textureAlpha;
+  }
+  append(parent, child) {
+    assertComponent(child);
+    assertComponent(parent);
+    if (child.parent()) {
+      child.remove();
+    }
+    const last = parent.last();
+    if (last) {
+      last.setNext(child);
+      child.setPrev(last);
+    }
+    child.setParent(parent);
+    parent.setLast(child);
+    if (!parent.first()) {
+      parent.setFirst(child);
+    }
+    parent.onChildAdded(child);
+    parent.touch();
+  }
+  prepend(parent, child) {
+    assertComponent(child);
+    assertComponent(parent);
+    if (child.parent()) {
+      child.remove();
+    }
+    const first = parent.first();
+    if (first) {
+      first.setPrev(child);
+      child.setNext(first);
+    }
+    child.setParent(parent);
+    parent.setFirst(child);
+    if (!parent.last()) {
+      parent.setLast(child);
+    }
+    parent.onChildAdded(child);
+    parent.touch();
+  }
+  insertBefore(component2, sibling) {
+    assertComponent(component2);
+    assertComponent(sibling);
+    component2.remove();
+    const parent = sibling.parent();
+    const prev = sibling.prev();
+    if (!parent) {
+      return;
+    }
+    sibling.setPrev(component2);
+    if (prev) {
+      prev.setNext(component2);
+    } else if (parent) {
+      parent.setFirst(component2);
+    }
+    component2.setParent(parent);
+    component2.setParent(prev);
+    component2.setNext(sibling);
+    parent.onChildAdded(component2);
+    component2.touch();
+  }
+  insertAfter(component2, sibling) {
+    assertComponent(component2);
+    assertComponent(sibling);
+    component2.remove();
+    const parent = sibling.parent();
+    const next = sibling.next();
+    if (!parent) {
+      return;
+    }
+    sibling.setNext(component2);
+    if (next) {
+      next.setPrev(component2);
+    } else if (parent) {
+      parent.setLast(component2);
+    }
+    component2.setParent(parent);
+    component2.setPrev(sibling);
+    component2.setNext(next);
+    parent.onChildAdded(component2);
+    component2.touch();
+  }
+  remove(component2) {
+    assertComponent(component2);
+    const prev = component2.prev();
+    const next = component2.next();
+    const parent = component2.parent();
+    if (prev) {
+      prev.setNext(next);
+    }
+    if (next) {
+      next.setPrev(prev);
+    }
+    if (parent) {
+      if (parent.first() === component2) {
+        parent.setFirst(next);
+      }
+      if (parent.last() === component2) {
+        parent.setLast(prev);
+      }
+      parent.onChildRemoved(component2);
+      parent.touch();
+    }
+    component2.setPrev(null);
+    component2.setNext(null);
+    component2.setParent(null);
+  }
+  empty(component2) {
+    assertComponent(component2);
+    let child = null;
+    let next = component2.first();
+    while (child = next) {
+      next = child.next();
+      child.setParent(null);
+      child.setNext(null);
+      child.setPrev(null);
+      component2.onChildRemoved(child);
+    }
+    component2.setFirst(null);
+    component2.setLast(null);
+    component2.touch();
+  }
+  getParent(component2) {
+    assertComponent(component2);
+    return component2.__parent;
+  }
+  setParent(component2, parent) {
+    assertComponent(component2);
+    component2.__parent = parent;
+  }
+  getFirst(component2, visible) {
+    assertComponent(component2);
+    let next = component2.__first;
+    while (next && visible && !next.visible()) {
+      next = next.next();
+    }
+    return next;
+  }
+  setFirst(component2, first) {
+    assertComponent(component2);
+    component2.__first = first;
+  }
+  getLast(component2, visible) {
+    assertComponent(component2);
+    let prev = component2.__last;
+    while (prev && visible && !prev.visible()) {
+      prev = prev.prev();
+    }
+    return prev;
+  }
+  setLast(component2, last) {
+    assertComponent(component2);
+    component2.__last = last;
+  }
+  getNext(component2, visible) {
+    assertComponent(component2);
+    let next = component2.__next;
+    while (next && visible && !next.visible()) {
+      next = next.next();
+    }
+    return next;
+  }
+  setNext(component2, next) {
+    assertComponent(component2);
+    component2.__next = next;
+  }
+  getPrev(component2, visible) {
+    assertComponent(component2);
+    let prev = component2.__prev;
+    while (prev && visible && !prev.visible()) {
+      prev = prev.prev();
+    }
+    return prev;
+  }
+  setPrev(component2, prev) {
+    assertComponent(component2);
+    component2.__prev = prev;
+  }
+  getPin(component2) {
+    assertComponent(component2);
+    return component2.__pin;
+  }
+  getPinProp(component2, key) {
+    assertComponent(component2);
+    return component2.__pin.get(key);
+  }
+  setPinProp(component2, key, value) {
+    assertComponent(component2);
+    component2.__pin.set(key, value);
+  }
+  updatePin(component2, data) {
+    assertComponent(component2);
+    component2.__pin.set(data);
+  }
+  fit(component2, width, height, mode) {
+    assertComponent(component2);
+    component2.__pin.fit(width, height, mode);
+  }
+  getBoxWidth(component2) {
+    assertComponent(component2);
+    return component2.__pin._boxWidth;
+  }
+  getBoxHeight(component2) {
+    assertComponent(component2);
+    return component2.__pin._boxHeight;
+  }
+  getWidth(component2) {
+    return component2.__pin._width;
+  }
+  getHeight(component2) {
+    return component2.__pin._height;
+  }
+  setOffsetX(component2, value) {
+    component2.pin("offsetX", value);
+  }
+  setOffsetY(component2, value) {
+    component2.pin("offsetY", value);
+  }
+  setAlignX(component2, value) {
+    component2.pin("alignX", value);
+  }
+  setAlignY(component2, value) {
+    component2.pin("alignY", value);
+  }
+  align(component2, type, align) {
+    component2.__layoutTicker && component2.untick(component2.__layoutTicker);
+    component2.__layoutTicker = () => {
+      if (component2.__memo_align_touch.recall(component2._revision)) {
+        return;
+      }
+      let width = 0;
+      let height = 0;
+      let child;
+      let next = component2.first(true);
+      let first = true;
+      while (child = next) {
+        next = child.next(true);
+        child.getTransform();
+        const w = child.getBoxWidth();
+        const h = child.getBoxHeight();
+        const hasSize = w > 0 && h > 0;
+        if (!hasSize) {
+          continue;
+        }
+        if (type === "column") {
+          if (!first) {
+            height += component2.__pin._spacing;
+          }
+          child.setOffsetY(height);
+          width = Math.max(width, w);
+          height = height + h;
+          child.setAlignX(align);
+        } else if (type === "row") {
+          if (!first) {
+            width += component2.__pin._spacing;
+          }
+          child.setOffsetX(width);
+          width = width + w;
+          height = Math.max(height, h);
+          child.setAlignY(align);
+        }
+        first = false;
+      }
+      width += 2 * component2.__pin._padding;
+      height += 2 * component2.__pin._padding;
+      if (component2.pin("width") !== width) {
+        component2.pin("width", width);
+      }
+      if (component2.pin("height") !== height) {
+        component2.pin("height", height);
+      }
+    };
+    component2.tick(component2.__layoutTicker);
+    return this;
+  }
+  /** Set size to match largest child size. */
+  minimize(component2) {
+    component2.__layoutTicker && component2.untick(component2.__layoutTicker);
+    component2.__layoutTicker = () => {
+      if (component2.__memo_minimize_touch.recall(component2._revision)) {
+        return;
+      }
+      let width = 0;
+      let height = 0;
+      let child;
+      let next = component2.first(true);
+      while (child = next) {
+        next = child.next(true);
+        child.getTransform();
+        const w = child.getBoxWidth();
+        const h = child.getBoxHeight();
+        width = Math.max(width, w);
+        height = Math.max(height, h);
+      }
+      width += 2 * component2.__pin._padding;
+      height += 2 * component2.__pin._padding;
+      component2.pin("width") != width && component2.pin("width", width);
+      component2.pin("height") != height && component2.pin("height", height);
+    };
+    component2.tick(component2.__layoutTicker);
+    return this;
+  }
+  /** Set size to match parent size. */
+  maximize(component2) {
+    component2.__layoutTicker && component2.untick(component2.__layoutTicker);
+    component2.__layoutTicker = () => {
+      const parent = component2.parent();
+      if (parent) {
+        const width = parent.getWidth();
+        if (component2.pin("width") != width) {
+          component2.pin("width", width);
+        }
+        const height = parent.getHeight();
+        if (component2.pin("height") != height) {
+          component2.pin("height", height);
+        }
+      }
+    };
+    component2.tick(component2.__layoutTicker, true);
+    return this;
+  }
+};
+let BasicLayoutManager = _BasicLayoutManager;
+BasicLayoutManager.instance = new _BasicLayoutManager();
+function assertComponent(obj) {
+  if (obj && obj instanceof Component) {
     return obj;
   }
-  throw "Invalid node: " + obj;
+  throw "Invalid component: " + obj;
 }
-function create() {
-  return layout();
-}
-function layer() {
-  return maximize();
-}
-function box() {
-  return minimize();
-}
-function layout() {
-  return new Node();
-}
-function row(align) {
-  return layout().row(align).label("Row");
-}
-function column(align) {
-  return layout().column(align).label("Column");
-}
-function minimize() {
-  return layout().minimize().label("Minimize");
-}
-function maximize() {
-  return layout().maximize().label("Maximize");
-}
-class Node {
+const _EventManager = class {
+  /** @internal */
+  on(component2, name, listener) {
+    if (typeof name !== "string" && typeof listener !== "function") {
+      return;
+    }
+    component2.__listeners[name] = component2.__listeners[name] || [];
+    component2.__listeners[name].push(listener);
+    component2.updateDeepFlag(name, true);
+  }
+  /** @internal */
+  off(component2, name, listener) {
+    if (typeof name !== "string" && typeof listener !== "function") {
+      return;
+    }
+    const listeners = component2.__listeners[name];
+    if (!listeners || !listeners.length) {
+      return;
+    }
+    const index = listeners.indexOf(listener);
+    if (index >= 0) {
+      listeners.splice(index, 1);
+      component2.updateDeepFlag(name, false);
+    }
+  }
+  publish(component2, name, args) {
+    const listeners = component2.listeners(name);
+    if (!listeners || !listeners.length) {
+      return 0;
+    }
+    for (let l = 0; l < listeners.length; l++) {
+      listeners[l].apply(component2, args);
+    }
+    return listeners.length;
+  }
+  listeners(component2, name) {
+    return component2.__listeners[name];
+  }
+  /** @internal */
+  updateChildDeepFlags(component2, child, value) {
+    for (const type in child.__flags) {
+      if (child.__flags[type] > 0) {
+        component2.updateDeepFlag(type, value);
+      }
+    }
+  }
+  /** @internal */
+  updateDeepFlag(component2, key, value) {
+    if (value) {
+      if (!component2.__flags[key] && component2.parent()) {
+        component2.parent().updateDeepFlag(key, true);
+      }
+      component2.__flags[key] = (component2.__flags[key] ?? 0) + 1;
+    } else if (component2.__flags[key] > 0) {
+      if (component2.__flags[key] == 1 && component2.parent()) {
+        component2.parent().updateDeepFlag(key, false);
+      }
+      component2.__flags[key] = component2.__flags[key] - 1;
+    }
+  }
+  /** @internal */
+  evalDeepFlag(component2, key) {
+    if (!component2.__flags) {
+      return 0;
+    }
+    return component2.__flags[key] ?? 0;
+  }
+};
+let EventManager = _EventManager;
+EventManager.instance = new _EventManager();
+let REVISION = 0;
+class Component {
   constructor() {
-    this.uid = "node:" + uid();
-    this._label = "";
-    this._parent = null;
-    this._next = null;
-    this._prev = null;
-    this._first = null;
-    this._last = null;
+    this.layoutManager = BasicLayoutManager.instance;
+    this.eventManager = EventManager.instance;
+    this.uid = "component:" + uid();
     this._visible = true;
-    this._alpha = 1;
-    this._padding = 0;
-    this._spacing = 0;
-    this._pin = new Pin(this);
-    this._listeners = {};
+    this._label = "";
     this._attrs = {};
-    this._flags = {};
-    this._transitions = [];
-    this._tickBefore = [];
-    this._tickAfter = [];
     this.MAX_ELAPSE = Infinity;
-    this._transitionTickInitied = false;
-    this._transitionTickLastTime = 0;
-    this._transitionTick = (elapsed, now, last) => {
-      if (!this._transitions.length) {
+    this._revision = ++REVISION;
+    this.__listeners = {};
+    this.__flags = {};
+    this.__tickBefore = [];
+    this.__tickAfter = [];
+    this.__parent = null;
+    this.__next = null;
+    this.__prev = null;
+    this.__first = null;
+    this.__last = null;
+    this.__pin = new Pin(this);
+    this.__abs_matrix = new Matrix();
+    this.__rel_matrix = new Matrix();
+    this.__memo_abs_matrix = Memo.init();
+    this.__memo_align_touch = Memo.init();
+    this.__memo_align_children = Memo.init();
+    this.__memo_minimize_touch = Memo.init();
+    this.__transitions = [];
+    this.__transitionTickInitied = false;
+    this.__transitionTickLastTime = 0;
+    this.__transitionTick = (elapsed, now, last) => {
+      if (!this.__transitions.length) {
         return false;
       }
-      const ignore = this._transitionTickLastTime !== last;
-      this._transitionTickLastTime = now;
+      const ignore = this.__transitionTickLastTime !== last;
+      this.__transitionTickLastTime = now;
       if (ignore) {
         return true;
       }
-      const head = this._transitions[0];
+      const head = this.__transitions[0];
       const ended = head.tick(this, elapsed, now, last);
       if (ended) {
-        if (head === this._transitions[0]) {
-          this._transitions.shift();
+        if (head === this.__transitions[0]) {
+          this.__transitions.shift();
         }
         const next = head.finish();
         if (next) {
-          this._transitions.unshift(next);
+          this.__transitions.unshift(next);
         }
       }
       return true;
     };
-    stats.create++;
-  }
-  matrix(relative = false) {
-    if (relative === true) {
-      return this._pin.relativeMatrix();
-    }
-    return this._pin.absoluteMatrix();
   }
   /** @internal */
   getPixelRatio() {
     var _a;
-    const m = (_a = this._parent) == null ? void 0 : _a.matrix();
+    const m = (_a = this.parent()) == null ? void 0 : _a.matrix();
     const pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getPixelRatio();
     return pixelRatio;
-  }
-  pin(a, b) {
-    if (typeof a === "object") {
-      this._pin.set(a);
-      return this;
-    } else if (typeof a === "string") {
-      if (typeof b === "undefined") {
-        return this._pin.get(a);
-      } else {
-        this._pin.set(a, b);
-        return this;
-      }
-    } else if (typeof a === "undefined") {
-      return this._pin;
-    }
-  }
-  fit(a, b, c) {
-    if (typeof a === "object") {
-      c = b;
-      b = a.y;
-      a = a.x;
-    }
-    this._pin.fit(a, b, c);
-    return this;
-  }
-  /** @hidden @deprecated Use fit */
-  scaleTo(a, b, c) {
-    return this.fit(a, b, c);
   }
   toString() {
     return "[" + this._label + "]";
@@ -1659,380 +1995,62 @@ class Node {
     this._label = label;
     return this;
   }
-  attr(name, value) {
+  attr(key, value) {
     if (typeof value === "undefined") {
-      return this._attrs !== null ? this._attrs[name] : void 0;
+      return this._attrs !== null ? this._attrs[key] : void 0;
     }
-    (this._attrs !== null ? this._attrs : this._attrs = {})[name] = value;
+    (this._attrs !== null ? this._attrs : this._attrs = {})[key] = value;
     return this;
   }
-  visible(visible) {
-    if (typeof visible === "undefined") {
-      return this._visible;
-    }
-    this._visible = visible;
-    this._parent && (this._parent._ts_children = ++iid);
-    this._ts_pin = ++iid;
-    this.touch();
-    return this;
-  }
-  hide() {
-    this.visible(false);
-    return this;
-  }
-  show() {
-    this.visible(true);
-    return this;
-  }
-  parent() {
-    return this._parent;
-  }
-  next(visible) {
-    let next = this._next;
-    while (next && visible && !next._visible) {
-      next = next._next;
-    }
-    return next;
-  }
-  prev(visible) {
-    let prev = this._prev;
-    while (prev && visible && !prev._visible) {
-      prev = prev._prev;
-    }
-    return prev;
-  }
-  first(visible) {
-    let next = this._first;
-    while (next && visible && !next._visible) {
-      next = next._next;
-    }
-    return next;
-  }
-  last(visible) {
-    let prev = this._last;
-    while (prev && visible && !prev._visible) {
-      prev = prev._prev;
-    }
-    return prev;
-  }
-  visit(visitor, payload) {
-    const reverse = visitor.reverse;
-    const visible = visitor.visible;
-    if (visitor.start && visitor.start(this, payload)) {
-      return;
-    }
-    let child;
-    let next = reverse ? this.last(visible) : this.first(visible);
-    while (child = next) {
-      next = reverse ? child.prev(visible) : child.next(visible);
-      if (child.visit(visitor, payload)) {
-        return true;
-      }
-    }
-    return visitor.end && visitor.end(this, payload);
-  }
-  append(child, more) {
-    if (Array.isArray(child)) {
-      for (let i = 0; i < child.length; i++) {
-        Node.append(this, child[i]);
-      }
-    } else if (typeof more !== "undefined") {
-      for (let i = 0; i < arguments.length; i++) {
-        Node.append(this, arguments[i]);
-      }
-    } else if (typeof child !== "undefined")
-      Node.append(this, child);
-    return this;
-  }
-  prepend(child, more) {
-    if (Array.isArray(child)) {
-      for (let i = child.length - 1; i >= 0; i--) {
-        Node.prepend(this, child[i]);
-      }
-    } else if (typeof more !== "undefined") {
-      for (let i = arguments.length - 1; i >= 0; i--) {
-        Node.prepend(this, arguments[i]);
-      }
-    } else if (typeof child !== "undefined")
-      Node.prepend(this, child);
-    return this;
-  }
-  appendTo(parent) {
-    Node.append(parent, this);
-    return this;
-  }
-  prependTo(parent) {
-    Node.prepend(parent, this);
-    return this;
-  }
-  insertNext(sibling, more) {
-    if (Array.isArray(sibling)) {
-      for (let i = 0; i < sibling.length; i++) {
-        Node.insertAfter(sibling[i], this);
-      }
-    } else if (typeof more !== "undefined") {
-      for (let i = 0; i < arguments.length; i++) {
-        Node.insertAfter(arguments[i], this);
-      }
-    } else if (typeof sibling !== "undefined") {
-      Node.insertAfter(sibling, this);
-    }
-    return this;
-  }
-  insertPrev(sibling, more) {
-    if (Array.isArray(sibling)) {
-      for (let i = sibling.length - 1; i >= 0; i--) {
-        Node.insertBefore(sibling[i], this);
-      }
-    } else if (typeof more !== "undefined") {
-      for (let i = arguments.length - 1; i >= 0; i--) {
-        Node.insertBefore(arguments[i], this);
-      }
-    } else if (typeof sibling !== "undefined") {
-      Node.insertBefore(sibling, this);
-    }
-    return this;
-  }
-  insertAfter(prev) {
-    Node.insertAfter(this, prev);
-    return this;
-  }
-  insertBefore(next) {
-    Node.insertBefore(this, next);
-    return this;
-  }
-  /** @internal */
-  static append(parent, child) {
-    assertType(child);
-    assertType(parent);
-    child.remove();
-    if (parent._last) {
-      parent._last._next = child;
-      child._prev = parent._last;
-    }
-    child._parent = parent;
-    parent._last = child;
-    if (!parent._first) {
-      parent._first = child;
-    }
-    child._parent._flag(child, true);
-    child._ts_parent = ++iid;
-    parent._ts_children = ++iid;
-    parent.touch();
-  }
-  /** @internal */
-  static prepend(parent, child) {
-    assertType(child);
-    assertType(parent);
-    child.remove();
-    if (parent._first) {
-      parent._first._prev = child;
-      child._next = parent._first;
-    }
-    child._parent = parent;
-    parent._first = child;
-    if (!parent._last) {
-      parent._last = child;
-    }
-    child._parent._flag(child, true);
-    child._ts_parent = ++iid;
-    parent._ts_children = ++iid;
-    parent.touch();
-  }
-  /** @internal */
-  static insertBefore(self, next) {
-    assertType(self);
-    assertType(next);
-    self.remove();
-    const parent = next._parent;
-    const prev = next._prev;
-    if (!parent) {
-      return;
-    }
-    next._prev = self;
-    prev && (prev._next = self) || parent && (parent._first = self);
-    self._parent = parent;
-    self._prev = prev;
-    self._next = next;
-    self._parent._flag(self, true);
-    self._ts_parent = ++iid;
-    self.touch();
-  }
-  /** @internal */
-  static insertAfter(self, prev) {
-    assertType(self);
-    assertType(prev);
-    self.remove();
-    const parent = prev._parent;
-    const next = prev._next;
-    if (!parent) {
-      return;
-    }
-    prev._next = self;
-    next && (next._prev = self) || parent && (parent._last = self);
-    self._parent = parent;
-    self._prev = prev;
-    self._next = next;
-    self._parent._flag(self, true);
-    self._ts_parent = ++iid;
-    self.touch();
-  }
-  remove(child, more) {
-    if (typeof child !== "undefined") {
-      if (Array.isArray(child)) {
-        for (let i = 0; i < child.length; i++) {
-          assertType(child[i]).remove();
-        }
-      } else if (typeof more !== "undefined") {
-        for (let i = 0; i < arguments.length; i++) {
-          assertType(arguments[i]).remove();
-        }
-      } else {
-        assertType(child).remove();
-      }
-      return this;
-    }
-    if (this._prev) {
-      this._prev._next = this._next;
-    }
-    if (this._next) {
-      this._next._prev = this._prev;
-    }
-    if (this._parent) {
-      if (this._parent._first === this) {
-        this._parent._first = this._next;
-      }
-      if (this._parent._last === this) {
-        this._parent._last = this._prev;
-      }
-      this._parent._flag(this, false);
-      this._parent._ts_children = ++iid;
-      this._parent.touch();
-    }
-    this._prev = this._next = this._parent = null;
-    this._ts_parent = ++iid;
-    return this;
-  }
-  empty() {
-    let child = null;
-    let next = this._first;
-    while (child = next) {
-      next = child._next;
-      child._prev = child._next = child._parent = null;
-      this._flag(child, false);
-    }
-    this._first = this._last = null;
-    this._ts_children = ++iid;
-    this.touch();
-    return this;
-  }
+  /**
+   * Updates the revision/timestamp of this component and its parents.
+   * This is used internally for component tree lifecycle management, such as updating the rendering.
+   */
   touch() {
-    this._ts_touch = ++iid;
-    this._parent && this._parent.touch();
-    return this;
-  }
-  /** @internal Deep flag, used for optimizing event distribution. */
-  _flag(key, value) {
-    if (typeof value === "undefined") {
-      return this._flags !== null && this._flags[key] || 0;
-    }
-    if (typeof key === "string") {
-      if (value) {
-        this._flags = this._flags || {};
-        if (!this._flags[key] && this._parent) {
-          this._parent._flag(key, true);
-        }
-        this._flags[key] = (this._flags[key] || 0) + 1;
-      } else if (this._flags && this._flags[key] > 0) {
-        if (this._flags[key] == 1 && this._parent) {
-          this._parent._flag(key, false);
-        }
-        this._flags[key] = this._flags[key] - 1;
-      }
-    }
-    if (typeof key === "object") {
-      if (key._flags) {
-        for (const type in key._flags) {
-          if (key._flags[type] > 0) {
-            this._flag(type, value);
-          }
-        }
-      }
-    }
+    this._revision = ++REVISION;
+    this.parent() && this.parent().touch();
     return this;
   }
   /** @internal */
-  hitTest(hit) {
-    const width = this._pin._width;
-    const height = this._pin._height;
-    return hit.x >= 0 && hit.x <= width && hit.y >= 0 && hit.y <= height;
-  }
-  prerender() {
-    if (!this._visible) {
-      return;
-    }
-    let child;
-    let next = this._first;
-    while (child = next) {
-      next = child._next;
-      child.prerender();
-    }
-  }
-  render(context) {
-    if (!this._visible) {
-      return;
-    }
-    stats.node++;
-    const m = this.matrix();
-    context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
-    this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
-    const alpha = this._pin._textureAlpha * this._alpha;
-    if (context.globalAlpha != alpha) {
-      context.globalAlpha = alpha;
-    }
-    if (this._textures) {
-      for (let i = 0, n = this._textures.length; i < n; i++) {
-        this._textures[i].draw(context);
-      }
-    }
-    if (context.globalAlpha != this._alpha) {
-      context.globalAlpha = this._alpha;
-    }
-    let child;
-    let next = this._first;
-    while (child = next) {
-      next = child._next;
-      child.render(context);
-    }
+  updateChildDeepFlags(child, value) {
+    this.eventManager.updateChildDeepFlags(this, child, value);
   }
   /** @internal */
-  _tick(elapsed, now, last) {
-    if (!this._visible) {
+  updateDeepFlag(key, value) {
+    this.eventManager.updateDeepFlag(this, key, value);
+  }
+  /** @internal */
+  evalDeepFlag(key) {
+    return this.eventManager.evalDeepFlag(this, key);
+  }
+  /** @internal */
+  tickTree(elapsed, now, last) {
+    if (!this.visible()) {
       return;
     }
     if (elapsed > this.MAX_ELAPSE) {
       elapsed = this.MAX_ELAPSE;
     }
     let ticked = false;
-    if (this._tickBefore !== null) {
-      for (let i = 0; i < this._tickBefore.length; i++) {
+    if (this.__tickBefore !== null) {
+      for (let i = 0; i < this.__tickBefore.length; i++) {
         stats.tick++;
-        const tickFn = this._tickBefore[i];
+        const tickFn = this.__tickBefore[i];
         ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
       }
     }
     let child;
-    let next = this._first;
+    let next = this.first();
     while (child = next) {
-      next = child._next;
-      if (child._flag("_tick")) {
-        ticked = child._tick(elapsed, now, last) === true ? true : ticked;
+      next = child.next();
+      if (child.evalDeepFlag("tickTree")) {
+        ticked = child.tickTree(elapsed, now, last) === true ? true : ticked;
       }
     }
-    if (this._tickAfter !== null) {
-      for (let i = 0; i < this._tickAfter.length; i++) {
+    if (this.__tickAfter !== null) {
+      for (let i = 0; i < this.__tickAfter.length; i++) {
         stats.tick++;
-        const tickFn = this._tickAfter[i];
+        const tickFn = this.__tickAfter[i];
         ticked = tickFn.call(this, elapsed, now, last) === true || ticked;
       }
     }
@@ -2044,29 +2062,34 @@ class Node {
       return;
     }
     if (before) {
-      if (this._tickBefore === null) {
-        this._tickBefore = [];
+      if (this.__tickBefore === null) {
+        this.__tickBefore = [];
       }
-      this._tickBefore.push(callback);
+      this.__tickBefore.push(callback);
     } else {
-      if (this._tickAfter === null) {
-        this._tickAfter = [];
+      if (this.__tickAfter === null) {
+        this.__tickAfter = [];
       }
-      this._tickAfter.push(callback);
+      this.__tickAfter.push(callback);
     }
-    const hasTickListener = ((_a = this._tickAfter) == null ? void 0 : _a.length) > 0 || ((_b = this._tickBefore) == null ? void 0 : _b.length) > 0;
-    this._flag("_tick", hasTickListener);
+    const hasTickListener = ((_a = this.__tickAfter) == null ? void 0 : _a.length) > 0 || ((_b = this.__tickBefore) == null ? void 0 : _b.length) > 0;
+    this.updateDeepFlag("tickTree", hasTickListener);
   }
   untick(callback) {
     if (typeof callback !== "function") {
       return;
     }
-    let i;
-    if (this._tickBefore !== null && (i = this._tickBefore.indexOf(callback)) >= 0) {
-      this._tickBefore.splice(i, 1);
+    if (this.__tickBefore) {
+      const index = this.__tickBefore.indexOf(callback);
+      if (index >= 0) {
+        this.__tickBefore.splice(index, 1);
+      }
     }
-    if (this._tickAfter !== null && (i = this._tickAfter.indexOf(callback)) >= 0) {
-      this._tickAfter.splice(i, 1);
+    if (this.__tickAfter) {
+      const index = this.__tickAfter.indexOf(callback);
+      if (index >= 0) {
+        this.__tickAfter.splice(index, 1);
+      }
     }
   }
   timeout(callback, time) {
@@ -2098,22 +2121,13 @@ class Node {
     } else if (typeof type === "string" && type.indexOf(" ") > -1) {
       type = type.match(/\S+/g);
       for (let i = 0; i < type.length; i++) {
-        this._on(type[i], listener);
+        this.eventManager.on(this, type[i], listener);
       }
     } else if (typeof type === "string") {
-      this._on(type, listener);
+      this.eventManager.on(this, type, listener);
     } else
       ;
     return this;
-  }
-  /** @internal */
-  _on(type, listener) {
-    if (typeof type !== "string" && typeof listener !== "function") {
-      return;
-    }
-    this._listeners[type] = this._listeners[type] || [];
-    this._listeners[type].push(listener);
-    this._flag(type, true);
   }
   off(type, listener) {
     if (!type || !type.length || typeof listener !== "function") {
@@ -2126,46 +2140,329 @@ class Node {
     } else if (typeof type === "string" && type.indexOf(" ") > -1) {
       type = type.match(/\S+/g);
       for (let i = 0; i < type.length; i++) {
-        this._off(type[i], listener);
+        this.eventManager.off(this, type[i], listener);
       }
     } else if (typeof type === "string") {
-      this._off(type, listener);
+      this.eventManager.off(this, type, listener);
     } else
       ;
     return this;
   }
-  /** @internal */
-  _off(type, listener) {
-    if (typeof type !== "string" && typeof listener !== "function") {
-      return;
-    }
-    const listeners = this._listeners[type];
-    if (!listeners || !listeners.length) {
-      return;
-    }
-    const index = listeners.indexOf(listener);
-    if (index >= 0) {
-      listeners.splice(index, 1);
-      this._flag(type, false);
-    }
-  }
   listeners(type) {
-    return this._listeners[type];
+    return this.eventManager.listeners(this, type);
   }
   publish(name, args) {
-    const listeners = this.listeners(name);
-    if (!listeners || !listeners.length) {
-      return 0;
-    }
-    for (let l = 0; l < listeners.length; l++) {
-      listeners[l].apply(this, args);
-    }
-    return listeners.length;
+    return this.eventManager.publish(this, name, args);
   }
   /** @hidden @deprecated @internal */
   trigger(name, args) {
     this.publish(name, args);
     return this;
+  }
+  visit(visitor, payload) {
+    const reverse = visitor.reverse;
+    const visible = visitor.visible;
+    if (visitor.start && visitor.start(this, payload)) {
+      return;
+    }
+    let child;
+    let next = reverse ? this.last(visible) : this.first(visible);
+    while (child = next) {
+      next = reverse ? child.prev(visible) : child.next(visible);
+      if (child.visit(visitor, payload)) {
+        return true;
+      }
+    }
+    return visitor.end && visitor.end(this, payload);
+  }
+  prerenderTree() {
+    if (!this.visible()) {
+      return;
+    }
+    this.prerender();
+    let child;
+    let next = this.first();
+    while (child = next) {
+      next = child.next();
+      child.prerenderTree();
+    }
+  }
+  prerender() {
+  }
+  renderTree(context) {
+    if (!this.visible()) {
+      return;
+    }
+    const globalAlpha = context.globalAlpha;
+    const componentAlpha = this.layoutManager.getTransparency(this) * globalAlpha;
+    const textureAlpha = this.layoutManager.getTextureTransparency(this) * componentAlpha;
+    const m = this.matrix();
+    context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
+    if (context.globalAlpha != textureAlpha) {
+      context.globalAlpha = textureAlpha;
+    }
+    this.render(context);
+    let child;
+    let next = this.first();
+    while (child = next) {
+      next = child.next();
+      if (context.globalAlpha != componentAlpha) {
+        context.globalAlpha = componentAlpha;
+      }
+      child.renderTree(context);
+    }
+    if (context.globalAlpha != globalAlpha) {
+      context.globalAlpha = globalAlpha;
+    }
+  }
+  render(context) {
+  }
+  visible(visible) {
+    if (typeof visible === "undefined") {
+      return this._visible;
+    }
+    this._visible = visible;
+    this.touch();
+    return this;
+  }
+  hide() {
+    this.visible(false);
+    return this;
+  }
+  show() {
+    this.visible(true);
+    return this;
+  }
+  parent() {
+    return this.layoutManager.getParent(this);
+  }
+  setParent(parent) {
+    this.layoutManager.setParent(this, parent);
+  }
+  first(visible) {
+    return this.layoutManager.getFirst(this, visible);
+  }
+  setFirst(first) {
+    this.layoutManager.setFirst(this, first);
+  }
+  last(visible) {
+    return this.layoutManager.getLast(this, visible);
+  }
+  setLast(last) {
+    this.layoutManager.setLast(this, last);
+  }
+  next(visible) {
+    return this.layoutManager.getNext(this, visible);
+  }
+  setNext(next) {
+    this.layoutManager.setNext(this, next);
+  }
+  prev(visible) {
+    return this.layoutManager.getPrev(this, visible);
+  }
+  setPrev(prev) {
+    this.layoutManager.setPrev(this, prev);
+  }
+  append(child, more) {
+    if (Array.isArray(child)) {
+      for (let i = 0; i < child.length; i++) {
+        this.layoutManager.append(this, child[i]);
+      }
+    } else if (typeof more !== "undefined") {
+      for (let i = 0; i < arguments.length; i++) {
+        this.layoutManager.append(this, arguments[i]);
+      }
+    } else if (typeof child !== "undefined") {
+      this.layoutManager.append(this, child);
+    }
+    return this;
+  }
+  prepend(child, more) {
+    if (Array.isArray(child)) {
+      for (let i = child.length - 1; i >= 0; i--) {
+        this.layoutManager.prepend(this, child[i]);
+      }
+    } else if (typeof more !== "undefined") {
+      for (let i = arguments.length - 1; i >= 0; i--) {
+        this.layoutManager.prepend(this, arguments[i]);
+      }
+    } else if (typeof child !== "undefined") {
+      this.layoutManager.prepend(this, child);
+    }
+    return this;
+  }
+  appendTo(parent) {
+    this.layoutManager.append(parent, this);
+    return this;
+  }
+  prependTo(parent) {
+    this.layoutManager.prepend(parent, this);
+    return this;
+  }
+  insertNext(sibling, more) {
+    if (Array.isArray(sibling)) {
+      for (let i = 0; i < sibling.length; i++) {
+        this.layoutManager.insertAfter(sibling[i], this);
+      }
+    } else if (typeof more !== "undefined") {
+      for (let i = 0; i < arguments.length; i++) {
+        this.layoutManager.insertAfter(arguments[i], this);
+      }
+    } else if (typeof sibling !== "undefined") {
+      this.layoutManager.insertAfter(sibling, this);
+    }
+    return this;
+  }
+  insertPrev(sibling, more) {
+    if (Array.isArray(sibling)) {
+      for (let i = sibling.length - 1; i >= 0; i--) {
+        this.layoutManager.insertBefore(sibling[i], this);
+      }
+    } else if (typeof more !== "undefined") {
+      for (let i = arguments.length - 1; i >= 0; i--) {
+        this.layoutManager.insertBefore(arguments[i], this);
+      }
+    } else if (typeof sibling !== "undefined") {
+      this.layoutManager.insertBefore(sibling, this);
+    }
+    return this;
+  }
+  insertAfter(prev) {
+    this.layoutManager.insertAfter(this, prev);
+    return this;
+  }
+  insertBefore(next) {
+    this.layoutManager.insertBefore(this, next);
+    return this;
+  }
+  remove(child, more) {
+    if (typeof child !== "undefined") {
+      if (Array.isArray(child)) {
+        for (let i = 0; i < child.length; i++) {
+          this.layoutManager.remove(child[i]);
+        }
+      } else if (typeof more !== "undefined") {
+        for (let i = 0; i < arguments.length; i++) {
+          this.layoutManager.remove(arguments[i]);
+        }
+      } else {
+        this.layoutManager.remove(child);
+      }
+      return this;
+    }
+    this.layoutManager.remove(this);
+    return this;
+  }
+  empty() {
+    this.layoutManager.empty(this);
+    return this;
+  }
+  onChildAdded(child) {
+    this.updateChildDeepFlags(child, true);
+  }
+  onChildRemoved(child) {
+    this.updateChildDeepFlags(child, false);
+  }
+  /** @hidden used by parent for row/column, and parent minimize */
+  getBoxWidth() {
+    return this.layoutManager.getBoxWidth(this);
+  }
+  /** @hidden used by parent for row/column, and parent minimize */
+  getBoxHeight() {
+    return this.layoutManager.getBoxHeight(this);
+  }
+  /** @hidden used by child for maximize, and pin align */
+  getWidth() {
+    return this.layoutManager.getWidth(this);
+  }
+  /** @hidden used by child for maximize, and pin align */
+  getHeight() {
+    return this.layoutManager.getHeight(this);
+  }
+  /** @hidden used by parent for layout alignment */
+  setOffsetX(value) {
+    this.layoutManager.setOffsetX(this, value);
+  }
+  /** @hidden used by parent for layout alignment */
+  setOffsetY(value) {
+    this.layoutManager.setOffsetY(this, value);
+  }
+  /** @hidden used by parent for layout alignment */
+  setAlignX(value) {
+    this.layoutManager.setAlignX(this, value);
+  }
+  /** @hidden used by parent for layout alignment */
+  setAlignY(value) {
+    this.layoutManager.setAlignY(this, value);
+  }
+  /** @internal */
+  hitTest(hit) {
+    const width = this.getWidth();
+    const height = this.getHeight();
+    return hit.x >= 0 && hit.x <= width && hit.y >= 0 && hit.y <= height;
+  }
+  matrix(relative = false) {
+    const relativeMatrix = this.layoutManager.getTransform(this);
+    if (relative === true) {
+      this.__rel_matrix.reset(relativeMatrix);
+      return this.__rel_matrix;
+    }
+    const parent = this.parent();
+    if (!parent) {
+      this.__abs_matrix.reset(relativeMatrix);
+      return this.__abs_matrix;
+    }
+    const parentMatrix = parent.matrix();
+    if (this.__memo_abs_matrix.recall(
+      relativeMatrix.a,
+      relativeMatrix.b,
+      relativeMatrix.c,
+      relativeMatrix.d,
+      relativeMatrix.e,
+      relativeMatrix.f,
+      parentMatrix.a,
+      parentMatrix.b,
+      parentMatrix.c,
+      parentMatrix.d,
+      parentMatrix.e,
+      parentMatrix.f
+    )) {
+      return this.__abs_matrix;
+    }
+    this.__abs_matrix.reset(relativeMatrix);
+    this.__abs_matrix.concat(parentMatrix);
+    return this.__abs_matrix;
+  }
+  getTransform(combined) {
+    return this.matrix(!combined);
+  }
+  pin(a, b) {
+    if (typeof a === "object") {
+      this.layoutManager.updatePin(this, a);
+      return this;
+    } else if (typeof a === "string") {
+      if (typeof b === "undefined") {
+        return this.layoutManager.getPinProp(this, a);
+      } else {
+        this.layoutManager.setPinProp(this, a, b);
+        return this;
+      }
+    } else if (typeof a === "undefined") {
+      return this.layoutManager.getPin(this);
+    }
+  }
+  fit(a, b, c) {
+    if (typeof a === "object") {
+      c = b;
+      b = a.height;
+      a = a.width;
+    }
+    this.layoutManager.fit(this, a, b, c);
+    return this;
+  }
+  /** @hidden @deprecated Use fit */
+  scaleTo(a, b, c) {
+    return this.fit(a, b, c);
   }
   size(w, h) {
     this.pin("width", w);
@@ -2203,8 +2500,9 @@ class Node {
     if (typeof a === "object") {
       b = a.y;
       a = a.x;
-    } else if (typeof b === "undefined")
+    } else if (typeof b === "undefined") {
       b = a;
+    }
     this.pin("skewX", a);
     this.pin("skewY", b);
     return this;
@@ -2213,10 +2511,25 @@ class Node {
     if (typeof a === "object") {
       b = a.y;
       a = a.x;
-    } else if (typeof b === "undefined")
+    } else if (typeof b === "undefined") {
       b = a;
+    }
     this.pin("scaleX", a);
     this.pin("scaleY", b);
+    return this;
+  }
+  padding(value) {
+    if (typeof value === "undefined") {
+      return this.pin("padding");
+    }
+    this.pin("padding", value);
+    return this;
+  }
+  spacing(value) {
+    if (typeof value === "undefined") {
+      return this.pin("spacing");
+    }
+    this.pin("spacing", value);
     return this;
   }
   alpha(a, ta) {
@@ -2246,69 +2559,24 @@ class Node {
         options.append = a;
       }
     }
-    if (!this._transitionTickInitied) {
-      this.tick(this._transitionTick, true);
-      this._transitionTickInitied = true;
+    if (!this.__transitionTickInitied) {
+      this.tick(this.__transitionTick, true);
+      this.__transitionTickInitied = true;
     }
     this.touch();
     if (!options.append) {
-      this._transitions.length = 0;
+      this.__transitions.length = 0;
     }
     const transition = new Transition(this, options);
-    this._transitions.push(transition);
+    this.__transitions.push(transition);
     return transition;
   }
   row(align) {
-    this.align("row", align);
+    this.layoutManager.align(this, "row", align);
     return this;
   }
   column(align) {
-    this.align("column", align);
-    return this;
-  }
-  align(type, align) {
-    this._padding = this._padding;
-    this._spacing = this._spacing;
-    this._layoutTicker && this.untick(this._layoutTicker);
-    this.tick(
-      this._layoutTicker = () => {
-        if (this._mo_seq == this._ts_touch) {
-          return;
-        }
-        this._mo_seq = this._ts_touch;
-        const alignChildren = this._mo_seqAlign != this._ts_children;
-        this._mo_seqAlign = this._ts_children;
-        let width = 0;
-        let height = 0;
-        let child;
-        let next = this.first(true);
-        let first = true;
-        while (child = next) {
-          next = child.next(true);
-          child.matrix(true);
-          const w = child.pin("boxWidth");
-          const h = child.pin("boxHeight");
-          if (type == "column") {
-            !first && (height += this._spacing);
-            child.pin("offsetY") != height && child.pin("offsetY", height);
-            width = Math.max(width, w);
-            height = height + h;
-            alignChildren && child.pin("alignX", align);
-          } else if (type == "row") {
-            !first && (width += this._spacing);
-            child.pin("offsetX") != width && child.pin("offsetX", width);
-            width = width + w;
-            height = Math.max(height, h);
-            alignChildren && child.pin("alignY", align);
-          }
-          first = false;
-        }
-        width += 2 * this._padding;
-        height += 2 * this._padding;
-        this.pin("width") != width && this.pin("width", width);
-        this.pin("height") != height && this.pin("height", height);
-      }
-    );
+    this.layoutManager.align(this, "column", align);
     return this;
   }
   /** @deprecated Use minimize() */
@@ -2319,89 +2587,55 @@ class Node {
   layer() {
     return this.maximize();
   }
-  /**
-   * Set size to match largest child size.
-   */
+  /** Set size to match largest child size. */
   minimize() {
-    this._padding = this._padding;
-    this._layoutTicker && this.untick(this._layoutTicker);
-    this.tick(
-      this._layoutTicker = () => {
-        if (this._mo_box == this._ts_touch) {
-          return;
-        }
-        this._mo_box = this._ts_touch;
-        let width = 0;
-        let height = 0;
-        let child;
-        let next = this.first(true);
-        while (child = next) {
-          next = child.next(true);
-          child.matrix(true);
-          const w = child.pin("boxWidth");
-          const h = child.pin("boxHeight");
-          width = Math.max(width, w);
-          height = Math.max(height, h);
-        }
-        width += 2 * this._padding;
-        height += 2 * this._padding;
-        this.pin("width") != width && this.pin("width", width);
-        this.pin("height") != height && this.pin("height", height);
-      }
-    );
+    this.layoutManager.minimize(this);
     return this;
   }
-  /**
-   * Set size to match parent size.
-   */
+  /** Set size to match parent size. */
   maximize() {
-    this._layoutTicker && this.untick(this._layoutTicker);
-    this.tick(
-      this._layoutTicker = () => {
-        const parent = this.parent();
-        if (parent) {
-          const width = parent.pin("width");
-          if (this.pin("width") != width) {
-            this.pin("width", width);
-          }
-          const height = parent.pin("height");
-          if (this.pin("height") != height) {
-            this.pin("height", height);
-          }
-        }
-      },
-      true
-    );
+    this.layoutManager.maximize(this);
     return this;
   }
-  // TODO: move padding to pin
-  /**
-   * Set cell spacing for layout.
-   */
-  padding(pad) {
-    this._padding = pad;
-    return this;
-  }
-  /**
-   * Set cell spacing for row and column layout.
-   */
-  spacing(space) {
-    this._spacing = space;
-    return this;
-  }
+}
+function create() {
+  return component();
+}
+function layout() {
+  return component();
+}
+function component() {
+  return new Component();
+}
+function layer() {
+  return maximize();
+}
+function box() {
+  return minimize();
+}
+function row(align) {
+  return component().row(align).label("Row");
+}
+function column(align) {
+  return component().column(align).label("Column");
+}
+function minimize() {
+  return component().minimize().label("Minimize");
+}
+function maximize() {
+  return component().maximize().label("Maximize");
 }
 function sprite(frame) {
-  const sprite2 = new Sprite();
-  frame && sprite2.texture(frame);
-  return sprite2;
+  return new Sprite(frame);
 }
-class Sprite extends Node {
-  constructor() {
+class Sprite extends Component {
+  constructor(frame) {
     super();
+    this._textures = [];
     this.prerenderContext = {};
     this.label("Sprite");
-    this._textures = [];
     this._image = null;
+    frame && this.texture(frame);
   }
   texture(frame) {
     this._image = texture(frame).one();
@@ -2432,9 +2666,6 @@ class Sprite extends Node {
     return this;
   }
   prerender() {
-    if (!this._visible) {
-      return;
-    }
     if (this._image) {
       const pixelRatio = this.getPixelRatio();
       this.prerenderContext.pixelRatio = pixelRatio;
@@ -2445,7 +2676,6 @@ class Sprite extends Node {
         this.size(w, h);
       }
     }
-    super.prerender();
   }
   render(context) {
     const texture2 = this._textures[0];
@@ -2453,7 +2683,11 @@ class Sprite extends Node {
       texture2.dw = this.pin("width");
       texture2.dh = this.pin("height");
     }
-    super.render(context);
+    if (this._textures && this._textures.length) {
+      for (let i = 0, n = this._textures.length; i < n; i++) {
+        this._textures[i].draw(context);
+      }
+    }
   }
 }
 const image = sprite;
@@ -2487,6 +2721,9 @@ class CanvasTexture extends ImageTexture {
   }
   setDrawer(drawer) {
     this._drawer = drawer;
+    this.prerender({
+      pixelRatio: 1
+    });
   }
   /** @internal */
   prerender(context) {
@@ -2654,31 +2891,36 @@ class Pointer {
       }
       this.clickList.length = 0;
     };
-    this.visitStart = (node, payload) => {
-      return !node._flag(payload.type);
+    this.visitStart = (component2, payload) => {
+      return !component2.evalDeepFlag(payload.type);
     };
-    this.visitEnd = (node, payload) => {
+    this.visitEnd = (component2, payload) => {
       syntheticEvent.raw = payload.event;
       syntheticEvent.type = payload.type;
       syntheticEvent.timeStamp = payload.timeStamp;
       syntheticEvent.abs.x = payload.x;
       syntheticEvent.abs.y = payload.y;
-      const listeners = node.listeners(payload.type);
+      const listeners = component2.listeners(payload.type);
       if (!listeners) {
         return;
       }
-      node.matrix().inverse().map(payload, syntheticEvent);
-      const isEventTarget = node === payload.root || node.attr("spy") || node.hitTest(syntheticEvent);
-      if (!isEventTarget) {
+      component2.matrix().inverse().map(payload, syntheticEvent);
+      if (component2 === payload.root)
+        ;
+      else if (component2.hitTest(syntheticEvent))
+        ;
+      else if (component2.attr("spy"))
+        ;
+      else {
         return;
       }
       if (payload.collected) {
-        payload.collected.push(node);
+        payload.collected.push(component2);
       }
       if (payload.event) {
         let cancel = false;
         for (let l = 0; l < listeners.length; l++) {
-          cancel = listeners[l].call(node, syntheticEvent) ? true : cancel;
+          cancel = listeners[l].call(component2, syntheticEvent) ? true : cancel;
         }
         return cancel;
       }
@@ -2739,7 +2981,7 @@ class Pointer {
     PAYLOAD.y = y * this.ratio;
   }
   /**
-   * Find eligible target for and event type, used to keep trace nodes to dispatch click event
+   * Find eligible targets for an event type, used to keep track of components to dispatch click and cancel events.
    */
   findTargets(type, result) {
     const payload = PAYLOAD;
@@ -2767,8 +3009,8 @@ class Pointer {
     payload.collected = null;
     if (targets) {
       while (targets.length) {
-        const node = targets.shift();
-        if (this.visitEnd(node, payload)) {
+        const component2 = targets.shift();
+        if (this.visitEnd(component2, payload)) {
           break;
         }
       }
@@ -2810,7 +3052,7 @@ function mount(configs = {}) {
   root.pointer = new Pointer().mount(root, root.dom);
   return root;
 }
-class Root extends Node {
+class Root extends Component {
   constructor() {
     super();
     this.canvas = null;
@@ -2879,7 +3121,7 @@ class Root extends Node {
       }
     };
     this._lastFrameTime = 0;
-    this._mo_touch = null;
+    this._memo_touch = Memo.init();
     this.onFrame = (now) => {
       this.frameRequested = false;
       if (!this.mounted || !this.canvas || !this.context) {
@@ -2909,15 +3151,14 @@ class Root extends Node {
         return;
       }
       this._lastFrameTime = now;
-      this.prerender();
-      const tickRequest = this._tick(elapsed, now, last);
-      if (this._mo_touch != this._ts_touch) {
-        this._mo_touch = this._ts_touch;
+      this.prerenderTree();
+      const tickRequest = this.tickTree(elapsed, now, last);
+      if (!this._memo_touch.recall(this._revision)) {
         this.sleep = false;
         if (this.drawingWidth > 0 && this.drawingHeight > 0) {
           this.context.setTransform(1, 0, 0, 1, 0, 0);
           this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);
-          this.render(this.context);
+          this.renderTree(this.context);
         }
       } else if (tickRequest) {
         this.sleep = false;
@@ -2987,11 +3228,11 @@ class Root extends Node {
       this.viewbox();
       const data = Object.assign({}, this._viewport);
       this.visit({
-        start: function(node) {
-          if (!node._flag("viewport")) {
+        start: function(component2) {
+          if (!component2.evalDeepFlag("viewport")) {
             return true;
           }
-          node.publish("viewport", [data]);
+          component2.publish("viewport", [data]);
         }
       });
     }
@@ -3028,80 +3269,79 @@ class Root extends Node {
       const viewboxMode = isValidFitMode(viewbox.mode) ? viewbox.mode : "in-pad";
       const viewboxWidth = viewbox.width;
       const viewboxHeight = viewbox.height;
-      this.pin({
-        width: viewboxWidth,
-        height: viewboxHeight
-      });
-      this.scaleTo(viewportWidth, viewportHeight, viewboxMode);
-      const viewboxX = viewbox.x || 0;
-      const viewboxY = viewbox.y || 0;
-      const cameraZoom = (camera == null ? void 0 : camera.a) || 1;
-      const cameraX = (camera == null ? void 0 : camera.e) || 0;
-      const cameraY = (camera == null ? void 0 : camera.f) || 0;
+      this.width(viewboxWidth);
+      this.height(viewboxHeight);
+      this.fit(viewportWidth, viewportHeight, viewboxMode);
+      const viewboxX = viewbox.x ?? 0;
+      const viewboxY = viewbox.y ?? 0;
+      const cameraZoom = (camera == null ? void 0 : camera.a) ?? 1;
+      const cameraX = (camera == null ? void 0 : camera.e) ?? 0;
+      const cameraY = (camera == null ? void 0 : camera.f) ?? 0;
       const scaleX = this.pin("scaleX");
       const scaleY = this.pin("scaleY");
-      this.pin("scaleX", scaleX * cameraZoom);
-      this.pin("scaleY", scaleY * cameraZoom);
-      this.pin("offsetX", cameraX - viewboxX * scaleX * cameraZoom);
-      this.pin("offsetY", cameraY - viewboxY * scaleY * cameraZoom);
+      const withCameraScaleX = scaleX * cameraZoom;
+      const withCameraScaleY = scaleY * cameraZoom;
+      const withCameraOffsetX = cameraX - viewboxX * withCameraScaleX;
+      const withCameraOffsetY = cameraY - viewboxY * withCameraScaleY;
+      this.pin("scaleX", withCameraScaleX);
+      this.pin("scaleY", withCameraScaleY);
+      this.pin("offsetX", withCameraOffsetX);
+      this.pin("offsetY", withCameraOffsetY);
     } else if (viewport) {
-      this.pin({
-        width: viewport.width,
-        height: viewport.height
-      });
+      this.width(viewport.width);
+      this.height(viewport.height);
     }
     return this;
   }
 }
 function anim(frames, fps) {
-  const anim2 = new Anim();
-  anim2.frames(frames).gotoFrame(0);
-  fps && anim2.fps(fps);
-  return anim2;
+  return new Anim(frames, fps);
 }
 const FPS = 15;
-class Anim extends Node {
-  constructor() {
+class Anim extends Component {
+  constructor(frames, fps) {
     super();
-    this.label("Anim");
     this._textures = [];
     this._fps = FPS;
-    this._ft = 1e3 / this._fps;
     this._time = -1;
     this._repeat = 0;
     this._index = 0;
     this._frames = [];
-    let lastTime = 0;
-    this.tick(function(t, now, last) {
-      if (this._time < 0 || this._frames.length <= 1) {
-        return;
-      }
-      const ignore = lastTime != last;
-      lastTime = now;
-      if (ignore) {
-        return true;
-      }
-      this._time += t;
-      if (this._time < this._ft) {
-        return true;
-      }
-      const n = this._time / this._ft | 0;
-      this._time -= n * this._ft;
-      this.moveFrame(n);
-      if (this._repeat > 0 && (this._repeat -= n) <= 0) {
-        this.stop();
-        this._callback && this._callback();
-        return false;
-      }
+    this._lastFrameTime = 0;
+    this.label("Anim");
+    this.tick(this._animLoop, false);
+    frames && this.frames(frames).gotoFrame(0);
+    fps && this.fps(fps);
+  }
+  _animLoop(t, now, last) {
+    if (this._time < 0 || this._frames.length <= 1) {
+      return;
+    }
+    const ignore = this._lastFrameTime != last;
+    this._lastFrameTime = now;
+    if (ignore) {
       return true;
-    }, false);
+    }
+    this._time += t;
+    const ft = 1 / this._fps * 1e3;
+    if (this._time < ft) {
+      return true;
+    }
+    const n = this._time / ft | 0;
+    this._time -= n * ft;
+    this.moveFrame(n);
+    if (this._repeat > 0 && (this._repeat -= n) <= 0) {
+      this.stop();
+      this._callback && this._callback();
+      return false;
+    }
+    return true;
   }
   fps(fps) {
     if (typeof fps === "undefined") {
       return this._fps;
     }
     this._fps = fps > 0 ? fps : FPS;
-    this._ft = 1e3 / this._fps;
     return this;
   }
   /** @deprecated Use frames */
@@ -3137,9 +3377,9 @@ class Anim extends Node {
     this.play();
     return this;
   }
-  play(frame) {
-    if (typeof frame !== "undefined") {
-      this.gotoFrame(frame);
+  play(startFromFrame) {
+    if (typeof startFromFrame !== "undefined") {
+      this.gotoFrame(startFromFrame);
       this._time = 0;
     } else if (this._time < 0) {
       this._time = 0;
@@ -3147,29 +3387,37 @@ class Anim extends Node {
     this.touch();
     return this;
   }
-  stop(frame) {
+  stop(stopAtFrame) {
     this._time = -1;
-    if (typeof frame !== "undefined") {
-      this.gotoFrame(frame);
+    if (typeof stopAtFrame !== "undefined") {
+      this.gotoFrame(stopAtFrame);
     }
     return this;
   }
+  render(context) {
+    if (this._textures && this._textures.length) {
+      for (let i = 0, n = this._textures.length; i < n; i++) {
+        this._textures[i].draw(context);
+      }
+    }
+  }
 }
-function monotype(chars) {
-  return new Monotype().frames(chars);
+function monotype(font) {
+  return new Monotype(font);
 }
-class Monotype extends Node {
-  constructor() {
+class Monotype extends Component {
+  constructor(font) {
     super();
-    this.label("String");
     this._textures = [];
+    this.label("String");
+    font && this.frames(font);
   }
   /** @deprecated Use frames */
   setFont(frames) {
     return this.frames(frames);
   }
   frames(frames) {
-    this._textures = [];
+    this._textures.length = 0;
     if (typeof frames == "string") {
       const selection = texture(frames);
       this._font = function(value) {
@@ -3201,13 +3449,12 @@ class Monotype extends Node {
     } else if (typeof value !== "string" && !Array.isArray(value)) {
       value = value.toString();
     }
-    this._spacing = this._spacing || 0;
     let width = 0;
     let height = 0;
     for (let i = 0; i < value.length; i++) {
       const v = value[i];
       const texture2 = this._textures[i] = this._font(typeof v === "string" ? v : v + "");
-      width += i > 0 ? this._spacing : 0;
+      width += i > 0 ? this.spacing() : 0;
       texture2.setDestinationCoordinate(width, 0);
       width = width + texture2.getWidth();
       height = Math.max(height, texture2.getHeight());
@@ -3217,6 +3464,13 @@ class Monotype extends Node {
     this._textures.length = value.length;
     return this;
   }
+  render(context) {
+    if (this._textures && this._textures.length) {
+      for (let i = 0, n = this._textures.length; i < n; i++) {
+        this._textures[i].draw(context);
+      }
+    }
+  }
 }
 const str = monotype;
 const Str = Monotype;
@@ -3225,13 +3479,13 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   Anim,
   Atlas,
   CanvasTexture,
+  Component,
   Image: Image$1,
   ImageTexture,
   Math: math,
   Matrix,
   Monotype,
   Mouse,
-  Node,
   POINTER_CANCEL,
   POINTER_CLICK,
   POINTER_END,
@@ -3253,6 +3507,7 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   canvas,
   clamp,
   column,
+  component,
   create,
   image,
   isValidFitMode,
@@ -3277,13 +3532,13 @@ const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
 exports.Anim = Anim;
 exports.Atlas = Atlas;
 exports.CanvasTexture = CanvasTexture;
+exports.Component = Component;
 exports.Image = Image$1;
 exports.ImageTexture = ImageTexture;
 exports.Math = math;
 exports.Matrix = Matrix;
 exports.Monotype = Monotype;
 exports.Mouse = Mouse;
-exports.Node = Node;
 exports.POINTER_CANCEL = POINTER_CANCEL;
 exports.POINTER_CLICK = POINTER_CLICK;
 exports.POINTER_END = POINTER_END;
@@ -3305,6 +3560,7 @@ exports.box = box;
 exports.canvas = canvas;
 exports.clamp = clamp;
 exports.column = column;
+exports.component = component;
 exports.create = create;
 exports.default = Stage;
 exports.image = image;

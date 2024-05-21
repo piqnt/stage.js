@@ -1,39 +1,38 @@
-### Setup
+## Setup
 
 An application is created by calling `Stage.mount()`.
-This will set up the root node with a canvas element, start the application, and return the root node.
+It creates and sets up the root component with a canvas element, starts rendering, and returns the root component.
 
 ```javascript
 // Create and start an application (with a default full page canvas)
-const app = Stage.mount();
+const stage = Stage.mount();
 
 // Create and start an application with a custom canvas element
-const app = Stage.mount({
+const stage = Stage.mount({
   canvas: document.getElementById("game-canvas"),
 });
 
 // Set viewbox for stage, see pinning for valid modes
-app.viewbox(width, height, (mode = "in-pad"));
+stage.viewbox(width, height, (mode = "in-pad"));
 
 // Listen to view port resize events
-app.on("viewport", function (viewport) {
-  // `viewport` attributes are `width`, `height` and `ratio`
+stage.on("viewport", function (viewport) {
+  // `viewport` properties are `width`, `height` and `ratio`
 });
 
 // Pause playing
-app.pause();
+stage.pause();
 
 // Resume playing
-app.resume();
+stage.resume();
 ```
 
-
-### Global Methods
+## Global Methods
 
 ```javascript
 
 // Mount and start a new app
-let app = Stage.mount();
+let stage = Stage.mount();
 
 // Create and preload a texture atlas
 Stage.atlas({ ... });

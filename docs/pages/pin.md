@@ -1,4 +1,4 @@
-### Pinning
+## Pin
 
 Pinning specifies how an component is attached to its parent.
 Pinning consists of size, transformation, positioning and transparency.
@@ -19,7 +19,7 @@ component.pin({
 
 When `nameX` equals `nameY`, `name` shorthand can be used instead.
 
-#### Size
+### Size
 
 For some components, such as images, strings, rows and columns, size is set automatically.
 
@@ -39,7 +39,7 @@ component.width();
 component.height();
 ```
 
-#### Transformation
+### Transform
 
 The transformation consists of scaling, skewing and rotating. Rotation is applied after scaling and skewing.
 
@@ -60,7 +60,7 @@ component.skew({ x: x, y: y });
 component.rotate(angle);
 ```
 
-#### Positioning
+### Position
 
 When positioning, _handle_ point on self is positioned at _offset_ distance from _align_ point on the parent.
 Handle and align are defined as a ratio of width/height, 0 is top/left and 1 is bottom/right.
@@ -92,7 +92,7 @@ component.pin({
 });
 ```
 
-#### Transparency
+### Transparency
 
 Transparency can be applied to both component textures and subtree components or only component textures.
 
@@ -107,7 +107,7 @@ component.alpha(alpha);
 component.alpha(alpha, textureAlpha);
 ```
 
-#### Fit
+### Fit
 
 Fit to given size. Valid modes are:
 

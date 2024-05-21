@@ -24,33 +24,15 @@
 
 ### `Optional` filter
 
-• **filter**? : *function*
+• **filter**? : *[AtlasTexturesFilterFunction](/api/globals#atlastexturesfilterfunction)*
 
 **`deprecated`** Use map
-
-#### Type declaration:
-
-▸ (`texture`: [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)): *[AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`texture` | [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition) |
 
 ___
 
 ### `Optional` image
 
-• **image**? : *object*
-
-#### Type declaration:
-
-* **ratio**? : *number*
-
-* **src**: *string*
-
-* **url**: *string*
+• **image**? : *[AtlasImageDefinition](/api/globals#atlasimagedefinition)*
 
 ___
 
@@ -72,17 +54,7 @@ ___
 
 ### `Optional` map
 
-• **map**? : *function*
-
-#### Type declaration:
-
-▸ (`texture`: [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)): *[AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`texture` | [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition) |
+• **map**? : *[AtlasTexturesMapFunction](/api/globals#atlastexturesmapfunction)*
 
 ___
 
@@ -108,7 +80,7 @@ ___
 
 ### `Optional` textures
 
-• **textures**? : *Record‹string, [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition) | [AtlasTextureReferenceMap](/api/globals#atlastexturereferencemap) | [AtlasTextureReferenceArray](/api/globals#atlastexturereferencearray)›*
+• **textures**? : *[AtlasTexturesDefinitionRecords](/api/globals#atlastexturesdefinitionrecords) | [AtlasTexturesDefinitionFunction](/api/globals#atlastexturesdefinitionfunction)*
 
 ___
 

@@ -1,5 +1,4 @@
-
-### Game Loop
+## Game Loop
 
 Each rendering cycle consists of ticking and redrawing the application tree.
 An application and its components can be updated during ticking.

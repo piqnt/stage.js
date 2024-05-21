@@ -1,5 +1,4 @@
-
-### Monotype
+## Monotype Component
 
 Monotype is a row of textures that are dynamically selected from `frames` using characters of a string, or items of an array.
 

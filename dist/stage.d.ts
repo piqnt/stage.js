@@ -1,10 +1,14 @@
 export declare const math: any;
 export interface MatrixValue {
+	/** x-scale */
 	a: number;
 	b: number;
 	c: number;
+	/** y-scale */
 	d: number;
+	/** x-translate */
 	e: number;
+	/** y-translate */
 	f: number;
 }
 export interface Vec2Value {
@@ -25,6 +29,7 @@ export declare class Matrix {
 	clone(): Matrix;
 	reset(a: number, b: number, c: number, d: number, e: number, f: number): this;
 	reset(m: MatrixValue): this;
+	reset(): this;
 	identity(): this;
 	rotate(angle: number): this;
 	translate(x: number, y: number): this;
@@ -78,19 +83,26 @@ export interface AtlasTextureDefinition {
 export type AtlasTextureReferenceOne = AtlasTextureDefinition | string;
 export type AtlasTextureReferenceMap = Record<string, AtlasTextureReferenceOne>;
 export type AtlasTextureReferenceArray = AtlasTextureReferenceOne[];
+export type AtlasImageDefinition = string | {
+	src: string;
+	ratio?: number;
+} | {
+	url: string;
+	ratio?: number;
+};
+export type AtlasTexturesDefinitionRecords = Record<string, AtlasTextureDefinition | AtlasTextureReferenceMap | AtlasTextureReferenceArray>;
+export type AtlasTexturesDefinitionFunction = (key: string) => AtlasTextureDefinition | AtlasTextureReferenceMap | AtlasTextureReferenceArray;
+export type AtlasTexturesDefinition = AtlasTexturesDefinitionRecords | AtlasTexturesDefinitionFunction;
+export type AtlasTexturesMapFunction = (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
+export type AtlasTexturesFilterFunction = (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
 export interface AtlasDefinition {
 	name?: string;
-	image?: {
-		/** @deprecated */
-		url: string;
-		src: string;
-		ratio?: number;
-	};
+	image?: AtlasImageDefinition;
 	ppu?: number;
-	textures?: Record<string, AtlasTextureDefinition | AtlasTextureReferenceMap | AtlasTextureReferenceArray>;
-	map?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
+	textures?: AtlasTexturesDefinitionRecords | AtlasTexturesDefinitionFunction;
+	map?: AtlasTexturesMapFunction;
 	/** @deprecated Use map */
-	filter?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
+	filter?: AtlasTexturesFilterFunction;
 	/** @deprecated */
 	trim?: number;
 	/** @deprecated Use ppu */
@@ -172,10 +184,8 @@ export interface Pinned {
 	alpha(a: number, ta?: number): this;
 }
 export declare class Pin {
-	reset(): void;
 	toString(): string;
-	absoluteMatrix(): Matrix;
-	relativeMatrix(): Matrix;
+	toMatrix(): Matrix;
 }
 /**
  * Easing function formats are:
@@ -197,9 +207,9 @@ export type TransitionOptions = {
 	delay?: number;
 	append?: boolean;
 };
-export type TransitionEndListener = (this: Node$1) => void;
+export type TransitionEndListener = (this: Component) => void;
 export declare class Transition implements Pinned {
-	constructor(owner: Node$1, options?: TransitionOptions);
+	constructor(owner: Component, options?: TransitionOptions);
 	tween(opts?: TransitionOptions): Transition;
 	tween(duration?: number, delay?: number): Transition;
 	duration(duration: number): this;
@@ -216,7 +226,7 @@ export declare class Transition implements Pinned {
 	 */
 	then(fn: TransitionEndListener): this;
 	/**
-	 * @deprecated this doesn't do anything anymore, call transition on the node instead.
+	 * @deprecated this doesn't do anything anymore, call transition on the component instead.
 	 */
 	clear(forward: boolean): this;
 	size(w: number, h: number): this;
@@ -230,80 +240,108 @@ export declare class Transition implements Pinned {
 	skew(value: Vec2Value): this;
 	skew(x: number, y: number): this;
 	scale(value: Vec2Value): this;
-	scale(x: number, y: number): this;
+	scale(x: number, y?: number): this;
 	alpha(a: number, ta?: number): this;
 }
-export interface NodeVisitor<D> {
+export interface LayoutObject {
+}
+export interface ComponentVisitor {
 	reverse?: boolean;
 	visible?: boolean;
-	start?: (node: Node$1, data?: D) => boolean | void;
-	end?: (node: Node$1, data?: D) => boolean | void;
+	start?: (component: Component, data?: any) => boolean | void;
+	end?: (component: Component, data?: any) => boolean | void;
 }
-export type NodeTickListener<T> = (this: T, elapsed: number, now: number, last: number) => boolean | void;
-export type NodeEventListener<T> = (this: T, ...args: any[]) => void;
-/** @deprecated Use layout() */
-export declare function create(): Node$1;
-/** @deprecated Use maximize() */
-export declare function layer(): string | Node$1;
-/** @deprecated Use minimize() */
-export declare function box(): string | Node$1;
-export declare function layout(): Node$1;
-export declare function row(align: number): string | Node$1;
-export declare function column(align: number): string | Node$1;
-export declare function minimize(): string | Node$1;
-export declare function maximize(): string | Node$1;
-declare class Node$1 implements Pinned {
+export type ComponentTickListener = (this: Component, elapsed: number, now: number, last: number) => boolean | void;
+export type ComponentEventListener<T> = (this: T, ...args: any[]) => void;
+export declare class Component implements LayoutObject {
+	private _visible;
+	private _label;
+	private _attrs;
+	/** @hidden @deprecated */
 	MAX_ELAPSE: number;
-	constructor();
+	toString(): string;
+	/** @deprecated Use label() */
+	id(id: string): this;
+	label(label: string): this;
+	label(): string;
+	attr(key: string, value: any): this;
+	attr(key: string): any;
+	/**
+	 * Updates the revision/timestamp of this component and its parents.
+	 * This is used internally for component tree lifecycle management, such as updating the rendering.
+	 */
+	touch(): this;
+	tick(callback: ComponentTickListener, before?: boolean): void;
+	untick(callback: ComponentTickListener): void;
+	timeout(callback: () => any, time: number): void;
+	setTimeout(callback: () => any, time: number): (t: number) => boolean;
+	clearTimeout(timer: ComponentTickListener): void;
+	on(types: string, listener: ComponentEventListener<this>): this;
+	off(types: string, listener: ComponentEventListener<this>): this;
+	listeners(type: string): ComponentEventListener<Component>[];
+	publish(name: string, args?: any): number;
+	visit(visitor: ComponentVisitor, payload?: any): boolean | void;
+	prerenderTree(): void;
+	prerender(): void;
+	renderTree(context: CanvasRenderingContext2D): void;
+	render(context: CanvasRenderingContext2D): void;
+	visible(visible: boolean): this;
+	visible(): boolean;
+	hide(): this;
+	show(): this;
+	parent(): Component;
+	setParent(parent: Component): void;
+	first(visible?: boolean): Component;
+	setFirst(first: Component): void;
+	last(visible?: boolean): Component;
+	setLast(last: Component): void;
+	next(visible?: boolean): Component;
+	setNext(next: Component): void;
+	prev(visible?: boolean): Component;
+	setPrev(prev: Component): void;
+	append(...child: Component[]): this;
+	append(child: Component[]): this;
+	prepend(...child: Component[]): this;
+	prepend(child: Component[]): this;
+	appendTo(parent: Component): this;
+	prependTo(parent: Component): this;
+	insertNext(sibling: Component, more?: Component): this;
+	insertPrev(sibling: Component, more?: Component): this;
+	insertAfter(prev: Component): this;
+	insertBefore(next: Component): this;
+	remove(child?: Component, more?: any): this;
+	empty(): this;
+	onChildAdded(child: Component): void;
+	onChildRemoved(child: Component): void;
+	/** @hidden used by parent for row/column, and parent minimize */
+	getBoxWidth(): number;
+	/** @hidden used by parent for row/column, and parent minimize */
+	getBoxHeight(): number;
+	/** @hidden used by child for maximize, and pin align */
+	getWidth(): number;
+	/** @hidden used by child for maximize, and pin align */
+	getHeight(): number;
+	/** @hidden used by parent for layout alignment */
+	setOffsetX(value: number): void;
+	/** @hidden used by parent for layout alignment */
+	setOffsetY(value: number): void;
+	/** @hidden used by parent for layout alignment */
+	setAlignX(value: number): void;
+	/** @hidden used by parent for layout alignment */
+	setAlignY(value: number): void;
 	matrix(relative?: boolean): Matrix;
+	getTransform(combined?: boolean): Matrix;
 	pin(key: string): any;
 	pin(key: string, value: any): this;
 	pin(obj: object): this;
 	pin(): Pin;
 	fit(width: number, height: number, mode?: FitMode): this;
-	fit(fit: object): this;
+	fit(fit: {
+		width: number;
+		height: number;
+	}): this;
 	/** @hidden @deprecated Use fit */
 	scaleTo(a: any, b?: any, c?: any): this;
-	toString(): string;
-	/** @deprecated Use label() */
-	id(id: string): string | this;
-	label(label: string): string | this;
-	attr(name: string, value: any): this;
-	attr(name: string): any;
-	visible(visible: boolean): this;
-	visible(): boolean;
-	hide(): this;
-	show(): this;
-	parent(): Node$1;
-	next(visible?: boolean): Node$1;
-	prev(visible?: boolean): Node$1;
-	first(visible?: boolean): Node$1;
-	last(visible?: boolean): Node$1;
-	visit<P>(visitor: NodeVisitor<P>, payload?: P): boolean | void;
-	append(...child: Node$1[]): this;
-	append(child: Node$1[]): this;
-	prepend(...child: Node$1[]): this;
-	prepend(child: Node$1[]): this;
-	appendTo(parent: Node$1): this;
-	prependTo(parent: Node$1): this;
-	insertNext(sibling: Node$1, more?: Node$1): this;
-	insertPrev(sibling: Node$1, more?: Node$1): this;
-	insertAfter(prev: Node$1): this;
-	insertBefore(next: Node$1): this;
-	remove(child?: Node$1, more?: any): this;
-	empty(): this;
-	touch(): this;
-	prerender(): void;
-	render(context: CanvasRenderingContext2D): void;
-	tick(callback: NodeTickListener<this>, before?: boolean): void;
-	untick(callback: NodeTickListener<this>): void;
-	timeout(callback: () => any, time: number): void;
-	setTimeout(callback: () => any, time: number): (t: number) => boolean;
-	clearTimeout(timer: NodeTickListener<this>): void;
-	on(types: string, listener: NodeEventListener<this>): this;
-	off(types: string, listener: NodeEventListener<this>): this;
-	listeners(type: string): NodeEventListener<this>[];
-	publish(name: string, args?: any): number;
 	size(w: number, h: number): this;
 	width(w: number): this;
 	width(): number;
@@ -313,42 +351,51 @@ declare class Node$1 implements Pinned {
 	offset(x: number, y: number): this;
 	rotate(a: number): this;
 	skew(value: Vec2Value): this;
-	skew(x: number, y: number): this;
+	skew(x: number, y?: number): this;
 	scale(value: Vec2Value): this;
-	scale(x: number, y: number): this;
+	scale(x: number, y?: number): this;
+	/** Set padding layout */
+	padding(value: number): this;
+	/** Get padding. */
+	padding(): number;
+	/** Set spacing for row, column, monotype */
+	spacing(value: number): this;
+	/** Get spacing */
+	spacing(): number;
 	alpha(a: number, ta?: number): this;
-	tween(opts?: TransitionOptions): Transition;
-	tween(duration?: number, delay?: number, append?: boolean): Transition;
+	tween(): Transition;
+	tween(opts: TransitionOptions): Transition;
+	tween(duration: number, delay?: number, append?: boolean): Transition;
+	tween(duration: number): Transition;
 	row(align: number): this;
 	column(align: number): this;
-	align(type: "row" | "column", align: number): this;
 	/** @deprecated Use minimize() */
 	box(): this;
 	/** @deprecated Use minimize() */
 	layer(): this;
-	/**
-	 * Set size to match largest child size.
-	 */
+	/** Set size to match largest child size. */
 	minimize(): this;
-	/**
-	 * Set size to match parent size.
-	 */
+	/** Set size to match parent size. */
 	maximize(): this;
-	/**
-	 * Set cell spacing for layout.
-	 */
-	padding(pad: number): this;
-	/**
-	 * Set cell spacing for row and column layout.
-	 */
-	spacing(space: number): this;
 }
+/** @deprecated Use component() */
+export declare function create(): Component;
+export declare function component(): Component;
+/** @deprecated Use maximize() */
+export declare function layer(): Component;
+/** @deprecated Use minimize() */
+export declare function box(): Component;
+export declare function row(align?: number): Component;
+export declare function column(align?: number): Component;
+export declare function minimize(): Component;
+export declare function maximize(): Component;
+export type SpriteTextureInput = TextureSelectionInput;
 export declare function sprite(frame?: TextureSelectionInput): Sprite;
-export declare class Sprite extends Node$1 {
-	constructor();
-	texture(frame: TextureSelectionInput): this;
+export declare class Sprite extends Component {
+	constructor(frame?: SpriteTextureInput);
+	texture(frame: SpriteTextureInput): this;
 	/** @deprecated */
-	image(frame: TextureSelectionInput): this;
+	image(frame: SpriteTextureInput): this;
 	tile(inner?: boolean): this;
 	stretch(inner?: boolean): this;
 	prerender(): void;
@@ -435,7 +482,7 @@ export type Viewbox = {
 	height: number;
 	mode?: FitMode;
 };
-export declare class Root extends Node$1 {
+export declare class Root extends Component {
 	canvas: HTMLCanvasElement | null;
 	dom: HTMLCanvasElement | null;
 	context: CanvasRenderingContext2D | null;
@@ -450,51 +497,62 @@ export declare class Root extends Node$1 {
 	background(color: string): this;
 	/**
 	 * Set/Get viewport.
-	 * This is used along with viewbox to determine the scale and position of the viewbox within the viewport.
+	 *
 	 * Viewport is the size of the container, for example size of the canvas element.
-	 * Viewbox is provided by the user, and is the ideal size of the content.
+	 *
+	 * Viewbox is provided by the user, and defines a rectangle that is projected (scaled and positioned) into the viewport.
 	 */
 	viewport(): Viewport;
 	viewport(width: number, height: number, ratio?: number): this;
 	viewport(viewbox: Viewport): this;
 	/**
 	 * Set viewbox.
+	 *
+	 * The provided dimension is automatically scaled to fit in the available container viewport.
 	 */
 	viewbox(viewbox: Viewbox): this;
 	viewbox(width?: number, height?: number, mode?: FitMode): this;
 	camera(matrix: Matrix): this;
 }
-export declare function anim(frames: string | TextureSelectionInputArray, fps?: number): Anim;
-export declare class Anim extends Node$1 {
-	constructor();
-	fps(fps?: number): number | this;
+export type AnimTextureInput = string | TextureSelectionInputArray;
+export declare function anim(frames?: AnimTextureInput, fps?: number): Anim;
+export declare class Anim extends Component {
+	constructor(frames?: AnimTextureInput, fps?: number);
+	private _lastFrameTime;
+	private _animLoop;
+	fps(fps: number): this;
+	fps(): number;
 	/** @deprecated Use frames */
 	setFrames(frames: string | TextureSelectionInputArray): this;
 	frames(frames: string | TextureSelectionInputArray): this;
 	length(): number;
 	gotoFrame(frame: number, resize?: boolean): this;
-	moveFrame(move: any): this;
-	repeat(repeat: any, callback: any): this;
-	play(frame?: number): this;
-	stop(frame?: number): this;
+	moveFrame(move: number): this;
+	repeat(repeat: number, callback: () => any): this;
+	play(startFromFrame?: number): this;
+	stop(stopAtFrame?: number): this;
+	render(context: CanvasRenderingContext2D): void;
 }
-export declare function monotype(chars: string | Record<string, Texture> | ((char: string) => Texture)): Monotype;
-export declare class Monotype extends Node$1 {
-	constructor();
+export declare function monotype(font: MonotypeTextureInput): Monotype;
+export type MonotypeTextureInput = string | Record<string, Texture> | ((char: string) => Texture);
+export type MonotypeValue = string | number | string[] | number[];
+export declare class Monotype extends Component {
+	constructor(font?: MonotypeTextureInput);
 	/** @deprecated Use frames */
-	setFont(frames: string | Record<string, Texture> | ((char: string) => Texture)): this;
-	frames(frames: string | Record<string, Texture> | ((char: string) => Texture)): this;
+	setFont(frames: MonotypeTextureInput): this;
+	frames(frames: MonotypeTextureInput): this;
 	/** @deprecated Use value */
-	setValue(value: string | number | string[] | number[]): this;
-	value(value: string | number | string[] | number[]): this;
+	setValue(value: MonotypeValue): this;
+	value(): MonotypeValue;
+	value(value: MonotypeValue): this;
+	render(context: CanvasRenderingContext2D): void;
 }
 
 declare namespace Stage {
-	export { Anim, Atlas, AtlasDefinition, AtlasTextureDefinition, CanvasTexture, FitMode, ImageTexture, LegacyFitMode, Matrix, MatrixValue, Monotype, Node$1 as Node, NodeEventListener, NodeTickListener, POINTER_CANCEL, POINTER_CLICK, POINTER_END, POINTER_MOVE, POINTER_START, Pin, Pinned, PipeTexture, ResizableTexture, ResizableTextureMode, Root, Sprite, Texture, TextureSelection, TextureSelectionInput, TextureSelectionInputArray, TextureSelectionInputFactory, TextureSelectionInputMap, TextureSelectionInputOne, Transition, TransitionEndListener, TransitionOptions, Vec2Value, Viewbox, Viewport, anim, atlas, box, canvas, column, create, layer, layout, math, maximize, memoizeDraw, minimize, monotype, mount, pause, resume, row, sprite, texture };
+	export { Anim, Atlas, AtlasDefinition, AtlasImageDefinition, AtlasTextureDefinition, AtlasTexturesDefinition, AtlasTexturesDefinitionFunction, AtlasTexturesDefinitionRecords, AtlasTexturesFilterFunction, AtlasTexturesMapFunction, CanvasTexture, Component, ComponentEventListener, ComponentTickListener, ComponentVisitor, FitMode, ImageTexture, LegacyFitMode, Matrix, MatrixValue, Monotype, POINTER_CANCEL, POINTER_CLICK, POINTER_END, POINTER_MOVE, POINTER_START, Pin, Pinned, PipeTexture, ResizableTexture, ResizableTextureMode, Root, Sprite, Texture, TextureSelection, TextureSelectionInput, TextureSelectionInputArray, TextureSelectionInputFactory, TextureSelectionInputMap, TextureSelectionInputOne, Transition, TransitionEndListener, TransitionOptions, Vec2Value, Viewbox, Viewport, anim, atlas, box, canvas, column, component, create, layer, math, maximize, memoizeDraw, minimize, monotype, mount, pause, resume, row, sprite, texture };
 }
 
 export {
-	Node$1 as Node,
 	Stage as default,
 };
 

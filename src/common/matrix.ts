@@ -1,9 +1,13 @@
 export interface MatrixValue {
+  /** x-scale */
   a: number;
   b: number;
   c: number;
+  /** y-scale */
   d: number;
+  /** x-translate */
   e: number;
+  /** y-translate */
   f: number;
 }
 
@@ -65,6 +69,7 @@ export class Matrix {
 
   reset(a: number, b: number, c: number, d: number, e: number, f: number): this;
   reset(m: MatrixValue): this;
+  reset(): this;
   reset(
     a?: number | MatrixValue,
     b?: number,

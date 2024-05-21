@@ -22,6 +22,8 @@
 
 • **a**: *number*
 
+x-scale
+
 ___
 
 ###  b
@@ -40,14 +42,20 @@ ___
 
 • **d**: *number*
 
+y-scale
+
 ___
 
 ###  e
 
 • **e**: *number*
 
+x-translate
+
 ___
 
 ###  f
 
 • **f**: *number*
+
+y-translate

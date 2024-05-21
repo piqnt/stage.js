@@ -3,13 +3,13 @@
 
 ## Hierarchy
 
-* [Node](/api/classes/node)
+* [Component](/api/classes/component)
 
   ↳ **Root**
 
 ## Implements
 
-* Pinned
+* [LayoutObject](/api/interfaces/layoutobject)
 
 ## Index
 
@@ -19,7 +19,6 @@
 
 ### Properties
 
-* [MAX_ELAPSE](/api/classes/root#max_elapse)
 * [canvas](/api/classes/root#canvas)
 * [context](/api/classes/root#context)
 * [dom](/api/classes/root#dom)
@@ -29,7 +28,6 @@
 
 ### Methods
 
-* [align](/api/classes/root#align)
 * [alpha](/api/classes/root#alpha)
 * [append](/api/classes/root#append)
 * [appendTo](/api/classes/root#appendto)
@@ -42,6 +40,7 @@
 * [empty](/api/classes/root#empty)
 * [first](/api/classes/root#first)
 * [fit](/api/classes/root#fit)
+* [getTransform](/api/classes/root#gettransform)
 * [height](/api/classes/root#height)
 * [hide](/api/classes/root#hide)
 * [id](/api/classes/root#id)
@@ -61,6 +60,8 @@
 * [off](/api/classes/root#off)
 * [offset](/api/classes/root#offset)
 * [on](/api/classes/root#on)
+* [onChildAdded](/api/classes/root#onchildadded)
+* [onChildRemoved](/api/classes/root#onchildremoved)
 * [padding](/api/classes/root#padding)
 * [parent](/api/classes/root#parent)
 * [pause](/api/classes/root#pause)
@@ -68,14 +69,21 @@
 * [prepend](/api/classes/root#prepend)
 * [prependTo](/api/classes/root#prependto)
 * [prerender](/api/classes/root#prerender)
+* [prerenderTree](/api/classes/root#prerendertree)
 * [prev](/api/classes/root#prev)
 * [publish](/api/classes/root#publish)
 * [remove](/api/classes/root#remove)
 * [render](/api/classes/root#render)
+* [renderTree](/api/classes/root#rendertree)
 * [resume](/api/classes/root#resume)
 * [rotate](/api/classes/root#rotate)
 * [row](/api/classes/root#row)
 * [scale](/api/classes/root#scale)
+* [setFirst](/api/classes/root#setfirst)
+* [setLast](/api/classes/root#setlast)
+* [setNext](/api/classes/root#setnext)
+* [setParent](/api/classes/root#setparent)
+* [setPrev](/api/classes/root#setprev)
 * [setTimeout](/api/classes/root#settimeout)
 * [show](/api/classes/root#show)
 * [size](/api/classes/root#size)
@@ -99,19 +107,9 @@
 
 \+ **new Root**(): *[Root](/api/classes/root)*
 
-*Overrides [Node](/api/classes/node).[constructor](/api/classes/node#constructor)*
-
 **Returns:** *[Root](/api/classes/root)*
 
 ## Properties
-
-###  MAX_ELAPSE
-
-• **MAX_ELAPSE**: *number* = Infinity
-
-*Inherited from [Node](/api/classes/node).[MAX_ELAPSE](/api/classes/node#max_elapse)*
-
-___
 
 ###  canvas
 
@@ -149,28 +147,11 @@ ___
 
 ## Methods
 
-###  align
-
-▸ **align**(`type`: "row" | "column", `align`: number): *this*
-
-*Inherited from [Node](/api/classes/node).[align](/api/classes/node#align)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`type` | "row" &#124; "column" |
-`align` | number |
-
-**Returns:** *this*
-
-___
-
 ###  alpha
 
 ▸ **alpha**(`a`: number, `ta?`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[alpha](/api/classes/node#alpha)*
+*Inherited from [Component](/api/classes/component).[alpha](/api/classes/component#alpha)*
 
 **Parameters:**
 
@@ -185,27 +166,27 @@ ___
 
 ###  append
 
-▸ **append**(...`child`: [Node](/api/classes/node)[]): *this*
+▸ **append**(...`child`: [Component](/api/classes/component)[]): *this*
 
-*Inherited from [Node](/api/classes/node).[append](/api/classes/node#append)*
+*Inherited from [Component](/api/classes/component).[append](/api/classes/component#append)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`...child` | [Node](/api/classes/node)[] |
+`...child` | [Component](/api/classes/component)[] |
 
 **Returns:** *this*
 
-▸ **append**(`child`: [Node](/api/classes/node)[]): *this*
+▸ **append**(`child`: [Component](/api/classes/component)[]): *this*
 
-*Inherited from [Node](/api/classes/node).[append](/api/classes/node#append)*
+*Inherited from [Component](/api/classes/component).[append](/api/classes/component#append)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`child` | [Node](/api/classes/node)[] |
+`child` | [Component](/api/classes/component)[] |
 
 **Returns:** *this*
 
@@ -213,15 +194,15 @@ ___
 
 ###  appendTo
 
-▸ **appendTo**(`parent`: [Node](/api/classes/node)): *this*
+▸ **appendTo**(`parent`: [Component](/api/classes/component)): *this*
 
-*Inherited from [Node](/api/classes/node).[appendTo](/api/classes/node#appendto)*
+*Inherited from [Component](/api/classes/component).[appendTo](/api/classes/component#appendto)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`parent` | [Node](/api/classes/node) |
+`parent` | [Component](/api/classes/component) |
 
 **Returns:** *this*
 
@@ -229,28 +210,28 @@ ___
 
 ###  attr
 
-▸ **attr**(`name`: string, `value`: any): *this*
+▸ **attr**(`key`: string, `value`: any): *this*
 
-*Inherited from [Node](/api/classes/node).[attr](/api/classes/node#attr)*
+*Inherited from [Component](/api/classes/component).[attr](/api/classes/component#attr)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`name` | string |
+`key` | string |
 `value` | any |
 
 **Returns:** *this*
 
-▸ **attr**(`name`: string): *any*
+▸ **attr**(`key`: string): *any*
 
-*Inherited from [Node](/api/classes/node).[attr](/api/classes/node#attr)*
+*Inherited from [Component](/api/classes/component).[attr](/api/classes/component#attr)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`name` | string |
+`key` | string |
 
 **Returns:** *any*
 
@@ -274,7 +255,7 @@ ___
 
 ▸ **box**(): *this*
 
-*Inherited from [Node](/api/classes/node).[box](/api/classes/node#box)*
+*Inherited from [Component](/api/classes/component).[box](/api/classes/component#box)*
 
 **`deprecated`** Use minimize()
 
@@ -298,15 +279,15 @@ ___
 
 ###  clearTimeout
 
-▸ **clearTimeout**(`timer`: [NodeTickListener](/api/globals#nodeticklistener)‹this›): *void*
+▸ **clearTimeout**(`timer`: [ComponentTickListener](/api/globals#componentticklistener)): *void*
 
-*Inherited from [Node](/api/classes/node).[clearTimeout](/api/classes/node#cleartimeout)*
+*Inherited from [Component](/api/classes/component).[clearTimeout](/api/classes/component#cleartimeout)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`timer` | [NodeTickListener](/api/globals#nodeticklistener)‹this› |
+`timer` | [ComponentTickListener](/api/globals#componentticklistener) |
 
 **Returns:** *void*
 
@@ -316,7 +297,7 @@ ___
 
 ▸ **column**(`align`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[column](/api/classes/node#column)*
+*Inherited from [Component](/api/classes/component).[column](/api/classes/component#column)*
 
 **Parameters:**
 
@@ -332,7 +313,7 @@ ___
 
 ▸ **empty**(): *this*
 
-*Inherited from [Node](/api/classes/node).[empty](/api/classes/node#empty)*
+*Inherited from [Component](/api/classes/component).[empty](/api/classes/component#empty)*
 
 **Returns:** *this*
 
@@ -340,9 +321,9 @@ ___
 
 ###  first
 
-▸ **first**(`visible?`: boolean): *[Node](/api/classes/node)‹›*
+▸ **first**(`visible?`: boolean): *[Component](/api/classes/component)*
 
-*Inherited from [Node](/api/classes/node).[first](/api/classes/node#first)*
+*Inherited from [Component](/api/classes/component).[first](/api/classes/component#first)*
 
 **Parameters:**
 
@@ -350,7 +331,7 @@ Name | Type |
 ------ | ------ |
 `visible?` | boolean |
 
-**Returns:** *[Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)*
 
 ___
 
@@ -358,7 +339,7 @@ ___
 
 ▸ **fit**(`width`: number, `height`: number, `mode?`: [FitMode](/api/globals#fitmode)): *this*
 
-*Inherited from [Node](/api/classes/node).[fit](/api/classes/node#fit)*
+*Inherited from [Component](/api/classes/component).[fit](/api/classes/component#fit)*
 
 **Parameters:**
 
@@ -372,15 +353,34 @@ Name | Type |
 
 ▸ **fit**(`fit`: object): *this*
 
-*Inherited from [Node](/api/classes/node).[fit](/api/classes/node#fit)*
+*Inherited from [Component](/api/classes/component).[fit](/api/classes/component#fit)*
+
+**Parameters:**
+
+▪ **fit**: *object*
+
+Name | Type |
+------ | ------ |
+`height` | number |
+`width` | number |
+
+**Returns:** *this*
+
+___
+
+###  getTransform
+
+▸ **getTransform**(`combined?`: boolean): *[Matrix](/api/classes/matrix)‹›*
+
+*Inherited from [Component](/api/classes/component).[getTransform](/api/classes/component#gettransform)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`fit` | object |
+`combined?` | boolean |
 
-**Returns:** *this*
+**Returns:** *[Matrix](/api/classes/matrix)‹›*
 
 ___
 
@@ -388,7 +388,7 @@ ___
 
 ▸ **height**(`h`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[height](/api/classes/node#height)*
+*Inherited from [Component](/api/classes/component).[height](/api/classes/component#height)*
 
 **Parameters:**
 
@@ -400,7 +400,7 @@ Name | Type |
 
 ▸ **height**(): *number*
 
-*Inherited from [Node](/api/classes/node).[height](/api/classes/node#height)*
+*Inherited from [Component](/api/classes/component).[height](/api/classes/component#height)*
 
 **Returns:** *number*
 
@@ -410,7 +410,7 @@ ___
 
 ▸ **hide**(): *this*
 
-*Inherited from [Node](/api/classes/node).[hide](/api/classes/node#hide)*
+*Inherited from [Component](/api/classes/component).[hide](/api/classes/component#hide)*
 
 **Returns:** *this*
 
@@ -418,9 +418,9 @@ ___
 
 ###  id
 
-▸ **id**(`id`: string): *string | this*
+▸ **id**(`id`: string): *this*
 
-*Inherited from [Node](/api/classes/node).[id](/api/classes/node#id)*
+*Inherited from [Component](/api/classes/component).[id](/api/classes/component#id)*
 
 **`deprecated`** Use label()
 
@@ -430,21 +430,21 @@ Name | Type |
 ------ | ------ |
 `id` | string |
 
-**Returns:** *string | this*
+**Returns:** *this*
 
 ___
 
 ###  insertAfter
 
-▸ **insertAfter**(`prev`: [Node](/api/classes/node)): *this*
+▸ **insertAfter**(`prev`: [Component](/api/classes/component)): *this*
 
-*Inherited from [Node](/api/classes/node).[insertAfter](/api/classes/node#insertafter)*
+*Inherited from [Component](/api/classes/component).[insertAfter](/api/classes/component#insertafter)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`prev` | [Node](/api/classes/node) |
+`prev` | [Component](/api/classes/component) |
 
 **Returns:** *this*
 
@@ -452,15 +452,15 @@ ___
 
 ###  insertBefore
 
-▸ **insertBefore**(`next`: [Node](/api/classes/node)): *this*
+▸ **insertBefore**(`next`: [Component](/api/classes/component)): *this*
 
-*Inherited from [Node](/api/classes/node).[insertBefore](/api/classes/node#insertbefore)*
+*Inherited from [Component](/api/classes/component).[insertBefore](/api/classes/component#insertbefore)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`next` | [Node](/api/classes/node) |
+`next` | [Component](/api/classes/component) |
 
 **Returns:** *this*
 
@@ -468,16 +468,16 @@ ___
 
 ###  insertNext
 
-▸ **insertNext**(`sibling`: [Node](/api/classes/node), `more?`: [Node](/api/classes/node)): *this*
+▸ **insertNext**(`sibling`: [Component](/api/classes/component), `more?`: [Component](/api/classes/component)): *this*
 
-*Inherited from [Node](/api/classes/node).[insertNext](/api/classes/node#insertnext)*
+*Inherited from [Component](/api/classes/component).[insertNext](/api/classes/component#insertnext)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`sibling` | [Node](/api/classes/node) |
-`more?` | [Node](/api/classes/node) |
+`sibling` | [Component](/api/classes/component) |
+`more?` | [Component](/api/classes/component) |
 
 **Returns:** *this*
 
@@ -485,16 +485,16 @@ ___
 
 ###  insertPrev
 
-▸ **insertPrev**(`sibling`: [Node](/api/classes/node), `more?`: [Node](/api/classes/node)): *this*
+▸ **insertPrev**(`sibling`: [Component](/api/classes/component), `more?`: [Component](/api/classes/component)): *this*
 
-*Inherited from [Node](/api/classes/node).[insertPrev](/api/classes/node#insertprev)*
+*Inherited from [Component](/api/classes/component).[insertPrev](/api/classes/component#insertprev)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`sibling` | [Node](/api/classes/node) |
-`more?` | [Node](/api/classes/node) |
+`sibling` | [Component](/api/classes/component) |
+`more?` | [Component](/api/classes/component) |
 
 **Returns:** *this*
 
@@ -502,9 +502,9 @@ ___
 
 ###  label
 
-▸ **label**(`label`: string): *string | this*
+▸ **label**(`label`: string): *this*
 
-*Inherited from [Node](/api/classes/node).[label](/api/classes/node#label)*
+*Inherited from [Component](/api/classes/component).[label](/api/classes/component#label)*
 
 **Parameters:**
 
@@ -512,15 +512,21 @@ Name | Type |
 ------ | ------ |
 `label` | string |
 
-**Returns:** *string | this*
+**Returns:** *this*
+
+▸ **label**(): *string*
+
+*Inherited from [Component](/api/classes/component).[label](/api/classes/component#label)*
+
+**Returns:** *string*
 
 ___
 
 ###  last
 
-▸ **last**(`visible?`: boolean): *[Node](/api/classes/node)‹›*
+▸ **last**(`visible?`: boolean): *[Component](/api/classes/component)*
 
-*Inherited from [Node](/api/classes/node).[last](/api/classes/node#last)*
+*Inherited from [Component](/api/classes/component).[last](/api/classes/component#last)*
 
 **Parameters:**
 
@@ -528,7 +534,7 @@ Name | Type |
 ------ | ------ |
 `visible?` | boolean |
 
-**Returns:** *[Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)*
 
 ___
 
@@ -536,7 +542,7 @@ ___
 
 ▸ **layer**(): *this*
 
-*Inherited from [Node](/api/classes/node).[layer](/api/classes/node#layer)*
+*Inherited from [Component](/api/classes/component).[layer](/api/classes/component#layer)*
 
 **`deprecated`** Use minimize()
 
@@ -548,7 +554,7 @@ ___
 
 ▸ **listeners**(`type`: string): *function[]*
 
-*Inherited from [Node](/api/classes/node).[listeners](/api/classes/node#listeners)*
+*Inherited from [Component](/api/classes/component).[listeners](/api/classes/component#listeners)*
 
 **Parameters:**
 
@@ -564,7 +570,7 @@ ___
 
 ▸ **matrix**(`relative`: boolean): *[Matrix](/api/classes/matrix)‹›*
 
-*Inherited from [Node](/api/classes/node).[matrix](/api/classes/node#matrix)*
+*Inherited from [Component](/api/classes/component).[matrix](/api/classes/component#matrix)*
 
 **Parameters:**
 
@@ -580,7 +586,7 @@ ___
 
 ▸ **maximize**(): *this*
 
-*Inherited from [Node](/api/classes/node).[maximize](/api/classes/node#maximize)*
+*Inherited from [Component](/api/classes/component).[maximize](/api/classes/component#maximize)*
 
 Set size to match parent size.
 
@@ -592,7 +598,7 @@ ___
 
 ▸ **minimize**(): *this*
 
-*Inherited from [Node](/api/classes/node).[minimize](/api/classes/node#minimize)*
+*Inherited from [Component](/api/classes/component).[minimize](/api/classes/component#minimize)*
 
 Set size to match largest child size.
 
@@ -616,9 +622,9 @@ ___
 
 ###  next
 
-▸ **next**(`visible?`: boolean): *[Node](/api/classes/node)‹›*
+▸ **next**(`visible?`: boolean): *[Component](/api/classes/component)*
 
-*Inherited from [Node](/api/classes/node).[next](/api/classes/node#next)*
+*Inherited from [Component](/api/classes/component).[next](/api/classes/component#next)*
 
 **Parameters:**
 
@@ -626,22 +632,22 @@ Name | Type |
 ------ | ------ |
 `visible?` | boolean |
 
-**Returns:** *[Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)*
 
 ___
 
 ###  off
 
-▸ **off**(`types`: string, `listener`: [NodeEventListener](/api/globals#nodeeventlistener)‹this›): *this*
+▸ **off**(`types`: string, `listener`: [ComponentEventListener](/api/globals#componenteventlistener)‹this›): *this*
 
-*Inherited from [Node](/api/classes/node).[off](/api/classes/node#off)*
+*Inherited from [Component](/api/classes/component).[off](/api/classes/component#off)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `types` | string |
-`listener` | [NodeEventListener](/api/globals#nodeeventlistener)‹this› |
+`listener` | [ComponentEventListener](/api/globals#componenteventlistener)‹this› |
 
 **Returns:** *this*
 
@@ -651,7 +657,7 @@ ___
 
 ▸ **offset**(`value`: [Vec2Value](/api/interfaces/vec2value)): *this*
 
-*Inherited from [Node](/api/classes/node).[offset](/api/classes/node#offset)*
+*Inherited from [Component](/api/classes/component).[offset](/api/classes/component#offset)*
 
 **Parameters:**
 
@@ -663,7 +669,7 @@ Name | Type |
 
 ▸ **offset**(`x`: number, `y`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[offset](/api/classes/node#offset)*
+*Inherited from [Component](/api/classes/component).[offset](/api/classes/component#offset)*
 
 **Parameters:**
 
@@ -678,46 +684,86 @@ ___
 
 ###  on
 
-▸ **on**(`types`: string, `listener`: [NodeEventListener](/api/globals#nodeeventlistener)‹this›): *this*
+▸ **on**(`types`: string, `listener`: [ComponentEventListener](/api/globals#componenteventlistener)‹this›): *this*
 
-*Inherited from [Node](/api/classes/node).[on](/api/classes/node#on)*
+*Inherited from [Component](/api/classes/component).[on](/api/classes/component#on)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `types` | string |
-`listener` | [NodeEventListener](/api/globals#nodeeventlistener)‹this› |
+`listener` | [ComponentEventListener](/api/globals#componenteventlistener)‹this› |
 
 **Returns:** *this*
 
 ___
 
-###  padding
+###  onChildAdded
 
-▸ **padding**(`pad`: number): *this*
+▸ **onChildAdded**(`child`: [Component](/api/classes/component)): *void*
 
-*Inherited from [Node](/api/classes/node).[padding](/api/classes/node#padding)*
-
-Set cell spacing for layout.
+*Inherited from [Component](/api/classes/component).[onChildAdded](/api/classes/component#onchildadded)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`pad` | number |
+`child` | [Component](/api/classes/component) |
+
+**Returns:** *void*
+
+___
+
+###  onChildRemoved
+
+▸ **onChildRemoved**(`child`: [Component](/api/classes/component)): *void*
+
+*Inherited from [Component](/api/classes/component).[onChildRemoved](/api/classes/component#onchildremoved)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`child` | [Component](/api/classes/component) |
+
+**Returns:** *void*
+
+___
+
+###  padding
+
+▸ **padding**(`value`: number): *this*
+
+*Inherited from [Component](/api/classes/component).[padding](/api/classes/component#padding)*
+
+Set padding layout
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`value` | number |
 
 **Returns:** *this*
+
+▸ **padding**(): *number*
+
+*Inherited from [Component](/api/classes/component).[padding](/api/classes/component#padding)*
+
+Get padding.
+
+**Returns:** *number*
 
 ___
 
 ###  parent
 
-▸ **parent**(): *[Node](/api/classes/node)‹›*
+▸ **parent**(): *[Component](/api/classes/component)*
 
-*Inherited from [Node](/api/classes/node).[parent](/api/classes/node#parent)*
+*Inherited from [Component](/api/classes/component).[parent](/api/classes/component#parent)*
 
-**Returns:** *[Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)*
 
 ___
 
@@ -733,7 +779,7 @@ ___
 
 ▸ **pin**(`key`: string): *any*
 
-*Inherited from [Node](/api/classes/node).[pin](/api/classes/node#pin)*
+*Inherited from [Component](/api/classes/component).[pin](/api/classes/component#pin)*
 
 **Parameters:**
 
@@ -745,7 +791,7 @@ Name | Type |
 
 ▸ **pin**(`key`: string, `value`: any): *this*
 
-*Inherited from [Node](/api/classes/node).[pin](/api/classes/node#pin)*
+*Inherited from [Component](/api/classes/component).[pin](/api/classes/component#pin)*
 
 **Parameters:**
 
@@ -758,7 +804,7 @@ Name | Type |
 
 ▸ **pin**(`obj`: object): *this*
 
-*Inherited from [Node](/api/classes/node).[pin](/api/classes/node#pin)*
+*Inherited from [Component](/api/classes/component).[pin](/api/classes/component#pin)*
 
 **Parameters:**
 
@@ -770,7 +816,7 @@ Name | Type |
 
 ▸ **pin**(): *[Pin](/api/classes/pin)*
 
-*Inherited from [Node](/api/classes/node).[pin](/api/classes/node#pin)*
+*Inherited from [Component](/api/classes/component).[pin](/api/classes/component#pin)*
 
 **Returns:** *[Pin](/api/classes/pin)*
 
@@ -778,27 +824,27 @@ ___
 
 ###  prepend
 
-▸ **prepend**(...`child`: [Node](/api/classes/node)[]): *this*
+▸ **prepend**(...`child`: [Component](/api/classes/component)[]): *this*
 
-*Inherited from [Node](/api/classes/node).[prepend](/api/classes/node#prepend)*
+*Inherited from [Component](/api/classes/component).[prepend](/api/classes/component#prepend)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`...child` | [Node](/api/classes/node)[] |
+`...child` | [Component](/api/classes/component)[] |
 
 **Returns:** *this*
 
-▸ **prepend**(`child`: [Node](/api/classes/node)[]): *this*
+▸ **prepend**(`child`: [Component](/api/classes/component)[]): *this*
 
-*Inherited from [Node](/api/classes/node).[prepend](/api/classes/node#prepend)*
+*Inherited from [Component](/api/classes/component).[prepend](/api/classes/component#prepend)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`child` | [Node](/api/classes/node)[] |
+`child` | [Component](/api/classes/component)[] |
 
 **Returns:** *this*
 
@@ -806,15 +852,15 @@ ___
 
 ###  prependTo
 
-▸ **prependTo**(`parent`: [Node](/api/classes/node)): *this*
+▸ **prependTo**(`parent`: [Component](/api/classes/component)): *this*
 
-*Inherited from [Node](/api/classes/node).[prependTo](/api/classes/node#prependto)*
+*Inherited from [Component](/api/classes/component).[prependTo](/api/classes/component#prependto)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`parent` | [Node](/api/classes/node) |
+`parent` | [Component](/api/classes/component) |
 
 **Returns:** *this*
 
@@ -824,7 +870,17 @@ ___
 
 ▸ **prerender**(): *void*
 
-*Inherited from [Node](/api/classes/node).[prerender](/api/classes/node#prerender)*
+*Inherited from [Component](/api/classes/component).[prerender](/api/classes/component#prerender)*
+
+**Returns:** *void*
+
+___
+
+###  prerenderTree
+
+▸ **prerenderTree**(): *void*
+
+*Inherited from [Component](/api/classes/component).[prerenderTree](/api/classes/component#prerendertree)*
 
 **Returns:** *void*
 
@@ -832,9 +888,9 @@ ___
 
 ###  prev
 
-▸ **prev**(`visible?`: boolean): *[Node](/api/classes/node)‹›*
+▸ **prev**(`visible?`: boolean): *[Component](/api/classes/component)*
 
-*Inherited from [Node](/api/classes/node).[prev](/api/classes/node#prev)*
+*Inherited from [Component](/api/classes/component).[prev](/api/classes/component#prev)*
 
 **Parameters:**
 
@@ -842,7 +898,7 @@ Name | Type |
 ------ | ------ |
 `visible?` | boolean |
 
-**Returns:** *[Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)*
 
 ___
 
@@ -850,7 +906,7 @@ ___
 
 ▸ **publish**(`name`: string, `args?`: any): *number*
 
-*Inherited from [Node](/api/classes/node).[publish](/api/classes/node#publish)*
+*Inherited from [Component](/api/classes/component).[publish](/api/classes/component#publish)*
 
 **Parameters:**
 
@@ -865,15 +921,15 @@ ___
 
 ###  remove
 
-▸ **remove**(`child?`: [Node](/api/classes/node), `more?`: any): *this*
+▸ **remove**(`child?`: [Component](/api/classes/component), `more?`: any): *this*
 
-*Inherited from [Node](/api/classes/node).[remove](/api/classes/node#remove)*
+*Inherited from [Component](/api/classes/component).[remove](/api/classes/component#remove)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`child?` | [Node](/api/classes/node) |
+`child?` | [Component](/api/classes/component) |
 `more?` | any |
 
 **Returns:** *this*
@@ -884,7 +940,23 @@ ___
 
 ▸ **render**(`context`: CanvasRenderingContext2D): *void*
 
-*Inherited from [Node](/api/classes/node).[render](/api/classes/node#render)*
+*Inherited from [Component](/api/classes/component).[render](/api/classes/component#render)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`context` | CanvasRenderingContext2D |
+
+**Returns:** *void*
+
+___
+
+###  renderTree
+
+▸ **renderTree**(`context`: CanvasRenderingContext2D): *void*
+
+*Inherited from [Component](/api/classes/component).[renderTree](/api/classes/component#rendertree)*
 
 **Parameters:**
 
@@ -908,7 +980,7 @@ ___
 
 ▸ **rotate**(`a`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[rotate](/api/classes/node#rotate)*
+*Inherited from [Component](/api/classes/component).[rotate](/api/classes/component#rotate)*
 
 **Parameters:**
 
@@ -924,7 +996,7 @@ ___
 
 ▸ **row**(`align`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[row](/api/classes/node#row)*
+*Inherited from [Component](/api/classes/component).[row](/api/classes/component#row)*
 
 **Parameters:**
 
@@ -940,7 +1012,7 @@ ___
 
 ▸ **scale**(`value`: [Vec2Value](/api/interfaces/vec2value)): *this*
 
-*Inherited from [Node](/api/classes/node).[scale](/api/classes/node#scale)*
+*Inherited from [Component](/api/classes/component).[scale](/api/classes/component#scale)*
 
 **Parameters:**
 
@@ -950,18 +1022,98 @@ Name | Type |
 
 **Returns:** *this*
 
-▸ **scale**(`x`: number, `y`: number): *this*
+▸ **scale**(`x`: number, `y?`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[scale](/api/classes/node#scale)*
+*Inherited from [Component](/api/classes/component).[scale](/api/classes/component#scale)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `x` | number |
-`y` | number |
+`y?` | number |
 
 **Returns:** *this*
+
+___
+
+###  setFirst
+
+▸ **setFirst**(`first`: [Component](/api/classes/component)): *void*
+
+*Inherited from [Component](/api/classes/component).[setFirst](/api/classes/component#setfirst)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`first` | [Component](/api/classes/component) |
+
+**Returns:** *void*
+
+___
+
+###  setLast
+
+▸ **setLast**(`last`: [Component](/api/classes/component)): *void*
+
+*Inherited from [Component](/api/classes/component).[setLast](/api/classes/component#setlast)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`last` | [Component](/api/classes/component) |
+
+**Returns:** *void*
+
+___
+
+###  setNext
+
+▸ **setNext**(`next`: [Component](/api/classes/component)): *void*
+
+*Inherited from [Component](/api/classes/component).[setNext](/api/classes/component#setnext)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`next` | [Component](/api/classes/component) |
+
+**Returns:** *void*
+
+___
+
+###  setParent
+
+▸ **setParent**(`parent`: [Component](/api/classes/component)): *void*
+
+*Inherited from [Component](/api/classes/component).[setParent](/api/classes/component#setparent)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`parent` | [Component](/api/classes/component) |
+
+**Returns:** *void*
+
+___
+
+###  setPrev
+
+▸ **setPrev**(`prev`: [Component](/api/classes/component)): *void*
+
+*Inherited from [Component](/api/classes/component).[setPrev](/api/classes/component#setprev)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`prev` | [Component](/api/classes/component) |
+
+**Returns:** *void*
 
 ___
 
@@ -969,7 +1121,7 @@ ___
 
 ▸ **setTimeout**(`callback`: function, `time`: number): *timer*
 
-*Inherited from [Node](/api/classes/node).[setTimeout](/api/classes/node#settimeout)*
+*Inherited from [Component](/api/classes/component).[setTimeout](/api/classes/component#settimeout)*
 
 **Parameters:**
 
@@ -987,7 +1139,7 @@ ___
 
 ▸ **show**(): *this*
 
-*Inherited from [Node](/api/classes/node).[show](/api/classes/node#show)*
+*Inherited from [Component](/api/classes/component).[show](/api/classes/component#show)*
 
 **Returns:** *this*
 
@@ -997,7 +1149,7 @@ ___
 
 ▸ **size**(`w`: number, `h`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[size](/api/classes/node#size)*
+*Inherited from [Component](/api/classes/component).[size](/api/classes/component#size)*
 
 **Parameters:**
 
@@ -1014,7 +1166,7 @@ ___
 
 ▸ **skew**(`value`: [Vec2Value](/api/interfaces/vec2value)): *this*
 
-*Inherited from [Node](/api/classes/node).[skew](/api/classes/node#skew)*
+*Inherited from [Component](/api/classes/component).[skew](/api/classes/component#skew)*
 
 **Parameters:**
 
@@ -1024,16 +1176,16 @@ Name | Type |
 
 **Returns:** *this*
 
-▸ **skew**(`x`: number, `y`: number): *this*
+▸ **skew**(`x`: number, `y?`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[skew](/api/classes/node#skew)*
+*Inherited from [Component](/api/classes/component).[skew](/api/classes/component#skew)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `x` | number |
-`y` | number |
+`y?` | number |
 
 **Returns:** *this*
 
@@ -1041,33 +1193,41 @@ ___
 
 ###  spacing
 
-▸ **spacing**(`space`: number): *this*
+▸ **spacing**(`value`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[spacing](/api/classes/node#spacing)*
+*Inherited from [Component](/api/classes/component).[spacing](/api/classes/component#spacing)*
 
-Set cell spacing for row and column layout.
+Set spacing for row, column, monotype
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`space` | number |
+`value` | number |
 
 **Returns:** *this*
+
+▸ **spacing**(): *number*
+
+*Inherited from [Component](/api/classes/component).[spacing](/api/classes/component#spacing)*
+
+Get spacing
+
+**Returns:** *number*
 
 ___
 
 ###  tick
 
-▸ **tick**(`callback`: [NodeTickListener](/api/globals#nodeticklistener)‹this›, `before`: boolean): *void*
+▸ **tick**(`callback`: [ComponentTickListener](/api/globals#componentticklistener), `before`: boolean): *void*
 
-*Inherited from [Node](/api/classes/node).[tick](/api/classes/node#tick)*
+*Inherited from [Component](/api/classes/component).[tick](/api/classes/component#tick)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`callback` | [NodeTickListener](/api/globals#nodeticklistener)‹this› | - |
+`callback` | [ComponentTickListener](/api/globals#componentticklistener) | - |
 `before` | boolean | false |
 
 **Returns:** *void*
@@ -1078,7 +1238,7 @@ ___
 
 ▸ **timeout**(`callback`: function, `time`: number): *void*
 
-*Inherited from [Node](/api/classes/node).[timeout](/api/classes/node#timeout)*
+*Inherited from [Component](/api/classes/component).[timeout](/api/classes/component#timeout)*
 
 **Parameters:**
 
@@ -1096,7 +1256,7 @@ ___
 
 ▸ **toString**(): *string*
 
-*Inherited from [Node](/api/classes/node).[toString](/api/classes/node#tostring)*
+*Inherited from [Component](/api/classes/component).[toString](/api/classes/component#tostring)*
 
 **Returns:** *string*
 
@@ -1104,29 +1264,47 @@ ___
 
 ###  tween
 
-▸ **tween**(`opts?`: [TransitionOptions](/api/globals#transitionoptions)): *[Transition](/api/classes/transition)*
+▸ **tween**(): *[Transition](/api/classes/transition)*
 
-*Inherited from [Node](/api/classes/node).[tween](/api/classes/node#tween)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`opts?` | [TransitionOptions](/api/globals#transitionoptions) |
+*Inherited from [Component](/api/classes/component).[tween](/api/classes/component#tween)*
 
 **Returns:** *[Transition](/api/classes/transition)*
 
-▸ **tween**(`duration?`: number, `delay?`: number, `append?`: boolean): *[Transition](/api/classes/transition)*
+▸ **tween**(`opts`: [TransitionOptions](/api/globals#transitionoptions)): *[Transition](/api/classes/transition)*
 
-*Inherited from [Node](/api/classes/node).[tween](/api/classes/node#tween)*
+*Inherited from [Component](/api/classes/component).[tween](/api/classes/component#tween)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`duration?` | number |
+`opts` | [TransitionOptions](/api/globals#transitionoptions) |
+
+**Returns:** *[Transition](/api/classes/transition)*
+
+▸ **tween**(`duration`: number, `delay?`: number, `append?`: boolean): *[Transition](/api/classes/transition)*
+
+*Inherited from [Component](/api/classes/component).[tween](/api/classes/component#tween)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`duration` | number |
 `delay?` | number |
 `append?` | boolean |
+
+**Returns:** *[Transition](/api/classes/transition)*
+
+▸ **tween**(`duration`: number): *[Transition](/api/classes/transition)*
+
+*Inherited from [Component](/api/classes/component).[tween](/api/classes/component#tween)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`duration` | number |
 
 **Returns:** *[Transition](/api/classes/transition)*
 
@@ -1142,15 +1320,15 @@ ___
 
 ###  untick
 
-▸ **untick**(`callback`: [NodeTickListener](/api/globals#nodeticklistener)‹this›): *void*
+▸ **untick**(`callback`: [ComponentTickListener](/api/globals#componentticklistener)): *void*
 
-*Inherited from [Node](/api/classes/node).[untick](/api/classes/node#untick)*
+*Inherited from [Component](/api/classes/component).[untick](/api/classes/component#untick)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`callback` | [NodeTickListener](/api/globals#nodeticklistener)‹this› |
+`callback` | [ComponentTickListener](/api/globals#componentticklistener) |
 
 **Returns:** *void*
 
@@ -1161,6 +1339,8 @@ ___
 ▸ **viewbox**(`viewbox`: [Viewbox](/api/globals#viewbox)): *this*
 
 Set viewbox.
+
+The provided dimension is automatically scaled to fit in the available container viewport.
 
 **Parameters:**
 
@@ -1189,9 +1369,10 @@ ___
 ▸ **viewport**(): *[Viewport](/api/globals#viewport)*
 
 Set/Get viewport.
-This is used along with viewbox to determine the scale and position of the viewbox within the viewport.
+
 Viewport is the size of the container, for example size of the canvas element.
-Viewbox is provided by the user, and is the ideal size of the content.
+
+Viewbox is provided by the user, and defines a rectangle that is projected (scaled and positioned) into the viewport.
 
 **Returns:** *[Viewport](/api/globals#viewport)*
 
@@ -1223,7 +1404,7 @@ ___
 
 ▸ **visible**(`visible`: boolean): *this*
 
-*Inherited from [Node](/api/classes/node).[visible](/api/classes/node#visible)*
+*Inherited from [Component](/api/classes/component).[visible](/api/classes/component#visible)*
 
 **Parameters:**
 
@@ -1235,7 +1416,7 @@ Name | Type |
 
 ▸ **visible**(): *boolean*
 
-*Inherited from [Node](/api/classes/node).[visible](/api/classes/node#visible)*
+*Inherited from [Component](/api/classes/component).[visible](/api/classes/component#visible)*
 
 **Returns:** *boolean*
 
@@ -1243,22 +1424,18 @@ ___
 
 ###  visit
 
-▸ **visit**‹**P**›(`visitor`: [NodeVisitor](/api/interfaces/nodevisitor)‹P›, `payload?`: P): *false | true | void*
+▸ **visit**(`visitor`: [ComponentVisitor](/api/interfaces/componentvisitor), `payload?`: any): *boolean | void*
 
-*Inherited from [Node](/api/classes/node).[visit](/api/classes/node#visit)*
-
-**Type parameters:**
-
-▪ **P**
+*Inherited from [Component](/api/classes/component).[visit](/api/classes/component#visit)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`visitor` | [NodeVisitor](/api/interfaces/nodevisitor)‹P› |
-`payload?` | P |
+`visitor` | [ComponentVisitor](/api/interfaces/componentvisitor) |
+`payload?` | any |
 
-**Returns:** *false | true | void*
+**Returns:** *boolean | void*
 
 ___
 
@@ -1266,7 +1443,7 @@ ___
 
 ▸ **width**(`w`: number): *this*
 
-*Inherited from [Node](/api/classes/node).[width](/api/classes/node#width)*
+*Inherited from [Component](/api/classes/component).[width](/api/classes/component#width)*
 
 **Parameters:**
 
@@ -1278,6 +1455,6 @@ Name | Type |
 
 ▸ **width**(): *number*
 
-*Inherited from [Node](/api/classes/node).[width](/api/classes/node#width)*
+*Inherited from [Component](/api/classes/component).[width](/api/classes/component#width)*
 
 **Returns:** *number*

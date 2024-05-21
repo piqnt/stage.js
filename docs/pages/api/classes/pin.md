@@ -9,34 +9,16 @@
 
 ### Methods
 
-* [absoluteMatrix](/api/classes/pin#absolutematrix)
-* [relativeMatrix](/api/classes/pin#relativematrix)
-* [reset](/api/classes/pin#reset)
+* [toMatrix](/api/classes/pin#tomatrix)
 * [toString](/api/classes/pin#tostring)
 
 ## Methods
 
-###  absoluteMatrix
+###  toMatrix
 
-▸ **absoluteMatrix**(): *[Matrix](/api/classes/matrix)‹›*
-
-**Returns:** *[Matrix](/api/classes/matrix)‹›*
-
-___
-
-###  relativeMatrix
-
-▸ **relativeMatrix**(): *[Matrix](/api/classes/matrix)‹›*
+▸ **toMatrix**(): *[Matrix](/api/classes/matrix)‹›*
 
 **Returns:** *[Matrix](/api/classes/matrix)‹›*
-
-___
-
-###  reset
-
-▸ **reset**(): *void*
-
-**Returns:** *void*
 
 ___
 

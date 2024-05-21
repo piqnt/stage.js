@@ -1,77 +1,71 @@
 import { math } from "../common/math";
 import { Texture, TextureSelectionInputArray, texture } from "../texture";
+import { Component } from "./component";
 
-import { Node } from "./core";
+type AnimTextureInput = string | TextureSelectionInputArray;
 
-export function anim(frames: string | TextureSelectionInputArray, fps?: number) {
-  const anim = new Anim();
-  anim.frames(frames).gotoFrame(0);
-  fps && anim.fps(fps);
-  return anim;
+export function anim(frames?: AnimTextureInput, fps?: number) {
+  return new Anim(frames, fps);
 }
 
 // TODO: replace with atlas fps or texture time
 /** @internal */ const FPS = 15;
 
-export class Anim extends Node {
-  /** @internal */ _fps: number;
-  /** @internal */ _ft: number;
-  /** @internal */ _time: number;
-  /** @internal */ _repeat: number;
-  /** @internal */ _index: number;
-  /** @internal */ _frames: Texture[];
+export class Anim extends Component {
+  /** @internal */ _textures: Texture[] = [];
+  /** @internal */ _fps: number = FPS;
+  /** @internal */ _time: number = -1;
+  /** @internal */ _repeat: number = 0;
+  /** @internal */ _index: number = 0;
+  /** @internal */ _frames: Texture[] = [];
   /** @internal */ _callback: () => void;
 
-  constructor() {
+  constructor(frames?: AnimTextureInput, fps?: number) {
     super();
     this.label("Anim");
 
-    this._textures = [];
+    this.tick(this._animLoop, false);
 
-    this._fps = FPS;
-    this._ft = 1000 / this._fps;
-
-    this._time = -1;
-    this._repeat = 0;
-
-    this._index = 0;
-    this._frames = [];
-
-    let lastTime = 0;
-    this.tick(function (t, now, last) {
-      if (this._time < 0 || this._frames.length <= 1) {
-        return;
-      }
-
-      // ignore old elapsed
-      const ignore = lastTime != last;
-      lastTime = now;
-      if (ignore) {
-        return true;
-      }
-
-      this._time += t;
-      if (this._time < this._ft) {
-        return true;
-      }
-      const n = (this._time / this._ft) | 0;
-      this._time -= n * this._ft;
-      this.moveFrame(n);
-      if (this._repeat > 0 && (this._repeat -= n) <= 0) {
-        this.stop();
-        this._callback && this._callback();
-        return false;
-      }
-      return true;
-    }, false);
+    frames && this.frames(frames).gotoFrame(0);
+    fps && this.fps(fps);
   }
 
+  private _lastFrameTime = 0;
+  private _animLoop(t: number, now: number, last: number) {
+    if (this._time < 0 || this._frames.length <= 1) {
+      return;
+    }
+
+    // ignore old elapsed
+    const ignore = this._lastFrameTime != last;
+    this._lastFrameTime = now;
+    if (ignore) {
+      return true;
+    }
+
+    this._time += t;
+    const ft = (1 / this._fps) * 1000;
+    if (this._time < ft) {
+      return true;
+    }
+    const n = (this._time / ft) | 0;
+    this._time -= n * ft;
+    this.moveFrame(n);
+    if (this._repeat > 0 && (this._repeat -= n) <= 0) {
+      this.stop();
+      this._callback && this._callback();
+      return false;
+    }
+    return true;
+  }
+
+  fps(fps: number): this;
+  fps(): number;
   fps(fps?: number) {
     if (typeof fps === "undefined") {
       return this._fps;
     }
     this._fps = fps > 0 ? fps : FPS;
-    this._ft = 1000 / this._fps;
     return this;
   }
 
@@ -103,20 +97,20 @@ export class Anim extends Node {
     return this;
   }
 
-  moveFrame(move) {
+  moveFrame(move: number) {
     return this.gotoFrame(this._index + move);
   }
 
-  repeat(repeat, callback) {
+  repeat(repeat: number, callback: () => any) {
     this._repeat = repeat * this._frames.length - 1;
     this._callback = callback;
     this.play();
     return this;
   }
 
-  play(frame?: number) {
-    if (typeof frame !== "undefined") {
-      this.gotoFrame(frame);
+  play(startFromFrame?: number) {
+    if (typeof startFromFrame !== "undefined") {
+      this.gotoFrame(startFromFrame);
       this._time = 0;
     } else if (this._time < 0) {
       this._time = 0;
@@ -126,11 +120,19 @@ export class Anim extends Node {
     return this;
   }
 
-  stop(frame?: number) {
+  stop(stopAtFrame?: number) {
     this._time = -1;
-    if (typeof frame !== "undefined") {
-      this.gotoFrame(frame);
+    if (typeof stopAtFrame !== "undefined") {
+      this.gotoFrame(stopAtFrame);
     }
     return this;
+  }
+
+  render(context: CanvasRenderingContext2D) {
+    if (this._textures && this._textures.length) {
+      for (let i = 0, n = this._textures.length; i < n; i++) {
+        this._textures[i].draw(context);
+      }
+    }
   }
 }

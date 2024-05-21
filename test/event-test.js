@@ -9,7 +9,7 @@ describe("Event", function () {
     let hello = sinon.stub();
     let open = sinon.stub();
 
-    let door = Stage.layout();
+    let door = Stage.component();
 
     expect(door.listeners("knock")).not.ok();
 
@@ -36,10 +36,10 @@ describe("Event", function () {
   });
 
   it("flag", function () {
-    let foo = Stage.layout();
-    let bar = Stage.layout();
-    let baz = Stage.layout();
-    let qux = Stage.layout();
+    let foo = Stage.component();
+    let bar = Stage.component();
+    let baz = Stage.component();
+    let qux = Stage.component();
 
     let ring = sinon.stub();
     baz.on("ring", ring);

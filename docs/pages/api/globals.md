@@ -8,12 +8,13 @@
 * [Anim](/api/classes/anim)
 * [Atlas](/api/classes/atlas)
 * [CanvasTexture](/api/classes/canvastexture)
+* [Component](/api/classes/component)
 * [Easing](/api/classes/easing)
 * [EventPoint](/api/classes/eventpoint)
 * [ImageTexture](/api/classes/imagetexture)
 * [Matrix](/api/classes/matrix)
+* [Memo](/api/classes/memo)
 * [Monotype](/api/classes/monotype)
-* [Node](/api/classes/node)
 * [Pin](/api/classes/pin)
 * [PipeTexture](/api/classes/pipetexture)
 * [PointerSyntheticEvent](/api/classes/pointersyntheticevent)
@@ -28,27 +29,39 @@
 
 * [AtlasDefinition](/api/interfaces/atlasdefinition)
 * [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)
+* [ComponentVisitor](/api/interfaces/componentvisitor)
+* [LayoutManagerInterface](/api/interfaces/layoutmanagerinterface)
+* [LayoutObject](/api/interfaces/layoutobject)
 * [MatrixValue](/api/interfaces/matrixvalue)
-* [NodeVisitor](/api/interfaces/nodevisitor)
 * [Vec2Value](/api/interfaces/vec2value)
 
 ### Type aliases
 
+* [AnimTextureInput](/api/globals#animtextureinput)
+* [AtlasImageDefinition](/api/globals#atlasimagedefinition)
 * [AtlasTextureReferenceArray](/api/globals#atlastexturereferencearray)
 * [AtlasTextureReferenceMap](/api/globals#atlastexturereferencemap)
 * [AtlasTextureReferenceOne](/api/globals#atlastexturereferenceone)
+* [AtlasTexturesDefinition](/api/globals#atlastexturesdefinition)
+* [AtlasTexturesDefinitionFunction](/api/globals#atlastexturesdefinitionfunction)
+* [AtlasTexturesDefinitionRecords](/api/globals#atlastexturesdefinitionrecords)
+* [AtlasTexturesFilterFunction](/api/globals#atlastexturesfilterfunction)
+* [AtlasTexturesMapFunction](/api/globals#atlastexturesmapfunction)
 * [CanvasTextureDrawer](/api/globals#canvastexturedrawer)
 * [CanvasTextureMemoizer](/api/globals#canvastexturememoizer)
+* [ComponentEventListener](/api/globals#componenteventlistener)
+* [ComponentTickListener](/api/globals#componentticklistener)
 * [EasingFunction](/api/globals#easingfunction)
 * [EasingFunctionName](/api/globals#easingfunctionname)
 * [FitMode](/api/globals#fitmode)
 * [LegacyFitMode](/api/globals#legacyfitmode)
-* [NodeEventListener](/api/globals#nodeeventlistener)
-* [NodeTickListener](/api/globals#nodeticklistener)
+* [MonotypeTextureInput](/api/globals#monotypetextureinput)
+* [MonotypeValue](/api/globals#monotypevalue)
 * [ResizableTextureMode](/api/globals#resizabletexturemode)
 * [ResizeParams](/api/globals#resizeparams)
 * [RootConfig](/api/globals#rootconfig)
 * [ScaleParams](/api/globals#scaleparams)
+* [SpriteTextureInput](/api/globals#spritetextureinput)
 * [TextureImageSource](/api/globals#textureimagesource)
 * [TextureSelectionInput](/api/globals#textureselectioninput)
 * [TextureSelectionInputArray](/api/globals#textureselectioninputarray)
@@ -76,9 +89,9 @@
 * [box](/api/globals#box)
 * [canvas](/api/globals#canvas)
 * [column](/api/globals#column)
+* [component](/api/globals#component)
 * [create](/api/globals#create)
 * [layer](/api/globals#layer)
-* [layout](/api/globals#layout)
 * [maximize](/api/globals#maximize)
 * [minimize](/api/globals#minimize)
 * [monotype](/api/globals#monotype)
@@ -90,6 +103,18 @@
 * [texture](/api/globals#texture)
 
 ## Type aliases
+
+###  AnimTextureInput
+
+Ƭ **AnimTextureInput**: *string | [TextureSelectionInputArray](/api/globals#textureselectioninputarray)*
+
+___
+
+###  AtlasImageDefinition
+
+Ƭ **AtlasImageDefinition**: *string | object | object*
+
+___
 
 ###  AtlasTextureReferenceArray
 
@@ -106,6 +131,66 @@ ___
 ###  AtlasTextureReferenceOne
 
 Ƭ **AtlasTextureReferenceOne**: *[AtlasTextureDefinition](/api/interfaces/atlastexturedefinition) | string*
+
+___
+
+###  AtlasTexturesDefinition
+
+Ƭ **AtlasTexturesDefinition**: *[AtlasTexturesDefinitionRecords](/api/globals#atlastexturesdefinitionrecords) | [AtlasTexturesDefinitionFunction](/api/globals#atlastexturesdefinitionfunction)*
+
+___
+
+###  AtlasTexturesDefinitionFunction
+
+Ƭ **AtlasTexturesDefinitionFunction**: *function*
+
+#### Type declaration:
+
+▸ (`key`: string): *[AtlasTextureDefinition](/api/interfaces/atlastexturedefinition) | [AtlasTextureReferenceMap](/api/globals#atlastexturereferencemap) | [AtlasTextureReferenceArray](/api/globals#atlastexturereferencearray)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`key` | string |
+
+___
+
+###  AtlasTexturesDefinitionRecords
+
+Ƭ **AtlasTexturesDefinitionRecords**: *Record‹string, [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition) | [AtlasTextureReferenceMap](/api/globals#atlastexturereferencemap) | [AtlasTextureReferenceArray](/api/globals#atlastexturereferencearray)›*
+
+___
+
+###  AtlasTexturesFilterFunction
+
+Ƭ **AtlasTexturesFilterFunction**: *function*
+
+#### Type declaration:
+
+▸ (`texture`: [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)): *[AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`texture` | [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition) |
+
+___
+
+###  AtlasTexturesMapFunction
+
+Ƭ **AtlasTexturesMapFunction**: *function*
+
+#### Type declaration:
+
+▸ (`texture`: [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)): *[AtlasTextureDefinition](/api/interfaces/atlastexturedefinition)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`texture` | [AtlasTextureDefinition](/api/interfaces/atlastexturedefinition) |
 
 ___
 
@@ -138,6 +223,42 @@ ___
 Name | Type |
 ------ | ------ |
 `this` | [CanvasTexture](/api/classes/canvastexture) |
+
+___
+
+###  ComponentEventListener
+
+Ƭ **ComponentEventListener**: *function*
+
+#### Type declaration:
+
+▸ (`this`: T, ...`args`: any[]): *void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`this` | T |
+`...args` | any[] |
+
+___
+
+###  ComponentTickListener
+
+Ƭ **ComponentTickListener**: *function*
+
+#### Type declaration:
+
+▸ (`this`: [Component](/api/classes/component), `elapsed`: number, `now`: number, `last`: number): *boolean | void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`this` | [Component](/api/classes/component) |
+`elapsed` | number |
+`now` | number |
+`last` | number |
 
 ___
 
@@ -197,39 +318,15 @@ ___
 
 ___
 
-###  NodeEventListener
+###  MonotypeTextureInput
 
-Ƭ **NodeEventListener**: *function*
-
-#### Type declaration:
-
-▸ (`this`: T, ...`args`: any[]): *void*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`this` | T |
-`...args` | any[] |
+Ƭ **MonotypeTextureInput**: *string | Record‹string, [Texture](/api/classes/texture)› | function*
 
 ___
 
-###  NodeTickListener
+###  MonotypeValue
 
-Ƭ **NodeTickListener**: *function*
-
-#### Type declaration:
-
-▸ (`this`: T, `elapsed`: number, `now`: number, `last`: number): *boolean | void*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`this` | T |
-`elapsed` | number |
-`now` | number |
-`last` | number |
+Ƭ **MonotypeValue**: *string | number | string[] | number[]*
 
 ___
 
@@ -274,6 +371,12 @@ ___
 * **scaleMode**: *[FitMode](/api/globals#fitmode)*
 
 * **scaleWidth**: *number*
+
+___
+
+###  SpriteTextureInput
+
+Ƭ **SpriteTextureInput**: *[TextureSelectionInput](/api/globals#textureselectioninput)*
 
 ___
 
@@ -337,13 +440,13 @@ ___
 
 #### Type declaration:
 
-▸ (`this`: [Node](/api/classes/node)): *void*
+▸ (`this`: [Component](/api/classes/component)): *void*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`this` | [Node](/api/classes/node) |
+`this` | [Component](/api/classes/component) |
 
 ___
 
@@ -435,13 +538,13 @@ ___
 
 ###  anim
 
-▸ **anim**(`frames`: string | [TextureSelectionInputArray](/api/globals#textureselectioninputarray), `fps?`: number): *[Anim](/api/classes/anim)‹›*
+▸ **anim**(`frames?`: [AnimTextureInput](/api/globals#animtextureinput), `fps?`: number): *[Anim](/api/classes/anim)‹›*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`frames` | string &#124; [TextureSelectionInputArray](/api/globals#textureselectioninputarray) |
+`frames?` | [AnimTextureInput](/api/globals#animtextureinput) |
 `fps?` | number |
 
 **Returns:** *[Anim](/api/classes/anim)‹›*
@@ -464,11 +567,11 @@ ___
 
 ###  box
 
-▸ **box**(): *string | [Node](/api/classes/node)‹›*
+▸ **box**(): *[Component](/api/classes/component)‹›*
 
 **`deprecated`** Use minimize()
 
-**Returns:** *string | [Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)‹›*
 
 ___
 
@@ -484,71 +587,71 @@ ___
 
 ###  column
 
-▸ **column**(`align`: number): *string | [Node](/api/classes/node)‹›*
+▸ **column**(`align?`: number): *[Component](/api/classes/component)‹›*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`align` | number |
+`align?` | number |
 
-**Returns:** *string | [Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)‹›*
+
+___
+
+###  component
+
+▸ **component**(): *[Component](/api/classes/component)‹›*
+
+**Returns:** *[Component](/api/classes/component)‹›*
 
 ___
 
 ###  create
 
-▸ **create**(): *[Node](/api/classes/node)‹›*
+▸ **create**(): *[Component](/api/classes/component)‹›*
 
-**`deprecated`** Use layout()
+**`deprecated`** Use component()
 
-**Returns:** *[Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)‹›*
 
 ___
 
 ###  layer
 
-▸ **layer**(): *string | [Node](/api/classes/node)‹›*
+▸ **layer**(): *[Component](/api/classes/component)‹›*
 
 **`deprecated`** Use maximize()
 
-**Returns:** *string | [Node](/api/classes/node)‹›*
-
-___
-
-###  layout
-
-▸ **layout**(): *[Node](/api/classes/node)‹›*
-
-**Returns:** *[Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)‹›*
 
 ___
 
 ###  maximize
 
-▸ **maximize**(): *string | [Node](/api/classes/node)‹›*
+▸ **maximize**(): *[Component](/api/classes/component)‹›*
 
-**Returns:** *string | [Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)‹›*
 
 ___
 
 ###  minimize
 
-▸ **minimize**(): *string | [Node](/api/classes/node)‹›*
+▸ **minimize**(): *[Component](/api/classes/component)‹›*
 
-**Returns:** *string | [Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)‹›*
 
 ___
 
 ###  monotype
 
-▸ **monotype**(`chars`: string | Record‹string, [Texture](/api/classes/texture)› | function): *[Monotype](/api/classes/monotype)‹›*
+▸ **monotype**(`font`: [MonotypeTextureInput](/api/globals#monotypetextureinput)): *[Monotype](/api/classes/monotype)‹›*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`chars` | string &#124; Record‹string, [Texture](/api/classes/texture)› &#124; function |
+`font` | [MonotypeTextureInput](/api/globals#monotypetextureinput) |
 
 **Returns:** *[Monotype](/api/classes/monotype)‹›*
 
@@ -586,15 +689,15 @@ ___
 
 ###  row
 
-▸ **row**(`align`: number): *string | [Node](/api/classes/node)‹›*
+▸ **row**(`align?`: number): *[Component](/api/classes/component)‹›*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`align` | number |
+`align?` | number |
 
-**Returns:** *string | [Node](/api/classes/node)‹›*
+**Returns:** *[Component](/api/classes/component)‹›*
 
 ___
 

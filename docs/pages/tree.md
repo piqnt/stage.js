@@ -1,5 +1,4 @@
-
-### Tree Model
+## Component Tree
 
 Every application consists of a tree. The tree's root is created and returned by `Stage.mount()`.
 
