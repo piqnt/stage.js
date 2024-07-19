@@ -1,5 +1,4 @@
 import { Matrix } from "../common/matrix";
-import { Memo } from "../common/memo";
 
 import { Component, ComponentTickListener } from "./component";
 import { FitMode, Pin } from "./pin";
@@ -63,11 +62,11 @@ export interface LayoutManagerInterface {
   remove(component: Component): void;
   empty(component: Component): void;
 
-  getParent(component: Component): Component;
-  getFirst(component: Component, visible: boolean): Component;
-  getLast(component: Component, visible: boolean): Component;
-  getNext(component: Component, visible: boolean): Component;
-  getPrev(component: Component, visible: boolean): Component;
+  getParent(component: Component): Component | null;
+  getFirst(component: Component, visible: boolean): Component | null;
+  getLast(component: Component, visible: boolean): Component | null;
+  getNext(component: Component, visible: boolean): Component | null;
+  getPrev(component: Component, visible: boolean): Component | null;
 
   setParent(component: Component, parent: Component): void;
   setFirst(component: Component, first: Component): void;
@@ -96,7 +95,7 @@ export interface LayoutManagerInterface {
   fit(component: Component, width: number, height: number, mode: FitMode): void;
 }
 
-/** @internal */
+/** @hidden */
 export class BasicLayoutManager implements LayoutManagerInterface {
   static instance = new BasicLayoutManager();
 
@@ -284,7 +283,7 @@ export class BasicLayoutManager implements LayoutManagerInterface {
     component.touch();
   }
 
-  getParent(component: Component): Component {
+  getParent(component: Component): Component | null {
     assertComponent(component);
     return component.__parent;
   }
@@ -293,7 +292,7 @@ export class BasicLayoutManager implements LayoutManagerInterface {
     component.__parent = parent;
   }
 
-  getFirst(component: Component, visible?: boolean): Component {
+  getFirst(component: Component, visible?: boolean): Component | null {
     assertComponent(component);
     let next = component.__first;
     while (next && visible && !next.visible()) {
@@ -306,7 +305,7 @@ export class BasicLayoutManager implements LayoutManagerInterface {
     component.__first = first;
   }
 
-  getLast(component: Component, visible?: boolean): Component {
+  getLast(component: Component, visible?: boolean): Component | null {
     assertComponent(component);
     let prev = component.__last;
     while (prev && visible && !prev.visible()) {
@@ -320,7 +319,7 @@ export class BasicLayoutManager implements LayoutManagerInterface {
     component.__last = last;
   }
 
-  getNext(component: Component, visible?: boolean): Component {
+  getNext(component: Component, visible?: boolean): Component | null {
     assertComponent(component);
     let next = component.__next;
     while (next && visible && !next.visible()) {
@@ -334,7 +333,7 @@ export class BasicLayoutManager implements LayoutManagerInterface {
     component.__next = next;
   }
 
-  getPrev(component: Component, visible?: boolean): Component {
+  getPrev(component: Component, visible?: boolean): Component | null {
     assertComponent(component);
     let prev = component.__prev;
     while (prev && visible && !prev.visible()) {
@@ -407,7 +406,7 @@ export class BasicLayoutManager implements LayoutManagerInterface {
     component.pin("alignY", value);
   }
 
-  align(component: Component, type: "row" | "column", align: number) {
+  align(component: Component, type: "row" | "column", align: number): void {
     component.__layoutTicker && component.untick(component.__layoutTicker);
     component.__layoutTicker = () => {
       if (component.__memo_align_touch.recall(component._revision)) {
@@ -425,7 +424,9 @@ export class BasicLayoutManager implements LayoutManagerInterface {
       while ((child = next)) {
         next = child.next(true);
 
+        // todo: remove this, it was done in the past to update the pin
         child.getTransform();
+
         const w = child.getBoxWidth();
         const h = child.getBoxHeight();
 
@@ -478,11 +479,10 @@ export class BasicLayoutManager implements LayoutManagerInterface {
       }
     };
     component.tick(component.__layoutTicker);
-    return this;
   }
 
   /** Set size to match largest child size. */
-  minimize(component: Component) {
+  minimize(component: Component): void {
     component.__layoutTicker && component.untick(component.__layoutTicker);
     component.__layoutTicker = () => {
       if (component.__memo_minimize_touch.recall(component._revision)) {
@@ -495,7 +495,9 @@ export class BasicLayoutManager implements LayoutManagerInterface {
       let next = component.first(true);
       while ((child = next)) {
         next = child.next(true);
+        // todo: remove this, it was done in the past to update the pin
         child.getTransform();
+
         const w = child.getBoxWidth();
         const h = child.getBoxHeight();
         width = Math.max(width, w);
@@ -507,11 +509,10 @@ export class BasicLayoutManager implements LayoutManagerInterface {
       component.pin("height") != height && component.pin("height", height);
     };
     component.tick(component.__layoutTicker);
-    return this;
   }
 
   /** Set size to match parent size. */
-  maximize(component: Component) {
+  maximize(component: Component): void {
     component.__layoutTicker && component.untick(component.__layoutTicker);
     component.__layoutTicker = () => {
       const parent = component.parent();
@@ -529,7 +530,6 @@ export class BasicLayoutManager implements LayoutManagerInterface {
       }
     };
     component.tick(component.__layoutTicker, true);
-    return this;
   }
 }
 

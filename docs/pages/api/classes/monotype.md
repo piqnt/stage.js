@@ -314,15 +314,9 @@ ___
 
 ###  getTransform
 
-▸ **getTransform**(`combined?`: boolean): *[Matrix](/api/classes/matrix)‹›*
+▸ **getTransform**(): *[Matrix](/api/classes/matrix)‹›*
 
 *Inherited from [Component](/api/classes/component).[getTransform](/api/classes/component#gettransform)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`combined?` | boolean |
 
 **Returns:** *[Matrix](/api/classes/matrix)‹›*
 

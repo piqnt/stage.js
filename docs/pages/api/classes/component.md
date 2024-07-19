@@ -258,13 +258,7 @@ ___
 
 ###  getTransform
 
-▸ **getTransform**(`combined?`: boolean): *[Matrix](/api/classes/matrix)‹›*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`combined?` | boolean |
+▸ **getTransform**(): *[Matrix](/api/classes/matrix)‹›*
 
 **Returns:** *[Matrix](/api/classes/matrix)‹›*
 

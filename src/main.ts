@@ -11,6 +11,7 @@ export * from "./core/root";
 export * from "./core/sprite";
 export * from "./core/anim";
 export * from "./core/monotype";
+export * from "./core/layout";
 
 /** @hidden @deprecated @internal */
 export { math as Math } from "./common/math";

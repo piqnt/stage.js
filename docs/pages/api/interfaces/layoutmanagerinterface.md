@@ -139,7 +139,7 @@ ___
 
 ###  getFirst
 
-▸ **getFirst**(`component`: [Component](/api/classes/component), `visible`: boolean): *[Component](/api/classes/component)*
+▸ **getFirst**(`component`: [Component](/api/classes/component), `visible`: boolean): *[Component](/api/classes/component) | null*
 
 **Parameters:**
 
@@ -148,7 +148,7 @@ Name | Type |
 `component` | [Component](/api/classes/component) |
 `visible` | boolean |
 
-**Returns:** *[Component](/api/classes/component)*
+**Returns:** *[Component](/api/classes/component) | null*
 
 ___
 
@@ -168,7 +168,7 @@ ___
 
 ###  getLast
 
-▸ **getLast**(`component`: [Component](/api/classes/component), `visible`: boolean): *[Component](/api/classes/component)*
+▸ **getLast**(`component`: [Component](/api/classes/component), `visible`: boolean): *[Component](/api/classes/component) | null*
 
 **Parameters:**
 
@@ -177,13 +177,13 @@ Name | Type |
 `component` | [Component](/api/classes/component) |
 `visible` | boolean |
 
-**Returns:** *[Component](/api/classes/component)*
+**Returns:** *[Component](/api/classes/component) | null*
 
 ___
 
 ###  getNext
 
-▸ **getNext**(`component`: [Component](/api/classes/component), `visible`: boolean): *[Component](/api/classes/component)*
+▸ **getNext**(`component`: [Component](/api/classes/component), `visible`: boolean): *[Component](/api/classes/component) | null*
 
 **Parameters:**
 
@@ -192,13 +192,13 @@ Name | Type |
 `component` | [Component](/api/classes/component) |
 `visible` | boolean |
 
-**Returns:** *[Component](/api/classes/component)*
+**Returns:** *[Component](/api/classes/component) | null*
 
 ___
 
 ###  getParent
 
-▸ **getParent**(`component`: [Component](/api/classes/component)): *[Component](/api/classes/component)*
+▸ **getParent**(`component`: [Component](/api/classes/component)): *[Component](/api/classes/component) | null*
 
 **Parameters:**
 
@@ -206,7 +206,7 @@ Name | Type |
 ------ | ------ |
 `component` | [Component](/api/classes/component) |
 
-**Returns:** *[Component](/api/classes/component)*
+**Returns:** *[Component](/api/classes/component) | null*
 
 ___
 
@@ -241,7 +241,7 @@ ___
 
 ###  getPrev
 
-▸ **getPrev**(`component`: [Component](/api/classes/component), `visible`: boolean): *[Component](/api/classes/component)*
+▸ **getPrev**(`component`: [Component](/api/classes/component), `visible`: boolean): *[Component](/api/classes/component) | null*
 
 **Parameters:**
 
@@ -250,7 +250,7 @@ Name | Type |
 `component` | [Component](/api/classes/component) |
 `visible` | boolean |
 
-**Returns:** *[Component](/api/classes/component)*
+**Returns:** *[Component](/api/classes/component) | null*
 
 ___
 

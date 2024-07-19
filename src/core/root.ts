@@ -344,6 +344,7 @@ export class Root extends Component {
   viewbox(width?: number, height?: number, mode?: FitMode): this;
   viewbox(width?: number | Viewbox, height?: number, mode?: FitMode): this {
     // TODO: static/fixed viewbox
+    // todo: do not create new object, update same viewbox object
     if (typeof width === "number" && typeof height === "number") {
       this._viewbox = {
         width,
@@ -351,8 +352,13 @@ export class Root extends Component {
         mode,
       };
     } else if (typeof width === "object" && width !== null) {
+      const viewbox = width as Viewbox;
       this._viewbox = {
-        ...width,
+        x: viewbox.x,
+        y: viewbox.y,
+        width: viewbox.width,
+        height: viewbox.height,
+        mode: viewbox.mode,
       };
     }
 
@@ -388,23 +394,32 @@ export class Root extends Component {
       const viewboxX = viewbox.x ?? 0;
       const viewboxY = viewbox.y ?? 0;
 
-      const cameraZoom = camera?.a ?? 1;
-      const cameraX = camera?.e ?? 0;
-      const cameraY = camera?.f ?? 0;
-
       const scaleX = this.pin("scaleX");
       const scaleY = this.pin("scaleY");
 
-      const withCameraScaleX = scaleX * cameraZoom;
-      const withCameraScaleY = scaleY * cameraZoom;
+      if (!camera) {
+        const offsetX =  - viewboxX * scaleX;
+        const offsetY =  - viewboxY * scaleY;
+        this.pin("offsetX", offsetX);
+        this.pin("offsetY", offsetY);
 
-      const withCameraOffsetX = cameraX - viewboxX * withCameraScaleX;
-      const withCameraOffsetY = cameraY - viewboxY * withCameraScaleY;
+      } else {
+        // todo: use matrix to apply viewbox and concat camera
+        const cameraScaleX = camera.a || 1;
+        const cameraScaleY = camera.b || 1;
+        const cameraTranslateX = camera.e || 0;
+        const cameraTranslateY = camera.f || 0;
 
-      this.pin("scaleX", withCameraScaleX);
-      this.pin("scaleY", withCameraScaleY);
-      this.pin("offsetX", withCameraOffsetX);
-      this.pin("offsetY", withCameraOffsetY);
+        const combinedScaleX = scaleX * cameraScaleX;
+        const combinedScaleY = scaleY * cameraScaleY;
+        this.pin("scaleX", combinedScaleX);
+        this.pin("scaleY", combinedScaleY);
+
+        const combinedOffsetX = cameraTranslateX - viewboxX * combinedScaleX;
+        const combinedOffsetY = cameraTranslateY - viewboxY * combinedScaleY;
+        this.pin("offsetX", combinedOffsetX);
+        this.pin("offsetY", combinedOffsetY);
+      }
     } else if (viewport) {
       this.width(viewport.width);
       this.height(viewport.height);

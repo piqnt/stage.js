@@ -17,11 +17,15 @@ export interface Vec2Value {
 }
 
 export class Matrix {
+  /** x-scale */
   a = 1;
   b = 0;
   c = 0;
+  /** y-scale */
   d = 1;
+  /** x-translate */
   e = 0;
+  /** y-translate */
   f = 0;
 
   /** @internal */ private _dirty: boolean;

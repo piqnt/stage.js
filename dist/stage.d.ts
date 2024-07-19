@@ -16,11 +16,15 @@ export interface Vec2Value {
 	y: number;
 }
 export declare class Matrix {
+	/** x-scale */
 	a: number;
 	b: number;
 	c: number;
+	/** y-scale */
 	d: number;
+	/** x-translate */
 	e: number;
+	/** y-translate */
 	f: number;
 	constructor(a: number, b: number, c: number, d: number, e: number, f: number);
 	constructor(m: MatrixValue);
@@ -245,6 +249,84 @@ export declare class Transition implements Pinned {
 }
 export interface LayoutObject {
 }
+export interface LayoutManagerInterface {
+	getTransform(component: Component): Matrix;
+	getTextureTransparency(component: Component): number;
+	getTransparency(component: Component): number;
+	append(component: Component, child: Component): void;
+	prepend(component: Component, child: Component): void;
+	insertAfter(component: Component, sibling: Component): void;
+	insertBefore(component: Component, sibling: Component): void;
+	remove(component: Component): void;
+	empty(component: Component): void;
+	getParent(component: Component): Component | null;
+	getFirst(component: Component, visible: boolean): Component | null;
+	getLast(component: Component, visible: boolean): Component | null;
+	getNext(component: Component, visible: boolean): Component | null;
+	getPrev(component: Component, visible: boolean): Component | null;
+	setParent(component: Component, parent: Component): void;
+	setFirst(component: Component, first: Component): void;
+	setLast(component: Component, last: Component): void;
+	setNext(component: Component, next: Component): void;
+	setPrev(component: Component, prev: Component): void;
+	getWidth(component: Component): number;
+	getHeight(component: Component): number;
+	getBoxWidth(component: Component): number;
+	getBoxHeight(component: Component): number;
+	setOffsetX(component: Component, value: number): void;
+	setOffsetY(component: Component, value: number): void;
+	setAlignX(component: Component, value: number): void;
+	setAlignY(component: Component, value: number): void;
+	minimize(component: Component): void;
+	maximize(component: Component): void;
+	align(component: Component, type: "row" | "column", align: number): void;
+	getPin(component: Component): Pin;
+	updatePin(component: Component, data: object): void;
+	getPinProp(component: Component, key: string): any;
+	setPinProp(component: Component, key: string, value: any): void;
+	fit(component: Component, width: number, height: number, mode: FitMode): void;
+}
+/** @hidden */
+export declare class BasicLayoutManager implements LayoutManagerInterface {
+	static instance: BasicLayoutManager;
+	getTransform(component: Component): Matrix;
+	getTransparency(component: Component): number;
+	getTextureTransparency(component: Component): number;
+	append(parent: Component, child: Component): void;
+	prepend(parent: Component, child: Component): void;
+	insertBefore(component: Component, sibling: Component): void;
+	insertAfter(component: Component, sibling: Component): void;
+	remove(component: Component): void;
+	empty(component: Component): void;
+	getParent(component: Component): Component | null;
+	setParent(component: Component, parent: Component): void;
+	getFirst(component: Component, visible?: boolean): Component | null;
+	setFirst(component: Component, first: Component): void;
+	getLast(component: Component, visible?: boolean): Component | null;
+	setLast(component: Component, last: Component): void;
+	getNext(component: Component, visible?: boolean): Component | null;
+	setNext(component: Component, next: Component): void;
+	getPrev(component: Component, visible?: boolean): Component | null;
+	setPrev(component: Component, prev: Component): void;
+	getPin(component: Component): Pin;
+	getPinProp(component: Component, key: string): any;
+	setPinProp(component: Component, key: string, value: any): void;
+	updatePin(component: Component, data: object): void;
+	fit(component: Component, width: number, height: number, mode?: FitMode): void;
+	getBoxWidth(component: Component): number;
+	getBoxHeight(component: Component): number;
+	getWidth(component: Component): number;
+	getHeight(component: Component): number;
+	setOffsetX(component: Component, value: number): void;
+	setOffsetY(component: Component, value: number): void;
+	setAlignX(component: Component, value: number): void;
+	setAlignY(component: Component, value: number): void;
+	align(component: Component, type: "row" | "column", align: number): void;
+	/** Set size to match largest child size. */
+	minimize(component: Component): void;
+	/** Set size to match parent size. */
+	maximize(component: Component): void;
+}
 export interface ComponentVisitor {
 	reverse?: boolean;
 	visible?: boolean;
@@ -254,6 +336,7 @@ export interface ComponentVisitor {
 export type ComponentTickListener = (this: Component, elapsed: number, now: number, last: number) => boolean | void;
 export type ComponentEventListener<T> = (this: T, ...args: any[]) => void;
 export declare class Component implements LayoutObject {
+	/** @hidden */ layoutManager: LayoutManagerInterface;
 	private _visible;
 	private _label;
 	private _attrs;
@@ -330,7 +413,7 @@ export declare class Component implements LayoutObject {
 	/** @hidden used by parent for layout alignment */
 	setAlignY(value: number): void;
 	matrix(relative?: boolean): Matrix;
-	getTransform(combined?: boolean): Matrix;
+	getTransform(): Matrix;
 	pin(key: string): any;
 	pin(key: string, value: any): this;
 	pin(obj: object): this;
@@ -549,7 +632,7 @@ export declare class Monotype extends Component {
 }
 
 declare namespace Stage {
-	export { Anim, Atlas, AtlasDefinition, AtlasImageDefinition, AtlasTextureDefinition, AtlasTexturesDefinition, AtlasTexturesDefinitionFunction, AtlasTexturesDefinitionRecords, AtlasTexturesFilterFunction, AtlasTexturesMapFunction, CanvasTexture, Component, ComponentEventListener, ComponentTickListener, ComponentVisitor, FitMode, ImageTexture, LegacyFitMode, Matrix, MatrixValue, Monotype, POINTER_CANCEL, POINTER_CLICK, POINTER_END, POINTER_MOVE, POINTER_START, Pin, Pinned, PipeTexture, ResizableTexture, ResizableTextureMode, Root, Sprite, Texture, TextureSelection, TextureSelectionInput, TextureSelectionInputArray, TextureSelectionInputFactory, TextureSelectionInputMap, TextureSelectionInputOne, Transition, TransitionEndListener, TransitionOptions, Vec2Value, Viewbox, Viewport, anim, atlas, box, canvas, column, component, create, layer, math, maximize, memoizeDraw, minimize, monotype, mount, pause, resume, row, sprite, texture };
+	export { Anim, Atlas, AtlasDefinition, AtlasImageDefinition, AtlasTextureDefinition, AtlasTexturesDefinition, AtlasTexturesDefinitionFunction, AtlasTexturesDefinitionRecords, AtlasTexturesFilterFunction, AtlasTexturesMapFunction, BasicLayoutManager, CanvasTexture, Component, ComponentEventListener, ComponentTickListener, ComponentVisitor, FitMode, ImageTexture, LayoutManagerInterface, LayoutObject, LegacyFitMode, Matrix, MatrixValue, Monotype, POINTER_CANCEL, POINTER_CLICK, POINTER_END, POINTER_MOVE, POINTER_START, Pin, Pinned, PipeTexture, ResizableTexture, ResizableTextureMode, Root, Sprite, Texture, TextureSelection, TextureSelectionInput, TextureSelectionInputArray, TextureSelectionInputFactory, TextureSelectionInputMap, TextureSelectionInputOne, Transition, TransitionEndListener, TransitionOptions, Vec2Value, Viewbox, Viewport, anim, atlas, box, canvas, column, component, create, layer, math, maximize, memoizeDraw, minimize, monotype, mount, pause, resume, row, sprite, texture };
 }
 
 export {

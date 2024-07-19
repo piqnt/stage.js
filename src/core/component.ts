@@ -31,7 +31,8 @@ export type ComponentEventListener<T> = (this: T, ...args: any[]) => void;
 /** @internal */ let REVISION = 0;
 
 export class Component implements LayoutObject {
-  /** @internal */ layoutManager: LayoutManagerInterface = BasicLayoutManager.instance;
+  /** @hidden */ layoutManager: LayoutManagerInterface = BasicLayoutManager.instance;
+
   /** @internal */ eventManager: EventManager = EventManager.instance;
 
   /** @internal */ uid = "component:" + uid();
@@ -643,11 +644,19 @@ export class Component implements LayoutObject {
     this.__abs_matrix.reset(relativeMatrix);
     this.__abs_matrix.concat(parentMatrix);
 
+    // this.__abs_matrix.a = relativeMatrix.a * parentMatrix.a + relativeMatrix.b * parentMatrix.c;
+    // this.__abs_matrix.b = relativeMatrix.b * parentMatrix.d + relativeMatrix.a * parentMatrix.b;
+    // this.__abs_matrix.c = relativeMatrix.c * parentMatrix.a + relativeMatrix.d * parentMatrix.c;
+    // this.__abs_matrix.d = relativeMatrix.d * parentMatrix.d + relativeMatrix.c * parentMatrix.b;
+    // this.__abs_matrix.e = relativeMatrix.e * parentMatrix.a + parentMatrix.e + relativeMatrix.f * parentMatrix.c;
+    // this.__abs_matrix.f = relativeMatrix.f * parentMatrix.d + parentMatrix.f + relativeMatrix.e * parentMatrix.b;
+
     return this.__abs_matrix;
   }
 
-  getTransform(combined?: boolean) {
-    return this.matrix(!combined);
+  // relative to parent
+  getTransform() {
+    return this.layoutManager.getTransform(this);
   }
 
   pin(key: string): any;

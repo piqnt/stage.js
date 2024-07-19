@@ -1796,7 +1796,6 @@
         }
       };
       component2.tick(component2.__layoutTicker);
-      return this;
     }
     /** Set size to match largest child size. */
     minimize(component2) {
@@ -1823,7 +1822,6 @@
         component2.pin("height") != height && component2.pin("height", height);
       };
       component2.tick(component2.__layoutTicker);
-      return this;
     }
     /** Set size to match parent size. */
     maximize(component2) {
@@ -1842,7 +1840,6 @@
         }
       };
       component2.tick(component2.__layoutTicker, true);
-      return this;
     }
   };
   let BasicLayoutManager = _BasicLayoutManager;
@@ -2435,8 +2432,9 @@
       this.__abs_matrix.concat(parentMatrix);
       return this.__abs_matrix;
     }
-    getTransform(combined) {
-      return this.matrix(!combined);
+    // relative to parent
+    getTransform() {
+      return this.layoutManager.getTransform(this);
     }
     pin(a, b) {
       if (typeof a === "object") {
@@ -3248,8 +3246,13 @@
           mode
         };
       } else if (typeof width === "object" && width !== null) {
+        const viewbox = width;
         this._viewbox = {
-          ...width
+          x: viewbox.x,
+          y: viewbox.y,
+          width: viewbox.width,
+          height: viewbox.height,
+          mode: viewbox.mode
         };
       }
       this.rescale();
@@ -3276,19 +3279,27 @@
         this.fit(viewportWidth, viewportHeight, viewboxMode);
         const viewboxX = viewbox.x ?? 0;
         const viewboxY = viewbox.y ?? 0;
-        const cameraZoom = (camera == null ? void 0 : camera.a) ?? 1;
-        const cameraX = (camera == null ? void 0 : camera.e) ?? 0;
-        const cameraY = (camera == null ? void 0 : camera.f) ?? 0;
         const scaleX = this.pin("scaleX");
         const scaleY = this.pin("scaleY");
-        const withCameraScaleX = scaleX * cameraZoom;
-        const withCameraScaleY = scaleY * cameraZoom;
-        const withCameraOffsetX = cameraX - viewboxX * withCameraScaleX;
-        const withCameraOffsetY = cameraY - viewboxY * withCameraScaleY;
-        this.pin("scaleX", withCameraScaleX);
-        this.pin("scaleY", withCameraScaleY);
-        this.pin("offsetX", withCameraOffsetX);
-        this.pin("offsetY", withCameraOffsetY);
+        if (!camera) {
+          const offsetX = -viewboxX * scaleX;
+          const offsetY = -viewboxY * scaleY;
+          this.pin("offsetX", offsetX);
+          this.pin("offsetY", offsetY);
+        } else {
+          const cameraScaleX = camera.a || 1;
+          const cameraScaleY = camera.b || 1;
+          const cameraTranslateX = camera.e || 0;
+          const cameraTranslateY = camera.f || 0;
+          const combinedScaleX = scaleX * cameraScaleX;
+          const combinedScaleY = scaleY * cameraScaleY;
+          this.pin("scaleX", combinedScaleX);
+          this.pin("scaleY", combinedScaleY);
+          const combinedOffsetX = cameraTranslateX - viewboxX * combinedScaleX;
+          const combinedOffsetY = cameraTranslateY - viewboxY * combinedScaleY;
+          this.pin("offsetX", combinedOffsetX);
+          this.pin("offsetY", combinedOffsetY);
+        }
       } else if (viewport) {
         this.width(viewport.width);
         this.height(viewport.height);
@@ -3480,6 +3491,7 @@
     __proto__: null,
     Anim,
     Atlas,
+    BasicLayoutManager,
     CanvasTexture,
     Component,
     Image: Image$1,
@@ -3504,6 +3516,7 @@
     TextureSelection,
     Transition,
     anim,
+    assertComponent,
     atlas,
     box,
     canvas,
@@ -3533,6 +3546,7 @@
   }, Symbol.toStringTag, { value: "Module" }));
   exports2.Anim = Anim;
   exports2.Atlas = Atlas;
+  exports2.BasicLayoutManager = BasicLayoutManager;
   exports2.CanvasTexture = CanvasTexture;
   exports2.Component = Component;
   exports2.Image = Image$1;
@@ -3557,6 +3571,7 @@
   exports2.TextureSelection = TextureSelection;
   exports2.Transition = Transition;
   exports2.anim = anim;
+  exports2.assertComponent = assertComponent;
   exports2.atlas = atlas;
   exports2.box = box;
   exports2.canvas = canvas;

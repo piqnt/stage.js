@@ -75,6 +75,8 @@ Name | Type |
 
 • **a**: *number* = 1
 
+x-scale
+
 ___
 
 ###  b
@@ -93,17 +95,23 @@ ___
 
 • **d**: *number* = 1
 
+y-scale
+
 ___
 
 ###  e
 
 • **e**: *number* = 0
 
+x-translate
+
 ___
 
 ###  f
 
 • **f**: *number* = 0
+
+y-translate
 
 ## Methods
 
