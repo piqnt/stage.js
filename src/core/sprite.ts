@@ -18,6 +18,9 @@ export function sprite(frame?: TextureSelectionInput) {
 export class Sprite extends Node {
   /** @internal */ _image: Texture | null;
 
+  /** @internal */ _tiled: boolean = false;
+  /** @internal */ _stretched: boolean = false;
+
   constructor() {
     super();
     this.label("Sprite");
@@ -30,7 +33,16 @@ export class Sprite extends Node {
     if (this._image) {
       this.pin("width", this._image.getWidth());
       this.pin("height", this._image.getHeight());
-      this._textures[0] = new PipeTexture(this._image);
+
+      // todo: could we chain textures in a way that doesn't require rebuilding the chain?
+      if (this._tiled) {
+        this._textures[0] = new ResizableTexture(this._image, "tile");
+      } else if (this._stretched) {
+        this._textures[0] = new ResizableTexture(this._image, "stretch");
+      } else {
+        this._textures[0] = new PipeTexture(this._image);
+      }
+
       this._textures.length = 1;
     } else {
       this.pin("width", 0);
@@ -46,12 +58,14 @@ export class Sprite extends Node {
   }
 
   tile(inner = false) {
+    this._tiled = true;
     const texture = new ResizableTexture(this._image, "tile");
     this._textures[0] = texture;
     return this;
   }
 
   stretch(inner = false) {
+    this._stretched = true;
     const texture = new ResizableTexture(this._image, "stretch");
     this._textures[0] = texture;
     return this;
