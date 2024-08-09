@@ -239,8 +239,8 @@
   }
   const objectToString = Object.prototype.toString;
   function isFn(value) {
-    const str2 = objectToString.call(value);
-    return str2 === "[object Function]" || str2 === "[object GeneratorFunction]" || str2 === "[object AsyncFunction]";
+    const str = objectToString.call(value);
+    return str === "[object Function]" || str === "[object GeneratorFunction]" || str === "[object AsyncFunction]";
   }
   function isHash(value) {
     return objectToString.call(value) === "[object Object]" && value.constructor === Object;
@@ -2400,6 +2400,8 @@
   class Sprite extends Node {
     constructor() {
       super();
+      this._tiled = false;
+      this._stretched = false;
       this.prerenderContext = {};
       this.label("Sprite");
       this._textures = [];
@@ -2410,7 +2412,13 @@
       if (this._image) {
         this.pin("width", this._image.getWidth());
         this.pin("height", this._image.getHeight());
-        this._textures[0] = new PipeTexture(this._image);
+        if (this._tiled) {
+          this._textures[0] = new ResizableTexture(this._image, "tile");
+        } else if (this._stretched) {
+          this._textures[0] = new ResizableTexture(this._image, "stretch");
+        } else {
+          this._textures[0] = new PipeTexture(this._image);
+        }
         this._textures.length = 1;
       } else {
         this.pin("width", 0);
@@ -2424,11 +2432,13 @@
       return this.texture(frame);
     }
     tile(inner = false) {
+      this._tiled = true;
       const texture2 = new ResizableTexture(this._image, "tile");
       this._textures[0] = texture2;
       return this;
     }
     stretch(inner = false) {
+      this._stretched = true;
       const texture2 = new ResizableTexture(this._image, "stretch");
       this._textures[0] = texture2;
       return this;
@@ -3220,7 +3230,7 @@
       return this;
     }
   }
-  const str = monotype;
+  const string = monotype;
   const Str = Monotype;
   const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
     __proto__: null,
@@ -3272,7 +3282,7 @@
     resume,
     row,
     sprite,
-    str,
+    string,
     texture,
     wrap
   }, Symbol.toStringTag, { value: "Module" }));
@@ -3325,7 +3335,7 @@
   exports2.resume = resume;
   exports2.row = row;
   exports2.sprite = sprite;
-  exports2.str = str;
+  exports2.string = string;
   exports2.texture = texture;
   exports2.wrap = wrap;
   Object.defineProperties(exports2, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
