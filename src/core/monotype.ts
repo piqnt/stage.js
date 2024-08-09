@@ -80,6 +80,6 @@ export class Monotype extends Node {
 }
 
 /** @hidden @deprecated @internal */
-export const str = monotype;
+export const string = monotype;
 /** @hidden @deprecated @internal */
 export const Str = Monotype;
