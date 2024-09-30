@@ -1,6 +1,7 @@
 import path from "path";
 import Pages from "vite-plugin-pages";
 import license from "rollup-plugin-license";
+import { vitePluginTypescriptTransform } from "vite-plugin-typescript-transform";
 
 export default {
   define: {
@@ -9,6 +10,10 @@ export default {
   plugins: [
     Pages({
       dirs: "example",
+    }),
+    // this is used to let ts compile to es5, so that we can use it in planck v1
+    vitePluginTypescriptTransform({
+      enforce: 'pre',
     }),
     license({
       sourcemap: true,
