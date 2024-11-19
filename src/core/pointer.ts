@@ -3,8 +3,6 @@ import { Vec2Value } from "../common/matrix";
 import { Root, Viewport } from "./root";
 import { Node } from "./core";
 
-/** @internal */ const DEBUG = false;
-
 // todo: capture mouse
 // todo: implement unmount
 
@@ -86,6 +84,7 @@ class VisitPayload {
 
 /** @internal */
 export class Pointer {
+  static DEBUG = false;
   ratio = 1;
 
   stage: Root;
@@ -140,7 +139,7 @@ export class Pointer {
   cancelList: Node[] = [];
 
   handleStart = (event: TouchEvent | MouseEvent) => {
-    DEBUG && console.log("pointer-start", event.type);
+    Pointer.DEBUG && console.debug && console.debug("pointer-start", event.type);
     event.preventDefault();
     this.localPoint(event);
     this.dispatchEvent(event.type, event);
@@ -158,11 +157,11 @@ export class Pointer {
   handleEnd = (event: TouchEvent | MouseEvent) => {
     event.preventDefault();
     // up/end location is not available, last one is used instead
-    DEBUG && console.log("pointer-end", event.type);
+    Pointer.DEBUG && console.debug && console.debug("pointer-end", event.type);
     this.dispatchEvent(event.type, event);
 
     if (this.clickList.length) {
-      DEBUG && console.log("pointer-click: ", event.type, this.clickList?.length);
+      Pointer.DEBUG && console.debug && console.debug("pointer-click: ", event.type, this.clickList?.length);
       this.dispatchEvent("click", event, this.clickList);
     }
     this.cancelList.length = 0;
@@ -170,7 +169,7 @@ export class Pointer {
 
   handleCancel = (event: TouchEvent | MouseEvent | FocusEvent) => {
     if (this.cancelList.length) {
-      DEBUG && console.log("pointer-cancel", event.type, this.clickList?.length);
+      Pointer.DEBUG && console.debug && console.debug("pointer-cancel", event.type, this.clickList?.length);
       this.dispatchEvent("mousecancel", event, this.cancelList);
     }
     this.clickList.length = 0;
@@ -236,7 +235,7 @@ export class Pointer {
     payload.collected = null;
 
     if (type !== "mousemove" && type !== "touchmove") {
-      DEBUG && console.log("pointer:dispatchEvent", payload, targets?.length);
+      Pointer.DEBUG && console.debug && console.debug("pointer:dispatchEvent", payload, targets?.length);
     }
 
     if (targets) {

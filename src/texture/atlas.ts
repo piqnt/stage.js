@@ -5,8 +5,6 @@ import { TextureSelection } from "./selection";
 import { ImageTexture } from "./image";
 import { PipeTexture } from "./pipe";
 
-/** @internal */ const DEBUG = true;
-
 export interface AtlasTextureDefinition {
   x: number;
   y: number;
@@ -181,11 +179,11 @@ export class Atlas extends ImageTexture {
 
 /** @internal */
 function asyncLoadImage(src: string) {
-  DEBUG && console.log("Loading image: " + src);
+  console.debug && console.debug("Loading image: " + src);
   return new Promise<HTMLImageElement>(function (resolve, reject) {
     const img = new Image();
     img.onload = function () {
-      DEBUG && console.log("Image loaded: " + src);
+      console.debug && console.debug("Image loaded: " + src);
       resolve(img);
     };
     img.onerror = function (error) {

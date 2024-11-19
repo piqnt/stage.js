@@ -5,8 +5,6 @@ import { Node } from "./core";
 import { Pointer } from "./pointer";
 import { FitMode, isValidFitMode } from "./pin";
 
-/** @internal */ const DEBUG = true;
-
 /** @internal */ const ROOTS: Root[] = [];
 
 export function pause() {
@@ -101,7 +99,7 @@ export class Root extends Node {
     }
 
     if (!this.canvas) {
-      DEBUG && console.log("Creating canvas element...");
+      console.debug && console.debug("Creating canvas element...");
       this.canvas = document.createElement("canvas");
       Object.assign(this.canvas.style, {
         position: "absolute",
@@ -189,8 +187,7 @@ export class Root extends Node {
         this.canvas.width = this.drawingWidth;
         this.canvas.height = this.drawingHeight;
 
-        DEBUG &&
-          console.log(
+        console.debug && console.debug(
             "Resize: [" +
               this.drawingWidth +
               ", " +
