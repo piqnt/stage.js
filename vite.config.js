@@ -1,11 +1,12 @@
 import path from "path";
+import { defineConfig, normalizePath } from 'vite';
 import Pages from "vite-plugin-pages";
 import license from "rollup-plugin-license";
 import { vitePluginTypescriptTransform } from "vite-plugin-typescript-transform";
+import dtsBundleGenerator from 'vite-plugin-dts-bundle-generator';
 
-export default {
+export default defineConfig({
   define: {
-    DEBUG: "false",
   },
   plugins: [
     Pages({
@@ -14,6 +15,9 @@ export default {
     // this is used to let ts compile to es5, so that we can use it in planck v1
     vitePluginTypescriptTransform({
       enforce: 'pre',
+    }),
+    dtsBundleGenerator({
+      fileName: 'stage.d.ts',
     }),
     license({
       sourcemap: true,
@@ -37,12 +41,12 @@ export default {
     }),
   ],
   build: {
-    minify: false,
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: normalizePath(path.resolve(__dirname, "src", "index.ts")),
       name: "Stage",
       fileName: "stage",
       formats: ["es", "umd", "cjs"],
     },
+    minify: false,
   },
-};
+});

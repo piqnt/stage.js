@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Stage.js 1.0.0-alpha.6
+ * Stage.js 1.0.0-alpha.7
  *
  * @copyright Copyright (c) 2024 Ali Shakiba
  * @license The MIT License (MIT)
@@ -314,14 +314,12 @@ var Texture = (
     return Texture2;
   }()
 );
-var __extends$9 = function() {
+var __extends$9 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -390,14 +388,12 @@ var ImageTexture = (
     return ImageTexture2;
   }(Texture)
 );
-var __extends$8 = function() {
+var __extends$8 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -444,14 +440,12 @@ var PipeTexture = (
     return PipeTexture2;
   }(Texture)
 );
-var __extends$7 = function() {
+var __extends$7 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -489,16 +483,15 @@ var __awaiter$1 = function(thisArg, _arguments, P, generator) {
     function step(result) {
       result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
+    step((generator = generator.apply(thisArg, [])).next());
   });
 };
 var __generator$1 = function(thisArg, body) {
   var _ = { label: 0, sent: function() {
-    if (t[0] & 1)
-      throw t[1];
+    if (t[0] & 1) throw t[1];
     return t[1];
-  }, trys: [], ops: [] }, f, y, t, g;
-  return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() {
+  }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+  return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
     return this;
   }), g;
   function verb(n) {
@@ -507,64 +500,58 @@ var __generator$1 = function(thisArg, body) {
     };
   }
   function step(op) {
-    if (f)
-      throw new TypeError("Generator is already executing.");
-    while (_)
-      try {
-        if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done)
-          return t;
-        if (y = 0, t)
-          op = [op[0] & 2, t.value];
-        switch (op[0]) {
-          case 0:
-          case 1:
+    if (f) throw new TypeError("Generator is already executing.");
+    while (g && (g = 0, op[0] && (_ = 0)), _) try {
+      if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+      if (y = 0, t) op = [op[0] & 2, t.value];
+      switch (op[0]) {
+        case 0:
+        case 1:
+          t = op;
+          break;
+        case 4:
+          _.label++;
+          return { value: op[1], done: false };
+        case 5:
+          _.label++;
+          y = op[1];
+          op = [0];
+          continue;
+        case 7:
+          op = _.ops.pop();
+          _.trys.pop();
+          continue;
+        default:
+          if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+            _ = 0;
+            continue;
+          }
+          if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+            _.label = op[1];
+            break;
+          }
+          if (op[0] === 6 && _.label < t[1]) {
+            _.label = t[1];
             t = op;
             break;
-          case 4:
-            _.label++;
-            return { value: op[1], done: false };
-          case 5:
-            _.label++;
-            y = op[1];
-            op = [0];
-            continue;
-          case 7:
-            op = _.ops.pop();
-            _.trys.pop();
-            continue;
-          default:
-            if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-              _ = 0;
-              continue;
-            }
-            if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
-              _.label = op[1];
-              break;
-            }
-            if (op[0] === 6 && _.label < t[1]) {
-              _.label = t[1];
-              t = op;
-              break;
-            }
-            if (t && _.label < t[2]) {
-              _.label = t[2];
-              _.ops.push(op);
-              break;
-            }
-            if (t[2])
-              _.ops.pop();
-            _.trys.pop();
-            continue;
-        }
-        op = body.call(thisArg, _);
-      } catch (e) {
-        op = [6, e];
-        y = 0;
-      } finally {
-        f = t = 0;
+          }
+          if (t && _.label < t[2]) {
+            _.label = t[2];
+            _.ops.push(op);
+            break;
+          }
+          if (t[2]) _.ops.pop();
+          _.trys.pop();
+          continue;
       }
-    if (op[0] & 5)
-      throw op[1];
+      op = body.call(thisArg, _);
+    } catch (e) {
+      op = [6, e];
+      y = 0;
+    } finally {
+      f = t = 0;
+    }
+    if (op[0] & 5) throw op[1];
     return { value: op[0] ? op[1] : void 0, done: true };
   }
 };
@@ -665,8 +652,7 @@ var Atlas = (
         return __generator$1(this, function(_a) {
           switch (_a.label) {
             case 0:
-              if (!this._imageSrc)
-                return [3, 2];
+              if (!this._imageSrc) return [3, 2];
               return [4, asyncLoadImage(this._imageSrc)];
             case 1:
               image2 = _a.sent();
@@ -685,9 +671,11 @@ var Atlas = (
   }(ImageTexture)
 );
 function asyncLoadImage(src) {
+  console.debug && console.debug("Loading image: " + src);
   return new Promise(function(resolve, reject) {
     var img = new Image();
     img.onload = function() {
+      console.debug && console.debug("Image loaded: " + src);
       resolve(img);
     };
     img.onerror = function(error) {
@@ -715,14 +703,12 @@ function deprecatedWarning(def) {
   if (typeof def.image === "object" && "url" in def.image)
     console.warn("'image.url' field of atlas definition is deprecated");
 }
-var __extends$6 = function() {
+var __extends$6 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -760,16 +746,15 @@ var __awaiter = function(thisArg, _arguments, P, generator) {
     function step(result) {
       result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
+    step((generator = generator.apply(thisArg, [])).next());
   });
 };
 var __generator = function(thisArg, body) {
   var _ = { label: 0, sent: function() {
-    if (t[0] & 1)
-      throw t[1];
+    if (t[0] & 1) throw t[1];
     return t[1];
-  }, trys: [], ops: [] }, f, y, t, g;
-  return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() {
+  }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+  return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
     return this;
   }), g;
   function verb(n) {
@@ -778,64 +763,58 @@ var __generator = function(thisArg, body) {
     };
   }
   function step(op) {
-    if (f)
-      throw new TypeError("Generator is already executing.");
-    while (_)
-      try {
-        if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done)
-          return t;
-        if (y = 0, t)
-          op = [op[0] & 2, t.value];
-        switch (op[0]) {
-          case 0:
-          case 1:
+    if (f) throw new TypeError("Generator is already executing.");
+    while (g && (g = 0, op[0] && (_ = 0)), _) try {
+      if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+      if (y = 0, t) op = [op[0] & 2, t.value];
+      switch (op[0]) {
+        case 0:
+        case 1:
+          t = op;
+          break;
+        case 4:
+          _.label++;
+          return { value: op[1], done: false };
+        case 5:
+          _.label++;
+          y = op[1];
+          op = [0];
+          continue;
+        case 7:
+          op = _.ops.pop();
+          _.trys.pop();
+          continue;
+        default:
+          if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+            _ = 0;
+            continue;
+          }
+          if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+            _.label = op[1];
+            break;
+          }
+          if (op[0] === 6 && _.label < t[1]) {
+            _.label = t[1];
             t = op;
             break;
-          case 4:
-            _.label++;
-            return { value: op[1], done: false };
-          case 5:
-            _.label++;
-            y = op[1];
-            op = [0];
-            continue;
-          case 7:
-            op = _.ops.pop();
-            _.trys.pop();
-            continue;
-          default:
-            if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-              _ = 0;
-              continue;
-            }
-            if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
-              _.label = op[1];
-              break;
-            }
-            if (op[0] === 6 && _.label < t[1]) {
-              _.label = t[1];
-              t = op;
-              break;
-            }
-            if (t && _.label < t[2]) {
-              _.label = t[2];
-              _.ops.push(op);
-              break;
-            }
-            if (t[2])
-              _.ops.pop();
-            _.trys.pop();
-            continue;
-        }
-        op = body.call(thisArg, _);
-      } catch (e) {
-        op = [6, e];
-        y = 0;
-      } finally {
-        f = t = 0;
+          }
+          if (t && _.label < t[2]) {
+            _.label = t[2];
+            _.ops.push(op);
+            break;
+          }
+          if (t[2]) _.ops.pop();
+          _.trys.pop();
+          continue;
       }
-    if (op[0] & 5)
-      throw op[1];
+      op = body.call(thisArg, _);
+    } catch (e) {
+      op = [6, e];
+      y = 0;
+    } finally {
+      f = t = 0;
+    }
+    if (op[0] & 5) throw op[1];
     return { value: op[0] ? op[1] : void 0, done: true };
   }
 };
@@ -974,14 +953,12 @@ function texture(query) {
   }
   return result;
 }
-var __extends$5 = function() {
+var __extends$5 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -1278,8 +1255,7 @@ var Pin = (
         this._height = this._unscaled_height;
       }
       if (typeof width === "number" && typeof height === "number" && typeof mode === "string") {
-        if (mode === "fill")
-          ;
+        if (mode === "fill") ;
         else if (mode === "out" || mode === "out-crop") {
           this._scaleX = this._scaleY = Math.max(this._scaleX, this._scaleY);
         } else if (mode === "in" || mode === "in-pad") {
@@ -2438,8 +2414,7 @@ var Node = (
         }
       } else if (typeof type === "string") {
         this._on(type, listener);
-      } else
-        ;
+      } else ;
       return this;
     };
     Node2.prototype._on = function(type, listener) {
@@ -2465,8 +2440,7 @@ var Node = (
         }
       } else if (typeof type === "string") {
         this._off(type, listener);
-      } else
-        ;
+      } else ;
       return this;
     };
     Node2.prototype._off = function(type, listener) {
@@ -2706,14 +2680,12 @@ var Node = (
     return Node2;
   }()
 );
-var __extends$4 = function() {
+var __extends$4 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -2810,14 +2782,12 @@ var Sprite = (
 );
 var image = sprite;
 var Image$1 = Sprite;
-var __extends$3 = function() {
+var __extends$3 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -3027,6 +2997,7 @@ var Pointer = (
       this.clickList = [];
       this.cancelList = [];
       this.handleStart = function(event) {
+        Pointer2.DEBUG && console.debug && console.debug("pointer-start", event.type);
         event.preventDefault();
         _this.localPoint(event);
         _this.dispatchEvent(event.type, event);
@@ -3039,15 +3010,20 @@ var Pointer = (
         _this.dispatchEvent(event.type, event);
       };
       this.handleEnd = function(event) {
+        var _a;
         event.preventDefault();
+        Pointer2.DEBUG && console.debug && console.debug("pointer-end", event.type);
         _this.dispatchEvent(event.type, event);
         if (_this.clickList.length) {
+          Pointer2.DEBUG && console.debug && console.debug("pointer-click: ", event.type, (_a = _this.clickList) === null || _a === void 0 ? void 0 : _a.length);
           _this.dispatchEvent("click", event, _this.clickList);
         }
         _this.cancelList.length = 0;
       };
       this.handleCancel = function(event) {
+        var _a;
         if (_this.cancelList.length) {
+          Pointer2.DEBUG && console.debug && console.debug("pointer-cancel", event.type, (_a = _this.clickList) === null || _a === void 0 ? void 0 : _a.length);
           _this.dispatchEvent("mousecancel", event, _this.cancelList);
         }
         _this.clickList.length = 0;
@@ -3156,6 +3132,9 @@ var Pointer = (
       payload.event = event;
       payload.timeStamp = Date.now();
       payload.collected = null;
+      if (type !== "mousemove" && type !== "touchmove") {
+        Pointer2.DEBUG && console.debug && console.debug("pointer:dispatchEvent", payload, targets === null || targets === void 0 ? void 0 : targets.length);
+      }
       if (targets) {
         while (targets.length) {
           var node = targets.shift();
@@ -3173,6 +3152,7 @@ var Pointer = (
         }, payload);
       }
     };
+    Pointer2.DEBUG = false;
     return Pointer2;
   }()
 );
@@ -3183,14 +3163,12 @@ var Mouse = {
   END: "touchend mouseup",
   CANCEL: "touchcancel mousecancel"
 };
-var __extends$2 = function() {
+var __extends$2 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -3208,9 +3186,8 @@ var __assign = function() {
   __assign = Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
       s = arguments[i];
-      for (var p in s)
-        if (Object.prototype.hasOwnProperty.call(s, p))
-          t[p] = s[p];
+      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+        t[p] = s[p];
     }
     return t;
   };
@@ -3271,6 +3248,7 @@ var Root = (
           _this.canvas = document.getElementById("cutjs") || document.getElementById("stage");
         }
         if (!_this.canvas) {
+          console.debug && console.debug("Creating canvas element...");
           _this.canvas = document.createElement("canvas");
           Object.assign(_this.canvas.style, {
             position: "absolute",
@@ -3328,6 +3306,7 @@ var Root = (
           if (_this.canvas.width !== _this.drawingWidth || _this.canvas.height !== _this.drawingHeight) {
             _this.canvas.width = _this.drawingWidth;
             _this.canvas.height = _this.drawingHeight;
+            console.debug && console.debug("Resize: [" + _this.drawingWidth + ", " + _this.drawingHeight + "] = " + _this.pixelRatio + " x [" + _this.pixelWidth + ", " + _this.pixelHeight + "]");
             _this.viewport({
               width: _this.drawingWidth,
               height: _this.drawingHeight,
@@ -3484,14 +3463,12 @@ var Root = (
     return Root2;
   }(Node)
 );
-var __extends$1 = function() {
+var __extends$1 = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
@@ -3615,14 +3592,12 @@ var Anim = (
     return Anim2;
   }(Node)
 );
-var __extends = function() {
+var __extends = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
     } || function(d2, b2) {
-      for (var p in b2)
-        if (Object.prototype.hasOwnProperty.call(b2, p))
-          d2[p] = b2[p];
+      for (var p in b2) if (Object.prototype.hasOwnProperty.call(b2, p)) d2[p] = b2[p];
     };
     return extendStatics(d, b);
   };
