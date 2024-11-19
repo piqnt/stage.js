@@ -1,11 +1,9 @@
 {
   "name": "API Reference",
-  "readme": "./docs/pages/misc/api-reference.md",
-  "inputFiles": ["./src"],
+  "readme": "none",
+  "entryPoints": ["./src"],
   "out": "./docs/pages/api/",
-  "publicPath": "/api/",
-  "mode": "file",
-  "includeDeclarations": false,
+  "basePath": "/api/",
   "exclude": [
     "**/*.test-d.ts",
     "**/*.test.ts",
@@ -18,7 +16,9 @@
   "disableSources": true,
   "excludeExternals": true,
   "excludePrivate": true,
-  "stripInternal": true,
-  "excludeNotExported": true,
-  "hideBreadcrumbs": true
+  "excludeInternal": true,
+  "hideBreadcrumbs": true,
+  "hidePageHeader": true,
+  "mergeReadme": true,
+  "plugin": ["typedoc-plugin-markdown"]
 }

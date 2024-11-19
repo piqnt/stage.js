@@ -97,7 +97,7 @@ export default defineConfig({
     },
     {
       text: 'API Reference',
-      link: '/api/globals',
+      link: '/api/',
     },
     {
       text: 'What\'s new?',

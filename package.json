@@ -45,7 +45,7 @@
     "lint": "eslint './src/**/*.ts'",
     "pretty": "prettier --write .",
     "preflight": "npm run pretty && npm run lint",
-    "typedoc": "typedoc --options typedoc.json"
+    "typedoc": "typedoc --options typedoc.json && mv ./docs/pages/api/README.md ./docs/pages/api/index.md"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.2.0",
@@ -59,8 +59,8 @@
     "rollup-plugin-license": "^3.3.1",
     "sandboxed-module": "^2.0.0",
     "sinon": "^9.0.2",
-    "typedoc": "^0.17.8",
-    "typedoc-plugin-markdown": "^2.4.2",
+    "typedoc": "^0.26.11",
+    "typedoc-plugin-markdown": "^4.2.10",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vite-plugin-dts-bundle-generator": "^2.0.5",
