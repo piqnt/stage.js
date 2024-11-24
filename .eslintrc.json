@@ -1,11 +1,16 @@
 {
-  "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "tsconfig.json",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "rules": {
     "no-var": "error",
     "prefer-rest-params": "off",

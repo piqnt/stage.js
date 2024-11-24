@@ -1,11 +1,4 @@
 {
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node",
-    "compilerOptions": {
-      "typeRoots": ["./node_modules/@types", "./types"]
-    }
-  },
   "compilerOptions": {
     "module": "ES2015",
     // "strictNullChecks": true,
@@ -17,5 +10,9 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "dist", "docs"]
+  "exclude": [
+    "docs",
+    "dist",
+    "node_modules"
+  ]
 }
