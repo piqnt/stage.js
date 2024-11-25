@@ -1,6 +1,6 @@
 {
   "name": "stage-js",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
   "author": "Ali Shakiba (http://shakiba.me/stage.js)",
@@ -43,6 +43,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "watch": "vite build --watch",
     "test": "mocha test/*.js",
     "lint": "eslint './src/**/*.ts'",
     "pretty": "prettier --write .",

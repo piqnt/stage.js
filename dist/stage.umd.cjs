@@ -2,7 +2,7 @@
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.Stage = {}));
 })(this, function(exports2) {
   "use strict";/**
- * Stage.js 1.0.0-alpha.8
+ * Stage.js 1.0.0-alpha.9
  *
  * @copyright Copyright (c) Ali Shakiba
  * @license The MIT License (MIT)
@@ -935,6 +935,8 @@
     function() {
       function Pin2(owner) {
         this.uid = "pin:" + uid();
+        this._directionX = 1;
+        this._directionY = 1;
         this._owner = owner;
         this._parent = null;
         this._relativeMatrix = new Matrix();
@@ -1010,7 +1012,7 @@
         if (this._pivoted) {
           rel.translate(-this._pivotX * this._width, -this._pivotY * this._height);
         }
-        rel.scale(this._scaleX, this._scaleY);
+        rel.scale(this._scaleX * this._directionX, this._scaleY * this._directionY);
         rel.skew(this._skewX, this._skewY);
         rel.rotate(this._rotation);
         if (this._pivoted) {
@@ -1055,8 +1057,8 @@
         }
         this._x = this._offsetX;
         this._y = this._offsetY;
-        this._x -= this._boxX + this._handleX * this._boxWidth;
-        this._y -= this._boxY + this._handleY * this._boxHeight;
+        this._x -= this._boxX + this._handleX * this._boxWidth * this._directionX;
+        this._y -= this._boxY + this._handleY * this._boxHeight * this._directionY;
         if (this._aligned && this._parent) {
           this._parent.relativeMatrix();
           this._x += this._alignX * this._parent._width;
@@ -1815,8 +1817,12 @@
       Node2.prototype.toString = function() {
         return "[" + this._label + "]";
       };
-      Node2.prototype.id = function(id) {
-        return this.label(id);
+      Node2.prototype.id = function(label) {
+        if (typeof label === "undefined") {
+          return this._label;
+        }
+        this._label = label;
+        return this;
       };
       Node2.prototype.label = function(label) {
         if (typeof label === "undefined") {
@@ -2729,10 +2735,12 @@
     return sprite2;
   }
   var POINTER_CLICK = "click";
-  var POINTER_START = "touchstart mousedown";
+  var POINTER_DOWN = "touchstart mousedown";
   var POINTER_MOVE = "touchmove mousemove";
-  var POINTER_END = "touchend mouseup";
+  var POINTER_UP = "touchend mouseup";
   var POINTER_CANCEL = "touchcancel mousecancel";
+  var POINTER_START = "touchstart mousedown";
+  var POINTER_END = "touchend mouseup";
   var EventPoint = (
     /** @class */
     function() {
@@ -2862,11 +2870,11 @@
             payload.collected.push(node);
           }
           if (payload.event) {
-            var cancel = false;
+            var stop_1 = false;
             for (var l = 0; l < listeners.length; l++) {
-              cancel = listeners[l].call(node, syntheticEvent) ? true : cancel;
+              stop_1 = listeners[l].call(node, syntheticEvent) ? true : stop_1;
             }
-            return cancel;
+            return stop_1;
           }
         };
       }
@@ -3110,6 +3118,9 @@
             if (_this.drawingWidth > 0 && _this.drawingHeight > 0) {
               _this.context.setTransform(1, 0, 0, 1, 0, 0);
               _this.context.clearRect(0, 0, _this.drawingWidth, _this.drawingHeight);
+              if (_this.debugDrawAxis > 0) {
+                _this.renderDebug(_this.context);
+              }
               _this.render(_this.context);
             }
           } else if (tickRequest) {
@@ -3119,9 +3130,40 @@
           }
           stats.fps = elapsed ? 1e3 / elapsed : 0;
         };
+        _this.debugDrawAxis = 0;
         _this.label("Root");
         return _this;
       }
+      Root2.prototype.renderDebug = function(context) {
+        var size = typeof this.debugDrawAxis === "number" ? this.debugDrawAxis : 10;
+        var m = this.matrix();
+        context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
+        var lineWidth = 3 / m.a;
+        context.beginPath();
+        context.moveTo(0, 0);
+        context.lineTo(0, 0.8 * size);
+        context.lineTo(-0.2 * size, 0.8 * size);
+        context.lineTo(0, size);
+        context.lineTo(0.2 * size, 0.8 * size);
+        context.lineTo(0, 0.8 * size);
+        context.strokeStyle = "rgba(93, 173, 226)";
+        context.lineJoin = "round";
+        context.lineCap = "round";
+        context.lineWidth = lineWidth;
+        context.stroke();
+        context.beginPath();
+        context.moveTo(0, 0);
+        context.lineTo(0.8 * size, 0);
+        context.lineTo(0.8 * size, -0.2 * size);
+        context.lineTo(size, 0);
+        context.lineTo(0.8 * size, 0.2 * size);
+        context.lineTo(0.8 * size, 0);
+        context.strokeStyle = "rgba(236, 112, 99)";
+        context.lineJoin = "round";
+        context.lineCap = "round";
+        context.lineWidth = lineWidth;
+        context.stroke();
+      };
       Root2.prototype.resume = function() {
         if (this.sleep || this.paused) {
           this.requestFrame();
@@ -3222,24 +3264,33 @@
             width: viewboxWidth,
             height: viewboxHeight
           });
-          this.scaleTo(viewportWidth, viewportHeight, viewboxMode);
+          this.fit(viewportWidth, viewportHeight, viewboxMode);
           var viewboxX = viewbox.x || 0;
           var viewboxY = viewbox.y || 0;
-          var cameraZoom = (camera === null || camera === void 0 ? void 0 : camera.a) || 1;
+          var cameraZoomX = (camera === null || camera === void 0 ? void 0 : camera.a) || 1;
+          var cameraZoomY = (camera === null || camera === void 0 ? void 0 : camera.d) || 1;
           var cameraX = (camera === null || camera === void 0 ? void 0 : camera.e) || 0;
           var cameraY = (camera === null || camera === void 0 ? void 0 : camera.f) || 0;
           var scaleX = this.pin("scaleX");
           var scaleY = this.pin("scaleY");
-          this.pin("scaleX", scaleX * cameraZoom);
-          this.pin("scaleY", scaleY * cameraZoom);
-          this.pin("offsetX", cameraX - viewboxX * scaleX * cameraZoom);
-          this.pin("offsetY", cameraY - viewboxY * scaleY * cameraZoom);
+          this.pin("scaleX", scaleX * cameraZoomX);
+          this.pin("scaleY", scaleY * cameraZoomY);
+          this.pin("offsetX", cameraX - viewboxX * scaleX * cameraZoomX);
+          this.pin("offsetY", cameraY - viewboxY * scaleY * cameraZoomY);
         } else if (viewport) {
           this.pin({
             width: viewport.width,
             height: viewport.height
           });
         }
+        return this;
+      };
+      Root2.prototype.flipX = function(x) {
+        this._pin._directionX = x ? -1 : 1;
+        return this;
+      };
+      Root2.prototype.flipY = function(y) {
+        this._pin._directionY = y ? -1 : 1;
         return this;
       };
       return Root2;
@@ -3438,9 +3489,11 @@
     Node,
     POINTER_CANCEL,
     POINTER_CLICK,
+    POINTER_DOWN,
     POINTER_END,
     POINTER_MOVE,
     POINTER_START,
+    POINTER_UP,
     Pin,
     PipeTexture,
     Pointer,
@@ -3490,9 +3543,11 @@
   exports2.Node = Node;
   exports2.POINTER_CANCEL = POINTER_CANCEL;
   exports2.POINTER_CLICK = POINTER_CLICK;
+  exports2.POINTER_DOWN = POINTER_DOWN;
   exports2.POINTER_END = POINTER_END;
   exports2.POINTER_MOVE = POINTER_MOVE;
   exports2.POINTER_START = POINTER_START;
+  exports2.POINTER_UP = POINTER_UP;
   exports2.Pin = Pin;
   exports2.PipeTexture = PipeTexture;
   exports2.Pointer = Pointer;

@@ -246,18 +246,20 @@ export type NodeEventListener<T> = (this: T, ...args: any[]) => void;
 /** @deprecated Use layout() */
 export declare function create(): Node$1;
 /** @deprecated Use maximize() */
-export declare function layer(): string | Node$1;
+export declare function layer(): Node$1;
 /** @deprecated Use minimize() */
-export declare function box(): string | Node$1;
+export declare function box(): Node$1;
 export declare function layout(): Node$1;
-export declare function row(align: number): string | Node$1;
-export declare function column(align: number): string | Node$1;
-export declare function minimize(): string | Node$1;
-export declare function maximize(): string | Node$1;
+export declare function row(align: number): Node$1;
+export declare function column(align: number): Node$1;
+export declare function minimize(): Node$1;
+export declare function maximize(): Node$1;
 declare class Node$1 implements Pinned {
 	MAX_ELAPSE: number;
 	constructor();
 	matrix(relative?: boolean): Matrix;
+	/** @hidden */
+	getPixelRatio(): number;
 	pin(key: string): any;
 	pin(key: string, value: any): this;
 	pin(obj: object): this;
@@ -268,8 +270,11 @@ declare class Node$1 implements Pinned {
 	scaleTo(a: any, b?: any, c?: any): this;
 	toString(): string;
 	/** @deprecated Use label() */
-	id(id: string): string | this;
-	label(label: string): string | this;
+	id(): string;
+	/** @deprecated Use label() */
+	id(label: string): this;
+	label(): string;
+	label(label: string): this;
 	attr(name: string, value: any): this;
 	attr(name: string): any;
 	visible(visible: boolean): this;
@@ -304,7 +309,7 @@ declare class Node$1 implements Pinned {
 	clearTimeout(timer: NodeTickListener<this>): void;
 	on(types: string, listener: NodeEventListener<this>): this;
 	off(types: string, listener: NodeEventListener<this>): this;
-	listeners(type: string): NodeEventListener<this>[];
+	listeners(type: string): NodeEventListener<Node$1>[];
 	publish(name: string, args?: any): number;
 	size(w: number, h: number): this;
 	width(w: number): this;
@@ -409,10 +414,14 @@ export declare class ResizableTexture extends Texture {
 	drawWithNormalizedArgs(context: CanvasRenderingContext2D, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
 }
 export declare const POINTER_CLICK = "click";
-export declare const POINTER_START = "touchstart mousedown";
+export declare const POINTER_DOWN = "touchstart mousedown";
 export declare const POINTER_MOVE = "touchmove mousemove";
-export declare const POINTER_END = "touchend mouseup";
+export declare const POINTER_UP = "touchend mouseup";
 export declare const POINTER_CANCEL = "touchcancel mousecancel";
+/** @hidden @deprecated */
+export declare const POINTER_START = "touchstart mousedown";
+/** @hidden @deprecated */
+export declare const POINTER_END = "touchend mouseup";
 export declare function pause(): void;
 export declare function resume(): void;
 export declare function mount(configs?: RootConfig): Root;
@@ -446,6 +455,9 @@ export declare class Root extends Node$1 {
 	sleep: boolean;
 	constructor();
 	mount: (configs?: RootConfig) => void;
+	/** @hidden */
+	debugDrawAxis: number;
+	private renderDebug;
 	resume(): this;
 	pause(): this;
 	unmount(): this;
@@ -465,6 +477,10 @@ export declare class Root extends Node$1 {
 	viewbox(viewbox: Viewbox): this;
 	viewbox(width?: number, height?: number, mode?: FitMode): this;
 	camera(matrix: Matrix): this;
+	/** @hidden */
+	flipX(x: boolean): this;
+	/** @hidden */
+	flipY(y: boolean): this;
 }
 export declare function anim(frames: string | TextureSelectionInputArray, fps?: number): Anim;
 export declare class Anim extends Node$1 {
