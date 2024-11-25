@@ -229,6 +229,9 @@ export class Root extends Node {
       if (this.drawingWidth > 0 && this.drawingHeight > 0) {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);  
+        if (this.debugDrawAxis > 0) {
+          this.renderDebug(this.context);
+        }
         this.render(this.context);
       }
     } else if (tickRequest) {
@@ -241,6 +244,42 @@ export class Root extends Node {
 
     stats.fps = elapsed ? 1000 / elapsed : 0;
   };
+
+  /** @hidden */
+  debugDrawAxis = 0;
+
+  private renderDebug(context: CanvasRenderingContext2D): void {
+    const size = typeof this.debugDrawAxis === "number" ? this.debugDrawAxis : 10;
+    const m = this.matrix();
+    context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
+    const lineWidth = 3 / m.a;
+
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(0, 0.8 * size);
+    context.lineTo(-0.2 * size, 0.8 * size);
+    context.lineTo(0, size);
+    context.lineTo(+0.2 * size, 0.8 * size);
+    context.lineTo(0, 0.8 * size);
+    context.strokeStyle = 'rgba(93, 173, 226)';
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.lineWidth = lineWidth;
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(0.8 * size, 0);
+    context.lineTo(0.8 * size, -0.2 * size);
+    context.lineTo(size, 0);
+    context.lineTo(0.8 * size, +0.2 * size);
+    context.lineTo(0.8 * size, 0);
+    context.strokeStyle = 'rgba(236, 112, 99)';
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.lineWidth = lineWidth;
+    context.stroke();
+  }
 
   resume() {
     if (this.sleep || this.paused) {
