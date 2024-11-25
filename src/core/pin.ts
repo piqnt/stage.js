@@ -122,6 +122,9 @@ export class Pin {
   /** @internal */ _mo_abs: number;
   /** @internal */ _mo_rel: number;
 
+  /** @internal */ _directionX = 1;
+  /** @internal */ _directionY = 1;
+
   /** @internal */
   constructor(owner: Node) {
     this._owner = owner;
@@ -243,7 +246,7 @@ export class Pin {
     if (this._pivoted) {
       rel.translate(-this._pivotX * this._width, -this._pivotY * this._height);
     }
-    rel.scale(this._scaleX, this._scaleY);
+    rel.scale(this._scaleX * this._directionX, this._scaleY * this._directionY);
     rel.skew(this._skewX, this._skewY);
     rel.rotate(this._rotation);
     if (this._pivoted) {
@@ -294,8 +297,8 @@ export class Pin {
     this._x = this._offsetX;
     this._y = this._offsetY;
 
-    this._x -= this._boxX + this._handleX * this._boxWidth;
-    this._y -= this._boxY + this._handleY * this._boxHeight;
+    this._x -= this._boxX + this._handleX * this._boxWidth * this._directionX;
+    this._y -= this._boxY + this._handleY * this._boxHeight * this._directionY;
 
     if (this._aligned && this._parent) {
       this._parent.relativeMatrix();

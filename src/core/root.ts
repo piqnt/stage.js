@@ -228,7 +228,7 @@ export class Root extends Node {
 
       if (this.drawingWidth > 0 && this.drawingHeight > 0) {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
-        this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);
+        this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);  
         this.render(this.context);
       }
     } else if (tickRequest) {
@@ -377,19 +377,24 @@ export class Root extends Node {
         width: viewboxWidth,
         height: viewboxHeight,
       });
-      this.scaleTo(viewportWidth, viewportHeight, viewboxMode);
+      this.fit(viewportWidth, viewportHeight, viewboxMode);
 
       const viewboxX = viewbox.x || 0;
       const viewboxY = viewbox.y || 0;
-      const cameraZoom = camera?.a || 1;
+
+      const cameraZoomX = camera?.a || 1;
+      const cameraZoomY = camera?.d || 1;
       const cameraX = camera?.e || 0;
       const cameraY = camera?.f || 0;
+
       const scaleX = this.pin("scaleX");
       const scaleY = this.pin("scaleY");
-      this.pin("scaleX", scaleX * cameraZoom);
-      this.pin("scaleY", scaleY * cameraZoom);
-      this.pin("offsetX", cameraX - viewboxX * scaleX * cameraZoom);
-      this.pin("offsetY", cameraY - viewboxY * scaleY * cameraZoom);
+
+      this.pin("scaleX", scaleX * cameraZoomX);
+      this.pin("scaleY", scaleY * cameraZoomY);
+
+      this.pin("offsetX", cameraX - viewboxX * scaleX * cameraZoomX);
+      this.pin("offsetY", cameraY - viewboxY * scaleY * cameraZoomY);
     } else if (viewport) {
       this.pin({
         width: viewport.width,
@@ -397,6 +402,18 @@ export class Root extends Node {
       });
     }
 
+    return this;
+  }
+
+  /** @hidden */
+  flipX(x: boolean) {
+    this._pin._directionX = x ? -1 : 1;
+    return this;
+  }
+
+  /** @hidden */
+  flipY(y: boolean) {
+    this._pin._directionY = y ? -1 : 1;
     return this;
   }
 }
