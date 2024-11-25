@@ -8,10 +8,15 @@ import { Node } from "./core";
 
 // todo: replace this with single synthetic event names
 export const POINTER_CLICK = "click";
-export const POINTER_START = "touchstart mousedown";
+export const POINTER_DOWN = "touchstart mousedown";
 export const POINTER_MOVE = "touchmove mousemove";
-export const POINTER_END = "touchend mouseup";
+export const POINTER_UP = "touchend mouseup";
 export const POINTER_CANCEL = "touchcancel mousecancel";
+
+/** @hidden @deprecated */
+export const POINTER_START = "touchstart mousedown";
+/** @hidden @deprecated */
+export const POINTER_END = "touchend mouseup";
 
 class EventPoint {
   x: number;
@@ -293,11 +298,11 @@ export class Pointer {
     // todo: when this condition is false?
     if (payload.event) {
       // todo: use a function call to cancel processing events, like dom
-      let cancel = false;
+      let stop = false;
       for (let l = 0; l < listeners.length; l++) {
-        cancel = listeners[l].call(node, syntheticEvent) ? true : cancel;
+        stop = listeners[l].call(node, syntheticEvent) ? true : stop;
       }
-      return cancel;
+      return stop;
     }
   };
 }
