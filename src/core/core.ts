@@ -112,7 +112,7 @@ export class Node implements Pinned {
   /** @internal */ _textures: Texture[];
 
   // todo: don't need to check if these fields are initialized anymore
-  /** @internal */ _listeners: Record<string, NodeEventListener<this>[]> = {};
+  /** @internal */ _listeners: Record<string, NodeEventListener<Node>[]> = {};
   /** @internal */ _attrs: Record<string, any> = {};
   /** @internal */ _flags: Record<string, any> = {};
   /** @internal */ _transitions: Transition[] = [];
@@ -140,7 +140,7 @@ export class Node implements Pinned {
     return this._pin.absoluteMatrix();
   }
 
-  /** @internal */
+  /** @hidden */
   getPixelRatio() {
     // todo: parent matrix is not available in the first call
     const m = this._parent?.matrix();
@@ -191,11 +191,21 @@ export class Node implements Pinned {
   }
 
   /** @deprecated Use label() */
-  id(id: string) {
-    return this.label(id);
+  id(): string;
+  /** @deprecated Use label() */
+  id(label: string): this;
+  /** @deprecated Use label() */
+  id(label?: string) {
+    if (typeof label === "undefined") {
+      return this._label;
+    }
+    this._label = label;
+    return this;
   }
 
-  label(label: string) {
+  label(): string;
+  label(label: string): this;
+  label(label?: string) {
     if (typeof label === "undefined") {
       return this._label;
     }
