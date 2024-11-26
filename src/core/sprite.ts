@@ -16,16 +16,15 @@ export function sprite(frame?: TextureSelectionInput) {
 }
 
 export class Sprite extends Node {
-  /** @internal */ _image: Texture | null;
+  /** @internal */ _texture: Texture | null = null;
 
+  /** @internal */ _image: Texture | null = null;
   /** @internal */ _tiled: boolean = false;
   /** @internal */ _stretched: boolean = false;
 
   constructor() {
     super();
     this.label("Sprite");
-    this._textures = [];
-    this._image = null;
   }
 
   texture(frame: TextureSelectionInput) {
@@ -36,18 +35,17 @@ export class Sprite extends Node {
 
       // todo: could we chain textures in a way that doesn't require rebuilding the chain?
       if (this._tiled) {
-        this._textures[0] = new ResizableTexture(this._image, "tile");
+        this._texture = new ResizableTexture(this._image, "tile");
       } else if (this._stretched) {
-        this._textures[0] = new ResizableTexture(this._image, "stretch");
+        this._texture = new ResizableTexture(this._image, "stretch");
       } else {
-        this._textures[0] = new PipeTexture(this._image);
+        this._texture = new PipeTexture(this._image);
       }
 
-      this._textures.length = 1;
     } else {
       this.pin("width", 0);
       this.pin("height", 0);
-      this._textures.length = 0;
+      this._texture = null;
     }
     return this;
   }
@@ -60,51 +58,44 @@ export class Sprite extends Node {
   tile(inner = false) {
     this._tiled = true;
     const texture = new ResizableTexture(this._image, "tile");
-    this._textures[0] = texture;
+    this._texture = texture;
     return this;
   }
 
   stretch(inner = false) {
     this._stretched = true;
     const texture = new ResizableTexture(this._image, "stretch");
-    this._textures[0] = texture;
+    this._texture = texture;
     return this;
   }
 
   /** @internal */
   private prerenderContext = {} as TexturePrerenderContext;
 
-  prerender(): void {
-    if (!this._visible) {
-      return;
+  /** @hidden */
+  prerenderTexture(): void {
+    if (!this._image) return;
+    const pixelRatio = this.getPixelRatio();
+    this.prerenderContext.pixelRatio = pixelRatio;
+    const updated = this._image.prerender(this.prerenderContext);
+    if (updated === true) {
+      // should we let draw function decide to make this update?
+      const w = this._image.getWidth();
+      const h = this._image.getHeight();
+      this.size(w, h);
     }
-
-    // if (!this._parent) {
-    //   return;
-    // }
-
-    if (this._image) {
-      const pixelRatio = this.getPixelRatio();
-      this.prerenderContext.pixelRatio = pixelRatio;
-      const updated = this._image.prerender(this.prerenderContext);
-      if (updated === true) {
-        // should we let draw function decide to make this update?
-        const w = this._image.getWidth();
-        const h = this._image.getHeight();
-        this.size(w, h);
-      }
-    }
-
-    super.prerender();
   }
 
-  render(context: CanvasRenderingContext2D): void {
-    const texture = this._textures[0];
-    if (texture?.["_resizeMode"]) {
-      texture.dw = this.pin("width");
-      texture.dh = this.pin("height");
+  /** @hidden */
+  renderTexture(context: CanvasRenderingContext2D) {
+    if (!this._texture) return;
+
+    if (this._texture["_resizeMode"]) {
+      this._texture.dw = this.pin("width");
+      this._texture.dh = this.pin("height");
     }
-    super.render(context);
+
+    this._texture.draw(context);
   }
 }
 

@@ -16,6 +16,7 @@ export default defineConfig({
       formats: ["es", "umd"],
     },
     minify: false,
+    sourcemap: true,
   },
   plugins: [
     pagesPlugin({

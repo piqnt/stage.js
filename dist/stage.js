@@ -1,5 +1,5 @@
 /**
- * Stage.js 1.0.0-alpha.9
+ * Stage.js 1.0.0-alpha.10
  *
  * @copyright Copyright (c) Ali Shakiba
  * @license The MIT License (MIT)
@@ -2133,12 +2133,15 @@ var Node = (
       if (!this._visible) {
         return;
       }
+      this.prerenderTexture();
       var child;
       var next = this._first;
       while (child = next) {
         next = child._next;
         child.prerender();
       }
+    };
+    Node2.prototype.prerenderTexture = function() {
     };
     Node2.prototype.render = function(context) {
       if (!this._visible) {
@@ -2152,11 +2155,7 @@ var Node = (
       if (context.globalAlpha != alpha) {
         context.globalAlpha = alpha;
       }
-      if (this._textures) {
-        for (var i = 0, n = this._textures.length; i < n; i++) {
-          this._textures[i].draw(context);
-        }
-      }
+      this.renderTexture(context);
       if (context.globalAlpha != this._alpha) {
         context.globalAlpha = this._alpha;
       }
@@ -2166,6 +2165,8 @@ var Node = (
         next = child._next;
         child.render(context);
       }
+    };
+    Node2.prototype.renderTexture = function(context) {
     };
     Node2.prototype._tick = function(elapsed, now, last) {
       if (!this._visible) {
@@ -2543,12 +2544,12 @@ var Sprite = (
     __extends(Sprite2, _super);
     function Sprite2() {
       var _this = _super.call(this) || this;
+      _this._texture = null;
+      _this._image = null;
       _this._tiled = false;
       _this._stretched = false;
       _this.prerenderContext = {};
       _this.label("Sprite");
-      _this._textures = [];
-      _this._image = null;
       return _this;
     }
     Sprite2.prototype.texture = function(frame) {
@@ -2557,17 +2558,16 @@ var Sprite = (
         this.pin("width", this._image.getWidth());
         this.pin("height", this._image.getHeight());
         if (this._tiled) {
-          this._textures[0] = new ResizableTexture(this._image, "tile");
+          this._texture = new ResizableTexture(this._image, "tile");
         } else if (this._stretched) {
-          this._textures[0] = new ResizableTexture(this._image, "stretch");
+          this._texture = new ResizableTexture(this._image, "stretch");
         } else {
-          this._textures[0] = new PipeTexture(this._image);
+          this._texture = new PipeTexture(this._image);
         }
-        this._textures.length = 1;
       } else {
         this.pin("width", 0);
         this.pin("height", 0);
-        this._textures.length = 0;
+        this._texture = null;
       }
       return this;
     };
@@ -2577,38 +2577,35 @@ var Sprite = (
     Sprite2.prototype.tile = function(inner) {
       this._tiled = true;
       var texture2 = new ResizableTexture(this._image, "tile");
-      this._textures[0] = texture2;
+      this._texture = texture2;
       return this;
     };
     Sprite2.prototype.stretch = function(inner) {
       this._stretched = true;
       var texture2 = new ResizableTexture(this._image, "stretch");
-      this._textures[0] = texture2;
+      this._texture = texture2;
       return this;
     };
-    Sprite2.prototype.prerender = function() {
-      if (!this._visible) {
+    Sprite2.prototype.prerenderTexture = function() {
+      if (!this._image)
         return;
+      var pixelRatio = this.getPixelRatio();
+      this.prerenderContext.pixelRatio = pixelRatio;
+      var updated = this._image.prerender(this.prerenderContext);
+      if (updated === true) {
+        var w = this._image.getWidth();
+        var h = this._image.getHeight();
+        this.size(w, h);
       }
-      if (this._image) {
-        var pixelRatio = this.getPixelRatio();
-        this.prerenderContext.pixelRatio = pixelRatio;
-        var updated = this._image.prerender(this.prerenderContext);
-        if (updated === true) {
-          var w = this._image.getWidth();
-          var h = this._image.getHeight();
-          this.size(w, h);
-        }
-      }
-      _super.prototype.prerender.call(this);
     };
-    Sprite2.prototype.render = function(context) {
-      var texture2 = this._textures[0];
-      if (texture2 === null || texture2 === void 0 ? void 0 : texture2["_resizeMode"]) {
-        texture2.dw = this.pin("width");
-        texture2.dh = this.pin("height");
+    Sprite2.prototype.renderTexture = function(context) {
+      if (!this._texture)
+        return;
+      if (this._texture["_resizeMode"]) {
+        this._texture.dw = this.pin("width");
+        this._texture.dh = this.pin("height");
       }
-      _super.prototype.render.call(this, context);
+      this._texture.draw(context);
     };
     return Sprite2;
   }(Node)
@@ -3305,40 +3302,46 @@ var Anim = (
     __extends(Anim2, _super);
     function Anim2() {
       var _this = _super.call(this) || this;
-      _this.label("Anim");
-      _this._textures = [];
-      _this._fps = FPS;
-      _this._ft = 1e3 / _this._fps;
+      _this._texture = null;
+      _this._frames = [];
       _this._time = -1;
       _this._repeat = 0;
       _this._index = 0;
-      _this._frames = [];
-      var lastTime = 0;
-      _this.tick(function(t, now, last) {
-        if (this._time < 0 || this._frames.length <= 1) {
+      _this._animTickLastTime = 0;
+      _this._animTick = function(t, now, last) {
+        if (_this._time < 0 || _this._frames.length <= 1) {
           return;
         }
-        var ignore = lastTime != last;
-        lastTime = now;
+        var ignore = _this._animTickLastTime != last;
+        _this._animTickLastTime = now;
         if (ignore) {
           return true;
         }
-        this._time += t;
-        if (this._time < this._ft) {
+        _this._time += t;
+        if (_this._time < _this._ft) {
           return true;
         }
-        var n = this._time / this._ft | 0;
-        this._time -= n * this._ft;
-        this.moveFrame(n);
-        if (this._repeat > 0 && (this._repeat -= n) <= 0) {
-          this.stop();
-          this._callback && this._callback();
+        var n = _this._time / _this._ft | 0;
+        _this._time -= n * _this._ft;
+        _this.moveFrame(n);
+        if (_this._repeat > 0 && (_this._repeat -= n) <= 0) {
+          _this.stop();
+          _this._callback && _this._callback();
           return false;
         }
         return true;
-      }, false);
+      };
+      _this.label("Anim");
+      _this._fps = FPS;
+      _this._ft = 1e3 / _this._fps;
+      _this.tick(_this._animTick, false);
       return _this;
     }
+    Anim2.prototype.renderTexture = function(context) {
+      if (!this._texture)
+        return;
+      this._texture.draw(context);
+    };
     Anim2.prototype.fps = function(fps) {
       if (typeof fps === "undefined") {
         return this._fps;
@@ -3364,11 +3367,11 @@ var Anim = (
         resize = false;
       }
       this._index = math.wrap(frame, this._frames.length) | 0;
-      resize = resize || !this._textures[0];
-      this._textures[0] = this._frames[this._index];
+      resize = resize || !this._texture;
+      this._texture = this._frames[this._index];
       if (resize) {
-        this.pin("width", this._textures[0].getWidth());
-        this.pin("height", this._textures[0].getHeight());
+        this.pin("width", this._texture.getWidth());
+        this.pin("height", this._texture.getHeight());
       }
       this.touch();
       return this;
@@ -3411,10 +3414,17 @@ var Monotype = (
     __extends(Monotype2, _super);
     function Monotype2() {
       var _this = _super.call(this) || this;
-      _this.label("String");
       _this._textures = [];
+      _this.label("Monotype");
       return _this;
     }
+    Monotype2.prototype.renderTexture = function(context) {
+      if (!this._textures || !this._textures.length)
+        return;
+      for (var i = 0, n = this._textures.length; i < n; i++) {
+        this._textures[i].draw(context);
+      }
+    };
     Monotype2.prototype.setFont = function(frames) {
       return this.frames(frames);
     };
@@ -3583,3 +3593,4 @@ export {
   texture,
   wrap
 };
+//# sourceMappingURL=stage.js.map

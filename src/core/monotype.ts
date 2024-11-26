@@ -7,14 +7,23 @@ export function monotype(chars: string | Record<string, Texture> | ((char: strin
 }
 
 export class Monotype extends Node {
-  /** @internal */ _font: (value: string) => Texture;
+  /** @internal */ _textures: Texture[] = [];
 
+  /** @internal */ _font: (value: string) => Texture;
   /** @internal */ _value: string | number | string[] | number[];
 
   constructor() {
     super();
-    this.label("String");
-    this._textures = [];
+    this.label("Monotype");
+  }
+
+  /** @hidden */
+  renderTexture(context: CanvasRenderingContext2D) {
+    if (!this._textures || !this._textures.length) return;
+
+    for (let i = 0, n = this._textures.length; i < n; i++) {
+      this._textures[i].draw(context);
+    }
   }
 
   /** @deprecated Use frames */

@@ -300,8 +300,14 @@ declare class Node$1 implements Pinned {
 	remove(child?: Node$1, more?: any): this;
 	empty(): this;
 	touch(): this;
+	/** @hidden */
 	prerender(): void;
+	/** @hidden */
+	prerenderTexture(): void;
+	/** @hidden */
 	render(context: CanvasRenderingContext2D): void;
+	/** @hidden */
+	renderTexture(context: CanvasRenderingContext2D): void;
 	tick(callback: NodeTickListener<this>, before?: boolean): void;
 	untick(callback: NodeTickListener<this>): void;
 	timeout(callback: () => any, time: number): void;
@@ -358,8 +364,10 @@ export declare class Sprite extends Node$1 {
 	image(frame: TextureSelectionInput): this;
 	tile(inner?: boolean): this;
 	stretch(inner?: boolean): this;
-	prerender(): void;
-	render(context: CanvasRenderingContext2D): void;
+	/** @hidden */
+	prerenderTexture(): void;
+	/** @hidden */
+	renderTexture(context: CanvasRenderingContext2D): void;
 }
 export type CanvasTextureDrawer = (this: CanvasTexture) => void;
 export type CanvasTextureMemoizer = (this: CanvasTexture) => any;
@@ -485,6 +493,8 @@ export declare class Root extends Node$1 {
 export declare function anim(frames: string | TextureSelectionInputArray, fps?: number): Anim;
 export declare class Anim extends Node$1 {
 	constructor();
+	/** @hidden */
+	renderTexture(context: CanvasRenderingContext2D): void;
 	fps(fps?: number): number | this;
 	/** @deprecated Use frames */
 	setFrames(frames: string | TextureSelectionInputArray): this;
@@ -499,6 +509,8 @@ export declare class Anim extends Node$1 {
 export declare function monotype(chars: string | Record<string, Texture> | ((char: string) => Texture)): Monotype;
 export declare class Monotype extends Node$1 {
 	constructor();
+	/** @hidden */
+	renderTexture(context: CanvasRenderingContext2D): void;
 	/** @deprecated Use frames */
 	setFont(frames: string | Record<string, Texture> | ((char: string) => Texture)): this;
 	frames(frames: string | Record<string, Texture> | ((char: string) => Texture)): this;

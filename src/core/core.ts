@@ -3,8 +3,6 @@ import { Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
 import { getPixelRatio } from "../common/browser";
 
-import { Texture } from "../texture";
-
 import { Pin, Pinned, FitMode } from "./pin";
 import { Transition, TransitionOptions } from "./transition";
 
@@ -108,8 +106,6 @@ export class Node implements Pinned {
   /** @internal */ _ts_parent: number;
   /** @internal */ _ts_children: number;
   /** @internal */ _ts_touch: number;
-
-  /** @internal */ _textures: Texture[];
 
   // todo: don't need to check if these fields are initialized anymore
   /** @internal */ _listeners: Record<string, NodeEventListener<Node>[]> = {};
@@ -605,10 +601,13 @@ export class Node implements Pinned {
     return hit.x >= 0 && hit.x <= width && hit.y >= 0 && hit.y <= height;
   }
 
+  /** @hidden */
   prerender() {
     if (!this._visible) {
       return;
     }
+
+    this.prerenderTexture();
 
     let child: Node;
     let next = this._first;
@@ -618,6 +617,12 @@ export class Node implements Pinned {
     }
   }
 
+  /** @hidden */
+  prerenderTexture() {
+    // to be implemented by subclasses if needed
+  }
+
+  /** @hidden */
   render(context: CanvasRenderingContext2D) {
     if (!this._visible) {
       return;
@@ -635,11 +640,7 @@ export class Node implements Pinned {
       context.globalAlpha = alpha;
     }
 
-    if (this._textures) {
-      for (let i = 0, n = this._textures.length; i < n; i++) {
-        this._textures[i].draw(context);
-      }
-    }
+    this.renderTexture(context);
 
     if (context.globalAlpha != this._alpha) {
       context.globalAlpha = this._alpha;
@@ -651,6 +652,11 @@ export class Node implements Pinned {
       next = child._next;
       child.render(context);
     }
+  }
+
+  /** @hidden */
+  renderTexture(context: CanvasRenderingContext2D) {
+    // to be implemented by subclasses if needed
   }
 
   /** @internal */
