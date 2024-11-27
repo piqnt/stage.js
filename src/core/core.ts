@@ -1,7 +1,7 @@
 import stats from "../common/stats";
 import { Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
-import { getPixelRatio } from "../common/browser";
+import { getDevicePixelRatio } from "../common/browser";
 
 import { Pin, Pinned, FitMode } from "./pin";
 import { Transition, TransitionOptions } from "./transition";
@@ -141,7 +141,7 @@ export class Node implements Pinned {
     // todo: parent matrix is not available in the first call
     const m = this._parent?.matrix();
     // todo: why "divide by" pixel ratio
-    const pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getPixelRatio();
+    const pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getDevicePixelRatio();
     return pixelRatio;
   }
 
