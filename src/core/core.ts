@@ -626,6 +626,9 @@ export class Node implements Pinned {
   }
 
   /** @hidden */
+  private renderedBefore = false;
+
+  /** @hidden */
   render(context: CanvasRenderingContext2D) {
     if (!this._visible) {
       return;
@@ -642,6 +645,12 @@ export class Node implements Pinned {
     if (context.globalAlpha != alpha) {
       context.globalAlpha = alpha;
     }
+
+    if (!this.renderedBefore) {
+      // todo: because getPixelRatio is not accurate before first tick
+      this.prerenderTexture();
+    }
+    this.renderedBefore = true;
 
     this.renderTexture(context);
 
