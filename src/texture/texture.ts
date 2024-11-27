@@ -61,25 +61,28 @@ export abstract class Texture {
   abstract prerender(context: TexturePrerenderContext): boolean;
 
   /**
-   * Signatures:
-   * - (): This is used when a sprite draws its textures
-   * - (sx, sy, sw, sh, dx, dy, dw, dh): This is used when a piped texture passes drawing to it backend.
-   * - (dx, dy, dw, dh): I guess unused.
-   *
-   * Note: sx and sy are added to this._sx and this._sy.
+   * Defer draw spec to texture config. This is used when a sprite draws its textures.
    */
   draw(context: CanvasRenderingContext2D): void;
-  draw(context: CanvasRenderingContext2D, x1: number, y1: number, w1: number, h1: number): void;
+  /**
+   * This is probably unused.
+   * Note: dx, dy are added to this.dx, this.dy.
+   */
+  draw(context: CanvasRenderingContext2D, dx: number, dy: number, dw: number, dh: number): void;
+  /**
+   * This is used when a piped texture passes drawing to it backend.
+   * Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
+   */
   draw(
     context: CanvasRenderingContext2D,
-    x1: number,
-    y1: number,
-    w1: number,
-    h1: number,
-    x2: number,
-    y2: number,
-    w2: number,
-    h2: number,
+    sx: number,
+    sy: number,
+    sw: number,
+    sh: number,
+    dx: number,
+    dy: number,
+    dw: number,
+    dh: number,
   ): void;
   draw(
     context: CanvasRenderingContext2D,
@@ -92,51 +95,42 @@ export abstract class Texture {
     w2?: number,
     h2?: number,
   ): void {
-    let sx = this.sx;
-    let sy = this.sy;
-    let sw = this.sw;
-    let sh = this.sh;
+    let sx: number, sy: number, sw: number, sh: number;
+    let dx: number, dy: number, dw: number, dh: number;
 
-    let dx = this.dx;
-    let dy = this.dy;
-    let dw = this.dw;
-    let dh = this.dh;
+    if (arguments.length > 5) {
+      // two sets of [x, y, w, h] arguments
+      sx = this.sx + x1;
+      sy = this.sy + y1;
+      sw = w1 ?? this.sw;
+      sh = h1 ?? this.sh;
 
-    if (
-      typeof x1 === "number" ||
-      typeof y1 === "number" ||
-      typeof w1 === "number" ||
-      typeof h1 === "number" ||
-      typeof x2 === "number" ||
-      typeof y2 === "number" ||
-      typeof w2 === "number" ||
-      typeof h2 === "number"
-    ) {
-      if (
-        typeof x2 === "number" ||
-        typeof y2 === "number" ||
-        typeof w2 === "number" ||
-        typeof h2 === "number"
-      ) {
-        // two sets of [x, y, w, h] arguments
-        sx += x1;
-        sy += y1;
-        sw = w1 ?? sw;
-        sh = h1 ?? sh;
+      dx = this.dx + x2;
+      dy = this.dy + y2;
+      dw = w2 ?? this.dw;
+      dh = h2 ?? this.dh;
+    } else if(arguments.length > 1) {
+      // one set of [x, y, w, h] arguments
+      sx = this.sx;
+      sy = this.sy;
+      sw = this.sw;
+      sh = this.sh;
 
-        dx += x2;
-        dy += y2;
-        dw = w2 ?? dw;
-        dh = h2 ?? dh;
-      } else {
-        // one set of [x, y, w, h] arguments
-        dx += x1;
-        dy += y1;
-        dw = w1;
-        dh = h1;
-      }
+      dx = this.dx + x1;
+      dy = this.dy + y1;
+      dw = w1 ?? this.dw;
+      dh = h1 ?? this.dh;
     } else {
       // no additional arguments
+      sx = this.sx;
+      sy = this.sy;
+      sw = this.sw;
+      sh = this.sh;
+
+      dx = this.dx;
+      dy = this.dy;
+      dw = this.dw;
+      dh = this.dh;
     }
 
     this.drawWithNormalizedArgs(context, sx, sy, sw, sh, dx, dy, dw, dh);

@@ -65,10 +65,10 @@ export class ImageTexture extends Texture {
     dw = dw ?? sw;
     dh = dh ?? sh;
 
-    sx *= this._pixelRatio;
-    sy *= this._pixelRatio;
-    sw *= this._pixelRatio;
-    sh *= this._pixelRatio;
+    const ix = sx * this._pixelRatio;
+    const iy = sy * this._pixelRatio;
+    const iw = sw * this._pixelRatio;
+    const ih = sh * this._pixelRatio;
 
     try {
       stats.draw++;
@@ -78,7 +78,7 @@ export class ImageTexture extends Texture {
       // sw = clamp(sw, 0, this._source.width - sw);
       // sh = clamp(sh, 0, this._source.height - sh);
 
-      context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
+      context.drawImage(image, ix, iy, iw, ih, dx, dy, dw, dh);
     } catch (ex) {
       if (!this._draw_failed) {
         console.log("Unable to draw: ", image);
