@@ -127,6 +127,9 @@ export class Node implements Pinned {
 
   constructor() {
     stats.create++;
+    if (this instanceof Node) {
+      this.label(this.constructor.name);
+    }
   }
 
   matrix(relative = false) {
