@@ -11,16 +11,16 @@ export interface TexturePrerenderContext {
 export abstract class Texture {
   /** @internal */ uid = "texture:" + uid();
 
-  /** @internal */ sx = 0;
-  /** @internal */ sy = 0;
-  /** @internal */ sw: number;
-  /** @internal */ sh: number;
-  /** @internal */ dx = 0;
-  /** @internal */ dy = 0;
-  /** @internal */ dw: number;
-  /** @internal */ dh: number;
+  /** @hidden */ sx = 0;
+  /** @hidden */ sy = 0;
+  /** @hidden */ sw: number;
+  /** @hidden */ sh: number;
+  /** @hidden */ dx = 0;
+  /** @hidden */ dy = 0;
+  /** @hidden */ dw: number;
+  /** @hidden */ dh: number;
 
-  // margins, used for resizing texture
+  // margins, used for 9-patch resizing texture
   /** @internal */ top: number;
   /** @internal */ bottom: number;
   /** @internal */ left: number;

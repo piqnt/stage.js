@@ -30,11 +30,11 @@ export class CanvasTexture extends ImageTexture {
   }
 
   /**
-   * Note: provided width and height will be texture size, and canvas size is texture size multiply by pixelRatio.
+   * Set texture size to given width and height, and set canvas size to texture size multiply by pixelRatio.
    */
-  setSize(textureWidth: number, textureHeight: number, pixelRatio = 1) {
-    this._source.width = textureWidth * pixelRatio;
-    this._source.height = textureHeight * pixelRatio;
+  setSize(destWidth: number, destHeight: number, pixelRatio = 1) {
+    this._source.width = destWidth * pixelRatio;
+    this._source.height = destHeight * pixelRatio;
     this._pixelRatio = pixelRatio;
   }
 
@@ -43,7 +43,7 @@ export class CanvasTexture extends ImageTexture {
   }
 
   /**
-   * @experimental
+   * @hidden @experimental
    *
    * This is the ratio of screen pixel to this canvas pixel.
    */
