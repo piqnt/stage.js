@@ -5,6 +5,11 @@ export interface TexturePrerenderContext {
   pixelRatio: number;
 }
 
+// todo: unify 9-patch and padding?
+// todo: prerender is used to get texture width and height, replace it with a function to only get width and height
+
+// todo: add reusable shape textures
+
 /**
  * Textures are used to clip and resize image objects.
  */
@@ -20,7 +25,8 @@ export abstract class Texture {
   /** @hidden */ dw: number;
   /** @hidden */ dh: number;
 
-  // margins, used for 9-patch resizing texture
+  // 9-patch resizing specification
+  // todo: rename to something more descriptive
   /** @internal */ top: number;
   /** @internal */ bottom: number;
   /** @internal */ left: number;

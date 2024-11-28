@@ -17,6 +17,9 @@ export class ImageTexture extends Texture {
 
   /** @internal */ _draw_failed: boolean;
 
+  /** @internal */
+  private padding = 0;
+
   constructor(source?: TextureImageSource, pixelRatio?: number) {
     super();
     if (typeof source === "object") {
@@ -29,12 +32,19 @@ export class ImageTexture extends Texture {
     this._pixelRatio = pixelRatio;
   }
 
+  /**
+   * Add padding to the image texture. Padding can be negative.
+   */
+  setPadding(padding: number): void {
+    this.padding = padding;
+  }
+
   getWidth(): number {
-    return this._source.width / this._pixelRatio;
+    return this._source.width / this._pixelRatio + (this.padding + this.padding);
   }
 
   getHeight(): number {
-    return this._source.height / this._pixelRatio;
+    return this._source.height / this._pixelRatio + (this.padding + this.padding);
   }
 
   /** @internal */
@@ -59,11 +69,14 @@ export class ImageTexture extends Texture {
       return;
     }
 
-    sw = sw ?? this.getWidth();
-    sh = sh ?? this.getHeight();
+    sw = sw ?? this._source.width / this._pixelRatio;
+    sh = sh ?? this._source.height / this._pixelRatio;
 
     dw = dw ?? sw;
     dh = dh ?? sh;
+
+    dx += this.padding;
+    dy += this.padding;
 
     const ix = sx * this._pixelRatio;
     const iy = sy * this._pixelRatio;
