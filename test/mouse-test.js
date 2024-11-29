@@ -21,7 +21,7 @@ it("Pointer", function () {
   });
 
   const node = memo(function (id) {
-    return Stage.layout().label(id).pin({
+    return Stage.component().label(id).pin({
       width: 400,
       height: 300,
     });

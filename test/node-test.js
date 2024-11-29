@@ -5,13 +5,13 @@ let memo = require("./util/memo");
 let Stage = require("../src/tree");
 
 it("label", function () {
-  let foo = Stage.create();
+  let foo = Stage.component();
   expect(foo.label("label")).be(foo);
   expect(foo.label()).be("label");
 });
 
 it("attr", function () {
-  let foo = Stage.create();
+  let foo = Stage.component();
   expect(foo.attr("name")).not.ok();
   expect(foo.attr("string", "Name")).equal(foo);
   expect(foo.attr("number", 9876543210)).equal(foo);
@@ -21,9 +21,9 @@ it("attr", function () {
 
 it("append", function () {
   {
-    let foo = Stage.layout();
-    let bar = Stage.create();
-    let baz = Stage.create();
+    let foo = Stage.component();
+    let bar = Stage.component();
+    let baz = Stage.component();
     foo.append(bar);
     expect(foo.first()).be(bar);
     expect(foo.last()).be(bar);
@@ -33,9 +33,9 @@ it("append", function () {
   }
 
   {
-    let foo = Stage.layout();
-    let bar = Stage.create();
-    let baz = Stage.create();
+    let foo = Stage.component();
+    let bar = Stage.component();
+    let baz = Stage.component();
     foo.append([bar, baz]);
     expect(foo.first()).be(bar);
     expect(foo.last()).be(baz);
@@ -44,9 +44,9 @@ it("append", function () {
 
 it("prepend", function () {
   {
-    let foo = Stage.layout();
-    let bar = Stage.create();
-    let baz = Stage.create();
+    let foo = Stage.component();
+    let bar = Stage.component();
+    let baz = Stage.component();
     foo.prepend(bar);
     expect(foo.first()).be(bar);
     expect(foo.last()).be(bar);
@@ -56,9 +56,9 @@ it("prepend", function () {
   }
 
   {
-    let foo = Stage.layout();
-    let bar = Stage.create();
-    let baz = Stage.create();
+    let foo = Stage.component();
+    let bar = Stage.component();
+    let baz = Stage.component();
     foo.prepend([bar, baz]);
     expect(foo.first()).be(bar);
     expect(foo.last()).be(baz);
@@ -66,9 +66,9 @@ it("prepend", function () {
 });
 
 it("appendTo", function () {
-  let foo = Stage.layout();
-  let bar = Stage.create();
-  let baz = Stage.create();
+  let foo = Stage.component();
+  let bar = Stage.component();
+  let baz = Stage.component();
   bar.appendTo(foo);
   expect(foo.first()).be(bar);
   expect(foo.last()).be(bar);
@@ -78,9 +78,9 @@ it("appendTo", function () {
 });
 
 it("prependTo", function () {
-  let foo = Stage.layout();
-  let bar = Stage.create();
-  let baz = Stage.create();
+  let foo = Stage.component();
+  let bar = Stage.component();
+  let baz = Stage.component();
   bar.prependTo(foo);
   expect(foo.first()).be(bar);
   expect(foo.last()).be(bar);
@@ -90,9 +90,9 @@ it("prependTo", function () {
 });
 
 it("insertAfter", function () {
-  let foo = Stage.layout();
-  let bar = Stage.create();
-  let baz = Stage.create();
+  let foo = Stage.component();
+  let bar = Stage.component();
+  let baz = Stage.component();
   bar.prependTo(foo);
   baz.insertAfter(bar);
   expect(foo.first()).be(bar);
@@ -100,9 +100,9 @@ it("insertAfter", function () {
 });
 
 it("insertBefore", function () {
-  let foo = Stage.layout();
-  let bar = Stage.create();
-  let baz = Stage.create();
+  let foo = Stage.component();
+  let bar = Stage.component();
+  let baz = Stage.component();
   bar.prependTo(foo);
   baz.insertBefore(bar);
   expect(foo.first()).be(baz);
@@ -110,9 +110,9 @@ it("insertBefore", function () {
 });
 
 it("insertNext", function () {
-  let foo = Stage.layout();
-  let bar = Stage.create();
-  let baz = Stage.create();
+  let foo = Stage.component();
+  let bar = Stage.component();
+  let baz = Stage.component();
   bar.prependTo(foo);
   bar.insertNext(baz);
   expect(foo.first()).be(bar);
@@ -120,9 +120,9 @@ it("insertNext", function () {
 });
 
 it("insertPrev", function () {
-  let foo = Stage.layout();
-  let bar = Stage.create();
-  let baz = Stage.create();
+  let foo = Stage.component();
+  let bar = Stage.component();
+  let baz = Stage.component();
   bar.prependTo(foo);
   bar.insertPrev(baz);
   expect(foo.first()).be(baz);
@@ -131,7 +131,7 @@ it("insertPrev", function () {
 
 it("visit", function () {
   let node = memo(function (id) {
-    return Stage.layout().label(id);
+    return Stage.component().label(id);
   });
   let visitor, data;
   let stage = node(1).append(

@@ -23,7 +23,7 @@ describe("Pin", function () {
   });
 
   it(".pin()", function () {
-    let foo = Stage.create();
+    let foo = Stage.component();
     let pin = foo.pin();
     foo.pin("scale", 2);
     expect(foo.pin("scaleX")).be(2);
@@ -37,7 +37,7 @@ describe("Pin", function () {
   });
 
   it(".fit()", function () {
-    let node = Stage.create();
+    let node = Stage.component();
     let pin = node.pin();
     node.pin({
       width: 100,

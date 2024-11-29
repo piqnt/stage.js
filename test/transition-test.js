@@ -4,7 +4,7 @@ let Stage = require("../src/");
 
 describe("Tween", function () {
   it("node.tween()", function () {
-    let node = Stage.create();
+    let node = Stage.component();
     let m = node.tween();
     expect(node._transitions[0]).be(m);
     expect(m._duration).be(400);
@@ -21,7 +21,7 @@ describe("Tween", function () {
   });
 
   it("tween.tween()", function () {
-    let node = Stage.create();
+    let node = Stage.component();
     let m = node.tween();
 
     {
