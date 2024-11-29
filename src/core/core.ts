@@ -139,13 +139,25 @@ export class Node implements Pinned {
     return this._pin.absoluteMatrix();
   }
 
-  /** @hidden */
+  /** @hidden @deprecated */
   getPixelRatio() {
-    // todo: parent matrix is not available in the first call
+    // todo: remove this function
     const m = this._parent?.matrix();
-    // todo: why "divide by" pixel ratio
     const pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getDevicePixelRatio();
     return pixelRatio;
+  }
+
+  /** @hidden This is not accurate before first tick */
+  getDevicePixelRatio() {
+    // todo: parent matrix is not available in the first call
+    const parentMatrix = this._parent?.matrix();
+    const pixelRatio = !parentMatrix ? 1 : Math.max(Math.abs(parentMatrix.a), Math.abs(parentMatrix.b));
+    return pixelRatio;
+  }
+
+  /** @hidden This is not accurate before first tick */
+  getLogicalPixelRatio() {
+    return this.getDevicePixelRatio() / getDevicePixelRatio();
   }
 
   pin(key: string): any;
@@ -647,7 +659,7 @@ export class Node implements Pinned {
     }
 
     if (!this.renderedBefore) {
-      // todo: because getPixelRatio is not accurate before first tick
+      // todo: because getDevicePixelRatio is not accurate before first tick
       this.prerenderTexture();
     }
     this.renderedBefore = true;

@@ -68,7 +68,7 @@ export class Root extends Node {
   sleep = false;
 
   /** @internal */ devicePixelRatio: number;
-  /** @internal */ backingStoreRatio: any;
+  /** @internal */ backingStoreRatio: number;
 
   /** @internal */ pointer: Pointer;
 
@@ -120,22 +120,15 @@ export class Root extends Node {
 
     this.context = this.canvas.getContext("2d");
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const backingStorePixelRatio =
-      // @ts-ignore
-      this.context.webkitBackingStorePixelRatio ||
-      // @ts-ignore
-      this.context.mozBackingStorePixelRatio ||
-      // @ts-ignore
-      this.context.msBackingStorePixelRatio ||
-      // @ts-ignore
-      this.context.oBackingStorePixelRatio ||
-      // @ts-ignore
-      this.context.backingStorePixelRatio ||
+    this.devicePixelRatio = window.devicePixelRatio || 1;
+    this.backingStoreRatio =
+      this.context["webkitBackingStorePixelRatio"] ||
+      this.context["mozBackingStorePixelRatio"] ||
+      this.context["msBackingStorePixelRatio"] ||
+      this.context["oBackingStorePixelRatio"] ||
+      this.context["backingStorePixelRatio"] ||
       1;
 
-    this.devicePixelRatio = devicePixelRatio;
-    this.backingStoreRatio = backingStorePixelRatio;
     this.pixelRatio = this.devicePixelRatio / this.backingStoreRatio;
 
     // resize();

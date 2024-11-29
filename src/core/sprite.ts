@@ -75,7 +75,7 @@ export class Sprite extends Node {
   /** @hidden */
   prerenderTexture(): void {
     if (!this._image) return;
-    const pixelRatio = this.getPixelRatio();
+    const pixelRatio = this.getDevicePixelRatio();
     this.prerenderContext.pixelRatio = pixelRatio;
     const updated = this._image.prerender(this.prerenderContext);
     if (updated === true) {
