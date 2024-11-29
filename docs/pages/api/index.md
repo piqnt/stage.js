@@ -28,7 +28,6 @@
 ## Type Aliases
 
 - [FitMode](type-aliases/FitMode)
-- [LegacyFitMode](type-aliases/LegacyFitMode)
 - [NodeEventListener](type-aliases/NodeEventListener)
 - [NodeTickListener](type-aliases/NodeTickListener)
 - [ResizableTextureMode](type-aliases/ResizableTextureMode)
@@ -47,20 +46,17 @@
 - [math](variables/math)
 - [POINTER\_CANCEL](variables/POINTER_CANCEL)
 - [POINTER\_CLICK](variables/POINTER_CLICK)
-- [POINTER\_END](variables/POINTER_END)
+- [POINTER\_DOWN](variables/POINTER_DOWN)
 - [POINTER\_MOVE](variables/POINTER_MOVE)
-- [POINTER\_START](variables/POINTER_START)
+- [POINTER\_UP](variables/POINTER_UP)
 
 ## Functions
 
 - [anim](functions/anim)
 - [atlas](functions/atlas)
-- [box](functions/box)
 - [canvas](functions/canvas)
 - [column](functions/column)
-- [create](functions/create)
-- [layer](functions/layer)
-- [layout](functions/layout)
+- [component](functions/component)
 - [maximize](functions/maximize)
 - [minimize](functions/minimize)
 - [monotype](functions/monotype)

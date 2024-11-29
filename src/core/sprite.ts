@@ -99,7 +99,7 @@ export class Sprite extends Node {
   }
 }
 
-/** @hidden @deprecated @internal */
+/** @hidden @deprecated */
 export const image = sprite;
-/** @hidden @deprecated @internal */
+/** @hidden @deprecated */
 export const Image = Sprite;

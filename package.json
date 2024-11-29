@@ -1,6 +1,6 @@
 {
   "name": "stage-js",
-  "version": "1.0.0-alpha.10",
+  "version": "1.0.0-alpha.11",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
   "author": "Ali Shakiba (http://shakiba.me/stage.js)",
@@ -48,7 +48,7 @@
     "lint": "eslint './src/**/*.ts'",
     "pretty": "prettier --write .",
     "preflight": "npm run pretty && npm run lint",
-    "typedoc": "typedoc --options typedoc.json && mv ./docs/pages/api/README.md ./docs/pages/api/index.md"
+    "typedoc": "typedoc --options typedoc.json && mv ./docs/pages/api/README.md ./docs/pages/api/index.md && ./node_modules/.bin/replace-in-files ./docs/pages/api/* --string '.md' --replacement ''"
   },
   "devDependencies": {
     "@types/node": "^22.9.3",
@@ -60,6 +60,7 @@
     "expect.js": "^0.3.1",
     "mocha": "^6.2.3",
     "prettier": "^3.2.5",
+    "replace-in-files-cli": "^3.0.0",
     "rollup-plugin-license": "^3.3.1",
     "sandboxed-module": "^2.0.0",
     "sinon": "^9.0.2",

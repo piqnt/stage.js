@@ -158,7 +158,7 @@ export class Transition implements Pinned {
   }
 
   /**
-   * @deprecated Use .done(fn) instead.
+   *  @hidden @deprecated Use .done(fn) instead.
    */
   then(fn: TransitionEndListener) {
     this.done(fn);
@@ -166,7 +166,7 @@ export class Transition implements Pinned {
   }
 
   /**
-   * @deprecated this doesn't do anything anymore, call transition on the node instead.
+   *  @hidden @deprecated this doesn't do anything anymore, call transition on the node instead.
    */
   clear(forward: boolean) {
     return this;

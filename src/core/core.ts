@@ -206,11 +206,11 @@ export class Node implements Pinned {
     return "[" + this._label + "]";
   }
 
-  /** @deprecated Use label() */
+  /** @hidden @deprecated Use label() */
   id(): string;
-  /** @deprecated Use label() */
+  /** @hidden @deprecated Use label() */
   id(label: string): this;
-  /** @deprecated Use label() */
+  /** @hidden @deprecated Use label() */
   id(label?: string) {
     if (typeof label === "undefined") {
       return this._label;
@@ -1103,12 +1103,12 @@ export class Node implements Pinned {
     return this;
   }
 
-  /** @deprecated Use minimize() */
+  /** @hidden @deprecated Use minimize() */
   box() {
     return this.minimize();
   }
 
-  /** @deprecated Use minimize() */
+  /** @hidden @deprecated Use minimize() */
   layer() {
     return this.maximize();
   }

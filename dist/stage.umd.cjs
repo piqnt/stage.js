@@ -2,7 +2,7 @@
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.Stage = {}));
 })(this, function(exports2) {
   "use strict";/**
- * Stage.js 1.0.0-alpha.10
+ * Stage.js 1.0.0-alpha.11
  *
  * @copyright Copyright (c) Ali Shakiba
  * @license The MIT License (MIT)
@@ -421,30 +421,35 @@
         this.dh = h;
       };
       Texture2.prototype.draw = function(context, x1, y1, w1, h1, x2, y2, w2, h2) {
-        var sx = this.sx;
-        var sy = this.sy;
-        var sw = this.sw;
-        var sh = this.sh;
-        var dx = this.dx;
-        var dy = this.dy;
-        var dw = this.dw;
-        var dh = this.dh;
-        if (typeof x1 === "number" || typeof y1 === "number" || typeof w1 === "number" || typeof h1 === "number" || typeof x2 === "number" || typeof y2 === "number" || typeof w2 === "number" || typeof h2 === "number") {
-          if (typeof x2 === "number" || typeof y2 === "number" || typeof w2 === "number" || typeof h2 === "number") {
-            sx += x1;
-            sy += y1;
-            sw = w1 !== null && w1 !== void 0 ? w1 : sw;
-            sh = h1 !== null && h1 !== void 0 ? h1 : sh;
-            dx += x2;
-            dy += y2;
-            dw = w2 !== null && w2 !== void 0 ? w2 : dw;
-            dh = h2 !== null && h2 !== void 0 ? h2 : dh;
-          } else {
-            dx += x1;
-            dy += y1;
-            dw = w1;
-            dh = h1;
-          }
+        var sx, sy, sw, sh;
+        var dx, dy, dw, dh;
+        if (arguments.length > 5) {
+          sx = this.sx + x1;
+          sy = this.sy + y1;
+          sw = w1 !== null && w1 !== void 0 ? w1 : this.sw;
+          sh = h1 !== null && h1 !== void 0 ? h1 : this.sh;
+          dx = this.dx + x2;
+          dy = this.dy + y2;
+          dw = w2 !== null && w2 !== void 0 ? w2 : this.dw;
+          dh = h2 !== null && h2 !== void 0 ? h2 : this.dh;
+        } else if (arguments.length > 1) {
+          sx = this.sx;
+          sy = this.sy;
+          sw = this.sw;
+          sh = this.sh;
+          dx = this.dx + x1;
+          dy = this.dy + y1;
+          dw = w1 !== null && w1 !== void 0 ? w1 : this.dw;
+          dh = h1 !== null && h1 !== void 0 ? h1 : this.dh;
+        } else {
+          sx = this.sx;
+          sy = this.sy;
+          sw = this.sw;
+          sh = this.sh;
+          dx = this.dx;
+          dy = this.dy;
+          dw = this.dw;
+          dh = this.dh;
         }
         this.drawWithNormalizedArgs(context, sx, sy, sw, sh, dx, dy, dw, dh);
       };
@@ -458,6 +463,7 @@
       function ImageTexture2(source, pixelRatio) {
         var _this = _super.call(this) || this;
         _this._pixelRatio = 1;
+        _this.padding = 0;
         if (typeof source === "object") {
           _this.setSourceImage(source, pixelRatio);
         }
@@ -470,11 +476,14 @@
         this._source = image2;
         this._pixelRatio = pixelRatio;
       };
+      ImageTexture2.prototype.setPadding = function(padding) {
+        this.padding = padding;
+      };
       ImageTexture2.prototype.getWidth = function() {
-        return this._source.width / this._pixelRatio;
+        return this._source.width / this._pixelRatio + (this.padding + this.padding);
       };
       ImageTexture2.prototype.getHeight = function() {
-        return this._source.height / this._pixelRatio;
+        return this._source.height / this._pixelRatio + (this.padding + this.padding);
       };
       ImageTexture2.prototype.prerender = function(context) {
         return false;
@@ -484,17 +493,19 @@
         if (image2 === null || typeof image2 !== "object") {
           return;
         }
-        sw = sw !== null && sw !== void 0 ? sw : this.getWidth();
-        sh = sh !== null && sh !== void 0 ? sh : this.getHeight();
+        sw = sw !== null && sw !== void 0 ? sw : this._source.width / this._pixelRatio;
+        sh = sh !== null && sh !== void 0 ? sh : this._source.height / this._pixelRatio;
         dw = dw !== null && dw !== void 0 ? dw : sw;
         dh = dh !== null && dh !== void 0 ? dh : sh;
-        sx *= this._pixelRatio;
-        sy *= this._pixelRatio;
-        sw *= this._pixelRatio;
-        sh *= this._pixelRatio;
+        dx += this.padding;
+        dy += this.padding;
+        var ix = sx * this._pixelRatio;
+        var iy = sy * this._pixelRatio;
+        var iw = sw * this._pixelRatio;
+        var ih = sh * this._pixelRatio;
         try {
           stats.draw++;
-          context.drawImage(image2, sx, sy, sw, sh, dx, dy, dw, dh);
+          context.drawImage(image2, ix, iy, iw, ih, dx, dy, dw, dh);
         } catch (ex) {
           if (!this._draw_failed) {
             console.log("Unable to draw: ", image2);
@@ -923,7 +934,7 @@
       return ResizableTexture2;
     }(Texture)
   );
-  function getPixelRatio() {
+  function getDevicePixelRatio() {
     return typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
   }
   function isValidFitMode(value) {
@@ -1699,7 +1710,7 @@
     throw "Invalid node: " + obj;
   }
   function create() {
-    return layout();
+    return component();
   }
   function layer() {
     return maximize();
@@ -1708,19 +1719,22 @@
     return minimize();
   }
   function layout() {
+    return component();
+  }
+  function component() {
     return new Node();
   }
   function row(align) {
-    return layout().row(align).label("Row");
+    return new Node().row(align).label("Row");
   }
   function column(align) {
-    return layout().column(align).label("Column");
+    return new Node().column(align).label("Column");
   }
   function minimize() {
-    return layout().minimize().label("Minimize");
+    return new Node().minimize().label("Minimize");
   }
   function maximize() {
-    return layout().maximize().label("Maximize");
+    return new Node().maximize().label("Maximize");
   }
   var Node = (
     /** @class */
@@ -1746,6 +1760,7 @@
         this._tickBefore = [];
         this._tickAfter = [];
         this.MAX_ELAPSE = Infinity;
+        this.renderedBefore = false;
         this._transitionTickInitied = false;
         this._transitionTickLastTime = 0;
         this._transitionTick = function(elapsed, now, last) {
@@ -1771,6 +1786,9 @@
           return true;
         };
         stats.create++;
+        if (this instanceof Node2) {
+          this.label(this.constructor.name);
+        }
       }
       Node2.prototype.matrix = function(relative) {
         if (relative === void 0) {
@@ -1784,8 +1802,17 @@
       Node2.prototype.getPixelRatio = function() {
         var _a;
         var m = (_a = this._parent) === null || _a === void 0 ? void 0 : _a.matrix();
-        var pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getPixelRatio();
+        var pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getDevicePixelRatio();
         return pixelRatio;
+      };
+      Node2.prototype.getDevicePixelRatio = function() {
+        var _a;
+        var parentMatrix = (_a = this._parent) === null || _a === void 0 ? void 0 : _a.matrix();
+        var pixelRatio = !parentMatrix ? 1 : Math.max(Math.abs(parentMatrix.a), Math.abs(parentMatrix.b));
+        return pixelRatio;
+      };
+      Node2.prototype.getLogicalPixelRatio = function() {
+        return this.getDevicePixelRatio() / getDevicePixelRatio();
       };
       Node2.prototype.pin = function(a, b) {
         if (typeof a === "object") {
@@ -2159,6 +2186,10 @@
         if (context.globalAlpha != alpha) {
           context.globalAlpha = alpha;
         }
+        if (!this.renderedBefore) {
+          this.prerenderTexture();
+        }
+        this.renderedBefore = true;
         this.renderTexture(context);
         if (context.globalAlpha != this._alpha) {
           context.globalAlpha = this._alpha;
@@ -2593,7 +2624,7 @@
       Sprite2.prototype.prerenderTexture = function() {
         if (!this._image)
           return;
-        var pixelRatio = this.getPixelRatio();
+        var pixelRatio = this.getDevicePixelRatio();
         this.prerenderContext.pixelRatio = pixelRatio;
         var updated = this._image.prerender(this.prerenderContext);
         if (updated === true) {
@@ -2625,12 +2656,12 @@
         _this._lastPixelRatio = 0;
         return _this;
       }
-      CanvasTexture2.prototype.setSize = function(textureWidth, textureHeight, pixelRatio) {
+      CanvasTexture2.prototype.setSize = function(destWidth, destHeight, pixelRatio) {
         if (pixelRatio === void 0) {
           pixelRatio = 1;
         }
-        this._source.width = textureWidth * pixelRatio;
-        this._source.height = textureHeight * pixelRatio;
+        this._source.width = destWidth * pixelRatio;
+        this._source.height = destHeight * pixelRatio;
         this._pixelRatio = pixelRatio;
       };
       CanvasTexture2.prototype.getContext = function(type, attributes) {
@@ -3052,17 +3083,8 @@
           }
           _this.dom = _this.canvas;
           _this.context = _this.canvas.getContext("2d");
-          var devicePixelRatio = window.devicePixelRatio || 1;
-          var backingStorePixelRatio = (
-            // @ts-ignore
-            _this.context.webkitBackingStorePixelRatio || // @ts-ignore
-            _this.context.mozBackingStorePixelRatio || // @ts-ignore
-            _this.context.msBackingStorePixelRatio || // @ts-ignore
-            _this.context.oBackingStorePixelRatio || // @ts-ignore
-            _this.context.backingStorePixelRatio || 1
-          );
-          _this.devicePixelRatio = devicePixelRatio;
-          _this.backingStoreRatio = backingStorePixelRatio;
+          _this.devicePixelRatio = window.devicePixelRatio || 1;
+          _this.backingStoreRatio = _this.context["webkitBackingStorePixelRatio"] || _this.context["mozBackingStorePixelRatio"] || _this.context["msBackingStorePixelRatio"] || _this.context["oBackingStorePixelRatio"] || _this.context["backingStorePixelRatio"] || 1;
           _this.pixelRatio = _this.devicePixelRatio / _this.backingStoreRatio;
           _this.mounted = true;
           ROOTS.push(_this);
@@ -3520,6 +3542,7 @@
     canvas,
     clamp,
     column,
+    component,
     create,
     image,
     isValidFitMode,
@@ -3574,6 +3597,7 @@
   exports2.canvas = canvas;
   exports2.clamp = clamp;
   exports2.column = column;
+  exports2.component = component;
   exports2.create = create;
   exports2.default = Stage;
   exports2.image = image;

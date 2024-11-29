@@ -137,20 +137,6 @@
 
 ***
 
-### ~~box()~~
-
-> **box**(): [`Node`](Node)
-
-#### Returns
-
-[`Node`](Node)
-
-#### Deprecated
-
-Use minimize()
-
-***
-
 ### clearTimeout()
 
 > **clearTimeout**(`timer`): `void`
@@ -277,24 +263,6 @@ Use minimize()
 
 ***
 
-### ~~id()~~
-
-> **id**(`id`): `string` \| [`Node`](Node)
-
-#### Parameters
-
-• **id**: `string`
-
-#### Returns
-
-`string` \| [`Node`](Node)
-
-#### Deprecated
-
-Use label()
-
-***
-
 ### insertAfter()
 
 > **insertAfter**(`prev`): [`Node`](Node)
@@ -357,15 +325,25 @@ Use label()
 
 ### label()
 
-> **label**(`label`): `string` \| [`Node`](Node)
+#### label()
 
-#### Parameters
+> **label**(): `string`
+
+##### Returns
+
+`string`
+
+#### label(label)
+
+> **label**(`label`): `this`
+
+##### Parameters
 
 • **label**: `string`
 
-#### Returns
+##### Returns
 
-`string` \| [`Node`](Node)
+`this`
 
 ***
 
@@ -380,20 +358,6 @@ Use label()
 #### Returns
 
 [`Node`](Node)
-
-***
-
-### ~~layer()~~
-
-> **layer**(): [`Node`](Node)
-
-#### Returns
-
-[`Node`](Node)
-
-#### Deprecated
-
-Use minimize()
 
 ***
 
@@ -667,16 +631,6 @@ Set cell spacing for layout.
 
 ***
 
-### prerender()
-
-> **prerender**(): `void`
-
-#### Returns
-
-`void`
-
-***
-
 ### prev()
 
 > **prev**(`visible`?): [`Node`](Node)
@@ -720,20 +674,6 @@ Set cell spacing for layout.
 #### Returns
 
 [`Node`](Node)
-
-***
-
-### render()
-
-> **render**(`context`): `void`
-
-#### Parameters
-
-• **context**: `CanvasRenderingContext2D`
-
-#### Returns
-
-`void`
 
 ***
 

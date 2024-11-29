@@ -1,6 +1,6 @@
 # Function: column()
 
-> **column**(`align`): `string` \| [`Node`](../classes/Node)
+> **column**(`align`): [`Node`](../classes/Node)
 
 ## Parameters
 
@@ -8,4 +8,4 @@
 
 ## Returns
 
-`string` \| [`Node`](../classes/Node)
+[`Node`](../classes/Node)

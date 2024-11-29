@@ -162,24 +162,6 @@
 
 ***
 
-### ~~box()~~
-
-> **box**(): [`Monotype`](Monotype)
-
-#### Returns
-
-[`Monotype`](Monotype)
-
-#### Deprecated
-
-Use minimize()
-
-#### Inherited from
-
-[`Node`](Node).[`box`](Node#box)
-
-***
-
 ### clearTimeout()
 
 > **clearTimeout**(`timer`): `void`
@@ -348,28 +330,6 @@ Use minimize()
 
 ***
 
-### ~~id()~~
-
-> **id**(`id`): `string` \| [`Monotype`](Monotype)
-
-#### Parameters
-
-• **id**: `string`
-
-#### Returns
-
-`string` \| [`Monotype`](Monotype)
-
-#### Deprecated
-
-Use label()
-
-#### Inherited from
-
-[`Node`](Node).[`id`](Node#id)
-
-***
-
 ### insertAfter()
 
 > **insertAfter**(`prev`): [`Monotype`](Monotype)
@@ -448,17 +408,31 @@ Use label()
 
 ### label()
 
-> **label**(`label`): `string` \| [`Monotype`](Monotype)
+#### label()
 
-#### Parameters
+> **label**(): `string`
+
+##### Returns
+
+`string`
+
+##### Inherited from
+
+[`Node`](Node).[`label`](Node#label)
+
+#### label(label)
+
+> **label**(`label`): `this`
+
+##### Parameters
 
 • **label**: `string`
 
-#### Returns
+##### Returns
 
-`string` \| [`Monotype`](Monotype)
+`this`
 
-#### Inherited from
+##### Inherited from
 
 [`Node`](Node).[`label`](Node#label)
 
@@ -482,27 +456,9 @@ Use label()
 
 ***
 
-### ~~layer()~~
-
-> **layer**(): [`Monotype`](Monotype)
-
-#### Returns
-
-[`Monotype`](Monotype)
-
-#### Deprecated
-
-Use minimize()
-
-#### Inherited from
-
-[`Node`](Node).[`layer`](Node#layer)
-
-***
-
 ### listeners()
 
-> **listeners**(`type`): [`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Monotype`](Monotype)\>[]
+> **listeners**(`type`): [`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Node`](Node)\>[]
 
 #### Parameters
 
@@ -510,7 +466,7 @@ Use minimize()
 
 #### Returns
 
-[`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Monotype`](Monotype)\>[]
+[`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Node`](Node)\>[]
 
 #### Inherited from
 
@@ -818,20 +774,6 @@ Set cell spacing for layout.
 
 ***
 
-### prerender()
-
-> **prerender**(): `void`
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-[`Node`](Node).[`prerender`](Node#prerender)
-
-***
-
 ### prev()
 
 > **prev**(`visible`?): [`Node`](Node)
@@ -887,24 +829,6 @@ Set cell spacing for layout.
 #### Inherited from
 
 [`Node`](Node).[`remove`](Node#remove)
-
-***
-
-### render()
-
-> **render**(`context`): `void`
-
-#### Parameters
-
-• **context**: `CanvasRenderingContext2D`
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-[`Node`](Node).[`render`](Node#render)
 
 ***
 

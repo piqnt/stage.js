@@ -28,12 +28,7 @@ A texture with off-screen canvas.
 
 > **draw**(`context`): `void`
 
-Signatures:
-- (): This is used when a sprite draws its textures
-- (sx, sy, sw, sh, dx, dy, dw, dh): This is used when a piped texture passes drawing to it backend.
-- (dx, dy, dw, dh): I guess unused.
-
-Note: sx and sy are added to this._sx and this._sy.
+Defer draw spec to texture config. This is used when a sprite draws its textures.
 
 ##### Parameters
 
@@ -47,21 +42,24 @@ Note: sx and sy are added to this._sx and this._sy.
 
 [`ImageTexture`](ImageTexture).[`draw`](ImageTexture#draw)
 
-#### draw(context, x1, y1, w1, h1)
+#### draw(context, dx, dy, dw, dh)
 
-> **draw**(`context`, `x1`, `y1`, `w1`, `h1`): `void`
+> **draw**(`context`, `dx`, `dy`, `dw`, `dh`): `void`
+
+This is probably unused.
+Note: dx, dy are added to this.dx, this.dy.
 
 ##### Parameters
 
 • **context**: `CanvasRenderingContext2D`
 
-• **x1**: `number`
+• **dx**: `number`
 
-• **y1**: `number`
+• **dy**: `number`
 
-• **w1**: `number`
+• **dw**: `number`
 
-• **h1**: `number`
+• **dh**: `number`
 
 ##### Returns
 
@@ -71,29 +69,32 @@ Note: sx and sy are added to this._sx and this._sy.
 
 [`ImageTexture`](ImageTexture).[`draw`](ImageTexture#draw)
 
-#### draw(context, x1, y1, w1, h1, x2, y2, w2, h2)
+#### draw(context, sx, sy, sw, sh, dx, dy, dw, dh)
 
-> **draw**(`context`, `x1`, `y1`, `w1`, `h1`, `x2`, `y2`, `w2`, `h2`): `void`
+> **draw**(`context`, `sx`, `sy`, `sw`, `sh`, `dx`, `dy`, `dw`, `dh`): `void`
+
+This is used when a piped texture passes drawing to it backend.
+Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 ##### Parameters
 
 • **context**: `CanvasRenderingContext2D`
 
-• **x1**: `number`
+• **sx**: `number`
 
-• **y1**: `number`
+• **sy**: `number`
 
-• **w1**: `number`
+• **sw**: `number`
 
-• **h1**: `number`
+• **sh**: `number`
 
-• **x2**: `number`
+• **dx**: `number`
 
-• **y2**: `number`
+• **dy**: `number`
 
-• **w2**: `number`
+• **dw**: `number`
 
-• **h2**: `number`
+• **dh**: `number`
 
 ##### Returns
 
@@ -132,20 +133,6 @@ Note: sx and sy are added to this._sx and this._sy.
 #### Inherited from
 
 [`ImageTexture`](ImageTexture).[`getHeight`](ImageTexture#getheight)
-
-***
-
-### getOptimalPixelRatio()
-
-> **getOptimalPixelRatio**(): `number`
-
-**`Experimental`**
-
-This is the ratio of screen pixel to this canvas pixel.
-
-#### Returns
-
-`number`
 
 ***
 
@@ -231,17 +218,37 @@ This is the ratio of screen pixel to this canvas pixel.
 
 ***
 
-### setSize()
+### setPadding()
 
-> **setSize**(`textureWidth`, `textureHeight`, `pixelRatio`): `void`
+> **setPadding**(`padding`): `void`
 
-Note: provided width and height will be texture size, and canvas size is texture size multiply by pixelRatio.
+Add padding to the image texture. Padding can be negative.
 
 #### Parameters
 
-• **textureWidth**: `number`
+• **padding**: `number`
 
-• **textureHeight**: `number`
+#### Returns
+
+`void`
+
+#### Inherited from
+
+[`ImageTexture`](ImageTexture).[`setPadding`](ImageTexture#setpadding)
+
+***
+
+### setSize()
+
+> **setSize**(`destWidth`, `destHeight`, `pixelRatio`): `void`
+
+Set texture size to given width and height, and set canvas size to texture size multiply by pixelRatio.
+
+#### Parameters
+
+• **destWidth**: `number`
+
+• **destHeight**: `number`
 
 • **pixelRatio**: `number` = `1`
 

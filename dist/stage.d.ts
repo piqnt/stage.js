@@ -42,6 +42,14 @@ export declare class Matrix {
  * Textures are used to clip and resize image objects.
  */
 export declare abstract class Texture {
+	/** @hidden */ sx: number;
+	/** @hidden */ sy: number;
+	/** @hidden */ sw: number;
+	/** @hidden */ sh: number;
+	/** @hidden */ dx: number;
+	/** @hidden */ dy: number;
+	/** @hidden */ dw: number;
+	/** @hidden */ dh: number;
 	setSourceCoordinate(x: number, y: number): void;
 	setSourceDimension(w: number, h: number): void;
 	setDestinationCoordinate(x: number, y: number): void;
@@ -49,21 +57,28 @@ export declare abstract class Texture {
 	abstract getWidth(): number;
 	abstract getHeight(): number;
 	/**
-	 * Signatures:
-	 * - (): This is used when a sprite draws its textures
-	 * - (sx, sy, sw, sh, dx, dy, dw, dh): This is used when a piped texture passes drawing to it backend.
-	 * - (dx, dy, dw, dh): I guess unused.
-	 *
-	 * Note: sx and sy are added to this._sx and this._sy.
+	 * Defer draw spec to texture config. This is used when a sprite draws its textures.
 	 */
 	draw(context: CanvasRenderingContext2D): void;
-	draw(context: CanvasRenderingContext2D, x1: number, y1: number, w1: number, h1: number): void;
-	draw(context: CanvasRenderingContext2D, x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number): void;
+	/**
+	 * This is probably unused.
+	 * Note: dx, dy are added to this.dx, this.dy.
+	 */
+	draw(context: CanvasRenderingContext2D, dx: number, dy: number, dw: number, dh: number): void;
+	/**
+	 * This is used when a piped texture passes drawing to it backend.
+	 * Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
+	 */
+	draw(context: CanvasRenderingContext2D, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
 }
 export type TextureImageSource = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas;
 export declare class ImageTexture extends Texture {
 	constructor(source?: TextureImageSource, pixelRatio?: number);
 	setSourceImage(image: TextureImageSource, pixelRatio?: number): void;
+	/**
+	 * Add padding to the image texture. Padding can be negative.
+	 */
+	setPadding(padding: number): void;
 	getWidth(): number;
 	getHeight(): number;
 }
@@ -141,7 +156,7 @@ export declare function atlas(def: AtlasDefinition | Atlas): Promise<Atlas>;
  */
 export declare function texture(query: string | TextureSelectionInput): TextureSelection;
 /**
- * @deprecated
+ *  @hidden @deprecated
  * - 'in-pad': same as 'contain'
  * - 'in': similar to 'contain' without centering
  * - 'out-crop': same as 'cover'
@@ -214,11 +229,11 @@ export declare class Transition implements Pinned {
 	pin(obj: object): this;
 	pin(key: string): any;
 	/**
-	 * @deprecated Use .done(fn) instead.
+	 *  @hidden @deprecated Use .done(fn) instead.
 	 */
 	then(fn: TransitionEndListener): this;
 	/**
-	 * @deprecated this doesn't do anything anymore, call transition on the node instead.
+	 *  @hidden @deprecated this doesn't do anything anymore, call transition on the node instead.
 	 */
 	clear(forward: boolean): this;
 	size(w: number, h: number): this;
@@ -243,13 +258,15 @@ export interface NodeVisitor<D> {
 }
 export type NodeTickListener<T> = (this: T, elapsed: number, now: number, last: number) => boolean | void;
 export type NodeEventListener<T> = (this: T, ...args: any[]) => void;
-/** @deprecated Use layout() */
+/** @hidden @deprecated Use component() */
 export declare function create(): Node$1;
-/** @deprecated Use maximize() */
+/** @hidden @deprecated Use maximize() */
 export declare function layer(): Node$1;
-/** @deprecated Use minimize() */
+/** @hidden @deprecated Use minimize() */
 export declare function box(): Node$1;
+/** @hidden @deprecated */
 export declare function layout(): Node$1;
+export declare function component(): Node$1;
 export declare function row(align: number): Node$1;
 export declare function column(align: number): Node$1;
 export declare function minimize(): Node$1;
@@ -258,8 +275,12 @@ declare class Node$1 implements Pinned {
 	MAX_ELAPSE: number;
 	constructor();
 	matrix(relative?: boolean): Matrix;
-	/** @hidden */
+	/** @hidden @deprecated */
 	getPixelRatio(): number;
+	/** @hidden This is not accurate before first tick */
+	getDevicePixelRatio(): number;
+	/** @hidden This is not accurate before first tick */
+	getLogicalPixelRatio(): number;
 	pin(key: string): any;
 	pin(key: string, value: any): this;
 	pin(obj: object): this;
@@ -269,9 +290,9 @@ declare class Node$1 implements Pinned {
 	/** @hidden @deprecated Use fit */
 	scaleTo(a: any, b?: any, c?: any): this;
 	toString(): string;
-	/** @deprecated Use label() */
+	/** @hidden @deprecated Use label() */
 	id(): string;
-	/** @deprecated Use label() */
+	/** @hidden @deprecated Use label() */
 	id(label: string): this;
 	label(): string;
 	label(label: string): this;
@@ -305,6 +326,8 @@ declare class Node$1 implements Pinned {
 	/** @hidden */
 	prerenderTexture(): void;
 	/** @hidden */
+	private renderedBefore;
+	/** @hidden */
 	render(context: CanvasRenderingContext2D): void;
 	/** @hidden */
 	renderTexture(context: CanvasRenderingContext2D): void;
@@ -335,9 +358,9 @@ declare class Node$1 implements Pinned {
 	row(align: number): this;
 	column(align: number): this;
 	align(type: "row" | "column", align: number): this;
-	/** @deprecated Use minimize() */
+	/** @hidden @deprecated Use minimize() */
 	box(): this;
-	/** @deprecated Use minimize() */
+	/** @hidden @deprecated Use minimize() */
 	layer(): this;
 	/**
 	 * Set size to match largest child size.
@@ -369,6 +392,10 @@ export declare class Sprite extends Node$1 {
 	/** @hidden */
 	renderTexture(context: CanvasRenderingContext2D): void;
 }
+/** @hidden @deprecated */
+export declare const image: typeof sprite;
+/** @hidden @deprecated */
+declare const Image$1: typeof Sprite;
 export type CanvasTextureDrawer = (this: CanvasTexture) => void;
 export type CanvasTextureMemoizer = (this: CanvasTexture) => any;
 /** @hidden @deprecated */
@@ -383,12 +410,12 @@ export type LegacyCanvasSpriteDrawer = (ratio: number, texture: CanvasTexture, s
 export declare class CanvasTexture extends ImageTexture {
 	constructor();
 	/**
-	 * Note: provided width and height will be texture size, and canvas size is texture size multiply by pixelRatio.
+	 * Set texture size to given width and height, and set canvas size to texture size multiply by pixelRatio.
 	 */
-	setSize(textureWidth: number, textureHeight: number, pixelRatio?: number): void;
+	setSize(destWidth: number, destHeight: number, pixelRatio?: number): void;
 	getContext(type?: string, attributes?: any): CanvasRenderingContext2D;
 	/**
-	 * @experimental
+	 * @hidden @experimental
 	 *
 	 * This is the ratio of screen pixel to this canvas pixel.
 	 */
@@ -518,8 +545,13 @@ export declare class Monotype extends Node$1 {
 	setValue(value: string | number | string[] | number[]): this;
 	value(value: string | number | string[] | number[]): this;
 }
+/** @hidden @deprecated */
+export declare const string: typeof monotype;
+/** @hidden @deprecated */
+export declare const Str: typeof Monotype;
 
 export {
+	Image$1 as Image,
 	Node$1 as Node,
 };
 

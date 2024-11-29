@@ -4,7 +4,7 @@ import { uid } from "../common/uid";
 import type { Node } from "./core";
 
 /**
- * @deprecated
+ *  @hidden @deprecated
  * - 'in-pad': same as 'contain'
  * - 'in': similar to 'contain' without centering
  * - 'out-crop': same as 'cover'

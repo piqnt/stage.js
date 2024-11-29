@@ -1,7 +1,7 @@
 # Function: maximize()
 
-> **maximize**(): `string` \| [`Node`](../classes/Node)
+> **maximize**(): [`Node`](../classes/Node)
 
 ## Returns
 
-`string` \| [`Node`](../classes/Node)
+[`Node`](../classes/Node)

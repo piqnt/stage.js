@@ -26,12 +26,7 @@ Textures are used to clip and resize image objects.
 
 > **draw**(`context`): `void`
 
-Signatures:
-- (): This is used when a sprite draws its textures
-- (sx, sy, sw, sh, dx, dy, dw, dh): This is used when a piped texture passes drawing to it backend.
-- (dx, dy, dw, dh): I guess unused.
-
-Note: sx and sy are added to this._sx and this._sy.
+Defer draw spec to texture config. This is used when a sprite draws its textures.
 
 ##### Parameters
 
@@ -41,49 +36,55 @@ Note: sx and sy are added to this._sx and this._sy.
 
 `void`
 
-#### draw(context, x1, y1, w1, h1)
+#### draw(context, dx, dy, dw, dh)
 
-> **draw**(`context`, `x1`, `y1`, `w1`, `h1`): `void`
+> **draw**(`context`, `dx`, `dy`, `dw`, `dh`): `void`
+
+This is probably unused.
+Note: dx, dy are added to this.dx, this.dy.
 
 ##### Parameters
 
 • **context**: `CanvasRenderingContext2D`
 
-• **x1**: `number`
+• **dx**: `number`
 
-• **y1**: `number`
+• **dy**: `number`
 
-• **w1**: `number`
+• **dw**: `number`
 
-• **h1**: `number`
+• **dh**: `number`
 
 ##### Returns
 
 `void`
 
-#### draw(context, x1, y1, w1, h1, x2, y2, w2, h2)
+#### draw(context, sx, sy, sw, sh, dx, dy, dw, dh)
 
-> **draw**(`context`, `x1`, `y1`, `w1`, `h1`, `x2`, `y2`, `w2`, `h2`): `void`
+> **draw**(`context`, `sx`, `sy`, `sw`, `sh`, `dx`, `dy`, `dw`, `dh`): `void`
+
+This is used when a piped texture passes drawing to it backend.
+Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 ##### Parameters
 
 • **context**: `CanvasRenderingContext2D`
 
-• **x1**: `number`
+• **sx**: `number`
 
-• **y1**: `number`
+• **sy**: `number`
 
-• **w1**: `number`
+• **sw**: `number`
 
-• **h1**: `number`
+• **sh**: `number`
 
-• **x2**: `number`
+• **dx**: `number`
 
-• **y2**: `number`
+• **dy**: `number`
 
-• **w2**: `number`
+• **dw**: `number`
 
-• **h2**: `number`
+• **dh**: `number`
 
 ##### Returns
 

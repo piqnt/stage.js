@@ -42,24 +42,6 @@
 
 ***
 
-### ~~clear()~~
-
-> **clear**(`forward`): [`Transition`](Transition)
-
-#### Parameters
-
-• **forward**: `boolean`
-
-#### Returns
-
-[`Transition`](Transition)
-
-#### Deprecated
-
-this doesn't do anything anymore, call transition on the node instead.
-
-***
-
 ### delay()
 
 > **delay**(`delay`): [`Transition`](Transition)
@@ -371,24 +353,6 @@ this doesn't do anything anymore, call transition on the node instead.
 ##### Implementation of
 
 `Pinned.skew`
-
-***
-
-### ~~then()~~
-
-> **then**(`fn`): [`Transition`](Transition)
-
-#### Parameters
-
-• **fn**: [`TransitionEndListener`](../type-aliases/TransitionEndListener)
-
-#### Returns
-
-[`Transition`](Transition)
-
-#### Deprecated
-
-Use .done(fn) instead.
 
 ***
 
