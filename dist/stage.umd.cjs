@@ -2,7 +2,7 @@
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.Stage = {}));
 })(this, function(exports2) {
   "use strict";/**
- * Stage.js 1.0.0-alpha.11
+ * Stage.js 1.0.0-alpha.12
  *
  * @copyright Copyright (c) Ali Shakiba
  * @license The MIT License (MIT)
@@ -2670,8 +2670,11 @@
         }
         return this._source.getContext(type, attributes);
       };
+      CanvasTexture2.prototype.getDevicePixelRatio = function() {
+        return this._lastPixelRatio;
+      };
       CanvasTexture2.prototype.getOptimalPixelRatio = function() {
-        return Math.ceil(this._lastPixelRatio);
+        return this.getDevicePixelRatio();
       };
       CanvasTexture2.prototype.setMemoizer = function(memoizer) {
         this._memoizer = memoizer;

@@ -419,6 +419,8 @@ export declare class CanvasTexture extends ImageTexture {
 	 *
 	 * This is the ratio of screen pixel to this canvas pixel.
 	 */
+	getDevicePixelRatio(): number;
+	/** @hidden @deprecated */
 	getOptimalPixelRatio(): number;
 	setMemoizer(memoizer: CanvasTextureMemoizer): void;
 	setDrawer(drawer: CanvasTextureDrawer): void;

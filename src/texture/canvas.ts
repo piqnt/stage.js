@@ -47,8 +47,14 @@ export class CanvasTexture extends ImageTexture {
    *
    * This is the ratio of screen pixel to this canvas pixel.
    */
+  getDevicePixelRatio() {
+    return this._lastPixelRatio;
+  }
+
+  // todo: remove in stable v1.0
+  /** @hidden @deprecated */
   getOptimalPixelRatio() {
-    return Math.ceil(this._lastPixelRatio);
+    return this.getDevicePixelRatio();
   }
 
   setMemoizer(memoizer: CanvasTextureMemoizer) {
