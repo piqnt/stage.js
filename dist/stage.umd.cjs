@@ -2,9 +2,9 @@
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.Stage = {}));
 })(this, function(exports2) {
   "use strict";/**
- * Stage.js 1.0.0-alpha.12
+ * Stage.js v1.0.0-alpha.13
  *
- * @copyright Copyright (c) Ali Shakiba
+ * @copyright Copyright (c) 2024 Ali Shakiba
  * @license The MIT License (MIT)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
