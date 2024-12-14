@@ -50,6 +50,8 @@
 
 > **a**: `number` = `1`
 
+x-scale
+
 ***
 
 ### b
@@ -68,17 +70,23 @@
 
 > **d**: `number` = `1`
 
+y-scale
+
 ***
 
 ### e
 
 > **e**: `number` = `0`
 
+x-translate
+
 ***
 
 ### f
 
 > **f**: `number` = `0`
+
+y-translate
 
 ## Methods
 

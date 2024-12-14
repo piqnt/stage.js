@@ -14,11 +14,15 @@ export interface Vec2Value {
 	y: number;
 }
 export declare class Matrix {
+	/** x-scale */
 	a: number;
 	b: number;
 	c: number;
+	/** y-scale */
 	d: number;
+	/** x-translate */
 	e: number;
+	/** y-translate */
 	f: number;
 	constructor(a: number, b: number, c: number, d: number, e: number, f: number);
 	constructor(m: MatrixValue);
