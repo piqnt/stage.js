@@ -1,36 +1,38 @@
-Stage(function(stage) {
+import Stage from "../../src";
+import "../common/texture.js";
 
-  var Math = Stage.Math, Mouse = Stage.Mouse;
+const stage = Stage.mount();
 
-  stage.viewbox(300, 300);
+let math = Stage.math;
 
-  var last = null;
+stage.viewbox(300, 300);
 
-  var j = 0, i = 0;
-  var column = Stage.column().appendTo(stage).pin('align', 0.5).spacing(1);
-  for (j = 0; j < 9; j++) {
-    var row = Stage.row().appendTo(column).spacing(1);
-    for (i = 0; i < 9; i++) {
-      // colors as frames
-      var cell = Stage.anim('rainbow').appendTo(row).pin('pivot', 0.5);
-      cell.on(Mouse.MOVE, function(point) {
-        if (this != last) {
-          last = this;
-          // random frame = random color
-          this.gotoFrame(Math.random(this.length()));
-          this.tween(Math.random(2000, 5000)).pin({
-            scaleX : Math.random(0.9, 1.4),
-            scaleY : Math.random(0.9, 1.4),
-            skewX : Math.random(0, 0.4),
-            skewY : Math.random(0, 0.4),
-            rotation : Math.random(-Math.PI, Math.PI),
-            pivotX : Math.random(0.3, 0.7),
-            pivotY : Math.random(0.3, 0.7)
-          });
-        }
-        return true;
-      });
-    }
+let last = null;
+
+let j = 0,
+  i = 0;
+let column = Stage.column().appendTo(stage).pin("align", 0.5).spacing(1);
+for (j = 0; j < 9; j++) {
+  let row = Stage.row().appendTo(column).spacing(1);
+  for (i = 0; i < 9; i++) {
+    // colors as frames
+    let cell = Stage.anim("rainbow").appendTo(row).pin("pivot", 0.5);
+    cell.on(Stage.POINTER_MOVE, function (point) {
+      if (this != last) {
+        last = this;
+        // random frame = random color
+        this.gotoFrame(math.random(this.length()));
+        this.tween(math.random(2000, 5000)).pin({
+          scaleX: math.random(0.9, 1.4),
+          scaleY: math.random(0.9, 1.4),
+          skewX: math.random(0, 0.4),
+          skewY: math.random(0, 0.4),
+          rotation: math.random(-math.PI, math.PI),
+          pivotX: math.random(0.3, 0.7),
+          pivotY: math.random(0.3, 0.7),
+        });
+      }
+      return true;
+    });
   }
-
-});
+}

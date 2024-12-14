@@ -1,42 +1,53 @@
-Stage(function(stage) {
+import Stage from "../../src";
 
-  stage.viewbox(200, 200).on('click', function() {
-    draw();
-  });
+const stage = Stage.mount();
 
-  var width = 50, height = 50;
-  var r1 = 10, r2 = 20, p = 4;
+stage.viewbox(100, 100);
 
-  var image = Stage.image().appendTo(stage).pin('align', 0.5);
+Stage.memoizeDraw(
+  function (pixelRatio, texture) {
+    let p = +Date.now().toString().charAt(9) + 2;
 
-  draw();
+    let r1 = Math.random() * 30 + 5;
+    let r2 = Math.random() * 30 + 10;
+    const width = Math.max(r1, r2) * 2 + 2;
+    const height = width;
 
-  function draw() {
-    image.image(Stage.canvas(function(ctx) {
-      p = (p + 1 - 3) % 3 + 3;
+    console.log("redraw", p, pixelRatio);
 
-      this.size(width, height, 4);
+    pixelRatio *= 2;
 
-      ctx.scale(4, 4);
+    let ctx = texture.getContext();
 
-      // draw star
-      ctx.translate(width / 2, height / 2);
-      ctx.beginPath();
+    texture.setSize(width, height, pixelRatio);
+
+    // ctx.resetTransform();
+    ctx.scale(pixelRatio, pixelRatio);
+
+    // draw star
+    ctx.translate(width / 2, height / 2);
+    ctx.beginPath();
+    ctx.rotate(Math.PI / p);
+    ctx.moveTo(0, 0 - r1);
+    for (let i = 0; i < p; i++) {
       ctx.rotate(Math.PI / p);
-      ctx.moveTo(0, 0 - r1);
-      for (var i = 0; i < p; i++) {
-        ctx.rotate(Math.PI / p);
-        ctx.lineTo(0, 0 - r2);
-        ctx.rotate(Math.PI / p);
-        ctx.lineTo(0, 0 - r1);
-      }
+      ctx.lineTo(0, 0 - r2);
+      ctx.rotate(Math.PI / p);
+      ctx.lineTo(0, 0 - r1);
+    }
 
-      // fill & stroke
-      ctx.fillStyle = '#eee';
-      ctx.fill();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'black';
-      ctx.stroke();
-    }));
-  }
-});
+    ctx.closePath();
+
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 50;
+    // fill & stroke
+    ctx.fillStyle = "#eee";
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "black";
+    ctx.stroke();
+  },
+  () => Date.now().toString().charAt(9),
+)
+  .appendTo(stage)
+  .pin("align", 1);

@@ -1,30 +1,33 @@
-Stage(function(stage) {
+import Stage from "../../src";
+import "../common/texture";
 
-  var Math = Stage.Math, Mouse = Stage.Mouse;
+let stage = Stage.mount();
 
-  stage.viewbox(400, 100);
+let math = Stage.math;
 
-  var last = null;
-  var colors = [ 'green', 'blue', 'purple', 'red', 'orange', 'yellow' ];
+stage.viewbox(400, 100);
 
-  var row = Stage.row().appendTo(stage).pin('align', 0.5).spacing(1);
-  for (var i = 0; i < colors.length; i++) {
-    Stage.image(colors[i]).appendTo(row).pin('pivot', 0.5).on(Mouse.MOVE,
-        function(point) {
-          if (this != last) {
-            last = this;
-            this.tween().pin({
-              scaleX : Math.random(0.9, 1.4),
-              scaleY : Math.random(0.9, 1.4),
-              skewX : Math.random(0, 0.4),
-              skewY : Math.random(0, 0.4),
-              rotation : Math.random(-Math.PI, Math.PI),
-              pivotX : Math.random(0.3, 0.7),
-              pivotY : Math.random(0.3, 0.7)
-            });
-          }
-          return true;
+let last = null;
+let colors = ["green", "blue", "purple", "red", "orange", "yellow"];
+
+let row = Stage.row().appendTo(stage).pin("align", 0.5).spacing(1);
+for (let i = 0; i < colors.length; i++) {
+  Stage.sprite(colors[i])
+    .appendTo(row)
+    .pin("pivot", 0.5)
+    .on(Stage.POINTER_MOVE, function (point) {
+      if (this != last) {
+        last = this;
+        this.tween().pin({
+          scaleX: math.random(0.9, 1.4),
+          scaleY: math.random(0.9, 1.4),
+          skewX: math.random(0, 0.4),
+          skewY: math.random(0, 0.4),
+          rotation: math.random(-math.PI, math.PI),
+          pivotX: math.random(0.3, 0.7),
+          pivotY: math.random(0.3, 0.7),
         });
-  }
-
-});
+      }
+      return true;
+    });
+}

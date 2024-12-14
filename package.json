@@ -1,6 +1,6 @@
 {
   "name": "stage-js",
-  "version": "0.9.4",
+  "version": "1.0.0-alpha.13",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
   "author": "Ali Shakiba (http://shakiba.me/stage.js)",
@@ -21,31 +21,55 @@
     "web",
     "mobile"
   ],
-  "main": "lib/index.js",
-  "files": [
-    "dist/",
-    "doc/",
-    "ext/",
-    "lib/",
-    "platform/",
-    "test/"
-  ],
-  "devDependencies": {
-    "expect.js": "*",
-    "express": "^4.17.1",
-    "mocha": "^6.2.3",
-    "nodemon": "^1.19.1",
-    "sandboxed-module": "^2.0.0",
-    "serve-index": "^1.9.1",
-    "sinon": "^9.0.2",
-    "webpack": "^4.33.0",
-    "webpack-cli": "^3.3.3",
-    "webpack-dev-middleware": "^3.7.0"
+  "engines": {
+    "node": ">=18.0"
   },
+  "type": "module",
+  "module": "./dist/stage.js",
+  "browser": "./dist/stage.umd.cjs",
+  "jsdelivr": "./dist/stage.umd.cjs",
+  "unpkg": "./dist/stage.umd.cjs",
+  "exports": {
+    ".": {
+      "types": "./dist/stage.d.ts",
+      "import": "./dist/stage.js",
+      "require": "./dist/stage.umd.cjs"
+    }
+  },
+  "types": "./dist/stage.d.ts",
+  "ignore": [
+    "example/"
+  ],
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "watch": "vite build --watch",
     "test": "mocha test/*.js",
-    "build": "webpack -p",
-    "watch": "webpack --watch",
-    "dev": "nodemon server.js"
+    "lint": "eslint './src/**/*.ts'",
+    "pretty": "prettier --write .",
+    "preflight": "npm run pretty && npm run lint",
+    "typedoc": "typedoc --options typedoc.json && mv ./docs/pages/api/README.md ./docs/pages/api/index.md && ./node_modules/.bin/replace-in-files ./docs/pages/api/* --string '.md' --replacement ''"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.3",
+    "@typescript-eslint/eslint-plugin": "^5.2.0",
+    "@typescript-eslint/parser": "^5.2.0",
+    "@vue/compiler-sfc": "^3.3.4",
+    "eslint": "^8.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "expect.js": "^0.3.1",
+    "mocha": "^6.2.3",
+    "prettier": "^3.2.5",
+    "replace-in-files-cli": "^3.0.0",
+    "rollup-plugin-license": "^3.3.1",
+    "sandboxed-module": "^2.0.0",
+    "sinon": "^9.0.2",
+    "typedoc": "^0.26.11",
+    "typedoc-plugin-markdown": "^4.2.10",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vite-plugin-dts-bundle-generator": "^2.0.5",
+    "vite-plugin-pages": "^0.32.3",
+    "vite-plugin-typescript": "^1.0.4"
   }
 }

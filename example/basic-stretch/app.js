@@ -1,19 +1,24 @@
-Stage(function(stage) {
+import Stage from "../../src";
+import "../common/texture";
 
-  var Math = Stage.Math, Mouse = Stage.Mouse;
+let stage = Stage.mount();
 
-  stage.viewbox(200, 200);
+let math = Stage.math;
 
-  Stage.image('box').stretch().appendTo(stage).pin({
-    width : 64,
-    height : 64,
-    align : 0.5
-  }).on(Mouse.CLICK, function() {
+stage.viewbox(200, 200);
+
+Stage.sprite("box")
+  .stretch()
+  .appendTo(stage)
+  .pin({
+    width: 64,
+    height: 64,
+    align: 0.5,
+  })
+  .on("click", function () {
     this.tween().pin({
-      width : Math.random(32, 96),
-      height : Math.random(32, 96)
+      width: math.random(32, 96),
+      height: math.random(32, 96),
     });
     return true;
   });
-
-});

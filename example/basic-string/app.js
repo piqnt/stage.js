@@ -1,18 +1,22 @@
-Stage(function(stage) {
+import Stage from "../../src";
+import "../common/texture";
 
-  var Math = Stage.Math, Mouse = Stage.Mouse;
+let stage = Stage.mount();
 
-  stage.viewbox(300, 200);
+let math = Stage.math;
 
-  var box = Stage.image('box').box().stretch().padding(10).pin('align', 0.5)
-      .appendTo(stage);
+stage.viewbox(300, 200);
 
-  var number = Stage.string('digit').value('0123456789').pin('align', 0.5)
-      .appendTo(box);
+let box = Stage.sprite("box")
+  .minimize()
+  .stretch()
+  .padding(10)
+  .pin("align", 0.5)
+  .appendTo(stage);
 
-  stage.on(Mouse.CLICK, function(point) {
-    var range = Math.pow(10, Math.random(0, 10) | 0);
-    number.value(Math.random(0, range) | 0);
-  });
+let number = Stage.monotype("digit").value("0123456789").pin("align", 0.5).appendTo(box);
 
+stage.on("click", function (point) {
+  let range = math.pow(10, math.random(0, 10) | 0);
+  number.value(math.random(0, range) | 0);
 });

@@ -1,5 +1,5 @@
-module.exports = function(create) {
-  var memo = {};
+export default function (create) {
+  const memo = {};
   function fn(key) {
     if (Array.isArray(key)) {
       return list(key);
@@ -8,17 +8,17 @@ module.exports = function(create) {
     }
   }
   function neo(id) {
-    return memo[id] = create(id);
+    return (memo[id] = create(id));
   }
   function get(id) {
     return memo[id];
   }
   function list(ids) {
     if (Array.isArray(ids)) {
-      return ids.map(function(id) {
+      return ids.map(function (id) {
         return memo[id];
       });
     }
   }
   return fn;
-};
+}
