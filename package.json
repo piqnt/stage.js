@@ -48,9 +48,13 @@
     "lint": "eslint './src/**/*.ts'",
     "pretty": "prettier --write .",
     "preflight": "npm run pretty && npm run lint",
+    "change": "changeset",
+    "version": "changeset version",
+    "publish": "changeset publish",
     "typedoc": "typedoc --options typedoc.json && mv ./docs/pages/api/README.md ./docs/pages/api/index.md && ./node_modules/.bin/replace-in-files ./docs/pages/api/* --string '.md' --replacement ''"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.11",
     "@types/node": "^22.9.3",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",

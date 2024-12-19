@@ -1,4 +1,6 @@
-#### v1.0 [work in progress]
+# Changelog
+
+## v1.0 alpha
 
 - rewrite with typescript
 - change package type to module
