@@ -1,11 +1,11 @@
 # Function: sprite()
 
-> **sprite**(`frame`?): [`Sprite`](../classes/Sprite)
+> **sprite**(`frame`?): [`Sprite`](/api/classes/Sprite)
 
 ## Parameters
 
-• **frame?**: [`TextureSelectionInput`](../type-aliases/TextureSelectionInput)
+• **frame?**: [`TextureSelectionInput`](/api/type-aliases/TextureSelectionInput)
 
 ## Returns
 
-[`Sprite`](../classes/Sprite)
+[`Sprite`](/api/classes/Sprite)

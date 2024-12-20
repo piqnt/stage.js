@@ -4,21 +4,21 @@
 
 ### absoluteMatrix()
 
-> **absoluteMatrix**(): [`Matrix`](Matrix)
+> **absoluteMatrix**(): [`Matrix`](/api/classes/Matrix)
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
 ### relativeMatrix()
 
-> **relativeMatrix**(): [`Matrix`](Matrix)
+> **relativeMatrix**(): [`Matrix`](/api/classes/Matrix)
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 

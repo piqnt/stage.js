@@ -4,7 +4,7 @@
 
 ### new Matrix()
 
-> **new Matrix**(`a`, `b`, `c`, `d`, `e`, `f`): [`Matrix`](Matrix)
+> **new Matrix**(`a`, `b`, `c`, `d`, `e`, `f`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
@@ -22,27 +22,27 @@
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ### new Matrix()
 
-> **new Matrix**(`m`): [`Matrix`](Matrix)
+> **new Matrix**(`m`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
-• **m**: [`MatrixValue`](../interfaces/MatrixValue)
+• **m**: [`MatrixValue`](/api/interfaces/MatrixValue)
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ### new Matrix()
 
-> **new Matrix**(): [`Matrix`](Matrix)
+> **new Matrix**(): [`Matrix`](/api/classes/Matrix)
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ## Properties
 
@@ -92,61 +92,61 @@ y-translate
 
 ### clone()
 
-> **clone**(): [`Matrix`](Matrix)
+> **clone**(): [`Matrix`](/api/classes/Matrix)
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
 ### concat()
 
-> **concat**(`m`): [`Matrix`](Matrix)
+> **concat**(`m`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
-• **m**: [`MatrixValue`](../interfaces/MatrixValue)
+• **m**: [`MatrixValue`](/api/interfaces/MatrixValue)
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
 ### identity()
 
-> **identity**(): [`Matrix`](Matrix)
+> **identity**(): [`Matrix`](/api/classes/Matrix)
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
 ### inverse()
 
-> **inverse**(): [`Matrix`](Matrix)
+> **inverse**(): [`Matrix`](/api/classes/Matrix)
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
 ### map()
 
-> **map**(`p`, `q`?): [`Vec2Value`](../interfaces/Vec2Value)
+> **map**(`p`, `q`?): [`Vec2Value`](/api/interfaces/Vec2Value)
 
 #### Parameters
 
-• **p**: [`Vec2Value`](../interfaces/Vec2Value)
+• **p**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
-• **q?**: [`Vec2Value`](../interfaces/Vec2Value)
+• **q?**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 #### Returns
 
-[`Vec2Value`](../interfaces/Vec2Value)
+[`Vec2Value`](/api/interfaces/Vec2Value)
 
 ***
 
@@ -156,7 +156,7 @@ y-translate
 
 #### Parameters
 
-• **x**: `number` \| [`Vec2Value`](../interfaces/Vec2Value)
+• **x**: `number` \| [`Vec2Value`](/api/interfaces/Vec2Value)
 
 • **y?**: `number`
 
@@ -172,7 +172,7 @@ y-translate
 
 #### Parameters
 
-• **x**: `number` \| [`Vec2Value`](../interfaces/Vec2Value)
+• **x**: `number` \| [`Vec2Value`](/api/interfaces/Vec2Value)
 
 • **y?**: `number`
 
@@ -212,7 +212,7 @@ y-translate
 
 ##### Parameters
 
-• **m**: [`MatrixValue`](../interfaces/MatrixValue)
+• **m**: [`MatrixValue`](/api/interfaces/MatrixValue)
 
 ##### Returns
 
@@ -222,7 +222,7 @@ y-translate
 
 ### rotate()
 
-> **rotate**(`angle`): [`Matrix`](Matrix)
+> **rotate**(`angle`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
@@ -230,13 +230,13 @@ y-translate
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
 ### scale()
 
-> **scale**(`x`, `y`): [`Matrix`](Matrix)
+> **scale**(`x`, `y`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
@@ -246,13 +246,13 @@ y-translate
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
 ### skew()
 
-> **skew**(`x`, `y`): [`Matrix`](Matrix)
+> **skew**(`x`, `y`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
@@ -262,7 +262,7 @@ y-translate
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
@@ -278,7 +278,7 @@ y-translate
 
 ### translate()
 
-> **translate**(`x`, `y`): [`Matrix`](Matrix)
+> **translate**(`x`, `y`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
@@ -288,4 +288,4 @@ y-translate
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)

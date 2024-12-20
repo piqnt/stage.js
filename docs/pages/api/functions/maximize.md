@@ -1,7 +1,7 @@
 # Function: maximize()
 
-> **maximize**(): [`Node`](../classes/Node)
+> **maximize**(): [`Node`](/api/classes/Node)
 
 ## Returns
 
-[`Node`](../classes/Node)
+[`Node`](/api/classes/Node)

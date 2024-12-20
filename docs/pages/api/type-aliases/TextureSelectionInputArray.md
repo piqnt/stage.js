@@ -1,3 +1,3 @@
 # Type Alias: TextureSelectionInputArray
 
-> **TextureSelectionInputArray**: [`TextureSelectionInputOne`](TextureSelectionInputOne)[]
+> **TextureSelectionInputArray**: [`TextureSelectionInputOne`](/api/type-aliases/TextureSelectionInputOne)[]

@@ -1,6 +1,6 @@
 # Function: mount()
 
-> **mount**(`configs`): [`Root`](../classes/Root)
+> **mount**(`configs`): [`Root`](/api/classes/Root)
 
 ## Parameters
 
@@ -8,4 +8,4 @@
 
 ## Returns
 
-[`Root`](../classes/Root)
+[`Root`](/api/classes/Root)

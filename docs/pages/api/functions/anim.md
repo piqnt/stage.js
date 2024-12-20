@@ -1,13 +1,13 @@
 # Function: anim()
 
-> **anim**(`frames`, `fps`?): [`Anim`](../classes/Anim)
+> **anim**(`frames`, `fps`?): [`Anim`](/api/classes/Anim)
 
 ## Parameters
 
-• **frames**: `string` \| [`TextureSelectionInputArray`](../type-aliases/TextureSelectionInputArray)
+• **frames**: `string` \| [`TextureSelectionInputArray`](/api/type-aliases/TextureSelectionInputArray)
 
 • **fps?**: `number`
 
 ## Returns
 
-[`Anim`](../classes/Anim)
+[`Anim`](/api/classes/Anim)

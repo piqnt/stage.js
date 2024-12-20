@@ -1,3 +1,3 @@
 # Type Alias: TextureSelectionInputOne
 
-> **TextureSelectionInputOne**: [`Texture`](../classes/Texture) \| [`AtlasTextureDefinition`](../interfaces/AtlasTextureDefinition) \| `string`
+> **TextureSelectionInputOne**: [`Texture`](/api/classes/Texture) \| [`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition) \| `string`

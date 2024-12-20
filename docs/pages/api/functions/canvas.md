@@ -1,9 +1,9 @@
 # Function: canvas()
 
-> **canvas**(): [`CanvasTexture`](../classes/CanvasTexture)
+> **canvas**(): [`CanvasTexture`](/api/classes/CanvasTexture)
 
 Create CanvasTexture (a texture with off-screen canvas).
 
 ## Returns
 
-[`CanvasTexture`](../classes/CanvasTexture)
+[`CanvasTexture`](/api/classes/CanvasTexture)

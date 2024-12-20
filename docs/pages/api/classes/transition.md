@@ -8,23 +8,23 @@
 
 ### new Transition()
 
-> **new Transition**(`owner`, `options`): [`Transition`](Transition)
+> **new Transition**(`owner`, `options`): [`Transition`](/api/classes/Transition)
 
 #### Parameters
 
-• **owner**: [`Node`](Node)
+• **owner**: [`Node`](/api/classes/Node)
 
-• **options**: [`TransitionOptions`](../type-aliases/TransitionOptions) = `{}`
+• **options**: [`TransitionOptions`](/api/type-aliases/TransitionOptions) = `{}`
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ## Methods
 
 ### alpha()
 
-> **alpha**(`a`, `ta`?): [`Transition`](Transition)
+> **alpha**(`a`, `ta`?): [`Transition`](/api/classes/Transition)
 
 #### Parameters
 
@@ -34,7 +34,7 @@
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 #### Implementation of
 
@@ -44,7 +44,7 @@
 
 ### delay()
 
-> **delay**(`delay`): [`Transition`](Transition)
+> **delay**(`delay`): [`Transition`](/api/classes/Transition)
 
 #### Parameters
 
@@ -52,27 +52,27 @@
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ***
 
 ### done()
 
-> **done**(`fn`): [`Transition`](Transition)
+> **done**(`fn`): [`Transition`](/api/classes/Transition)
 
 #### Parameters
 
-• **fn**: [`TransitionEndListener`](../type-aliases/TransitionEndListener)
+• **fn**: [`TransitionEndListener`](/api/type-aliases/TransitionEndListener)
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ***
 
 ### duration()
 
-> **duration**(`duration`): [`Transition`](Transition)
+> **duration**(`duration`): [`Transition`](/api/classes/Transition)
 
 #### Parameters
 
@@ -80,13 +80,13 @@
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ***
 
 ### ease()
 
-> **ease**(`easing`): [`Transition`](Transition)
+> **ease**(`easing`): [`Transition`](/api/classes/Transition)
 
 #### Parameters
 
@@ -94,7 +94,7 @@
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ***
 
@@ -132,11 +132,11 @@
 
 ### hide()
 
-> **hide**(): [`Transition`](Transition)
+> **hide**(): [`Transition`](/api/classes/Transition)
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ***
 
@@ -148,7 +148,7 @@
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -234,17 +234,17 @@
 
 ### remove()
 
-> **remove**(): [`Transition`](Transition)
+> **remove**(): [`Transition`](/api/classes/Transition)
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ***
 
 ### rotate()
 
-> **rotate**(`a`): [`Transition`](Transition)
+> **rotate**(`a`): [`Transition`](/api/classes/Transition)
 
 #### Parameters
 
@@ -252,7 +252,7 @@
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 #### Implementation of
 
@@ -268,7 +268,7 @@
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -300,7 +300,7 @@
 
 ### size()
 
-> **size**(`w`, `h`): [`Transition`](Transition)
+> **size**(`w`, `h`): [`Transition`](/api/classes/Transition)
 
 #### Parameters
 
@@ -310,7 +310,7 @@
 
 #### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 #### Implementation of
 
@@ -326,7 +326,7 @@
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -360,19 +360,19 @@
 
 #### tween(opts)
 
-> **tween**(`opts`?): [`Transition`](Transition)
+> **tween**(`opts`?): [`Transition`](/api/classes/Transition)
 
 ##### Parameters
 
-• **opts?**: [`TransitionOptions`](../type-aliases/TransitionOptions)
+• **opts?**: [`TransitionOptions`](/api/type-aliases/TransitionOptions)
 
 ##### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 #### tween(duration, delay)
 
-> **tween**(`duration`?, `delay`?): [`Transition`](Transition)
+> **tween**(`duration`?, `delay`?): [`Transition`](/api/classes/Transition)
 
 ##### Parameters
 
@@ -382,7 +382,7 @@
 
 ##### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ***
 

@@ -1,7 +1,7 @@
 # Function: component()
 
-> **component**(): [`Node`](../classes/Node)
+> **component**(): [`Node`](/api/classes/Node)
 
 ## Returns
 
-[`Node`](../classes/Node)
+[`Node`](/api/classes/Node)

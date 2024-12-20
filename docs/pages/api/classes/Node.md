@@ -2,10 +2,10 @@
 
 ## Extended by
 
-- [`Root`](Root)
-- [`Sprite`](Sprite)
-- [`Anim`](Anim)
-- [`Monotype`](Monotype)
+- [`Root`](/api/classes/Root)
+- [`Sprite`](/api/classes/Sprite)
+- [`Anim`](/api/classes/Anim)
+- [`Monotype`](/api/classes/Monotype)
 
 ## Implements
 
@@ -15,11 +15,11 @@
 
 ### new Node()
 
-> **new Node**(): [`Node`](Node)
+> **new Node**(): [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ## Properties
 
@@ -31,7 +31,7 @@
 
 ### align()
 
-> **align**(`type`, `align`): [`Node`](Node)
+> **align**(`type`, `align`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -41,13 +41,13 @@
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### alpha()
 
-> **alpha**(`a`, `ta`?): [`Node`](Node)
+> **alpha**(`a`, `ta`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -57,7 +57,7 @@
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 #### Implementation of
 
@@ -73,7 +73,7 @@
 
 ##### Parameters
 
-• ...**child**: [`Node`](Node)[]
+• ...**child**: [`Node`](/api/classes/Node)[]
 
 ##### Returns
 
@@ -85,7 +85,7 @@
 
 ##### Parameters
 
-• **child**: [`Node`](Node)[]
+• **child**: [`Node`](/api/classes/Node)[]
 
 ##### Returns
 
@@ -95,15 +95,15 @@
 
 ### appendTo()
 
-> **appendTo**(`parent`): [`Node`](Node)
+> **appendTo**(`parent`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
-• **parent**: [`Node`](Node)
+• **parent**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -143,7 +143,7 @@
 
 #### Parameters
 
-• **timer**: [`NodeTickListener`](../type-aliases/NodeTickListener)\<[`Node`](Node)\>
+• **timer**: [`NodeTickListener`](/api/type-aliases/NodeTickListener)\<[`Node`](/api/classes/Node)\>
 
 #### Returns
 
@@ -153,7 +153,7 @@
 
 ### column()
 
-> **column**(`align`): [`Node`](Node)
+> **column**(`align`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -161,23 +161,23 @@
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### empty()
 
-> **empty**(): [`Node`](Node)
+> **empty**(): [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### first()
 
-> **first**(`visible`?): [`Node`](Node)
+> **first**(`visible`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -185,7 +185,7 @@
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -201,7 +201,7 @@
 
 • **height**: `number`
 
-• **mode?**: [`FitMode`](../type-aliases/FitMode)
+• **mode?**: [`FitMode`](/api/type-aliases/FitMode)
 
 ##### Returns
 
@@ -255,71 +255,71 @@
 
 ### hide()
 
-> **hide**(): [`Node`](Node)
+> **hide**(): [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### insertAfter()
 
-> **insertAfter**(`prev`): [`Node`](Node)
+> **insertAfter**(`prev`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
-• **prev**: [`Node`](Node)
+• **prev**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### insertBefore()
 
-> **insertBefore**(`next`): [`Node`](Node)
+> **insertBefore**(`next`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
-• **next**: [`Node`](Node)
+• **next**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### insertNext()
 
-> **insertNext**(`sibling`, `more`?): [`Node`](Node)
+> **insertNext**(`sibling`, `more`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
-• **sibling**: [`Node`](Node)
+• **sibling**: [`Node`](/api/classes/Node)
 
-• **more?**: [`Node`](Node)
+• **more?**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### insertPrev()
 
-> **insertPrev**(`sibling`, `more`?): [`Node`](Node)
+> **insertPrev**(`sibling`, `more`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
-• **sibling**: [`Node`](Node)
+• **sibling**: [`Node`](/api/classes/Node)
 
-• **more?**: [`Node`](Node)
+• **more?**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -349,7 +349,7 @@
 
 ### last()
 
-> **last**(`visible`?): [`Node`](Node)
+> **last**(`visible`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -357,13 +357,13 @@
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### listeners()
 
-> **listeners**(`type`): [`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Node`](Node)\>[]
+> **listeners**(`type`): [`NodeEventListener`](/api/type-aliases/NodeEventListener)\<[`Node`](/api/classes/Node)\>[]
 
 #### Parameters
 
@@ -371,13 +371,13 @@
 
 #### Returns
 
-[`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Node`](Node)\>[]
+[`NodeEventListener`](/api/type-aliases/NodeEventListener)\<[`Node`](/api/classes/Node)\>[]
 
 ***
 
 ### matrix()
 
-> **matrix**(`relative`): [`Matrix`](Matrix)
+> **matrix**(`relative`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
@@ -385,37 +385,37 @@
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 ***
 
 ### maximize()
 
-> **maximize**(): [`Node`](Node)
+> **maximize**(): [`Node`](/api/classes/Node)
 
 Set size to match parent size.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### minimize()
 
-> **minimize**(): [`Node`](Node)
+> **minimize**(): [`Node`](/api/classes/Node)
 
 Set size to match largest child size.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### next()
 
-> **next**(`visible`?): [`Node`](Node)
+> **next**(`visible`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -423,7 +423,7 @@ Set size to match largest child size.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -435,7 +435,7 @@ Set size to match largest child size.
 
 • **types**: `string`
 
-• **listener**: [`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Node`](Node)\>
+• **listener**: [`NodeEventListener`](/api/type-aliases/NodeEventListener)\<[`Node`](/api/classes/Node)\>
 
 #### Returns
 
@@ -451,7 +451,7 @@ Set size to match largest child size.
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -489,7 +489,7 @@ Set size to match largest child size.
 
 • **types**: `string`
 
-• **listener**: [`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Node`](Node)\>
+• **listener**: [`NodeEventListener`](/api/type-aliases/NodeEventListener)\<[`Node`](/api/classes/Node)\>
 
 #### Returns
 
@@ -499,7 +499,7 @@ Set size to match largest child size.
 
 ### padding()
 
-> **padding**(`pad`): [`Node`](Node)
+> **padding**(`pad`): [`Node`](/api/classes/Node)
 
 Set cell spacing for layout.
 
@@ -509,17 +509,17 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### parent()
 
-> **parent**(): [`Node`](Node)
+> **parent**(): [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -577,11 +577,11 @@ Set cell spacing for layout.
 
 #### pin()
 
-> **pin**(): [`Pin`](Pin)
+> **pin**(): [`Pin`](/api/classes/Pin)
 
 ##### Returns
 
-[`Pin`](Pin)
+[`Pin`](/api/classes/Pin)
 
 ##### Implementation of
 
@@ -597,7 +597,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• ...**child**: [`Node`](Node)[]
+• ...**child**: [`Node`](/api/classes/Node)[]
 
 ##### Returns
 
@@ -609,7 +609,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **child**: [`Node`](Node)[]
+• **child**: [`Node`](/api/classes/Node)[]
 
 ##### Returns
 
@@ -619,21 +619,21 @@ Set cell spacing for layout.
 
 ### prependTo()
 
-> **prependTo**(`parent`): [`Node`](Node)
+> **prependTo**(`parent`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
-• **parent**: [`Node`](Node)
+• **parent**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### prev()
 
-> **prev**(`visible`?): [`Node`](Node)
+> **prev**(`visible`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -641,7 +641,7 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -663,23 +663,23 @@ Set cell spacing for layout.
 
 ### remove()
 
-> **remove**(`child`?, `more`?): [`Node`](Node)
+> **remove**(`child`?, `more`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
-• **child?**: [`Node`](Node)
+• **child?**: [`Node`](/api/classes/Node)
 
 • **more?**: `any`
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### rotate()
 
-> **rotate**(`a`): [`Node`](Node)
+> **rotate**(`a`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -687,7 +687,7 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 #### Implementation of
 
@@ -697,7 +697,7 @@ Set cell spacing for layout.
 
 ### row()
 
-> **row**(`align`): [`Node`](Node)
+> **row**(`align`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -705,7 +705,7 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -717,7 +717,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -773,17 +773,17 @@ Set cell spacing for layout.
 
 ### show()
 
-> **show**(): [`Node`](Node)
+> **show**(): [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
 ### size()
 
-> **size**(`w`, `h`): [`Node`](Node)
+> **size**(`w`, `h`): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -793,7 +793,7 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 #### Implementation of
 
@@ -809,7 +809,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -841,7 +841,7 @@ Set cell spacing for layout.
 
 ### spacing()
 
-> **spacing**(`space`): [`Node`](Node)
+> **spacing**(`space`): [`Node`](/api/classes/Node)
 
 Set cell spacing for row and column layout.
 
@@ -851,7 +851,7 @@ Set cell spacing for row and column layout.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -861,7 +861,7 @@ Set cell spacing for row and column layout.
 
 #### Parameters
 
-• **callback**: [`NodeTickListener`](../type-aliases/NodeTickListener)\<[`Node`](Node)\>
+• **callback**: [`NodeTickListener`](/api/type-aliases/NodeTickListener)\<[`Node`](/api/classes/Node)\>
 
 • **before**: `boolean` = `false`
 
@@ -901,11 +901,11 @@ Returns a string representation of an object.
 
 ### touch()
 
-> **touch**(): [`Node`](Node)
+> **touch**(): [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 ***
 
@@ -913,19 +913,19 @@ Returns a string representation of an object.
 
 #### tween(opts)
 
-> **tween**(`opts`?): [`Transition`](Transition)
+> **tween**(`opts`?): [`Transition`](/api/classes/Transition)
 
 ##### Parameters
 
-• **opts?**: [`TransitionOptions`](../type-aliases/TransitionOptions)
+• **opts?**: [`TransitionOptions`](/api/type-aliases/TransitionOptions)
 
 ##### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 #### tween(duration, delay, append)
 
-> **tween**(`duration`?, `delay`?, `append`?): [`Transition`](Transition)
+> **tween**(`duration`?, `delay`?, `append`?): [`Transition`](/api/classes/Transition)
 
 ##### Parameters
 
@@ -937,7 +937,7 @@ Returns a string representation of an object.
 
 ##### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ***
 
@@ -947,7 +947,7 @@ Returns a string representation of an object.
 
 #### Parameters
 
-• **callback**: [`NodeTickListener`](../type-aliases/NodeTickListener)\<[`Node`](Node)\>
+• **callback**: [`NodeTickListener`](/api/type-aliases/NodeTickListener)\<[`Node`](/api/classes/Node)\>
 
 #### Returns
 

@@ -1,6 +1,6 @@
 # Type Alias: TextureSelectionInputFactory()
 
-> **TextureSelectionInputFactory**: (`subquery`) => [`TextureSelectionInputOne`](TextureSelectionInputOne)
+> **TextureSelectionInputFactory**: (`subquery`) => [`TextureSelectionInputOne`](/api/type-aliases/TextureSelectionInputOne)
 
 ## Parameters
 
@@ -8,4 +8,4 @@
 
 ## Returns
 
-[`TextureSelectionInputOne`](TextureSelectionInputOne)
+[`TextureSelectionInputOne`](/api/type-aliases/TextureSelectionInputOne)

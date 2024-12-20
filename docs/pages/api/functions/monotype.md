@@ -1,11 +1,11 @@
 # Function: monotype()
 
-> **monotype**(`chars`): [`Monotype`](../classes/Monotype)
+> **monotype**(`chars`): [`Monotype`](/api/classes/Monotype)
 
 ## Parameters
 
-• **chars**: `string` \| `Record`\<`string`, [`Texture`](../classes/Texture)\> \| (`char`) => [`Texture`](../classes/Texture)
+• **chars**: `string` \| `Record`\<`string`, [`Texture`](/api/classes/Texture)\> \| (`char`) => [`Texture`](/api/classes/Texture)
 
 ## Returns
 
-[`Monotype`](../classes/Monotype)
+[`Monotype`](/api/classes/Monotype)

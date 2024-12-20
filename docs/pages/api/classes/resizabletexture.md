@@ -4,27 +4,27 @@ Textures are used to clip and resize image objects.
 
 ## Extends
 
-- [`Texture`](Texture)
+- [`Texture`](/api/classes/Texture)
 
 ## Constructors
 
 ### new ResizableTexture()
 
-> **new ResizableTexture**(`source`, `mode`): [`ResizableTexture`](ResizableTexture)
+> **new ResizableTexture**(`source`, `mode`): [`ResizableTexture`](/api/classes/ResizableTexture)
 
 #### Parameters
 
-• **source**: [`Texture`](Texture)
+• **source**: [`Texture`](/api/classes/Texture)
 
-• **mode**: [`ResizableTextureMode`](../type-aliases/ResizableTextureMode)
+• **mode**: [`ResizableTextureMode`](/api/type-aliases/ResizableTextureMode)
 
 #### Returns
 
-[`ResizableTexture`](ResizableTexture)
+[`ResizableTexture`](/api/classes/ResizableTexture)
 
 #### Overrides
 
-[`Texture`](Texture).[`constructor`](Texture#constructors)
+[`Texture`](/api/classes/Texture).[`constructor`](/api/classes/Texture#constructors)
 
 ## Methods
 
@@ -46,7 +46,7 @@ Defer draw spec to texture config. This is used when a sprite draws its textures
 
 ##### Inherited from
 
-[`Texture`](Texture).[`draw`](Texture#draw)
+[`Texture`](/api/classes/Texture).[`draw`](/api/classes/Texture#draw)
 
 #### draw(context, dx, dy, dw, dh)
 
@@ -73,7 +73,7 @@ Note: dx, dy are added to this.dx, this.dy.
 
 ##### Inherited from
 
-[`Texture`](Texture).[`draw`](Texture#draw)
+[`Texture`](/api/classes/Texture).[`draw`](/api/classes/Texture#draw)
 
 #### draw(context, sx, sy, sw, sh, dx, dy, dw, dh)
 
@@ -108,7 +108,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 ##### Inherited from
 
-[`Texture`](Texture).[`draw`](Texture#draw)
+[`Texture`](/api/classes/Texture).[`draw`](/api/classes/Texture#draw)
 
 ***
 
@@ -122,7 +122,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Overrides
 
-[`Texture`](Texture).[`getHeight`](Texture#getheight)
+[`Texture`](/api/classes/Texture).[`getHeight`](/api/classes/Texture#getheight)
 
 ***
 
@@ -136,7 +136,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Overrides
 
-[`Texture`](Texture).[`getWidth`](Texture#getwidth)
+[`Texture`](/api/classes/Texture).[`getWidth`](/api/classes/Texture#getwidth)
 
 ***
 
@@ -156,7 +156,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Inherited from
 
-[`Texture`](Texture).[`setDestinationCoordinate`](Texture#setdestinationcoordinate)
+[`Texture`](/api/classes/Texture).[`setDestinationCoordinate`](/api/classes/Texture#setdestinationcoordinate)
 
 ***
 
@@ -176,7 +176,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Inherited from
 
-[`Texture`](Texture).[`setDestinationDimension`](Texture#setdestinationdimension)
+[`Texture`](/api/classes/Texture).[`setDestinationDimension`](/api/classes/Texture#setdestinationdimension)
 
 ***
 
@@ -196,7 +196,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Inherited from
 
-[`Texture`](Texture).[`setSourceCoordinate`](Texture#setsourcecoordinate)
+[`Texture`](/api/classes/Texture).[`setSourceCoordinate`](/api/classes/Texture#setsourcecoordinate)
 
 ***
 
@@ -216,4 +216,4 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Inherited from
 
-[`Texture`](Texture).[`setSourceDimension`](Texture#setsourcedimension)
+[`Texture`](/api/classes/Texture).[`setSourceDimension`](/api/classes/Texture#setsourcedimension)

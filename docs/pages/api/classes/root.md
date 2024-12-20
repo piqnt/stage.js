@@ -2,21 +2,21 @@
 
 ## Extends
 
-- [`Node`](Node)
+- [`Node`](/api/classes/Node)
 
 ## Constructors
 
 ### new Root()
 
-> **new Root**(): [`Root`](Root)
+> **new Root**(): [`Root`](/api/classes/Root)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Overrides
 
-[`Node`](Node).[`constructor`](Node#constructors)
+[`Node`](/api/classes/Node).[`constructor`](/api/classes/Node#constructors)
 
 ## Properties
 
@@ -44,7 +44,7 @@
 
 #### Inherited from
 
-[`Node`](Node).[`MAX_ELAPSE`](Node#max_elapse)
+[`Node`](/api/classes/Node).[`MAX_ELAPSE`](/api/classes/Node#max_elapse)
 
 ***
 
@@ -68,7 +68,7 @@
 
 ### align()
 
-> **align**(`type`, `align`): [`Root`](Root)
+> **align**(`type`, `align`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
@@ -78,17 +78,17 @@
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`align`](Node#align)
+[`Node`](/api/classes/Node).[`align`](/api/classes/Node#align)
 
 ***
 
 ### alpha()
 
-> **alpha**(`a`, `ta`?): [`Root`](Root)
+> **alpha**(`a`, `ta`?): [`Root`](/api/classes/Root)
 
 #### Parameters
 
@@ -98,11 +98,11 @@
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`alpha`](Node#alpha)
+[`Node`](/api/classes/Node).[`alpha`](/api/classes/Node#alpha)
 
 ***
 
@@ -114,7 +114,7 @@
 
 ##### Parameters
 
-• ...**child**: [`Node`](Node)[]
+• ...**child**: [`Node`](/api/classes/Node)[]
 
 ##### Returns
 
@@ -122,7 +122,7 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`append`](Node#append)
+[`Node`](/api/classes/Node).[`append`](/api/classes/Node#append)
 
 #### append(child)
 
@@ -130,7 +130,7 @@
 
 ##### Parameters
 
-• **child**: [`Node`](Node)[]
+• **child**: [`Node`](/api/classes/Node)[]
 
 ##### Returns
 
@@ -138,25 +138,25 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`append`](Node#append)
+[`Node`](/api/classes/Node).[`append`](/api/classes/Node#append)
 
 ***
 
 ### appendTo()
 
-> **appendTo**(`parent`): [`Root`](Root)
+> **appendTo**(`parent`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
-• **parent**: [`Node`](Node)
+• **parent**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`appendTo`](Node#appendto)
+[`Node`](/api/classes/Node).[`appendTo`](/api/classes/Node#appendto)
 
 ***
 
@@ -178,7 +178,7 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`attr`](Node#attr)
+[`Node`](/api/classes/Node).[`attr`](/api/classes/Node#attr)
 
 #### attr(name)
 
@@ -194,13 +194,13 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`attr`](Node#attr)
+[`Node`](/api/classes/Node).[`attr`](/api/classes/Node#attr)
 
 ***
 
 ### background()
 
-> **background**(`color`): [`Root`](Root)
+> **background**(`color`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
@@ -208,21 +208,21 @@
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 ***
 
 ### camera()
 
-> **camera**(`matrix`): [`Root`](Root)
+> **camera**(`matrix`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
-• **matrix**: [`Matrix`](Matrix)
+• **matrix**: [`Matrix`](/api/classes/Matrix)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 ***
 
@@ -232,7 +232,7 @@
 
 #### Parameters
 
-• **timer**: [`NodeTickListener`](../type-aliases/NodeTickListener)\<[`Root`](Root)\>
+• **timer**: [`NodeTickListener`](/api/type-aliases/NodeTickListener)\<[`Root`](/api/classes/Root)\>
 
 #### Returns
 
@@ -240,13 +240,13 @@
 
 #### Inherited from
 
-[`Node`](Node).[`clearTimeout`](Node#cleartimeout)
+[`Node`](/api/classes/Node).[`clearTimeout`](/api/classes/Node#cleartimeout)
 
 ***
 
 ### column()
 
-> **column**(`align`): [`Root`](Root)
+> **column**(`align`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
@@ -254,31 +254,31 @@
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`column`](Node#column)
+[`Node`](/api/classes/Node).[`column`](/api/classes/Node#column)
 
 ***
 
 ### empty()
 
-> **empty**(): [`Root`](Root)
+> **empty**(): [`Root`](/api/classes/Root)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`empty`](Node#empty)
+[`Node`](/api/classes/Node).[`empty`](/api/classes/Node#empty)
 
 ***
 
 ### first()
 
-> **first**(`visible`?): [`Node`](Node)
+> **first**(`visible`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -286,11 +286,11 @@
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 #### Inherited from
 
-[`Node`](Node).[`first`](Node#first)
+[`Node`](/api/classes/Node).[`first`](/api/classes/Node#first)
 
 ***
 
@@ -306,7 +306,7 @@
 
 • **height**: `number`
 
-• **mode?**: [`FitMode`](../type-aliases/FitMode)
+• **mode?**: [`FitMode`](/api/type-aliases/FitMode)
 
 ##### Returns
 
@@ -314,7 +314,7 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`fit`](Node#fit)
+[`Node`](/api/classes/Node).[`fit`](/api/classes/Node#fit)
 
 #### fit(fit)
 
@@ -330,7 +330,7 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`fit`](Node#fit)
+[`Node`](/api/classes/Node).[`fit`](/api/classes/Node#fit)
 
 ***
 
@@ -350,7 +350,7 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`height`](Node#height)
+[`Node`](/api/classes/Node).[`height`](/api/classes/Node#height)
 
 #### height()
 
@@ -362,97 +362,97 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`height`](Node#height)
+[`Node`](/api/classes/Node).[`height`](/api/classes/Node#height)
 
 ***
 
 ### hide()
 
-> **hide**(): [`Root`](Root)
+> **hide**(): [`Root`](/api/classes/Root)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`hide`](Node#hide)
+[`Node`](/api/classes/Node).[`hide`](/api/classes/Node#hide)
 
 ***
 
 ### insertAfter()
 
-> **insertAfter**(`prev`): [`Root`](Root)
+> **insertAfter**(`prev`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
-• **prev**: [`Node`](Node)
+• **prev**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`insertAfter`](Node#insertafter)
+[`Node`](/api/classes/Node).[`insertAfter`](/api/classes/Node#insertafter)
 
 ***
 
 ### insertBefore()
 
-> **insertBefore**(`next`): [`Root`](Root)
+> **insertBefore**(`next`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
-• **next**: [`Node`](Node)
+• **next**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`insertBefore`](Node#insertbefore)
+[`Node`](/api/classes/Node).[`insertBefore`](/api/classes/Node#insertbefore)
 
 ***
 
 ### insertNext()
 
-> **insertNext**(`sibling`, `more`?): [`Root`](Root)
+> **insertNext**(`sibling`, `more`?): [`Root`](/api/classes/Root)
 
 #### Parameters
 
-• **sibling**: [`Node`](Node)
+• **sibling**: [`Node`](/api/classes/Node)
 
-• **more?**: [`Node`](Node)
+• **more?**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`insertNext`](Node#insertnext)
+[`Node`](/api/classes/Node).[`insertNext`](/api/classes/Node#insertnext)
 
 ***
 
 ### insertPrev()
 
-> **insertPrev**(`sibling`, `more`?): [`Root`](Root)
+> **insertPrev**(`sibling`, `more`?): [`Root`](/api/classes/Root)
 
 #### Parameters
 
-• **sibling**: [`Node`](Node)
+• **sibling**: [`Node`](/api/classes/Node)
 
-• **more?**: [`Node`](Node)
+• **more?**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`insertPrev`](Node#insertprev)
+[`Node`](/api/classes/Node).[`insertPrev`](/api/classes/Node#insertprev)
 
 ***
 
@@ -468,7 +468,7 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`label`](Node#label)
+[`Node`](/api/classes/Node).[`label`](/api/classes/Node#label)
 
 #### label(label)
 
@@ -484,13 +484,13 @@
 
 ##### Inherited from
 
-[`Node`](Node).[`label`](Node#label)
+[`Node`](/api/classes/Node).[`label`](/api/classes/Node#label)
 
 ***
 
 ### last()
 
-> **last**(`visible`?): [`Node`](Node)
+> **last**(`visible`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -498,17 +498,17 @@
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 #### Inherited from
 
-[`Node`](Node).[`last`](Node#last)
+[`Node`](/api/classes/Node).[`last`](/api/classes/Node#last)
 
 ***
 
 ### listeners()
 
-> **listeners**(`type`): [`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Node`](Node)\>[]
+> **listeners**(`type`): [`NodeEventListener`](/api/type-aliases/NodeEventListener)\<[`Node`](/api/classes/Node)\>[]
 
 #### Parameters
 
@@ -516,17 +516,17 @@
 
 #### Returns
 
-[`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Node`](Node)\>[]
+[`NodeEventListener`](/api/type-aliases/NodeEventListener)\<[`Node`](/api/classes/Node)\>[]
 
 #### Inherited from
 
-[`Node`](Node).[`listeners`](Node#listeners)
+[`Node`](/api/classes/Node).[`listeners`](/api/classes/Node#listeners)
 
 ***
 
 ### matrix()
 
-> **matrix**(`relative`): [`Matrix`](Matrix)
+> **matrix**(`relative`): [`Matrix`](/api/classes/Matrix)
 
 #### Parameters
 
@@ -534,43 +534,43 @@
 
 #### Returns
 
-[`Matrix`](Matrix)
+[`Matrix`](/api/classes/Matrix)
 
 #### Inherited from
 
-[`Node`](Node).[`matrix`](Node#matrix)
+[`Node`](/api/classes/Node).[`matrix`](/api/classes/Node#matrix)
 
 ***
 
 ### maximize()
 
-> **maximize**(): [`Root`](Root)
+> **maximize**(): [`Root`](/api/classes/Root)
 
 Set size to match parent size.
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`maximize`](Node#maximize)
+[`Node`](/api/classes/Node).[`maximize`](/api/classes/Node#maximize)
 
 ***
 
 ### minimize()
 
-> **minimize**(): [`Root`](Root)
+> **minimize**(): [`Root`](/api/classes/Root)
 
 Set size to match largest child size.
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`minimize`](Node#minimize)
+[`Node`](/api/classes/Node).[`minimize`](/api/classes/Node#minimize)
 
 ***
 
@@ -590,7 +590,7 @@ Set size to match largest child size.
 
 ### next()
 
-> **next**(`visible`?): [`Node`](Node)
+> **next**(`visible`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -598,11 +598,11 @@ Set size to match largest child size.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 #### Inherited from
 
-[`Node`](Node).[`next`](Node#next)
+[`Node`](/api/classes/Node).[`next`](/api/classes/Node#next)
 
 ***
 
@@ -614,7 +614,7 @@ Set size to match largest child size.
 
 • **types**: `string`
 
-• **listener**: [`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Root`](Root)\>
+• **listener**: [`NodeEventListener`](/api/type-aliases/NodeEventListener)\<[`Root`](/api/classes/Root)\>
 
 #### Returns
 
@@ -622,7 +622,7 @@ Set size to match largest child size.
 
 #### Inherited from
 
-[`Node`](Node).[`off`](Node#off)
+[`Node`](/api/classes/Node).[`off`](/api/classes/Node#off)
 
 ***
 
@@ -634,7 +634,7 @@ Set size to match largest child size.
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -642,7 +642,7 @@ Set size to match largest child size.
 
 ##### Inherited from
 
-[`Node`](Node).[`offset`](Node#offset)
+[`Node`](/api/classes/Node).[`offset`](/api/classes/Node#offset)
 
 #### offset(x, y)
 
@@ -660,7 +660,7 @@ Set size to match largest child size.
 
 ##### Inherited from
 
-[`Node`](Node).[`offset`](Node#offset)
+[`Node`](/api/classes/Node).[`offset`](/api/classes/Node#offset)
 
 ***
 
@@ -672,7 +672,7 @@ Set size to match largest child size.
 
 • **types**: `string`
 
-• **listener**: [`NodeEventListener`](../type-aliases/NodeEventListener)\<[`Root`](Root)\>
+• **listener**: [`NodeEventListener`](/api/type-aliases/NodeEventListener)\<[`Root`](/api/classes/Root)\>
 
 #### Returns
 
@@ -680,13 +680,13 @@ Set size to match largest child size.
 
 #### Inherited from
 
-[`Node`](Node).[`on`](Node#on)
+[`Node`](/api/classes/Node).[`on`](/api/classes/Node#on)
 
 ***
 
 ### padding()
 
-> **padding**(`pad`): [`Root`](Root)
+> **padding**(`pad`): [`Root`](/api/classes/Root)
 
 Set cell spacing for layout.
 
@@ -696,35 +696,35 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`padding`](Node#padding)
+[`Node`](/api/classes/Node).[`padding`](/api/classes/Node#padding)
 
 ***
 
 ### parent()
 
-> **parent**(): [`Node`](Node)
+> **parent**(): [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 #### Inherited from
 
-[`Node`](Node).[`parent`](Node#parent)
+[`Node`](/api/classes/Node).[`parent`](/api/classes/Node#parent)
 
 ***
 
 ### pause()
 
-> **pause**(): [`Root`](Root)
+> **pause**(): [`Root`](/api/classes/Root)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 ***
 
@@ -744,7 +744,7 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`pin`](Node#pin)
+[`Node`](/api/classes/Node).[`pin`](/api/classes/Node#pin)
 
 #### pin(key, value)
 
@@ -762,7 +762,7 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`pin`](Node#pin)
+[`Node`](/api/classes/Node).[`pin`](/api/classes/Node#pin)
 
 #### pin(obj)
 
@@ -778,19 +778,19 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`pin`](Node#pin)
+[`Node`](/api/classes/Node).[`pin`](/api/classes/Node#pin)
 
 #### pin()
 
-> **pin**(): [`Pin`](Pin)
+> **pin**(): [`Pin`](/api/classes/Pin)
 
 ##### Returns
 
-[`Pin`](Pin)
+[`Pin`](/api/classes/Pin)
 
 ##### Inherited from
 
-[`Node`](Node).[`pin`](Node#pin)
+[`Node`](/api/classes/Node).[`pin`](/api/classes/Node#pin)
 
 ***
 
@@ -802,7 +802,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• ...**child**: [`Node`](Node)[]
+• ...**child**: [`Node`](/api/classes/Node)[]
 
 ##### Returns
 
@@ -810,7 +810,7 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`prepend`](Node#prepend)
+[`Node`](/api/classes/Node).[`prepend`](/api/classes/Node#prepend)
 
 #### prepend(child)
 
@@ -818,7 +818,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **child**: [`Node`](Node)[]
+• **child**: [`Node`](/api/classes/Node)[]
 
 ##### Returns
 
@@ -826,31 +826,31 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`prepend`](Node#prepend)
+[`Node`](/api/classes/Node).[`prepend`](/api/classes/Node#prepend)
 
 ***
 
 ### prependTo()
 
-> **prependTo**(`parent`): [`Root`](Root)
+> **prependTo**(`parent`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
-• **parent**: [`Node`](Node)
+• **parent**: [`Node`](/api/classes/Node)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`prependTo`](Node#prependto)
+[`Node`](/api/classes/Node).[`prependTo`](/api/classes/Node#prependto)
 
 ***
 
 ### prev()
 
-> **prev**(`visible`?): [`Node`](Node)
+> **prev**(`visible`?): [`Node`](/api/classes/Node)
 
 #### Parameters
 
@@ -858,11 +858,11 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Node`](Node)
+[`Node`](/api/classes/Node)
 
 #### Inherited from
 
-[`Node`](Node).[`prev`](Node#prev)
+[`Node`](/api/classes/Node).[`prev`](/api/classes/Node#prev)
 
 ***
 
@@ -882,43 +882,43 @@ Set cell spacing for layout.
 
 #### Inherited from
 
-[`Node`](Node).[`publish`](Node#publish)
+[`Node`](/api/classes/Node).[`publish`](/api/classes/Node#publish)
 
 ***
 
 ### remove()
 
-> **remove**(`child`?, `more`?): [`Root`](Root)
+> **remove**(`child`?, `more`?): [`Root`](/api/classes/Root)
 
 #### Parameters
 
-• **child?**: [`Node`](Node)
+• **child?**: [`Node`](/api/classes/Node)
 
 • **more?**: `any`
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`remove`](Node#remove)
+[`Node`](/api/classes/Node).[`remove`](/api/classes/Node#remove)
 
 ***
 
 ### resume()
 
-> **resume**(): [`Root`](Root)
+> **resume**(): [`Root`](/api/classes/Root)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 ***
 
 ### rotate()
 
-> **rotate**(`a`): [`Root`](Root)
+> **rotate**(`a`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
@@ -926,17 +926,17 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`rotate`](Node#rotate)
+[`Node`](/api/classes/Node).[`rotate`](/api/classes/Node#rotate)
 
 ***
 
 ### row()
 
-> **row**(`align`): [`Root`](Root)
+> **row**(`align`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
@@ -944,11 +944,11 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`row`](Node#row)
+[`Node`](/api/classes/Node).[`row`](/api/classes/Node#row)
 
 ***
 
@@ -960,7 +960,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -968,7 +968,7 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`scale`](Node#scale)
+[`Node`](/api/classes/Node).[`scale`](/api/classes/Node#scale)
 
 #### scale(x, y)
 
@@ -986,7 +986,7 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`scale`](Node#scale)
+[`Node`](/api/classes/Node).[`scale`](/api/classes/Node#scale)
 
 ***
 
@@ -1014,27 +1014,27 @@ Set cell spacing for layout.
 
 #### Inherited from
 
-[`Node`](Node).[`setTimeout`](Node#settimeout)
+[`Node`](/api/classes/Node).[`setTimeout`](/api/classes/Node#settimeout)
 
 ***
 
 ### show()
 
-> **show**(): [`Root`](Root)
+> **show**(): [`Root`](/api/classes/Root)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`show`](Node#show)
+[`Node`](/api/classes/Node).[`show`](/api/classes/Node#show)
 
 ***
 
 ### size()
 
-> **size**(`w`, `h`): [`Root`](Root)
+> **size**(`w`, `h`): [`Root`](/api/classes/Root)
 
 #### Parameters
 
@@ -1044,11 +1044,11 @@ Set cell spacing for layout.
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`size`](Node#size)
+[`Node`](/api/classes/Node).[`size`](/api/classes/Node#size)
 
 ***
 
@@ -1060,7 +1060,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **value**: [`Vec2Value`](../interfaces/Vec2Value)
+• **value**: [`Vec2Value`](/api/interfaces/Vec2Value)
 
 ##### Returns
 
@@ -1068,7 +1068,7 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`skew`](Node#skew)
+[`Node`](/api/classes/Node).[`skew`](/api/classes/Node#skew)
 
 #### skew(x, y)
 
@@ -1086,13 +1086,13 @@ Set cell spacing for layout.
 
 ##### Inherited from
 
-[`Node`](Node).[`skew`](Node#skew)
+[`Node`](/api/classes/Node).[`skew`](/api/classes/Node#skew)
 
 ***
 
 ### spacing()
 
-> **spacing**(`space`): [`Root`](Root)
+> **spacing**(`space`): [`Root`](/api/classes/Root)
 
 Set cell spacing for row and column layout.
 
@@ -1102,11 +1102,11 @@ Set cell spacing for row and column layout.
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 #### Inherited from
 
-[`Node`](Node).[`spacing`](Node#spacing)
+[`Node`](/api/classes/Node).[`spacing`](/api/classes/Node#spacing)
 
 ***
 
@@ -1116,7 +1116,7 @@ Set cell spacing for row and column layout.
 
 #### Parameters
 
-• **callback**: [`NodeTickListener`](../type-aliases/NodeTickListener)\<[`Root`](Root)\>
+• **callback**: [`NodeTickListener`](/api/type-aliases/NodeTickListener)\<[`Root`](/api/classes/Root)\>
 
 • **before**: `boolean` = `false`
 
@@ -1126,7 +1126,7 @@ Set cell spacing for row and column layout.
 
 #### Inherited from
 
-[`Node`](Node).[`tick`](Node#tick)
+[`Node`](/api/classes/Node).[`tick`](/api/classes/Node#tick)
 
 ***
 
@@ -1146,7 +1146,7 @@ Set cell spacing for row and column layout.
 
 #### Inherited from
 
-[`Node`](Node).[`timeout`](Node#timeout)
+[`Node`](/api/classes/Node).[`timeout`](/api/classes/Node#timeout)
 
 ***
 
@@ -1162,7 +1162,7 @@ Returns a string representation of an object.
 
 #### Inherited from
 
-[`Node`](Node).[`toString`](Node#tostring)
+[`Node`](/api/classes/Node).[`toString`](/api/classes/Node#tostring)
 
 ***
 
@@ -1170,23 +1170,23 @@ Returns a string representation of an object.
 
 #### tween(opts)
 
-> **tween**(`opts`?): [`Transition`](Transition)
+> **tween**(`opts`?): [`Transition`](/api/classes/Transition)
 
 ##### Parameters
 
-• **opts?**: [`TransitionOptions`](../type-aliases/TransitionOptions)
+• **opts?**: [`TransitionOptions`](/api/type-aliases/TransitionOptions)
 
 ##### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ##### Inherited from
 
-[`Node`](Node).[`tween`](Node#tween)
+[`Node`](/api/classes/Node).[`tween`](/api/classes/Node#tween)
 
 #### tween(duration, delay, append)
 
-> **tween**(`duration`?, `delay`?, `append`?): [`Transition`](Transition)
+> **tween**(`duration`?, `delay`?, `append`?): [`Transition`](/api/classes/Transition)
 
 ##### Parameters
 
@@ -1198,21 +1198,21 @@ Returns a string representation of an object.
 
 ##### Returns
 
-[`Transition`](Transition)
+[`Transition`](/api/classes/Transition)
 
 ##### Inherited from
 
-[`Node`](Node).[`tween`](Node#tween)
+[`Node`](/api/classes/Node).[`tween`](/api/classes/Node#tween)
 
 ***
 
 ### unmount()
 
-> **unmount**(): [`Root`](Root)
+> **unmount**(): [`Root`](/api/classes/Root)
 
 #### Returns
 
-[`Root`](Root)
+[`Root`](/api/classes/Root)
 
 ***
 
@@ -1222,7 +1222,7 @@ Returns a string representation of an object.
 
 #### Parameters
 
-• **callback**: [`NodeTickListener`](../type-aliases/NodeTickListener)\<[`Root`](Root)\>
+• **callback**: [`NodeTickListener`](/api/type-aliases/NodeTickListener)\<[`Root`](/api/classes/Root)\>
 
 #### Returns
 
@@ -1230,7 +1230,7 @@ Returns a string representation of an object.
 
 #### Inherited from
 
-[`Node`](Node).[`untick`](Node#untick)
+[`Node`](/api/classes/Node).[`untick`](/api/classes/Node#untick)
 
 ***
 
@@ -1244,7 +1244,7 @@ Set viewbox.
 
 ##### Parameters
 
-• **viewbox**: [`Viewbox`](../type-aliases/Viewbox)
+• **viewbox**: [`Viewbox`](/api/type-aliases/Viewbox)
 
 ##### Returns
 
@@ -1260,7 +1260,7 @@ Set viewbox.
 
 • **height?**: `number`
 
-• **mode?**: [`FitMode`](../type-aliases/FitMode)
+• **mode?**: [`FitMode`](/api/type-aliases/FitMode)
 
 ##### Returns
 
@@ -1272,7 +1272,7 @@ Set viewbox.
 
 #### viewport()
 
-> **viewport**(): [`Viewport`](../type-aliases/Viewport)
+> **viewport**(): [`Viewport`](/api/type-aliases/Viewport)
 
 Set/Get viewport.
 This is used along with viewbox to determine the scale and position of the viewbox within the viewport.
@@ -1281,7 +1281,7 @@ Viewbox is provided by the user, and is the ideal size of the content.
 
 ##### Returns
 
-[`Viewport`](../type-aliases/Viewport)
+[`Viewport`](/api/type-aliases/Viewport)
 
 #### viewport(width, height, ratio)
 
@@ -1305,7 +1305,7 @@ Viewbox is provided by the user, and is the ideal size of the content.
 
 ##### Parameters
 
-• **viewbox**: [`Viewport`](../type-aliases/Viewport)
+• **viewbox**: [`Viewport`](/api/type-aliases/Viewport)
 
 ##### Returns
 
@@ -1329,7 +1329,7 @@ Viewbox is provided by the user, and is the ideal size of the content.
 
 ##### Inherited from
 
-[`Node`](Node).[`visible`](Node#visible)
+[`Node`](/api/classes/Node).[`visible`](/api/classes/Node#visible)
 
 #### visible()
 
@@ -1341,7 +1341,7 @@ Viewbox is provided by the user, and is the ideal size of the content.
 
 ##### Inherited from
 
-[`Node`](Node).[`visible`](Node#visible)
+[`Node`](/api/classes/Node).[`visible`](/api/classes/Node#visible)
 
 ***
 
@@ -1365,7 +1365,7 @@ Viewbox is provided by the user, and is the ideal size of the content.
 
 #### Inherited from
 
-[`Node`](Node).[`visit`](Node#visit)
+[`Node`](/api/classes/Node).[`visit`](/api/classes/Node#visit)
 
 ***
 
@@ -1385,7 +1385,7 @@ Viewbox is provided by the user, and is the ideal size of the content.
 
 ##### Inherited from
 
-[`Node`](Node).[`width`](Node#width)
+[`Node`](/api/classes/Node).[`width`](/api/classes/Node#width)
 
 #### width()
 
@@ -1397,4 +1397,4 @@ Viewbox is provided by the user, and is the ideal size of the content.
 
 ##### Inherited from
 
-[`Node`](Node).[`width`](Node#width)
+[`Node`](/api/classes/Node).[`width`](/api/classes/Node#width)

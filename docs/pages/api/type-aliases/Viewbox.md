@@ -12,7 +12,7 @@ Geometry of a rectangular portion of the game that is projected on the screen.
 
 ### mode?
 
-> `optional` **mode**: [`FitMode`](FitMode)
+> `optional` **mode**: [`FitMode`](/api/type-aliases/FitMode)
 
 ### width
 

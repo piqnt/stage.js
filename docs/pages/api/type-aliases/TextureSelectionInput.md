@@ -1,6 +1,6 @@
 # Type Alias: TextureSelectionInput
 
-> **TextureSelectionInput**: [`TextureSelectionInputOne`](TextureSelectionInputOne) \| [`TextureSelectionInputMap`](TextureSelectionInputMap) \| [`TextureSelectionInputArray`](TextureSelectionInputArray) \| [`TextureSelectionInputFactory`](TextureSelectionInputFactory)
+> **TextureSelectionInput**: [`TextureSelectionInputOne`](/api/type-aliases/TextureSelectionInputOne) \| [`TextureSelectionInputMap`](/api/type-aliases/TextureSelectionInputMap) \| [`TextureSelectionInputArray`](/api/type-aliases/TextureSelectionInputArray) \| [`TextureSelectionInputFactory`](/api/type-aliases/TextureSelectionInputFactory)
 
 Texture selection input could be one:
 - texture

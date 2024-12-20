@@ -8,49 +8,49 @@ references to textures from rendering them in various ways.
 
 ### new TextureSelection()
 
-> **new TextureSelection**(`selection`, `atlas`?): [`TextureSelection`](TextureSelection)
+> **new TextureSelection**(`selection`, `atlas`?): [`TextureSelection`](/api/classes/TextureSelection)
 
 #### Parameters
 
-• **selection**: [`TextureSelectionInput`](../type-aliases/TextureSelectionInput)
+• **selection**: [`TextureSelectionInput`](/api/type-aliases/TextureSelectionInput)
 
-• **atlas?**: [`Atlas`](Atlas)
+• **atlas?**: [`Atlas`](/api/classes/Atlas)
 
 #### Returns
 
-[`TextureSelection`](TextureSelection)
+[`TextureSelection`](/api/classes/TextureSelection)
 
 ## Properties
 
 ### atlas
 
-> **atlas**: [`Atlas`](Atlas)
+> **atlas**: [`Atlas`](/api/classes/Atlas)
 
 ***
 
 ### selection
 
-> **selection**: [`TextureSelectionInput`](../type-aliases/TextureSelectionInput)
+> **selection**: [`TextureSelectionInput`](/api/type-aliases/TextureSelectionInput)
 
 ## Methods
 
 ### array()
 
-> **array**(`arr`?): [`Texture`](Texture)[]
+> **array**(`arr`?): [`Texture`](/api/classes/Texture)[]
 
 #### Parameters
 
-• **arr?**: [`Texture`](Texture)[]
+• **arr?**: [`Texture`](/api/classes/Texture)[]
 
 #### Returns
 
-[`Texture`](Texture)[]
+[`Texture`](/api/classes/Texture)[]
 
 ***
 
 ### one()
 
-> **one**(`subquery`?): [`Texture`](Texture)
+> **one**(`subquery`?): [`Texture`](/api/classes/Texture)
 
 #### Parameters
 
@@ -58,4 +58,4 @@ references to textures from rendering them in various ways.
 
 #### Returns
 
-[`Texture`](Texture)
+[`Texture`](/api/classes/Texture)

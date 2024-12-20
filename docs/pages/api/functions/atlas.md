@@ -1,11 +1,11 @@
 # Function: atlas()
 
-> **atlas**(`def`): `Promise`\<[`Atlas`](../classes/Atlas)\>
+> **atlas**(`def`): `Promise`\<[`Atlas`](/api/classes/Atlas)\>
 
 ## Parameters
 
-• **def**: [`AtlasDefinition`](../interfaces/AtlasDefinition) \| [`Atlas`](../classes/Atlas)
+• **def**: [`AtlasDefinition`](/api/interfaces/AtlasDefinition) \| [`Atlas`](/api/classes/Atlas)
 
 ## Returns
 
-`Promise`\<[`Atlas`](../classes/Atlas)\>
+`Promise`\<[`Atlas`](/api/classes/Atlas)\>

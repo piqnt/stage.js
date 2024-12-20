@@ -4,15 +4,15 @@
 
 ### ~~filter()?~~
 
-> `optional` **filter**: (`texture`) => [`AtlasTextureDefinition`](AtlasTextureDefinition)
+> `optional` **filter**: (`texture`) => [`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition)
 
 #### Parameters
 
-• **texture**: [`AtlasTextureDefinition`](AtlasTextureDefinition)
+• **texture**: [`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition)
 
 #### Returns
 
-[`AtlasTextureDefinition`](AtlasTextureDefinition)
+[`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition)
 
 #### Deprecated
 
@@ -62,15 +62,15 @@ Use map
 
 ### map()?
 
-> `optional` **map**: (`texture`) => [`AtlasTextureDefinition`](AtlasTextureDefinition)
+> `optional` **map**: (`texture`) => [`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition)
 
 #### Parameters
 
-• **texture**: [`AtlasTextureDefinition`](AtlasTextureDefinition)
+• **texture**: [`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition)
 
 #### Returns
 
-[`AtlasTextureDefinition`](AtlasTextureDefinition)
+[`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition)
 
 ***
 
@@ -98,7 +98,7 @@ Use ppu
 
 ### textures?
 
-> `optional` **textures**: `Record`\<`string`, [`AtlasTextureDefinition`](AtlasTextureDefinition) \| `AtlasTextureReferenceMap` \| `AtlasTextureReferenceArray`\>
+> `optional` **textures**: `Record`\<`string`, [`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition) \| `AtlasTextureReferenceMap` \| `AtlasTextureReferenceArray`\>
 
 ***
 

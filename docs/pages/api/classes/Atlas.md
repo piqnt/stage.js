@@ -4,25 +4,25 @@ Textures are used to clip and resize image objects.
 
 ## Extends
 
-- [`ImageTexture`](ImageTexture)
+- [`ImageTexture`](/api/classes/ImageTexture)
 
 ## Constructors
 
 ### new Atlas()
 
-> **new Atlas**(`def`): [`Atlas`](Atlas)
+> **new Atlas**(`def`): [`Atlas`](/api/classes/Atlas)
 
 #### Parameters
 
-• **def**: [`AtlasDefinition`](../interfaces/AtlasDefinition) = `{}`
+• **def**: [`AtlasDefinition`](/api/interfaces/AtlasDefinition) = `{}`
 
 #### Returns
 
-[`Atlas`](Atlas)
+[`Atlas`](/api/classes/Atlas)
 
 #### Overrides
 
-[`ImageTexture`](ImageTexture).[`constructor`](ImageTexture#constructors)
+[`ImageTexture`](/api/classes/ImageTexture).[`constructor`](/api/classes/ImageTexture#constructors)
 
 ## Methods
 
@@ -44,7 +44,7 @@ Defer draw spec to texture config. This is used when a sprite draws its textures
 
 ##### Inherited from
 
-[`ImageTexture`](ImageTexture).[`draw`](ImageTexture#draw)
+[`ImageTexture`](/api/classes/ImageTexture).[`draw`](/api/classes/ImageTexture#draw)
 
 #### draw(context, dx, dy, dw, dh)
 
@@ -71,7 +71,7 @@ Note: dx, dy are added to this.dx, this.dy.
 
 ##### Inherited from
 
-[`ImageTexture`](ImageTexture).[`draw`](ImageTexture#draw)
+[`ImageTexture`](/api/classes/ImageTexture).[`draw`](/api/classes/ImageTexture#draw)
 
 #### draw(context, sx, sy, sw, sh, dx, dy, dw, dh)
 
@@ -106,7 +106,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 ##### Inherited from
 
-[`ImageTexture`](ImageTexture).[`draw`](ImageTexture#draw)
+[`ImageTexture`](/api/classes/ImageTexture).[`draw`](/api/classes/ImageTexture#draw)
 
 ***
 
@@ -120,7 +120,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Inherited from
 
-[`ImageTexture`](ImageTexture).[`getHeight`](ImageTexture#getheight)
+[`ImageTexture`](/api/classes/ImageTexture).[`getHeight`](/api/classes/ImageTexture#getheight)
 
 ***
 
@@ -134,7 +134,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Inherited from
 
-[`ImageTexture`](ImageTexture).[`getWidth`](ImageTexture#getwidth)
+[`ImageTexture`](/api/classes/ImageTexture).[`getWidth`](/api/classes/ImageTexture#getwidth)
 
 ***
 
@@ -150,7 +150,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 ### select()
 
-> **select**(`query`?): [`TextureSelection`](TextureSelection)
+> **select**(`query`?): [`TextureSelection`](/api/classes/TextureSelection)
 
 #### Parameters
 
@@ -158,7 +158,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Returns
 
-[`TextureSelection`](TextureSelection)
+[`TextureSelection`](/api/classes/TextureSelection)
 
 ***
 
@@ -178,7 +178,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Inherited from
 
-[`ImageTexture`](ImageTexture).[`setDestinationCoordinate`](ImageTexture#setdestinationcoordinate)
+[`ImageTexture`](/api/classes/ImageTexture).[`setDestinationCoordinate`](/api/classes/ImageTexture#setdestinationcoordinate)
 
 ***
 
@@ -198,7 +198,7 @@ Note: sx, sy, dx, dy are added to this.sx, this.sy, this.dx, this.dy.
 
 #### Inherited from
 
-[`ImageTexture`](ImageTexture).[`setDestinationDimension`](ImageTexture#setdestinationdimension)
+[`ImageTexture`](/api/classes/ImageTexture).[`setDestinationDimension`](/api/classes/ImageTexture#setdestinationdimension)
 
 ***
 
@@ -218,7 +218,7 @@ Add padding to the image texture. Padding can be negative.
 
 #### Inherited from
 
-[`ImageTexture`](ImageTexture).[`setPadding`](ImageTexture#setpadding)
+[`ImageTexture`](/api/classes/ImageTexture).[`setPadding`](/api/classes/ImageTexture#setpadding)
 
 ***
 
@@ -238,7 +238,7 @@ Add padding to the image texture. Padding can be negative.
 
 #### Inherited from
 
-[`ImageTexture`](ImageTexture).[`setSourceCoordinate`](ImageTexture#setsourcecoordinate)
+[`ImageTexture`](/api/classes/ImageTexture).[`setSourceCoordinate`](/api/classes/ImageTexture#setsourcecoordinate)
 
 ***
 
@@ -258,7 +258,7 @@ Add padding to the image texture. Padding can be negative.
 
 #### Inherited from
 
-[`ImageTexture`](ImageTexture).[`setSourceDimension`](ImageTexture#setsourcedimension)
+[`ImageTexture`](/api/classes/ImageTexture).[`setSourceDimension`](/api/classes/ImageTexture#setsourcedimension)
 
 ***
 
@@ -278,4 +278,4 @@ Add padding to the image texture. Padding can be negative.
 
 #### Inherited from
 
-[`ImageTexture`](ImageTexture).[`setSourceImage`](ImageTexture#setsourceimage)
+[`ImageTexture`](/api/classes/ImageTexture).[`setSourceImage`](/api/classes/ImageTexture#setsourceimage)

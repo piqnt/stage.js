@@ -4,19 +4,19 @@ Textures are used to clip and resize image objects.
 
 ## Extended by
 
-- [`ImageTexture`](ImageTexture)
-- [`PipeTexture`](PipeTexture)
-- [`ResizableTexture`](ResizableTexture)
+- [`ImageTexture`](/api/classes/ImageTexture)
+- [`PipeTexture`](/api/classes/PipeTexture)
+- [`ResizableTexture`](/api/classes/ResizableTexture)
 
 ## Constructors
 
 ### new Texture()
 
-> **new Texture**(): [`Texture`](Texture)
+> **new Texture**(): [`Texture`](/api/classes/Texture)
 
 #### Returns
 
-[`Texture`](Texture)
+[`Texture`](/api/classes/Texture)
 
 ## Methods
 
