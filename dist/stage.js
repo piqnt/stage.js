@@ -1,5 +1,5 @@
 /**
- * Stage.js v1.0.0-alpha.13
+ * Stage.js v1.0.0-alpha.14
  *
  * @copyright Copyright (c) 2024 Ali Shakiba
  * @license The MIT License (MIT)

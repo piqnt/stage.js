@@ -4,5 +4,7 @@
   "initialVersions": {
     "stage-js": "1.0.0-alpha.13"
   },
-  "changesets": []
+  "changesets": [
+    "five-bobcats-approve"
+  ]
 }
