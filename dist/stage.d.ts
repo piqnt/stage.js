@@ -96,19 +96,20 @@ export interface AtlasTextureDefinition {
 	right?: number;
 	bottom?: number;
 }
-export type AtlasTextureReferenceOne = AtlasTextureDefinition | string;
-export type AtlasTextureReferenceMap = Record<string, AtlasTextureReferenceOne>;
-export type AtlasTextureReferenceArray = AtlasTextureReferenceOne[];
+export type MonotypeAtlasTextureDefinition = Record<string, AtlasTextureDefinition | Texture | string>;
+export type AnimAtlasTextureDefinition = (AtlasTextureDefinition | Texture | string)[];
 export interface AtlasDefinition {
 	name?: string;
 	image?: {
-		/** @deprecated */
-		url: string;
 		src: string;
+		ratio?: number;
+	} | {
+		/** @deprecated Use src instead of url */
+		url: string;
 		ratio?: number;
 	};
 	ppu?: number;
-	textures?: Record<string, AtlasTextureDefinition | AtlasTextureReferenceMap | AtlasTextureReferenceArray>;
+	textures?: Record<string, AtlasTextureDefinition | Texture | MonotypeAtlasTextureDefinition | AnimAtlasTextureDefinition>;
 	map?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
 	/** @deprecated Use map */
 	filter?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
@@ -252,6 +253,7 @@ export declare class Transition implements Pinned {
 	skew(x: number, y: number): this;
 	scale(value: Vec2Value): this;
 	scale(x: number, y: number): this;
+	scale(s: number): this;
 	alpha(a: number, ta?: number): this;
 }
 export interface NodeVisitor<D> {
@@ -356,6 +358,7 @@ declare class Node$1 implements Pinned {
 	skew(x: number, y: number): this;
 	scale(value: Vec2Value): this;
 	scale(x: number, y: number): this;
+	scale(s: number): this;
 	alpha(a: number, ta?: number): this;
 	tween(opts?: TransitionOptions): Transition;
 	tween(duration?: number, delay?: number, append?: boolean): Transition;
@@ -534,8 +537,8 @@ export declare class Anim extends Node$1 {
 	frames(frames: string | TextureSelectionInputArray): this;
 	length(): number;
 	gotoFrame(frame: number, resize?: boolean): this;
-	moveFrame(move: any): this;
-	repeat(repeat: any, callback: any): this;
+	moveFrame(move: number): this;
+	repeat(repeat: number, callback?: () => void): this;
 	play(frame?: number): this;
 	stop(frame?: number): this;
 }

@@ -2,9 +2,9 @@
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.Stage = {}));
 })(this, function(exports2) {
   "use strict";/**
- * Stage.js v1.0.0-alpha.14
+ * Stage.js v1.0.0-alpha.16
  *
- * @copyright Copyright (c) 2024 Ali Shakiba
+ * @copyright Copyright (c) 2025 Ali Shakiba
  * @license The MIT License (MIT)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -624,7 +624,11 @@
         _this._map = def.map || def.filter;
         _this._textures = def.textures;
         if (typeof def.image === "object" && isHash(def.image)) {
-          _this._imageSrc = def.image.src || def.image.url;
+          if ("src" in def.image) {
+            _this._imageSrc = def.image.src;
+          } else if ("url" in def.image) {
+            _this._imageSrc = def.image.url;
+          }
           if (typeof def.image.ratio === "number") {
             _this._pixelRatio = def.image.ratio;
           }
