@@ -237,6 +237,7 @@ export class Transition implements Pinned {
 
   scale(value: Vec2Value): this;
   scale(x: number, y: number): this;
+  scale(s: number): this;
   scale(a: number | Vec2Value, b?: number) {
     // Pin shortcut, used by Transition and Node
     if (typeof a === "object") {

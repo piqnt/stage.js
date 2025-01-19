@@ -111,11 +111,11 @@ export class Anim extends Node {
     return this;
   }
 
-  moveFrame(move) {
+  moveFrame(move: number) {
     return this.gotoFrame(this._index + move);
   }
 
-  repeat(repeat, callback) {
+  repeat(repeat: number, callback?: () => void) {
     this._repeat = repeat * this._frames.length - 1;
     this._callback = callback;
     this.play();

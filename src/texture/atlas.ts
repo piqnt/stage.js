@@ -17,23 +17,26 @@ export interface AtlasTextureDefinition {
   bottom?: number;
 }
 
-type AtlasTextureReferenceOne = AtlasTextureDefinition | string;
-type AtlasTextureReferenceMap = Record<string, AtlasTextureReferenceOne>;
-type AtlasTextureReferenceArray = AtlasTextureReferenceOne[];
+type MonotypeAtlasTextureDefinition = Record<string, AtlasTextureDefinition | Texture | string>;
+type AnimAtlasTextureDefinition = (AtlasTextureDefinition | Texture | string)[];
 
 export interface AtlasDefinition {
   name?: string;
-  image?: {
-    /** @deprecated */
-    url: string;
-    src: string;
-    ratio?: number;
-  };
+  image?:
+    | {
+        src: string;
+        ratio?: number;
+      }
+    | {
+        /** @deprecated Use src instead of url */
+        url: string;
+        ratio?: number;
+      };
 
   ppu?: number;
   textures?: Record<
     string,
-    AtlasTextureDefinition | AtlasTextureReferenceMap | AtlasTextureReferenceArray
+    AtlasTextureDefinition | Texture | MonotypeAtlasTextureDefinition | AnimAtlasTextureDefinition
   >;
 
   map?: (texture: AtlasTextureDefinition) => AtlasTextureDefinition;
@@ -72,7 +75,11 @@ export class Atlas extends ImageTexture {
     this._textures = def.textures;
 
     if (typeof def.image === "object" && isHash(def.image)) {
-      this._imageSrc = def.image.src || def.image.url;
+      if ("src" in def.image) {
+        this._imageSrc = def.image.src;
+      } else if ("url" in def.image) {
+        this._imageSrc = def.image.url;
+      }
       if (typeof def.image.ratio === "number") {
         this._pixelRatio = def.image.ratio;
       }
