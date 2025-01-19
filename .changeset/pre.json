@@ -5,6 +5,7 @@
     "stage-js": "1.0.0-alpha.13"
   },
   "changesets": [
-    "five-bobcats-approve"
+    "five-bobcats-approve",
+    "nine-elephants-poke"
   ]
 }

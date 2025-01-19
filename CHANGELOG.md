@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-alpha.15
+
+### Patch Changes
+
+- 7cf63f6: Patch types
+
 ## 1.0.0-alpha.14
 
 ### Patch Changes
