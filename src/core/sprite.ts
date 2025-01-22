@@ -100,6 +100,6 @@ export class Sprite extends Node {
 }
 
 /** @hidden @deprecated */
-export const image = sprite;
+export { sprite as image };
 /** @hidden @deprecated */
-export const Image = Sprite;
+export { Sprite as Image };
