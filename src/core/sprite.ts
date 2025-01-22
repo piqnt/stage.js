@@ -7,7 +7,7 @@ import {
 } from "../texture";
 import { ResizableTexture } from "../texture/resizable";
 
-import { Node } from "./core";
+import { Component } from "./component";
 
 export function sprite(frame?: TextureSelectionInput) {
   const sprite = new Sprite();
@@ -15,7 +15,7 @@ export function sprite(frame?: TextureSelectionInput) {
   return sprite;
 }
 
-export class Sprite extends Node {
+export class Sprite extends Component {
   /** @internal */ _texture: Texture | null = null;
 
   /** @internal */ _image: Texture | null = null;
@@ -41,7 +41,6 @@ export class Sprite extends Node {
       } else {
         this._texture = new PipeTexture(this._image);
       }
-
     } else {
       this.pin("width", 0);
       this.pin("height", 0);

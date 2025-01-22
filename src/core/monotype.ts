@@ -1,12 +1,12 @@
 import { Texture, texture } from "../texture";
 
-import { Node } from "./core";
+import { Component } from "./component";
 
 export function monotype(chars: string | Record<string, Texture> | ((char: string) => Texture)) {
   return new Monotype().frames(chars);
 }
 
-export class Monotype extends Node {
+export class Monotype extends Component {
   /** @internal */ _textures: Texture[] = [];
 
   /** @internal */ _font: (value: string) => Texture;

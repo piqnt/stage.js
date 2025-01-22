@@ -1,7 +1,7 @@
 import stats from "../common/stats";
 import { Matrix } from "../common/matrix";
 
-import { Node } from "./core";
+import { Component } from "./component";
 import { Pointer } from "./pointer";
 import { FitMode, isValidFitMode } from "./pin";
 
@@ -52,7 +52,7 @@ export type Viewbox = {
   mode?: FitMode;
 };
 
-export class Root extends Node {
+export class Root extends Component {
   canvas: HTMLCanvasElement | null = null;
   dom: HTMLCanvasElement | null = null;
   context: CanvasRenderingContext2D | null = null;
@@ -228,10 +228,10 @@ export class Root extends Node {
         this.render(this.context);
       }
     } else if (tickRequest) {
-      // nothing changed, but a node requested next tick
+      // nothing changed, but a component requested next tick
       this.sleep = false;
     } else {
-      // nothing changed, and no node requested next tick
+      // nothing changed, and no component requested next tick
       this.sleep = true;
     }
 
@@ -350,11 +350,11 @@ export class Root extends Node {
       this.viewbox();
       const data = Object.assign({}, this._viewport);
       this.visit({
-        start: function (node) {
-          if (!node._flag("viewport")) {
+        start: function (component) {
+          if (!component._flag("viewport")) {
             return true;
           }
-          node.publish("viewport", [data]);
+          component.publish("viewport", [data]);
         },
       });
     }

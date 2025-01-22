@@ -130,14 +130,14 @@ it("insertPrev", function () {
 });
 
 it("visit", function () {
-  let node = memo(function (id) {
+  let component = memo(function (id) {
     return Stage.component().label(id);
   });
   let visitor, data;
-  let stage = node(1).append(
-    node(11),
-    node(12).append(node(121).hide(), node(122), node(123)),
-    node(13),
+  let stage = component(1).append(
+    component(11),
+    component(12).append(component(121).hide(), component(122), component(123)),
+    component(13),
   );
 
   stage.visit(
@@ -147,7 +147,7 @@ it("visit", function () {
     }),
     (data = {}),
   );
-  expect(visitor.start.args.pluck(0)).list(node([1, 11, 12, 121, 122, 123, 13]), "id");
+  expect(visitor.start.args.pluck(0)).list(component([1, 11, 12, 121, 122, 123, 13]), "id");
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 
@@ -159,7 +159,7 @@ it("visit", function () {
     }),
     (data = {}),
   );
-  expect(visitor.start.args.pluck(0)).list(node([1, 11, 12, 122, 123, 13]), "id");
+  expect(visitor.start.args.pluck(0)).list(component([1, 11, 12, 122, 123, 13]), "id");
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 
@@ -171,7 +171,7 @@ it("visit", function () {
     }),
     (data = {}),
   );
-  expect(visitor.start.args.pluck(0)).list(node([1, 13, 12, 123, 122, 121, 11]), "id");
+  expect(visitor.start.args.pluck(0)).list(component([1, 13, 12, 123, 122, 121, 11]), "id");
   expect(visitor.start.alwaysCalledWithMatch(sinon.match.object, data)).ok();
   expect(visitor.start.alwaysCalledOn(visitor)).ok();
 });

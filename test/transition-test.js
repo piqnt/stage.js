@@ -3,26 +3,26 @@ let expect = require("./util/expect");
 let Stage = require("../src/");
 
 describe("Tween", function () {
-  it("node.tween()", function () {
-    let node = Stage.component();
-    let m = node.tween();
-    expect(node._transitions[0]).be(m);
+  it("component.tween()", function () {
+    let component = Stage.component();
+    let m = component.tween();
+    expect(component._transitions[0]).be(m);
     expect(m._duration).be(400);
     expect(m._delay).be(0);
 
-    let n = node.tween(500, 100);
-    expect(node._transitions[0]).be(n);
+    let n = component.tween(500, 100);
+    expect(component._transitions[0]).be(n);
     expect(n._duration).be(500);
     expect(n._delay).be(100);
 
-    let o = node.tween(true);
-    expect(node._transitions[0]).be(n);
-    expect(node._transitions[1]).be(o);
+    let o = component.tween(true);
+    expect(component._transitions[0]).be(n);
+    expect(component._transitions[1]).be(o);
   });
 
   it("tween.tween()", function () {
-    let node = Stage.component();
-    let m = node.tween();
+    let component = Stage.component();
+    let m = component.tween();
 
     {
       let n = m.tween();

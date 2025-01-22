@@ -2,7 +2,7 @@ export * from "./common/math";
 export * from "./common/matrix";
 export * from "./texture";
 
-export * from "./core/core";
+export * from "./core/component";
 export * from "./core/pin";
 export * from "./core/pointer";
 export * from "./core/transition";

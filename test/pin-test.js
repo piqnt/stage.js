@@ -37,40 +37,40 @@ describe("Pin", function () {
   });
 
   it(".fit()", function () {
-    let node = Stage.component();
-    let pin = node.pin();
-    node.pin({
+    let component = Stage.component();
+    let pin = component.pin();
+    component.pin({
       width: 100,
       height: 100,
     });
-    node.fit(200, 300);
-    expect(node.pin("scaleX")).be(2);
-    expect(node.pin("scaleY")).be(3);
-    expect(node.pin("width")).be(100);
-    expect(node.pin("height")).be(100);
+    component.fit(200, 300);
+    expect(component.pin("scaleX")).be(2);
+    expect(component.pin("scaleY")).be(3);
+    expect(component.pin("width")).be(100);
+    expect(component.pin("height")).be(100);
 
-    node.fit(200, 300, "in");
-    expect(node.pin("scaleX")).be(2);
-    expect(node.pin("scaleY")).be(2);
-    expect(node.pin("width")).be(100);
-    expect(node.pin("height")).be(100);
+    component.fit(200, 300, "in");
+    expect(component.pin("scaleX")).be(2);
+    expect(component.pin("scaleY")).be(2);
+    expect(component.pin("width")).be(100);
+    expect(component.pin("height")).be(100);
 
-    node.fit(200, 300, "out");
-    expect(node.pin("scaleX")).be(3);
-    expect(node.pin("scaleY")).be(3);
-    expect(node.pin("width")).be(100);
-    expect(node.pin("height")).be(100);
+    component.fit(200, 300, "out");
+    expect(component.pin("scaleX")).be(3);
+    expect(component.pin("scaleY")).be(3);
+    expect(component.pin("width")).be(100);
+    expect(component.pin("height")).be(100);
 
-    node.fit(200, 400, "out-crop");
-    expect(node.pin("scaleX")).be(4);
-    expect(node.pin("scaleY")).be(4);
-    expect(node.pin("width")).be(50);
-    expect(node.pin("height")).be(100);
+    component.fit(200, 400, "out-crop");
+    expect(component.pin("scaleX")).be(4);
+    expect(component.pin("scaleY")).be(4);
+    expect(component.pin("width")).be(50);
+    expect(component.pin("height")).be(100);
 
-    node.fit(200, 400, "in-pad");
-    expect(node.pin("scaleX")).be(2);
-    expect(node.pin("scaleY")).be(2);
-    expect(node.pin("width")).be(100);
-    expect(node.pin("height")).be(200);
+    component.fit(200, 400, "in-pad");
+    expect(component.pin("scaleX")).be(2);
+    expect(component.pin("scaleY")).be(2);
+    expect(component.pin("width")).be(100);
+    expect(component.pin("height")).be(200);
   });
 });

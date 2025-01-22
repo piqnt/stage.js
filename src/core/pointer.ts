@@ -1,7 +1,7 @@
 import { Vec2Value } from "../common/matrix";
 
 import { Root, Viewport } from "./root";
-import { Node } from "./core";
+import { Component } from "./component";
 
 // todo: capture mouse
 // todo: implement unmount
@@ -76,7 +76,7 @@ class VisitPayload {
   timeStamp: number = -1;
   event: UIEvent = null;
   root: Root = null;
-  collected: Node[] | null = null;
+  collected: Component[] | null = null;
   toString() {
     return this.type + ": " + (this.x | 0) + "x" + (this.y | 0);
   }
@@ -104,7 +104,7 @@ export class Pointer {
       this.ratio = viewport.ratio ?? this.ratio;
     });
 
-    // `click` events are synthesized from start/end events on same nodes
+    // `click` events are synthesized from start/end events on same components
     // `mousecancel` events are synthesized on blur or mouseup outside element
 
     elem.addEventListener("touchstart", this.handleStart);
@@ -140,8 +140,8 @@ export class Pointer {
     return this;
   }
 
-  clickList: Node[] = [];
-  cancelList: Node[] = [];
+  clickList: Component[] = [];
+  cancelList: Component[] = [];
 
   handleStart = (event: TouchEvent | MouseEvent) => {
     Pointer.DEBUG && console.debug && console.debug("pointer-start", event.type);
@@ -208,9 +208,9 @@ export class Pointer {
   }
 
   /**
-   * Find eligible target for and event type, used to keep trace nodes to dispatch click event
+   * Find eligible target for and event type, used to keep trace components to dispatch click event
    */
-  findTargets(type: string, result: Node[]) {
+  findTargets(type: string, result: Component[]) {
     const payload = PAYLOAD;
 
     payload.type = type;
@@ -230,7 +230,7 @@ export class Pointer {
     );
   }
 
-  dispatchEvent(type: string, event: UIEvent, targets?: Node[]) {
+  dispatchEvent(type: string, event: UIEvent, targets?: Component[]) {
     const payload = PAYLOAD;
 
     payload.type = type;
@@ -245,8 +245,8 @@ export class Pointer {
 
     if (targets) {
       while (targets.length) {
-        const node = targets.shift();
-        if (this.visitEnd(node, payload)) {
+        const component = targets.shift();
+        if (this.visitEnd(component, payload)) {
           break;
         }
       }
@@ -264,11 +264,11 @@ export class Pointer {
     }
   }
 
-  visitStart = (node: Node, payload: VisitPayload) => {
-    return !node._flag(payload.type);
+  visitStart = (component: Component, payload: VisitPayload) => {
+    return !component._flag(payload.type);
   };
 
-  visitEnd = (node: Node, payload: VisitPayload) => {
+  visitEnd = (component: Component, payload: VisitPayload) => {
     // mouse: event/collect, type, root
     syntheticEvent.raw = payload.event;
     syntheticEvent.type = payload.type;
@@ -276,23 +276,23 @@ export class Pointer {
     syntheticEvent.abs.x = payload.x;
     syntheticEvent.abs.y = payload.y;
 
-    const listeners = node.listeners(payload.type);
+    const listeners = component.listeners(payload.type);
     if (!listeners) {
       return;
     }
 
-    node.matrix().inverse().map(payload, syntheticEvent);
+    component.matrix().inverse().map(payload, syntheticEvent);
 
     // deep flags are used to decide to pass down event, and spy is not used for that
     // we use spy to decide if an event should be delivered to elements that do not have hitTest
     // todo: collect and pass hitTest result upward instead, probably use visit payload
-    const isEventTarget = node === payload.root || node.attr("spy") || node.hitTest(syntheticEvent);
+    const isEventTarget = component === payload.root || component.attr("spy") || component.hitTest(syntheticEvent);
     if (!isEventTarget) {
       return;
     }
 
     if (payload.collected) {
-      payload.collected.push(node);
+      payload.collected.push(component);
     }
 
     // todo: when this condition is false?
@@ -300,7 +300,7 @@ export class Pointer {
       // todo: use a function call to cancel processing events, like dom
       let stop = false;
       for (let l = 0; l < listeners.length; l++) {
-        stop = listeners[l].call(node, syntheticEvent) ? true : stop;
+        stop = listeners[l].call(component, syntheticEvent) ? true : stop;
       }
       return stop;
     }

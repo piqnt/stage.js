@@ -1,7 +1,7 @@
 import { Matrix, Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
 
-import type { Node } from "./core";
+import type { Component } from "./component";
 
 /**
  *  @hidden @deprecated
@@ -66,7 +66,7 @@ export interface Pinned {
 export class Pin {
   /** @internal */ uid = "pin:" + uid();
 
-  /** @internal */ _owner: Node;
+  /** @internal */ _owner: Component;
 
   // todo: maybe this should be a getter instead?
   /** @internal */ _parent: Pin | null;
@@ -126,7 +126,7 @@ export class Pin {
   /** @internal */ _directionY = 1;
 
   /** @internal */
-  constructor(owner: Node) {
+  constructor(owner: Component) {
     this._owner = owner;
     this._parent = null;
 

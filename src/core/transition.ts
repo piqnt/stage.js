@@ -2,7 +2,7 @@ import { Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
 
 import { Easing, EasingFunction, EasingFunctionName } from "./easing";
-import { Node } from "./core";
+import { Component } from "./component";
 import { Pinned } from "./pin";
 
 export type TransitionOptions = {
@@ -11,7 +11,7 @@ export type TransitionOptions = {
   append?: boolean;
 };
 
-export type TransitionEndListener = (this: Node) => void;
+export type TransitionEndListener = (this: Component) => void;
 
 export class Transition implements Pinned {
   /** @internal */ uid = "transition:" + uid();
@@ -24,7 +24,7 @@ export class Transition implements Pinned {
   /** @internal */ _duration: number;
   /** @internal */ _delay: number;
 
-  /** @internal */ _owner: Node;
+  /** @internal */ _owner: Component;
 
   /** @internal */ _time: number;
 
@@ -34,7 +34,7 @@ export class Transition implements Pinned {
   /** @internal */ _hide: boolean;
   /** @internal */ _remove: boolean;
 
-  constructor(owner: Node, options: TransitionOptions = {}) {
+  constructor(owner: Component, options: TransitionOptions = {}) {
     this._end = {};
     this._duration = options.duration || 400;
     this._delay = options.delay || 0;
@@ -44,7 +44,7 @@ export class Transition implements Pinned {
   }
 
   /** @internal */
-  tick(node: Node, elapsed: number, now: number, last: number) {
+  tick(component: Component, elapsed: number, now: number, last: number) {
     this._time += elapsed;
 
     if (this._time < this._delay) {
@@ -166,14 +166,14 @@ export class Transition implements Pinned {
   }
 
   /**
-   *  @hidden @deprecated this doesn't do anything anymore, call transition on the node instead.
+   *  @hidden @deprecated this doesn't do anything anymore, call transition on the component instead.
    */
   clear(forward: boolean) {
     return this;
   }
 
   size(w: number, h: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     this.pin("width", w);
     this.pin("height", h);
     return this;
@@ -182,7 +182,7 @@ export class Transition implements Pinned {
   width(w: number): this;
   width(): number;
   width(w?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof w === "undefined") {
       return this.pin("width");
     }
@@ -193,7 +193,7 @@ export class Transition implements Pinned {
   height(h: number): this;
   height(): number;
   height(h?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof h === "undefined") {
       return this.pin("height");
     }
@@ -204,7 +204,7 @@ export class Transition implements Pinned {
   offset(value: Vec2Value): this;
   offset(x: number, y: number): this;
   offset(a: number | Vec2Value, b?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof a === "object") {
       b = a.y;
       a = a.x;
@@ -215,7 +215,7 @@ export class Transition implements Pinned {
   }
 
   rotate(a: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     this.pin("rotation", a);
     return this;
   }
@@ -223,7 +223,7 @@ export class Transition implements Pinned {
   skew(value: Vec2Value): this;
   skew(x: number, y: number): this;
   skew(a: number | Vec2Value, b?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof a === "object") {
       b = a.y;
       a = a.x;
@@ -239,7 +239,7 @@ export class Transition implements Pinned {
   scale(x: number, y: number): this;
   scale(s: number): this;
   scale(a: number | Vec2Value, b?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof a === "object") {
       b = a.y;
       a = a.x;
@@ -252,7 +252,7 @@ export class Transition implements Pinned {
   }
 
   alpha(a: number, ta?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     this.pin("alpha", a);
     if (typeof ta !== "undefined") {
       this.pin("textureAlpha", ta);
@@ -262,10 +262,10 @@ export class Transition implements Pinned {
 }
 
 /** @internal */
-function pinning(node: Node, map: object, key: string, value: number) {
-  if (typeof node.pin(key) === "number") {
+function pinning(component: Component, map: object, key: string, value: number) {
+  if (typeof component.pin(key) === "number") {
     map[key] = value;
-  } else if (typeof node.pin(key + "X") === "number" && typeof node.pin(key + "Y") === "number") {
+  } else if (typeof component.pin(key + "X") === "number" && typeof component.pin(key + "Y") === "number") {
     map[key + "X"] = value;
     map[key + "Y"] = value;
   }

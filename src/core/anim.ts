@@ -1,7 +1,7 @@
 import { math } from "../common/math";
 import { Texture, TextureSelectionInputArray, texture } from "../texture";
 
-import { Node } from "./core";
+import { Component } from "./component";
 
 export function anim(frames: string | TextureSelectionInputArray, fps?: number) {
   const anim = new Anim();
@@ -13,7 +13,7 @@ export function anim(frames: string | TextureSelectionInputArray, fps?: number) 
 // TODO: replace with atlas fps or texture time
 /** @internal */ const FPS = 15;
 
-export class Anim extends Node {
+export class Anim extends Component {
   /** @internal */ _texture: Texture | null = null;
 
   /** @internal */ _frames: Texture[] = [];

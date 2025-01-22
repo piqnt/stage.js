@@ -20,7 +20,7 @@ it("Pointer", function () {
     },
   });
 
-  const node = memo(function (id) {
+  const component = memo(function (id) {
     return Stage.component().label(id).pin({
       width: 400,
       height: 300,
@@ -29,10 +29,10 @@ it("Pointer", function () {
   const listener = memo(function (id) {
     return sinon.spy();
   });
-  const stage = node(1).append(
-    node(11),
-    node(12).append(node(121).hide(), node(122), node(123)),
-    node(13),
+  const stage = component(1).append(
+    component(11),
+    component(12).append(component(121).hide(), component(122), component(123)),
+    component(13),
   );
 
   stage.viewport = function () {
@@ -41,10 +41,10 @@ it("Pointer", function () {
     };
   };
 
-  node(1).on(Pointer.CLICK, listener("click-" + 1));
-  node(1).on(Pointer.START, listener("start-" + 1));
-  node(1).on(Pointer.END, listener("end-" + 1));
-  node(1).on(Pointer.MOVE, listener("move-" + 1));
+  component(1).on(Pointer.CLICK, listener("click-" + 1));
+  component(1).on(Pointer.START, listener("start-" + 1));
+  component(1).on(Pointer.END, listener("end-" + 1));
+  component(1).on(Pointer.MOVE, listener("move-" + 1));
 
   new Pointer().mount(
     stage,

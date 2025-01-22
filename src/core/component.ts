@@ -13,27 +13,27 @@ stats.create = 0;
 
 /** @internal */
 function assertType<T>(obj: T): T {
-  if (obj && obj instanceof Node) {
+  if (obj && obj instanceof Component) {
     return obj;
   }
-  throw "Invalid node: " + obj;
+  throw "Invalid component: " + obj;
 }
 
-interface NodeVisitor<D> {
+interface ComponentVisitor<D> {
   reverse?: boolean;
   visible?: boolean;
-  start?: (node: Node, data?: D) => boolean | void;
-  end?: (node: Node, data?: D) => boolean | void;
+  start?: (component: Component, data?: D) => boolean | void;
+  end?: (component: Component, data?: D) => boolean | void;
 }
 
-export type NodeTickListener<T> = (
+export type ComponentTickListener<T> = (
   this: T,
   elapsed: number,
   now: number,
   last: number,
 ) => boolean | void;
 
-export type NodeEventListener<T> = (this: T, ...args: any[]) => void;
+export type ComponentEventListener<T> = (this: T, ...args: any[]) => void;
 
 /** @hidden @deprecated Use component() */
 export function create() {
@@ -50,8 +50,8 @@ export function box() {
   return minimize();
 }
 
-// todo: create a new subclass called layout, and make node abstract
-// discussion: in some cases sprites are used as parent node, like a window
+// todo: create a new subclass called layout, and make component abstract
+// discussion: in some cases sprites are used as parent component, like a window
 
 /** @hidden @deprecated */
 export function layout() {
@@ -59,23 +59,23 @@ export function layout() {
 }
 
 export function component() {
-  return new Node();
+  return new Component();
 }
 
 export function row(align: number) {
-  return new Node().row(align).label("Row");
+  return new Component().row(align).label("Row");
 }
 
 export function column(align: number) {
-  return new Node().column(align).label("Column");
+  return new Component().column(align).label("Column");
 }
 
 export function minimize() {
-  return new Node().minimize().label("Minimize");
+  return new Component().minimize().label("Minimize");
 }
 
 export function maximize() {
-  return new Node().maximize().label("Maximize");
+  return new Component().maximize().label("Maximize");
 }
 
 // TODO: do not clear next/prev/parent on remove (why?)
@@ -85,17 +85,17 @@ export function maximize() {
 // - frame loop and rendering
 // - events handling
 
-export class Node implements Pinned {
-  /** @internal */ uid = "node:" + uid();
+export class Component implements Pinned {
+  /** @internal */ uid = "component:" + uid();
 
   /** @internal */ _label = "";
 
-  /** @internal */ _parent: Node | null = null;
-  /** @internal */ _next: Node | null = null;
-  /** @internal */ _prev: Node | null = null;
+  /** @internal */ _parent: Component | null = null;
+  /** @internal */ _next: Component | null = null;
+  /** @internal */ _prev: Component | null = null;
 
-  /** @internal */ _first: Node | null = null;
-  /** @internal */ _last: Node | null = null;
+  /** @internal */ _first: Component | null = null;
+  /** @internal */ _last: Component | null = null;
 
   /** @internal */ _visible = true;
 
@@ -113,13 +113,13 @@ export class Node implements Pinned {
   /** @internal */ _ts_touch: number;
 
   // todo: don't need to check if these fields are initialized anymore
-  /** @internal */ _listeners: Record<string, NodeEventListener<Node>[]> = {};
+  /** @internal */ _listeners: Record<string, ComponentEventListener<Component>[]> = {};
   /** @internal */ _attrs: Record<string, any> = {};
   /** @internal */ _flags: Record<string, any> = {};
   /** @internal */ _transitions: Transition[] = [];
 
-  /** @internal */ _tickBefore: NodeTickListener<any>[] = [];
-  /** @internal */ _tickAfter: NodeTickListener<any>[] = [];
+  /** @internal */ _tickBefore: ComponentTickListener<any>[] = [];
+  /** @internal */ _tickAfter: ComponentTickListener<any>[] = [];
 
   /** @internal */ _layoutTicker?: () => void;
 
@@ -132,7 +132,7 @@ export class Node implements Pinned {
 
   constructor() {
     stats.create++;
-    if (this instanceof Node) {
+    if (this instanceof Component) {
       this.label(this.constructor.name);
     }
   }
@@ -156,7 +156,9 @@ export class Node implements Pinned {
   getDevicePixelRatio() {
     // todo: parent matrix is not available in the first call
     const parentMatrix = this._parent?.matrix();
-    const pixelRatio = !parentMatrix ? 1 : Math.max(Math.abs(parentMatrix.a), Math.abs(parentMatrix.b));
+    const pixelRatio = !parentMatrix
+      ? 1
+      : Math.max(Math.abs(parentMatrix.a), Math.abs(parentMatrix.b));
     return pixelRatio;
   }
 
@@ -298,13 +300,13 @@ export class Node implements Pinned {
     return prev;
   }
 
-  visit<P>(visitor: NodeVisitor<P>, payload?: P) {
+  visit<P>(visitor: ComponentVisitor<P>, payload?: P) {
     const reverse = visitor.reverse;
     const visible = visitor.visible;
     if (visitor.start && visitor.start(this, payload)) {
       return;
     }
-    let child: Node;
+    let child: Component;
     let next = reverse ? this.last(visible) : this.first(visible);
     while ((child = next)) {
       next = reverse ? child.prev(visible) : child.next(visible);
@@ -315,96 +317,96 @@ export class Node implements Pinned {
     return visitor.end && visitor.end(this, payload);
   }
 
-  append(...child: Node[]): this;
-  append(child: Node[]): this;
-  append(child: Node | Node[], more?: Node) {
+  append(...child: Component[]): this;
+  append(child: Component[]): this;
+  append(child: Component | Component[], more?: Component) {
     if (Array.isArray(child)) {
       for (let i = 0; i < child.length; i++) {
-        Node.append(this, child[i]);
+        Component.append(this, child[i]);
       }
     } else if (typeof more !== "undefined") {
       // deprecated
       for (let i = 0; i < arguments.length; i++) {
-        Node.append(this, arguments[i]);
+        Component.append(this, arguments[i]);
       }
-    } else if (typeof child !== "undefined") Node.append(this, child);
+    } else if (typeof child !== "undefined") Component.append(this, child);
 
     return this;
   }
 
-  prepend(...child: Node[]): this;
-  prepend(child: Node[]): this;
-  prepend(child: Node | Node[], more?: Node) {
+  prepend(...child: Component[]): this;
+  prepend(child: Component[]): this;
+  prepend(child: Component | Component[], more?: Component) {
     if (Array.isArray(child)) {
       for (let i = child.length - 1; i >= 0; i--) {
-        Node.prepend(this, child[i]);
+        Component.prepend(this, child[i]);
       }
     } else if (typeof more !== "undefined") {
       // deprecated
       for (let i = arguments.length - 1; i >= 0; i--) {
-        Node.prepend(this, arguments[i]);
+        Component.prepend(this, arguments[i]);
       }
-    } else if (typeof child !== "undefined") Node.prepend(this, child);
+    } else if (typeof child !== "undefined") Component.prepend(this, child);
 
     return this;
   }
 
-  appendTo(parent: Node) {
-    Node.append(parent, this);
+  appendTo(parent: Component) {
+    Component.append(parent, this);
     return this;
   }
 
-  prependTo(parent: Node) {
-    Node.prepend(parent, this);
+  prependTo(parent: Component) {
+    Component.prepend(parent, this);
     return this;
   }
 
-  insertNext(sibling: Node, more?: Node) {
+  insertNext(sibling: Component, more?: Component) {
     if (Array.isArray(sibling)) {
       for (let i = 0; i < sibling.length; i++) {
-        Node.insertAfter(sibling[i], this);
+        Component.insertAfter(sibling[i], this);
       }
     } else if (typeof more !== "undefined") {
       // deprecated
       for (let i = 0; i < arguments.length; i++) {
-        Node.insertAfter(arguments[i], this);
+        Component.insertAfter(arguments[i], this);
       }
     } else if (typeof sibling !== "undefined") {
-      Node.insertAfter(sibling, this);
+      Component.insertAfter(sibling, this);
     }
 
     return this;
   }
 
-  insertPrev(sibling: Node, more?: Node) {
+  insertPrev(sibling: Component, more?: Component) {
     if (Array.isArray(sibling)) {
       for (let i = sibling.length - 1; i >= 0; i--) {
-        Node.insertBefore(sibling[i], this);
+        Component.insertBefore(sibling[i], this);
       }
     } else if (typeof more !== "undefined") {
       // deprecated
       for (let i = arguments.length - 1; i >= 0; i--) {
-        Node.insertBefore(arguments[i], this);
+        Component.insertBefore(arguments[i], this);
       }
     } else if (typeof sibling !== "undefined") {
-      Node.insertBefore(sibling, this);
+      Component.insertBefore(sibling, this);
     }
 
     return this;
   }
 
-  insertAfter(prev: Node) {
-    Node.insertAfter(this, prev);
+  insertAfter(prev: Component) {
+    Component.insertAfter(this, prev);
     return this;
   }
 
-  insertBefore(next: Node) {
-    Node.insertBefore(this, next);
+  insertBefore(next: Component) {
+    Component.insertBefore(this, next);
     return this;
   }
 
   /** @internal */
-  static append(parent: Node, child: Node) {
+  static append(parent: Component, child: Component) {
     assertType(child);
     assertType(parent);
 
@@ -430,7 +432,7 @@ export class Node implements Pinned {
   }
 
   /** @internal */
-  static prepend(parent: Node, child: Node) {
+  static prepend(parent: Component, child: Component) {
     assertType(child);
     assertType(parent);
 
@@ -456,7 +458,7 @@ export class Node implements Pinned {
   }
 
   /** @internal */
-  static insertBefore(self: Node, next: Node) {
+  static insertBefore(self: Component, next: Component) {
     assertType(self);
     assertType(next);
 
@@ -484,7 +486,7 @@ export class Node implements Pinned {
   }
 
   /** @internal */
-  static insertAfter(self: Node, prev: Node) {
+  static insertAfter(self: Component, prev: Component) {
     assertType(self);
     assertType(prev);
 
@@ -511,7 +513,7 @@ export class Node implements Pinned {
     self.touch();
   }
 
-  remove(child?: Node, more?: any) {
+  remove(child?: Component, more?: any) {
     if (typeof child !== "undefined") {
       if (Array.isArray(child)) {
         for (let i = 0; i < child.length; i++) {
@@ -555,7 +557,7 @@ export class Node implements Pinned {
   }
 
   empty() {
-    let child: Node | null = null;
+    let child: Component | null = null;
     let next = this._first;
     while ((child = next)) {
       next = child._next;
@@ -578,13 +580,13 @@ export class Node implements Pinned {
   }
 
   /** @internal */
-  _flag(child: Node, value: boolean): Node;
+  _flag(child: Component, value: boolean): Component;
   /** @internal */
   _flag(key: string): boolean;
   /** @internal */
-  _flag(key: string, value: boolean): Node;
+  _flag(key: string, value: boolean): Component;
   /** @internal Deep flag, used for optimizing event distribution. */
-  _flag(key: string | Node, value?: boolean) {
+  _flag(key: string | Component, value?: boolean) {
     if (typeof value === "undefined") {
       return (this._flags !== null && this._flags[key as string]) || 0;
     }
@@ -629,7 +631,7 @@ export class Node implements Pinned {
 
     this.prerenderTexture();
 
-    let child: Node;
+    let child: Component;
     let next = this._first;
     while ((child = next)) {
       next = child._next;
@@ -650,7 +652,7 @@ export class Node implements Pinned {
     if (!this._visible) {
       return;
     }
-    stats.node++;
+    stats.component++;
 
     const m = this.matrix();
     context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
@@ -675,7 +677,7 @@ export class Node implements Pinned {
       context.globalAlpha = this._alpha;
     }
 
-    let child: Node;
+    let child: Component;
     let next = this._first;
     while ((child = next)) {
       next = child._next;
@@ -708,7 +710,7 @@ export class Node implements Pinned {
       }
     }
 
-    let child: Node | null;
+    let child: Component | null;
     let next = this._first;
     while ((child = next)) {
       next = child._next;
@@ -728,7 +730,7 @@ export class Node implements Pinned {
     return ticked;
   }
 
-  tick(callback: NodeTickListener<this>, before = false) {
+  tick(callback: ComponentTickListener<this>, before = false) {
     if (typeof callback !== "function") {
       return;
     }
@@ -747,7 +749,7 @@ export class Node implements Pinned {
     this._flag("_tick", hasTickListener);
   }
 
-  untick(callback: NodeTickListener<this>) {
+  untick(callback: ComponentTickListener<this>) {
     if (typeof callback !== "function") {
       return;
     }
@@ -777,14 +779,14 @@ export class Node implements Pinned {
     return timer;
   }
 
-  clearTimeout(timer: NodeTickListener<this>) {
+  clearTimeout(timer: ComponentTickListener<this>) {
     this.untick(timer);
   }
 
-  on(types: string, listener: NodeEventListener<this>): this;
+  on(types: string, listener: ComponentEventListener<this>): this;
   /** @hidden @deprecated @internal */
-  on(types: string[], listener: NodeEventListener<this>): this;
-  on(type: string | string[], listener: NodeEventListener<this>) {
+  on(types: string[], listener: ComponentEventListener<this>): this;
+  on(type: string | string[], listener: ComponentEventListener<this>) {
     if (!type || !type.length || typeof listener !== "function") {
       return this;
     }
@@ -808,7 +810,7 @@ export class Node implements Pinned {
   }
 
   /** @internal */
-  _on(type: string, listener: NodeEventListener<this>) {
+  _on(type: string, listener: ComponentEventListener<this>) {
     if (typeof type !== "string" && typeof listener !== "function") {
       return;
     }
@@ -818,10 +820,10 @@ export class Node implements Pinned {
     this._flag(type, true);
   }
 
-  off(types: string, listener: NodeEventListener<this>): this;
+  off(types: string, listener: ComponentEventListener<this>): this;
   /** @hidden @deprecated @internal */
-  off(types: string[], listener: NodeEventListener<this>): this;
-  off(type: string | string[], listener: NodeEventListener<this>) {
+  off(types: string[], listener: ComponentEventListener<this>): this;
+  off(type: string | string[], listener: ComponentEventListener<this>) {
     if (!type || !type.length || typeof listener !== "function") {
       return this;
     }
@@ -845,7 +847,7 @@ export class Node implements Pinned {
   }
 
   /** @internal */
-  _off(type: string, listener: NodeEventListener<this>) {
+  _off(type: string, listener: ComponentEventListener<this>) {
     if (typeof type !== "string" && typeof listener !== "function") {
       return;
     }
@@ -886,7 +888,7 @@ export class Node implements Pinned {
   }
 
   size(w: number, h: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     this.pin("width", w);
     this.pin("height", h);
     return this;
@@ -895,7 +897,7 @@ export class Node implements Pinned {
   width(w: number): this;
   width(): number;
   width(w?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof w === "undefined") {
       return this.pin("width");
     }
@@ -906,7 +908,7 @@ export class Node implements Pinned {
   height(h: number): this;
   height(): number;
   height(h?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof h === "undefined") {
       return this.pin("height");
     }
@@ -917,7 +919,7 @@ export class Node implements Pinned {
   offset(value: Vec2Value): this;
   offset(x: number, y: number): this;
   offset(a?: Vec2Value | number, b?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof a === "object") {
       b = a.y;
       a = a.x;
@@ -928,7 +930,7 @@ export class Node implements Pinned {
   }
 
   rotate(a: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     this.pin("rotation", a);
     return this;
   }
@@ -936,7 +938,7 @@ export class Node implements Pinned {
   skew(value: Vec2Value): this;
   skew(x: number, y: number): this;
   skew(a?: Vec2Value | number, b?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof a === "object") {
       b = a.y;
       a = a.x;
@@ -950,7 +952,7 @@ export class Node implements Pinned {
   scale(x: number, y: number): this;
   scale(s: number): this;
   scale(a?: Vec2Value | number, b?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     if (typeof a === "object") {
       b = a.y;
       a = a.x;
@@ -961,7 +963,7 @@ export class Node implements Pinned {
   }
 
   alpha(a: number, ta?: number) {
-    // Pin shortcut, used by Transition and Node
+    // Pin shortcut, used by Transition and Component
     this.pin("alpha", a);
     if (typeof ta !== "undefined") {
       this.pin("textureAlpha", ta);
@@ -1070,7 +1072,7 @@ export class Node implements Pinned {
         let width = 0;
         let height = 0;
 
-        let child: Node;
+        let child: Component;
         let next = this.first(true);
         let first = true;
         while ((child = next)) {
@@ -1130,7 +1132,7 @@ export class Node implements Pinned {
 
         let width = 0;
         let height = 0;
-        let child: Node;
+        let child: Component;
         let next = this.first(true);
         while ((child = next)) {
           next = child.next(true);
@@ -1190,3 +1192,6 @@ export class Node implements Pinned {
     return this;
   }
 }
+
+/** @hidden @deprecated Node is renamed to Component */
+export { Component as Node };
