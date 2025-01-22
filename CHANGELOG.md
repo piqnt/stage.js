@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-alpha.17
+
+### Patch Changes
+
+- dcbcf12: Rename Node to Component
+- b2dc48b: Fix aliasing legacy class names
+
 ## 1.0.0-alpha.16
 
 ### Patch Changes

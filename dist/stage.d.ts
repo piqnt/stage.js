@@ -219,9 +219,9 @@ export type TransitionOptions = {
 	delay?: number;
 	append?: boolean;
 };
-export type TransitionEndListener = (this: Node$1) => void;
+export type TransitionEndListener = (this: Component) => void;
 export declare class Transition implements Pinned {
-	constructor(owner: Node$1, options?: TransitionOptions);
+	constructor(owner: Component, options?: TransitionOptions);
 	tween(opts?: TransitionOptions): Transition;
 	tween(duration?: number, delay?: number): Transition;
 	duration(duration: number): this;
@@ -238,7 +238,7 @@ export declare class Transition implements Pinned {
 	 */
 	then(fn: TransitionEndListener): this;
 	/**
-	 *  @hidden @deprecated this doesn't do anything anymore, call transition on the node instead.
+	 *  @hidden @deprecated this doesn't do anything anymore, call transition on the component instead.
 	 */
 	clear(forward: boolean): this;
 	size(w: number, h: number): this;
@@ -256,28 +256,28 @@ export declare class Transition implements Pinned {
 	scale(s: number): this;
 	alpha(a: number, ta?: number): this;
 }
-export interface NodeVisitor<D> {
+export interface ComponentVisitor<D> {
 	reverse?: boolean;
 	visible?: boolean;
-	start?: (node: Node$1, data?: D) => boolean | void;
-	end?: (node: Node$1, data?: D) => boolean | void;
+	start?: (component: Component, data?: D) => boolean | void;
+	end?: (component: Component, data?: D) => boolean | void;
 }
-export type NodeTickListener<T> = (this: T, elapsed: number, now: number, last: number) => boolean | void;
-export type NodeEventListener<T> = (this: T, ...args: any[]) => void;
+export type ComponentTickListener<T> = (this: T, elapsed: number, now: number, last: number) => boolean | void;
+export type ComponentEventListener<T> = (this: T, ...args: any[]) => void;
 /** @hidden @deprecated Use component() */
-export declare function create(): Node$1;
+export declare function create(): Component;
 /** @hidden @deprecated Use maximize() */
-export declare function layer(): Node$1;
+export declare function layer(): Component;
 /** @hidden @deprecated Use minimize() */
-export declare function box(): Node$1;
+export declare function box(): Component;
 /** @hidden @deprecated */
-export declare function layout(): Node$1;
-export declare function component(): Node$1;
-export declare function row(align: number): Node$1;
-export declare function column(align: number): Node$1;
-export declare function minimize(): Node$1;
-export declare function maximize(): Node$1;
-declare class Node$1 implements Pinned {
+export declare function layout(): Component;
+export declare function component(): Component;
+export declare function row(align: number): Component;
+export declare function column(align: number): Component;
+export declare function minimize(): Component;
+export declare function maximize(): Component;
+export declare class Component implements Pinned {
 	MAX_ELAPSE: number;
 	constructor();
 	matrix(relative?: boolean): Matrix;
@@ -308,23 +308,23 @@ declare class Node$1 implements Pinned {
 	visible(): boolean;
 	hide(): this;
 	show(): this;
-	parent(): Node$1;
-	next(visible?: boolean): Node$1;
-	prev(visible?: boolean): Node$1;
-	first(visible?: boolean): Node$1;
-	last(visible?: boolean): Node$1;
-	visit<P>(visitor: NodeVisitor<P>, payload?: P): boolean | void;
-	append(...child: Node$1[]): this;
-	append(child: Node$1[]): this;
-	prepend(...child: Node$1[]): this;
-	prepend(child: Node$1[]): this;
-	appendTo(parent: Node$1): this;
-	prependTo(parent: Node$1): this;
-	insertNext(sibling: Node$1, more?: Node$1): this;
-	insertPrev(sibling: Node$1, more?: Node$1): this;
-	insertAfter(prev: Node$1): this;
-	insertBefore(next: Node$1): this;
-	remove(child?: Node$1, more?: any): this;
+	parent(): Component;
+	next(visible?: boolean): Component;
+	prev(visible?: boolean): Component;
+	first(visible?: boolean): Component;
+	last(visible?: boolean): Component;
+	visit<P>(visitor: ComponentVisitor<P>, payload?: P): boolean | void;
+	append(...child: Component[]): this;
+	append(child: Component[]): this;
+	prepend(...child: Component[]): this;
+	prepend(child: Component[]): this;
+	appendTo(parent: Component): this;
+	prependTo(parent: Component): this;
+	insertNext(sibling: Component, more?: Component): this;
+	insertPrev(sibling: Component, more?: Component): this;
+	insertAfter(prev: Component): this;
+	insertBefore(next: Component): this;
+	remove(child?: Component, more?: any): this;
 	empty(): this;
 	touch(): this;
 	/** @hidden */
@@ -337,14 +337,14 @@ declare class Node$1 implements Pinned {
 	render(context: CanvasRenderingContext2D): void;
 	/** @hidden */
 	renderTexture(context: CanvasRenderingContext2D): void;
-	tick(callback: NodeTickListener<this>, before?: boolean): void;
-	untick(callback: NodeTickListener<this>): void;
+	tick(callback: ComponentTickListener<this>, before?: boolean): void;
+	untick(callback: ComponentTickListener<this>): void;
 	timeout(callback: () => any, time: number): void;
 	setTimeout(callback: () => any, time: number): (t: number) => boolean;
-	clearTimeout(timer: NodeTickListener<this>): void;
-	on(types: string, listener: NodeEventListener<this>): this;
-	off(types: string, listener: NodeEventListener<this>): this;
-	listeners(type: string): NodeEventListener<Node$1>[];
+	clearTimeout(timer: ComponentTickListener<this>): void;
+	on(types: string, listener: ComponentEventListener<this>): this;
+	off(types: string, listener: ComponentEventListener<this>): this;
+	listeners(type: string): ComponentEventListener<Component>[];
 	publish(name: string, args?: any): number;
 	size(w: number, h: number): this;
 	width(w: number): this;
@@ -387,7 +387,7 @@ declare class Node$1 implements Pinned {
 	spacing(space: number): this;
 }
 export declare function sprite(frame?: TextureSelectionInput): Sprite;
-export declare class Sprite extends Node$1 {
+export declare class Sprite extends Component {
 	constructor();
 	texture(frame: TextureSelectionInput): this;
 	/** @deprecated */
@@ -399,10 +399,6 @@ export declare class Sprite extends Node$1 {
 	/** @hidden */
 	renderTexture(context: CanvasRenderingContext2D): void;
 }
-/** @hidden @deprecated */
-export declare const image: typeof sprite;
-/** @hidden @deprecated */
-declare const Image$1: typeof Sprite;
 export type CanvasTextureDrawer = (this: CanvasTexture) => void;
 export type CanvasTextureMemoizer = (this: CanvasTexture) => any;
 /** @hidden @deprecated */
@@ -490,7 +486,7 @@ export type Viewbox = {
 	height: number;
 	mode?: FitMode;
 };
-export declare class Root extends Node$1 {
+export declare class Root extends Component {
 	canvas: HTMLCanvasElement | null;
 	dom: HTMLCanvasElement | null;
 	context: CanvasRenderingContext2D | null;
@@ -527,7 +523,7 @@ export declare class Root extends Node$1 {
 	flipY(y: boolean): this;
 }
 export declare function anim(frames: string | TextureSelectionInputArray, fps?: number): Anim;
-export declare class Anim extends Node$1 {
+export declare class Anim extends Component {
 	constructor();
 	/** @hidden */
 	renderTexture(context: CanvasRenderingContext2D): void;
@@ -543,7 +539,7 @@ export declare class Anim extends Node$1 {
 	stop(frame?: number): this;
 }
 export declare function monotype(chars: string | Record<string, Texture> | ((char: string) => Texture)): Monotype;
-export declare class Monotype extends Node$1 {
+export declare class Monotype extends Component {
 	constructor();
 	/** @hidden */
 	renderTexture(context: CanvasRenderingContext2D): void;
@@ -554,14 +550,13 @@ export declare class Monotype extends Node$1 {
 	setValue(value: string | number | string[] | number[]): this;
 	value(value: string | number | string[] | number[]): this;
 }
-/** @hidden @deprecated */
-export declare const string: typeof monotype;
-/** @hidden @deprecated */
-export declare const Str: typeof Monotype;
 
 export {
-	Image$1 as Image,
-	Node$1 as Node,
+	Component as Node,
+	Monotype as Str,
+	Sprite as Image,
+	monotype as string,
+	sprite as image,
 };
 
 export {};

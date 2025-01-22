@@ -4,7 +4,7 @@
 
 ## Parameters
 
-• **this**: [`Node`](/api/classes/Node)
+• **this**: [`Component`](/api/classes/Component)
 
 ## Returns
 

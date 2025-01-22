@@ -1,6 +1,6 @@
 # Function: row()
 
-> **row**(`align`): [`Node`](/api/classes/Node)
+> **row**(`align`): [`Component`](/api/classes/Component)
 
 ## Parameters
 
@@ -8,4 +8,4 @@
 
 ## Returns
 
-[`Node`](/api/classes/Node)
+[`Component`](/api/classes/Component)

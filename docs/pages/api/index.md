@@ -5,10 +5,10 @@
 - [Anim](/api/classes/Anim)
 - [Atlas](/api/classes/Atlas)
 - [CanvasTexture](/api/classes/CanvasTexture)
+- [Component](/api/classes/Component)
 - [ImageTexture](/api/classes/ImageTexture)
 - [Matrix](/api/classes/Matrix)
 - [Monotype](/api/classes/Monotype)
-- [Node](/api/classes/Node)
 - [Pin](/api/classes/Pin)
 - [PipeTexture](/api/classes/PipeTexture)
 - [ResizableTexture](/api/classes/ResizableTexture)
@@ -27,9 +27,9 @@
 
 ## Type Aliases
 
+- [ComponentEventListener](/api/type-aliases/ComponentEventListener)
+- [ComponentTickListener](/api/type-aliases/ComponentTickListener)
 - [FitMode](/api/type-aliases/FitMode)
-- [NodeEventListener](/api/type-aliases/NodeEventListener)
-- [NodeTickListener](/api/type-aliases/NodeTickListener)
 - [ResizableTextureMode](/api/type-aliases/ResizableTextureMode)
 - [TextureSelectionInput](/api/type-aliases/TextureSelectionInput)
 - [TextureSelectionInputArray](/api/type-aliases/TextureSelectionInputArray)

@@ -1,6 +1,6 @@
-# Type Alias: NodeEventListener()\<T\>
+# Type Alias: ComponentEventListener()\<T\>
 
-> **NodeEventListener**\<`T`\>: (`this`, ...`args`) => `void`
+> **ComponentEventListener**\<`T`\>: (`this`, ...`args`) => `void`
 
 ## Type Parameters
 

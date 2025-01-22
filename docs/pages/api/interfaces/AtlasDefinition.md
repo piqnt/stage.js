@@ -22,21 +22,7 @@ Use map
 
 ### image?
 
-> `optional` **image**: `object`
-
-#### ratio?
-
-> `optional` **ratio**: `number`
-
-#### src
-
-> **src**: `string`
-
-#### ~~url~~
-
-> **url**: `string`
-
-##### Deprecated
+> `optional` **image**: `object` \| `object`
 
 ***
 
@@ -98,7 +84,7 @@ Use ppu
 
 ### textures?
 
-> `optional` **textures**: `Record`\<`string`, [`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition) \| `AtlasTextureReferenceMap` \| `AtlasTextureReferenceArray`\>
+> `optional` **textures**: `Record`\<`string`, [`Texture`](/api/classes/Texture) \| [`AtlasTextureDefinition`](/api/interfaces/AtlasTextureDefinition) \| `MonotypeAtlasTextureDefinition` \| `AnimAtlasTextureDefinition`\>
 
 ***
 

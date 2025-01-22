@@ -1,6 +1,6 @@
-# Type Alias: NodeTickListener()\<T\>
+# Type Alias: ComponentTickListener()\<T\>
 
-> **NodeTickListener**\<`T`\>: (`this`, `elapsed`, `now`, `last`) => `boolean` \| `void`
+> **ComponentTickListener**\<`T`\>: (`this`, `elapsed`, `now`, `last`) => `boolean` \| `void`
 
 ## Type Parameters
 

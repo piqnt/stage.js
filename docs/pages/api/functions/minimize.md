@@ -1,7 +1,7 @@
 # Function: minimize()
 
-> **minimize**(): [`Node`](/api/classes/Node)
+> **minimize**(): [`Component`](/api/classes/Component)
 
 ## Returns
 
-[`Node`](/api/classes/Node)
+[`Component`](/api/classes/Component)

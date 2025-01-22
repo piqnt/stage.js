@@ -12,7 +12,7 @@
 
 #### Parameters
 
-• **owner**: [`Node`](/api/classes/Node)
+• **owner**: [`Component`](/api/classes/Component)
 
 • **options**: [`TransitionOptions`](/api/type-aliases/TransitionOptions) = `{}`
 
@@ -287,6 +287,22 @@
 • **x**: `number`
 
 • **y**: `number`
+
+##### Returns
+
+`this`
+
+##### Implementation of
+
+`Pinned.scale`
+
+#### scale(s)
+
+> **scale**(`s`): `this`
+
+##### Parameters
+
+• **s**: `number`
 
 ##### Returns
 

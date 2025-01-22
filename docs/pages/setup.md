@@ -1,7 +1,7 @@
 ### Setup
 
 An application is created by calling `Stage.mount()`.
-This will set up the root node with a canvas element, start the application, and return the root node.
+This will set up the root component with a canvas element, start the application, and return the root component.
 
 ```javascript
 // Create and start an application (with a default full page canvas)

@@ -2,7 +2,7 @@
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.Stage = {}));
 })(this, function(exports2) {
   "use strict";/**
- * Stage.js v1.0.0-alpha.16
+ * Stage.js v1.0.0-alpha.17
  *
  * @copyright Copyright (c) 2025 Ali Shakiba
  * @license The MIT License (MIT)
@@ -387,7 +387,7 @@
   const stats = {
     create: 0,
     tick: 0,
-    node: 0,
+    component: 0,
     draw: 0,
     fps: 0
   };
@@ -469,11 +469,11 @@
         }
         return _this;
       }
-      ImageTexture2.prototype.setSourceImage = function(image2, pixelRatio) {
+      ImageTexture2.prototype.setSourceImage = function(image, pixelRatio) {
         if (pixelRatio === void 0) {
           pixelRatio = 1;
         }
-        this._source = image2;
+        this._source = image;
         this._pixelRatio = pixelRatio;
       };
       ImageTexture2.prototype.setPadding = function(padding) {
@@ -489,8 +489,8 @@
         return false;
       };
       ImageTexture2.prototype.drawWithNormalizedArgs = function(context, sx, sy, sw, sh, dx, dy, dw, dh) {
-        var image2 = this._source;
-        if (image2 === null || typeof image2 !== "object") {
+        var image = this._source;
+        if (image === null || typeof image !== "object") {
           return;
         }
         sw = sw !== null && sw !== void 0 ? sw : this._source.width / this._pixelRatio;
@@ -505,10 +505,10 @@
         var ih = sh * this._pixelRatio;
         try {
           stats.draw++;
-          context.drawImage(image2, ix, iy, iw, ih, dx, dy, dw, dh);
+          context.drawImage(image, ix, iy, iw, ih, dx, dy, dw, dh);
         } catch (ex) {
           if (!this._draw_failed) {
-            console.log("Unable to draw: ", image2);
+            console.log("Unable to draw: ", image);
             console.log(ex);
             this._draw_failed = true;
           }
@@ -647,15 +647,15 @@
       }
       Atlas2.prototype.load = function() {
         return __awaiter(this, void 0, void 0, function() {
-          var image2;
+          var image;
           return __generator(this, function(_a) {
             switch (_a.label) {
               case 0:
                 if (!this._imageSrc) return [3, 2];
                 return [4, asyncLoadImage(this._imageSrc)];
               case 1:
-                image2 = _a.sent();
-                this.setSourceImage(image2, this._pixelRatio);
+                image = _a.sent();
+                this.setSourceImage(image, this._pixelRatio);
                 _a.label = 2;
               case 2:
                 return [
@@ -1537,7 +1537,7 @@
         this._owner = owner;
         this._time = 0;
       }
-      Transition2.prototype.tick = function(node, elapsed, now, last) {
+      Transition2.prototype.tick = function(component2, elapsed, now, last) {
         this._time += elapsed;
         if (this._time < this._delay) {
           return;
@@ -1697,10 +1697,10 @@
       return Transition2;
     }()
   );
-  function pinning(node, map, key, value) {
-    if (typeof node.pin(key) === "number") {
+  function pinning(component2, map, key, value) {
+    if (typeof component2.pin(key) === "number") {
       map[key] = value;
-    } else if (typeof node.pin(key + "X") === "number" && typeof node.pin(key + "Y") === "number") {
+    } else if (typeof component2.pin(key + "X") === "number" && typeof component2.pin(key + "Y") === "number") {
       map[key + "X"] = value;
       map[key + "Y"] = value;
     }
@@ -1708,10 +1708,10 @@
   var iid = 0;
   stats.create = 0;
   function assertType(obj) {
-    if (obj && obj instanceof Node) {
+    if (obj && obj instanceof Component) {
       return obj;
     }
-    throw "Invalid node: " + obj;
+    throw "Invalid component: " + obj;
   }
   function create() {
     return component();
@@ -1726,26 +1726,26 @@
     return component();
   }
   function component() {
-    return new Node();
+    return new Component();
   }
   function row(align) {
-    return new Node().row(align).label("Row");
+    return new Component().row(align).label("Row");
   }
   function column(align) {
-    return new Node().column(align).label("Column");
+    return new Component().column(align).label("Column");
   }
   function minimize() {
-    return new Node().minimize().label("Minimize");
+    return new Component().minimize().label("Minimize");
   }
   function maximize() {
-    return new Node().maximize().label("Maximize");
+    return new Component().maximize().label("Maximize");
   }
-  var Node = (
+  var Component = (
     /** @class */
     function() {
-      function Node2() {
+      function Component2() {
         var _this = this;
-        this.uid = "node:" + uid();
+        this.uid = "component:" + uid();
         this._label = "";
         this._parent = null;
         this._next = null;
@@ -1790,11 +1790,11 @@
           return true;
         };
         stats.create++;
-        if (this instanceof Node2) {
+        if (this instanceof Component2) {
           this.label(this.constructor.name);
         }
       }
-      Node2.prototype.matrix = function(relative) {
+      Component2.prototype.matrix = function(relative) {
         if (relative === void 0) {
           relative = false;
         }
@@ -1803,22 +1803,22 @@
         }
         return this._pin.absoluteMatrix();
       };
-      Node2.prototype.getPixelRatio = function() {
+      Component2.prototype.getPixelRatio = function() {
         var _a;
         var m = (_a = this._parent) === null || _a === void 0 ? void 0 : _a.matrix();
         var pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getDevicePixelRatio();
         return pixelRatio;
       };
-      Node2.prototype.getDevicePixelRatio = function() {
+      Component2.prototype.getDevicePixelRatio = function() {
         var _a;
         var parentMatrix = (_a = this._parent) === null || _a === void 0 ? void 0 : _a.matrix();
         var pixelRatio = !parentMatrix ? 1 : Math.max(Math.abs(parentMatrix.a), Math.abs(parentMatrix.b));
         return pixelRatio;
       };
-      Node2.prototype.getLogicalPixelRatio = function() {
+      Component2.prototype.getLogicalPixelRatio = function() {
         return this.getDevicePixelRatio() / getDevicePixelRatio();
       };
-      Node2.prototype.pin = function(a, b) {
+      Component2.prototype.pin = function(a, b) {
         if (typeof a === "object") {
           this._pin.set(a);
           return this;
@@ -1833,7 +1833,7 @@
           return this._pin;
         }
       };
-      Node2.prototype.fit = function(a, b, c) {
+      Component2.prototype.fit = function(a, b, c) {
         if (typeof a === "object") {
           c = b;
           b = a.y;
@@ -1842,34 +1842,34 @@
         this._pin.fit(a, b, c);
         return this;
       };
-      Node2.prototype.scaleTo = function(a, b, c) {
+      Component2.prototype.scaleTo = function(a, b, c) {
         return this.fit(a, b, c);
       };
-      Node2.prototype.toString = function() {
+      Component2.prototype.toString = function() {
         return "[" + this._label + "]";
       };
-      Node2.prototype.id = function(label) {
+      Component2.prototype.id = function(label) {
         if (typeof label === "undefined") {
           return this._label;
         }
         this._label = label;
         return this;
       };
-      Node2.prototype.label = function(label) {
+      Component2.prototype.label = function(label) {
         if (typeof label === "undefined") {
           return this._label;
         }
         this._label = label;
         return this;
       };
-      Node2.prototype.attr = function(name, value) {
+      Component2.prototype.attr = function(name, value) {
         if (typeof value === "undefined") {
           return this._attrs !== null ? this._attrs[name] : void 0;
         }
         (this._attrs !== null ? this._attrs : this._attrs = {})[name] = value;
         return this;
       };
-      Node2.prototype.visible = function(visible) {
+      Component2.prototype.visible = function(visible) {
         if (typeof visible === "undefined") {
           return this._visible;
         }
@@ -1879,46 +1879,46 @@
         this.touch();
         return this;
       };
-      Node2.prototype.hide = function() {
+      Component2.prototype.hide = function() {
         this.visible(false);
         return this;
       };
-      Node2.prototype.show = function() {
+      Component2.prototype.show = function() {
         this.visible(true);
         return this;
       };
-      Node2.prototype.parent = function() {
+      Component2.prototype.parent = function() {
         return this._parent;
       };
-      Node2.prototype.next = function(visible) {
+      Component2.prototype.next = function(visible) {
         var next = this._next;
         while (next && visible && !next._visible) {
           next = next._next;
         }
         return next;
       };
-      Node2.prototype.prev = function(visible) {
+      Component2.prototype.prev = function(visible) {
         var prev = this._prev;
         while (prev && visible && !prev._visible) {
           prev = prev._prev;
         }
         return prev;
       };
-      Node2.prototype.first = function(visible) {
+      Component2.prototype.first = function(visible) {
         var next = this._first;
         while (next && visible && !next._visible) {
           next = next._next;
         }
         return next;
       };
-      Node2.prototype.last = function(visible) {
+      Component2.prototype.last = function(visible) {
         var prev = this._last;
         while (prev && visible && !prev._visible) {
           prev = prev._prev;
         }
         return prev;
       };
-      Node2.prototype.visit = function(visitor, payload) {
+      Component2.prototype.visit = function(visitor, payload) {
         var reverse = visitor.reverse;
         var visible = visitor.visible;
         if (visitor.start && visitor.start(this, payload)) {
@@ -1934,77 +1934,77 @@
         }
         return visitor.end && visitor.end(this, payload);
       };
-      Node2.prototype.append = function(child, more) {
+      Component2.prototype.append = function(child, more) {
         if (Array.isArray(child)) {
           for (var i = 0; i < child.length; i++) {
-            Node2.append(this, child[i]);
+            Component2.append(this, child[i]);
           }
         } else if (typeof more !== "undefined") {
           for (var i = 0; i < arguments.length; i++) {
-            Node2.append(this, arguments[i]);
+            Component2.append(this, arguments[i]);
           }
         } else if (typeof child !== "undefined")
-          Node2.append(this, child);
+          Component2.append(this, child);
         return this;
       };
-      Node2.prototype.prepend = function(child, more) {
+      Component2.prototype.prepend = function(child, more) {
         if (Array.isArray(child)) {
           for (var i = child.length - 1; i >= 0; i--) {
-            Node2.prepend(this, child[i]);
+            Component2.prepend(this, child[i]);
           }
         } else if (typeof more !== "undefined") {
           for (var i = arguments.length - 1; i >= 0; i--) {
-            Node2.prepend(this, arguments[i]);
+            Component2.prepend(this, arguments[i]);
           }
         } else if (typeof child !== "undefined")
-          Node2.prepend(this, child);
+          Component2.prepend(this, child);
         return this;
       };
-      Node2.prototype.appendTo = function(parent) {
-        Node2.append(parent, this);
+      Component2.prototype.appendTo = function(parent) {
+        Component2.append(parent, this);
         return this;
       };
-      Node2.prototype.prependTo = function(parent) {
-        Node2.prepend(parent, this);
+      Component2.prototype.prependTo = function(parent) {
+        Component2.prepend(parent, this);
         return this;
       };
-      Node2.prototype.insertNext = function(sibling, more) {
+      Component2.prototype.insertNext = function(sibling, more) {
         if (Array.isArray(sibling)) {
           for (var i = 0; i < sibling.length; i++) {
-            Node2.insertAfter(sibling[i], this);
+            Component2.insertAfter(sibling[i], this);
           }
         } else if (typeof more !== "undefined") {
           for (var i = 0; i < arguments.length; i++) {
-            Node2.insertAfter(arguments[i], this);
+            Component2.insertAfter(arguments[i], this);
           }
         } else if (typeof sibling !== "undefined") {
-          Node2.insertAfter(sibling, this);
+          Component2.insertAfter(sibling, this);
         }
         return this;
       };
-      Node2.prototype.insertPrev = function(sibling, more) {
+      Component2.prototype.insertPrev = function(sibling, more) {
         if (Array.isArray(sibling)) {
           for (var i = sibling.length - 1; i >= 0; i--) {
-            Node2.insertBefore(sibling[i], this);
+            Component2.insertBefore(sibling[i], this);
           }
         } else if (typeof more !== "undefined") {
           for (var i = arguments.length - 1; i >= 0; i--) {
-            Node2.insertBefore(arguments[i], this);
+            Component2.insertBefore(arguments[i], this);
           }
         } else if (typeof sibling !== "undefined") {
-          Node2.insertBefore(sibling, this);
+          Component2.insertBefore(sibling, this);
         }
         return this;
       };
-      Node2.prototype.insertAfter = function(prev) {
-        Node2.insertAfter(this, prev);
+      Component2.prototype.insertAfter = function(prev) {
+        Component2.insertAfter(this, prev);
         return this;
       };
-      Node2.prototype.insertBefore = function(next) {
-        Node2.insertBefore(this, next);
+      Component2.prototype.insertBefore = function(next) {
+        Component2.insertBefore(this, next);
         return this;
       };
-      Node2.append = function(parent, child) {
+      Component2.append = function(parent, child) {
         assertType(child);
         assertType(parent);
         child.remove();
@@ -2022,7 +2022,7 @@
         parent._ts_children = ++iid;
         parent.touch();
       };
-      Node2.prepend = function(parent, child) {
+      Component2.prepend = function(parent, child) {
         assertType(child);
         assertType(parent);
         child.remove();
@@ -2040,7 +2040,7 @@
         parent._ts_children = ++iid;
         parent.touch();
       };
-      Node2.insertBefore = function(self2, next) {
+      Component2.insertBefore = function(self2, next) {
         assertType(self2);
         assertType(next);
         self2.remove();
@@ -2058,7 +2058,7 @@
         self2._ts_parent = ++iid;
         self2.touch();
       };
-      Node2.insertAfter = function(self2, prev) {
+      Component2.insertAfter = function(self2, prev) {
         assertType(self2);
         assertType(prev);
         self2.remove();
@@ -2076,7 +2076,7 @@
         self2._ts_parent = ++iid;
         self2.touch();
       };
-      Node2.prototype.remove = function(child, more) {
+      Component2.prototype.remove = function(child, more) {
         if (typeof child !== "undefined") {
           if (Array.isArray(child)) {
             for (var i = 0; i < child.length; i++) {
@@ -2112,7 +2112,7 @@
         this._ts_parent = ++iid;
         return this;
       };
-      Node2.prototype.empty = function() {
+      Component2.prototype.empty = function() {
         var child = null;
         var next = this._first;
         while (child = next) {
@@ -2125,12 +2125,12 @@
         this.touch();
         return this;
       };
-      Node2.prototype.touch = function() {
+      Component2.prototype.touch = function() {
         this._ts_touch = ++iid;
         this._parent && this._parent.touch();
         return this;
       };
-      Node2.prototype._flag = function(key, value) {
+      Component2.prototype._flag = function(key, value) {
         if (typeof value === "undefined") {
           return this._flags !== null && this._flags[key] || 0;
         }
@@ -2159,12 +2159,12 @@
         }
         return this;
       };
-      Node2.prototype.hitTest = function(hit) {
+      Component2.prototype.hitTest = function(hit) {
         var width = this._pin._width;
         var height = this._pin._height;
         return hit.x >= 0 && hit.x <= width && hit.y >= 0 && hit.y <= height;
       };
-      Node2.prototype.prerender = function() {
+      Component2.prototype.prerender = function() {
         if (!this._visible) {
           return;
         }
@@ -2176,13 +2176,13 @@
           child.prerender();
         }
       };
-      Node2.prototype.prerenderTexture = function() {
+      Component2.prototype.prerenderTexture = function() {
       };
-      Node2.prototype.render = function(context) {
+      Component2.prototype.render = function(context) {
         if (!this._visible) {
           return;
         }
-        stats.node++;
+        stats.component++;
         var m = this.matrix();
         context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
         this._alpha = this._pin._alpha * (this._parent ? this._parent._alpha : 1);
@@ -2205,9 +2205,9 @@
           child.render(context);
         }
       };
-      Node2.prototype.renderTexture = function(context) {
+      Component2.prototype.renderTexture = function(context) {
       };
-      Node2.prototype._tick = function(elapsed, now, last) {
+      Component2.prototype._tick = function(elapsed, now, last) {
         if (!this._visible) {
           return;
         }
@@ -2239,7 +2239,7 @@
         }
         return ticked;
       };
-      Node2.prototype.tick = function(callback, before) {
+      Component2.prototype.tick = function(callback, before) {
         var _a, _b;
         if (before === void 0) {
           before = false;
@@ -2261,7 +2261,7 @@
         var hasTickListener = ((_a = this._tickAfter) === null || _a === void 0 ? void 0 : _a.length) > 0 || ((_b = this._tickBefore) === null || _b === void 0 ? void 0 : _b.length) > 0;
         this._flag("_tick", hasTickListener);
       };
-      Node2.prototype.untick = function(callback) {
+      Component2.prototype.untick = function(callback) {
         if (typeof callback !== "function") {
           return;
         }
@@ -2273,10 +2273,10 @@
           this._tickAfter.splice(i, 1);
         }
       };
-      Node2.prototype.timeout = function(callback, time) {
+      Component2.prototype.timeout = function(callback, time) {
         this.setTimeout(callback, time);
       };
-      Node2.prototype.setTimeout = function(callback, time) {
+      Component2.prototype.setTimeout = function(callback, time) {
         function timer(t) {
           if ((time -= t) < 0) {
             this.untick(timer);
@@ -2288,10 +2288,10 @@
         this.tick(timer);
         return timer;
       };
-      Node2.prototype.clearTimeout = function(timer) {
+      Component2.prototype.clearTimeout = function(timer) {
         this.untick(timer);
       };
-      Node2.prototype.on = function(type, listener) {
+      Component2.prototype.on = function(type, listener) {
         if (!type || !type.length || typeof listener !== "function") {
           return this;
         }
@@ -2309,7 +2309,7 @@
         } else ;
         return this;
       };
-      Node2.prototype._on = function(type, listener) {
+      Component2.prototype._on = function(type, listener) {
         if (typeof type !== "string" && typeof listener !== "function") {
           return;
         }
@@ -2317,7 +2317,7 @@
         this._listeners[type].push(listener);
         this._flag(type, true);
       };
-      Node2.prototype.off = function(type, listener) {
+      Component2.prototype.off = function(type, listener) {
         if (!type || !type.length || typeof listener !== "function") {
           return this;
         }
@@ -2335,7 +2335,7 @@
         } else ;
         return this;
       };
-      Node2.prototype._off = function(type, listener) {
+      Component2.prototype._off = function(type, listener) {
         if (typeof type !== "string" && typeof listener !== "function") {
           return;
         }
@@ -2349,10 +2349,10 @@
           this._flag(type, false);
         }
       };
-      Node2.prototype.listeners = function(type) {
+      Component2.prototype.listeners = function(type) {
         return this._listeners[type];
       };
-      Node2.prototype.publish = function(name, args) {
+      Component2.prototype.publish = function(name, args) {
         var listeners = this.listeners(name);
         if (!listeners || !listeners.length) {
           return 0;
@@ -2362,30 +2362,30 @@
         }
         return listeners.length;
       };
-      Node2.prototype.trigger = function(name, args) {
+      Component2.prototype.trigger = function(name, args) {
         this.publish(name, args);
         return this;
       };
-      Node2.prototype.size = function(w, h) {
+      Component2.prototype.size = function(w, h) {
         this.pin("width", w);
         this.pin("height", h);
         return this;
       };
-      Node2.prototype.width = function(w) {
+      Component2.prototype.width = function(w) {
         if (typeof w === "undefined") {
           return this.pin("width");
         }
         this.pin("width", w);
         return this;
       };
-      Node2.prototype.height = function(h) {
+      Component2.prototype.height = function(h) {
         if (typeof h === "undefined") {
           return this.pin("height");
         }
         this.pin("height", h);
         return this;
       };
-      Node2.prototype.offset = function(a, b) {
+      Component2.prototype.offset = function(a, b) {
         if (typeof a === "object") {
           b = a.y;
           a = a.x;
@@ -2394,11 +2394,11 @@
         this.pin("offsetY", b);
         return this;
       };
-      Node2.prototype.rotate = function(a) {
+      Component2.prototype.rotate = function(a) {
         this.pin("rotation", a);
         return this;
       };
-      Node2.prototype.skew = function(a, b) {
+      Component2.prototype.skew = function(a, b) {
         if (typeof a === "object") {
           b = a.y;
           a = a.x;
@@ -2408,7 +2408,7 @@
         this.pin("skewY", b);
         return this;
       };
-      Node2.prototype.scale = function(a, b) {
+      Component2.prototype.scale = function(a, b) {
         if (typeof a === "object") {
           b = a.y;
           a = a.x;
@@ -2418,14 +2418,14 @@
         this.pin("scaleY", b);
         return this;
       };
-      Node2.prototype.alpha = function(a, ta) {
+      Component2.prototype.alpha = function(a, ta) {
         this.pin("alpha", a);
         if (typeof ta !== "undefined") {
           this.pin("textureAlpha", ta);
         }
         return this;
       };
-      Node2.prototype.tween = function(a, b, c) {
+      Component2.prototype.tween = function(a, b, c) {
         var options;
         if (typeof a === "object" && a !== null) {
           options = a;
@@ -2457,15 +2457,15 @@
         this._transitions.push(transition);
         return transition;
       };
-      Node2.prototype.row = function(align) {
+      Component2.prototype.row = function(align) {
         this.align("row", align);
         return this;
       };
-      Node2.prototype.column = function(align) {
+      Component2.prototype.column = function(align) {
         this.align("column", align);
         return this;
       };
-      Node2.prototype.align = function(type, align) {
+      Component2.prototype.align = function(type, align) {
         var _this = this;
         this._padding = this._padding;
         this._spacing = this._spacing;
@@ -2509,13 +2509,13 @@
         });
         return this;
       };
-      Node2.prototype.box = function() {
+      Component2.prototype.box = function() {
         return this.minimize();
       };
-      Node2.prototype.layer = function() {
+      Component2.prototype.layer = function() {
         return this.maximize();
       };
-      Node2.prototype.minimize = function() {
+      Component2.prototype.minimize = function() {
         var _this = this;
         this._padding = this._padding;
         this._layoutTicker && this.untick(this._layoutTicker);
@@ -2543,7 +2543,7 @@
         });
         return this;
       };
-      Node2.prototype.maximize = function() {
+      Component2.prototype.maximize = function() {
         var _this = this;
         this._layoutTicker && this.untick(this._layoutTicker);
         this.tick(this._layoutTicker = function() {
@@ -2561,15 +2561,15 @@
         }, true);
         return this;
       };
-      Node2.prototype.padding = function(pad) {
+      Component2.prototype.padding = function(pad) {
         this._padding = pad;
         return this;
       };
-      Node2.prototype.spacing = function(space) {
+      Component2.prototype.spacing = function(space) {
         this._spacing = space;
         return this;
       };
-      return Node2;
+      return Component2;
     }()
   );
   function sprite(frame) {
@@ -2647,10 +2647,8 @@
         this._texture.draw(context);
       };
       return Sprite2;
-    }(Node)
+    }(Component)
   );
-  var image = sprite;
-  var Image$1 = Sprite;
   var CanvasTexture = (
     /** @class */
     function(_super) {
@@ -2883,31 +2881,31 @@
           }
           _this.clickList.length = 0;
         };
-        this.visitStart = function(node, payload) {
-          return !node._flag(payload.type);
+        this.visitStart = function(component2, payload) {
+          return !component2._flag(payload.type);
         };
-        this.visitEnd = function(node, payload) {
+        this.visitEnd = function(component2, payload) {
           syntheticEvent.raw = payload.event;
           syntheticEvent.type = payload.type;
           syntheticEvent.timeStamp = payload.timeStamp;
           syntheticEvent.abs.x = payload.x;
           syntheticEvent.abs.y = payload.y;
-          var listeners = node.listeners(payload.type);
+          var listeners = component2.listeners(payload.type);
           if (!listeners) {
             return;
           }
-          node.matrix().inverse().map(payload, syntheticEvent);
-          var isEventTarget = node === payload.root || node.attr("spy") || node.hitTest(syntheticEvent);
+          component2.matrix().inverse().map(payload, syntheticEvent);
+          var isEventTarget = component2 === payload.root || component2.attr("spy") || component2.hitTest(syntheticEvent);
           if (!isEventTarget) {
             return;
           }
           if (payload.collected) {
-            payload.collected.push(node);
+            payload.collected.push(component2);
           }
           if (payload.event) {
             var stop_1 = false;
             for (var l = 0; l < listeners.length; l++) {
-              stop_1 = listeners[l].call(node, syntheticEvent) ? true : stop_1;
+              stop_1 = listeners[l].call(component2, syntheticEvent) ? true : stop_1;
             }
             return stop_1;
           }
@@ -2992,8 +2990,8 @@
         }
         if (targets) {
           while (targets.length) {
-            var node = targets.shift();
-            if (this.visitEnd(node, payload)) {
+            var component2 = targets.shift();
+            if (this.visitEnd(component2, payload)) {
               break;
             }
           }
@@ -3248,11 +3246,11 @@
           this.viewbox();
           var data_1 = Object.assign({}, this._viewport);
           this.visit({
-            start: function(node) {
-              if (!node._flag("viewport")) {
+            start: function(component2) {
+              if (!component2._flag("viewport")) {
                 return true;
               }
-              node.publish("viewport", [data_1]);
+              component2.publish("viewport", [data_1]);
             }
           });
         }
@@ -3320,7 +3318,7 @@
         return this;
       };
       return Root2;
-    }(Node)
+    }(Component)
   );
   function anim(frames, fps) {
     var anim2 = new Anim();
@@ -3436,7 +3434,7 @@
         return this;
       };
       return Anim2;
-    }(Node)
+    }(Component)
   );
   function monotype(chars) {
     return new Monotype().frames(chars);
@@ -3510,22 +3508,21 @@
         return this;
       };
       return Monotype2;
-    }(Node)
+    }(Component)
   );
-  var string = monotype;
-  var Str = Monotype;
   const Stage = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
     __proto__: null,
     Anim,
     Atlas,
     CanvasTexture,
-    Image: Image$1,
+    Component,
+    Image: Sprite,
     ImageTexture,
     Math: math,
     Matrix,
     Monotype,
     Mouse,
-    Node,
+    Node: Component,
     POINTER_CANCEL,
     POINTER_CLICK,
     POINTER_DOWN,
@@ -3539,7 +3536,7 @@
     ResizableTexture,
     Root,
     Sprite,
-    Str,
+    Str: Monotype,
     Texture,
     TextureSelection,
     Transition,
@@ -3551,7 +3548,7 @@
     column,
     component,
     create,
-    image,
+    image: sprite,
     isValidFitMode,
     layer,
     layout,
@@ -3567,20 +3564,21 @@
     resume,
     row,
     sprite,
-    string,
+    string: monotype,
     texture,
     wrap
   }, Symbol.toStringTag, { value: "Module" }));
   exports2.Anim = Anim;
   exports2.Atlas = Atlas;
   exports2.CanvasTexture = CanvasTexture;
-  exports2.Image = Image$1;
+  exports2.Component = Component;
+  exports2.Image = Sprite;
   exports2.ImageTexture = ImageTexture;
   exports2.Math = math;
   exports2.Matrix = Matrix;
   exports2.Monotype = Monotype;
   exports2.Mouse = Mouse;
-  exports2.Node = Node;
+  exports2.Node = Component;
   exports2.POINTER_CANCEL = POINTER_CANCEL;
   exports2.POINTER_CLICK = POINTER_CLICK;
   exports2.POINTER_DOWN = POINTER_DOWN;
@@ -3594,7 +3592,7 @@
   exports2.ResizableTexture = ResizableTexture;
   exports2.Root = Root;
   exports2.Sprite = Sprite;
-  exports2.Str = Str;
+  exports2.Str = Monotype;
   exports2.Texture = Texture;
   exports2.TextureSelection = TextureSelection;
   exports2.Transition = Transition;
@@ -3607,7 +3605,7 @@
   exports2.component = component;
   exports2.create = create;
   exports2.default = Stage;
-  exports2.image = image;
+  exports2.image = sprite;
   exports2.isValidFitMode = isValidFitMode;
   exports2.layer = layer;
   exports2.layout = layout;
@@ -3623,7 +3621,7 @@
   exports2.resume = resume;
   exports2.row = row;
   exports2.sprite = sprite;
-  exports2.string = string;
+  exports2.string = monotype;
   exports2.texture = texture;
   exports2.wrap = wrap;
   Object.defineProperties(exports2, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });

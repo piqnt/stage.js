@@ -1,6 +1,6 @@
 # Function: column()
 
-> **column**(`align`): [`Node`](/api/classes/Node)
+> **column**(`align`): [`Component`](/api/classes/Component)
 
 ## Parameters
 
@@ -8,4 +8,4 @@
 
 ## Returns
 
-[`Node`](/api/classes/Node)
+[`Component`](/api/classes/Component)
