@@ -7,13 +7,13 @@ export default defineConfig({
   baseUrl: "/stage.js/docs/",
   topNav: [ 
     { text: 'API Reference', link: '/api/'},
-    { text: 'GitHub', link: 'https://github.com/piqnt/stage.js/'},
-    { text: 'Discord', link: 'https://discord.gg/7B5e7MXFxQ'},
+    { text: 'GitHub ↗', link: 'https://github.com/piqnt/stage.js/'},
+    { text: 'Discord ↗', link: 'https://discord.gg/7B5e7MXFxQ'},
   ],
   sidebar: [
     {
       text: 'Getting Started',
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           text: 'Introduction',
@@ -31,7 +31,7 @@ export default defineConfig({
     },
     {
       text: 'Core',
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           text: 'Setup',
@@ -49,7 +49,7 @@ export default defineConfig({
     },
     {
       text: 'Texture',
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           text: 'Texture',
@@ -75,7 +75,7 @@ export default defineConfig({
     },
     {
       text: 'Layout',
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           text: 'Component Tree',
@@ -104,8 +104,8 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
-          text: 'V1.0 - Work in Progress',
-          link: '/news/v1-0',
+          text: 'v1.0 - Work in Progress',
+          link: '/news/v1.0',
         },
       ],
     },
