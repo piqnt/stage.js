@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-alpha.18
+
+### Patch Changes
+
+- 90592c4: Update license header
+- 091ab81: Add publish action
+
 ## 1.0.0-alpha.17
 
 ### Patch Changes

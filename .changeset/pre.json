@@ -5,9 +5,11 @@
     "stage-js": "1.0.0-alpha.13"
   },
   "changesets": [
+    "bright-elephants-brush",
     "five-bobcats-approve",
     "lazy-peas-rest",
     "nine-elephants-poke",
+    "stale-parrots-dance",
     "two-llamas-ring"
   ]
 }
