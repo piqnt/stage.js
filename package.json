@@ -3,11 +3,11 @@
   "version": "1.0.0-alpha.18",
   "description": "2D HTML5 Rendering and Layout",
   "homepage": "http://piqnt.com/stage.js/",
-  "author": "Ali Shakiba (http://shakiba.me/stage.js)",
+  "author": "Ali Shakiba",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/shakiba/stage.js.git"
+    "url": "git://github.com/piqnt/stage.js.git"
   },
   "keywords": [
     "html5",
