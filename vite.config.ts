@@ -40,7 +40,7 @@ function getLicense() {
   const year = new Date().getFullYear();
   const license = `
 Stage.js v${version ?? "?"}
-@copyright Copyright ${year} Ali Shakiba
+@copyright Copyright Ali Shakiba
 @license Licensed under the MIT (https://github.com/piqnt/stage.js/blob/main/LICENSE.md)
   `;
   return license;
