@@ -1,7 +1,7 @@
 import { Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
 
-import { Easing, EasingFunction, EasingFunctionName } from "./easing";
+import { Easing, EasingFunction, EasingName, EasingFunctionQuery, IDENTITY } from "./easing";
 import { Component } from "./component";
 import { Pinned } from "./pin";
 
@@ -56,7 +56,7 @@ export class Transition implements Pinned {
     if (!this._start) {
       this._start = {};
       for (const key in this._end) {
-        this._start[key] = this._owner.pin(key);
+        this._start[key] = this._owner._pin.get(key);
       }
     }
 
@@ -70,7 +70,7 @@ export class Transition implements Pinned {
     const q = 1 - p;
 
     for (const key in this._end) {
-      this._owner.pin(key, this._start[key] * q + this._end[key] * p);
+      this._owner._pin.set(key, this._start[key] * q + this._end[key] * p);
     }
 
     return ended;
@@ -117,8 +117,13 @@ export class Transition implements Pinned {
     return this;
   }
 
-  ease(easing: EasingFunctionName | EasingFunction) {
-    this._easing = Easing.get(easing);
+  ease(easing: EasingName, ...params: number[]): this;
+  ease(easing: (p: number) => number): this;
+  /** @hidden */
+  ease(easing: EasingFunctionQuery): this;
+  /** @hidden */
+  ease(easing: EasingFunctionQuery | EasingFunction, ...params: number[]) {
+    this._easing = Easing.init(easing, params) ?? IDENTITY;
     return this;
   }
 
@@ -263,9 +268,12 @@ export class Transition implements Pinned {
 
 /** @internal */
 function pinning(component: Component, map: object, key: string, value: number) {
-  if (typeof component.pin(key) === "number") {
+  if (typeof component._pin.get(key) === "number") {
     map[key] = value;
-  } else if (typeof component.pin(key + "X") === "number" && typeof component.pin(key + "Y") === "number") {
+  } else if (
+    typeof component._pin.get(key + "X") === "number" &&
+    typeof component._pin.get(key + "Y") === "number"
+  ) {
     map[key + "X"] = value;
     map[key + "Y"] = value;
   }

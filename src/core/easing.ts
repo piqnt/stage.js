@@ -1,235 +1,250 @@
 /** @internal */
-function IDENTITY(x: any) {
+export const IDENTITY = (x: any) => {
   return x;
-}
+};
 
-/**
- * Easing function formats are:
- * - [name]
- * - [name\]([params])
- * - [name]-[mode]
- * - [name]-[mode\]([params])
- *
- * Easing function names are 'linear', 'quad', 'cubic', 'quart', 'quint', 'sin' (or 'sine'), 'exp' (or 'expo'), 'circle' (or 'circ'), 'bounce', 'poly', 'elastic', 'back'.
- *
- * Easing modes are 'in', 'out', 'in-out', 'out-in'.
- *
- * For example, 'linear', 'cubic-in', and 'poly(2)'.
- */
-export type EasingFunctionName = string;
+export type EasingFunctionQuery = string;
 
 export type EasingFunction = (p: number) => number;
-/** @internal */
-type EasingFunctionFactory = (...paras: any[]) => EasingFunction;
 
 /** @internal */
-type EasingMode = (f: EasingFunction) => EasingFunction;
+type EasingFactories = (...params: any[]) => EasingFunction;
 
-/** @internal */
-type EasingType =
-  | {
-      name: string;
-      fn: EasingFunction;
-    }
-  | {
-      name: string;
-      fc: EasingFunctionFactory;
-    };
-
-/** @internal */ const LOOKUP_CACHE: Record<string, EasingFunction> = {};
-/** @internal */ const MODE_BY_NAME: Record<string, EasingMode> = {};
-
-// split this to functions and factories
-/** @internal */ const EASE_BY_NAME: Record<string, EasingType> = {};
-
-// todo: make easing names and list statics?
 // todo: pass additional params as ...rest, instead of factories/curring? (`fc`)
-// todo: simplify add functions as (name, fn)?
 
 export class Easing {
-  static get(
-    token: EasingFunctionName | EasingFunction,
-    fallback?: EasingFunction,
-  ): EasingFunction {
-    fallback = fallback || IDENTITY;
-    if (typeof token === "function") {
-      return token;
-    }
-    if (typeof token !== "string") {
-      return fallback;
-    }
-    let easeFn = LOOKUP_CACHE[token];
-    if (easeFn) {
-      return easeFn;
-    }
-    const tokens = /^(\w+)(-(in|out|in-out|out-in))?(\((.*)\))?$/i.exec(token);
-    if (!tokens || !tokens.length) {
-      return fallback;
-    }
+  static init(
+    query: EasingName | EasingFunctionQuery | EasingFunction,
+    params?: number[],
+  ): EasingFunction | undefined {
+    if (typeof query === "function") return query;
+    if (typeof query !== "string") return undefined;
 
-    const easeName = tokens[1];
-    const easing = EASE_BY_NAME[easeName];
-
-    const modeName = tokens[3];
-    const modeFn = MODE_BY_NAME[modeName];
-
-    const params = tokens[5];
-
-    if (!easing) {
-      easeFn = fallback;
-    } else if ("fn" in easing && typeof easing.fn === "function") {
-      easeFn = easing.fn;
-    } else if ("fc" in easing && typeof easing.fc === "function") {
-      const args = params ? params.replace(/\s+/, "").split(",") : undefined;
-      easeFn = easing.fc.apply(easing.fc, args);
+    let easing: EasingFunction;
+    if (query.indexOf("(") === -1) {
+      easing = initEasing(query, params);
     } else {
-      easeFn = fallback;
+      const tokens = /^((\w|-)+)?(\((.*)\))?$/i.exec(query);
+      if (tokens || tokens.length) {
+        const name2 = tokens[1];
+        const params2 = JSON.parse("[" + tokens[4] + "]") as number[];
+        easing = initEasing(name2, params2);
+      }
     }
 
-    if (modeFn) {
-      easeFn = modeFn(easeFn);
-    }
-    // TODO: It can be a memory leak with different `params`.
-    LOOKUP_CACHE[token] = easeFn;
-
-    return easeFn;
+    return easing;
   }
 }
 
 /** @internal */
-function addMode(name: string, fn: EasingMode) {
-  MODE_BY_NAME[name] = fn;
-}
-
-/** @internal */
-function addEaseFn(data: EasingType) {
-  const names = data.name.split(/\s+/);
-  for (let i = 0; i < names.length; i++) {
-    const key = names[i];
-    if (key) {
-      EASE_BY_NAME[key] = data;
+const initEasing = (query: string, params?: number[]): EasingFunction => {
+  let easing: EasingFunction;
+  const easingFunction = EasingFunctions[query];
+  const easingFactory = EasingFactories[query];
+  if (easingFunction) {
+    easing = easingFunction;
+  } else if (easingFactory) {
+    if (params) {
+      easing = easingFactory.apply(null, params);
+    } else {
+      easing = easingFactory();
     }
   }
-}
+  return easing;
+};
 
-addMode("in", function (f: EasingFunction) {
-  return f;
-});
+/** @internal */ const out = (f: EasingFunction) => (t: number) => 1 - f(1 - t);
+/** @internal */ const inOut = (f: EasingFunction) => (t: number) =>
+  t < 0.5 ? f(2 * t) / 2 : 1 - f(2 * (1 - t)) / 2;
+/** @internal */ const outIn = (f: EasingFunction) => (t: number) =>
+  t < 0.5 ? 1 - f(2 * (1 - t)) / 2 : f(2 * t) / 2;
 
-addMode("out", function (f: EasingFunction) {
-  return function (t: number) {
-    return 1 - f(1 - t);
-  };
-});
+/** @internal */ const linear: EasingFunction = (t: number) => t;
+/** @internal */ const quad: EasingFunction = (t: number) => t * t;
+/** @internal */ const cubic: EasingFunction = (t: number) => t * t * t;
+/** @internal */ const quart: EasingFunction = (t: number) => t * t * t * t;
+/** @internal */ const quint: EasingFunction = (t: number) => t * t * t * t * t;
+/** @internal */ const sin: EasingFunction = (t: number) => 1 - Math.cos((t * Math.PI) / 2);
+/** @internal */ const exp: EasingFunction = (t: number) =>
+  t == 0 ? 0 : Math.pow(2, 10 * (t - 1));
+/** @internal */ const circle: EasingFunction = (t: number) => 1 - Math.sqrt(1 - t * t);
+/** @internal */ const bounce: EasingFunction = (t: number) =>
+  t < 1 / 2.75
+    ? 7.5625 * t * t
+    : t < 2 / 2.75
+      ? 7.5625 * (t -= 1.5 / 2.75) * t + 0.75
+      : t < 2.5 / 2.75
+        ? 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375
+        : 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
 
-addMode("in-out", function (f: EasingFunction) {
-  return function (t: number) {
-    return t < 0.5 ? f(2 * t) / 2 : 1 - f(2 * (1 - t)) / 2;
-  };
-});
+/** @internal */ const poly =
+  (e: number): EasingFunction =>
+  (t: number) =>
+    Math.pow(t, e);
 
-addMode("out-in", function (f: EasingFunction) {
-  return function (t: number) {
-    return t < 0.5 ? 1 - f(2 * (1 - t)) / 2 : f(2 * t) / 2;
-  };
-});
+/** @internal */ const elastic = (a: number = 1, p: number = 0.45): EasingFunction => {
+  /** @internal */ const s = (p / (2 * Math.PI)) * Math.asin(1 / a);
+  return (t: number) => 1 + a * Math.pow(2, -10 * t) * Math.sin(((t - s) * (2 * Math.PI)) / p);
+};
 
-addEaseFn({
-  name: "linear",
-  fn: function (t: number) {
-    return t;
-  },
-});
+/** @internal */ const back = (s: number = 1.70158): EasingFunction => {
+  return (t: number) => t * t * ((s + 1) * t - s);
+};
 
-addEaseFn({
-  name: "quad",
-  fn: function (t: number) {
-    return t * t;
-  },
-});
+/** @internal */ const EasingFunctions = {
+  "linear": linear,
+  "linear-in": linear,
+  "linear-out": out(linear),
+  "linear-in-out": inOut(linear),
+  "linear-out-in": outIn(linear),
+  "quad": quad,
+  "quad-in": quad,
+  "quad-out": out(quad),
+  "quad-in-out": inOut(quad),
+  "quad-out-in": outIn(quad),
+  "cubic": cubic,
+  "cubic-in": cubic,
+  "cubic-out": out(cubic),
+  "cubic-in-out": inOut(cubic),
+  "cubic-out-in": outIn(cubic),
+  "quart": quart,
+  "quart-in": quart,
+  "quart-out": out(quart),
+  "quart-in-out": inOut(quart),
+  "quart-out-in": outIn(quart),
+  "quint": quint,
+  "quint-in": quint,
+  "quint-out": out(quint),
+  "quint-in-out": inOut(quint),
+  "quint-out-in": outIn(quint),
+  "sin": sin,
+  "sin-in": sin,
+  "sin-out": out(sin),
+  "sin-in-out": inOut(sin),
+  "sin-out-in": outIn(sin),
+  "sine": sin,
+  "sine-in": sin,
+  "sine-out": out(sin),
+  "sine-in-out": inOut(sin),
+  "sine-out-in": outIn(sin),
+  "exp": exp,
+  "exp-in": exp,
+  "exp-out": out(exp),
+  "exp-in-out": inOut(exp),
+  "exp-out-in": outIn(exp),
+  "expo": exp,
+  "expo-in": exp,
+  "expo-out": out(exp),
+  "expo-in-out": inOut(exp),
+  "expo-out-in": outIn(exp),
+  "circle": circle,
+  "circle-in": circle,
+  "circle-out": out(circle),
+  "circle-in-out": inOut(circle),
+  "circle-out-in": outIn(circle),
+  "circ": circle,
+  "circ-in": circle,
+  "circ-out": out(circle),
+  "circ-in-out": inOut(circle),
+  "circ-out-in": outIn(circle),
+  "bounce": bounce,
+  "bounce-in": bounce,
+  "bounce-out": out(bounce),
+  "bounce-in-out": inOut(bounce),
+  "bounce-out-in": outIn(bounce),
+};
 
-addEaseFn({
-  name: "cubic",
-  fn: function (t: number) {
-    return t * t * t;
-  },
-});
+/** @internal */ const EasingFactories = {
+  "poly": poly,
+  "poly-in": poly,
+  "poly-out": (e: number) => out(poly(e)),
+  "poly-in-out": (e: number) => inOut(poly(e)),
+  "poly-out-in": (e: number) => outIn(poly(e)),
+  "elastic": elastic,
+  "elastic-in": elastic,
+  "elastic-out": (a: number, p: number) => out(elastic(a, p)),
+  "elastic-in-out": (a: number, p: number) => inOut(elastic(a, p)),
+  "elastic-out-in": (a: number, p: number) => outIn(elastic(a, p)),
+  "back": back,
+  "back-in": back,
+  "back-out": (s: number) => out(back(s)),
+  "back-in-out": (s: number) => inOut(back(s)),
+  "back-out-in": (s: number) => outIn(back(s)),
+};
 
-addEaseFn({
-  name: "quart",
-  fn: function (t: number) {
-    return t * t * t * t;
-  },
-});
-
-addEaseFn({
-  name: "quint",
-  fn: function (t: number) {
-    return t * t * t * t * t;
-  },
-});
-
-addEaseFn({
-  name: "sin sine",
-  fn: function (t: number) {
-    return 1 - Math.cos((t * Math.PI) / 2);
-  },
-});
-
-addEaseFn({
-  name: "exp expo",
-  fn: function (t: number) {
-    return t == 0 ? 0 : Math.pow(2, 10 * (t - 1));
-  },
-});
-
-addEaseFn({
-  name: "circle circ",
-  fn: function (t: number) {
-    return 1 - Math.sqrt(1 - t * t);
-  },
-});
-
-addEaseFn({
-  name: "bounce",
-  fn: function (t: number) {
-    return t < 1 / 2.75
-      ? 7.5625 * t * t
-      : t < 2 / 2.75
-        ? 7.5625 * (t -= 1.5 / 2.75) * t + 0.75
-        : t < 2.5 / 2.75
-          ? 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375
-          : 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
-  },
-});
-
-addEaseFn({
-  name: "poly",
-  fc: function (e) {
-    return function (t: number) {
-      return Math.pow(t, e);
-    };
-  },
-});
-
-addEaseFn({
-  name: "elastic",
-  fc: function (a, p) {
-    p = p || 0.45;
-    a = a || 1;
-    const s = (p / (2 * Math.PI)) * Math.asin(1 / a);
-    return function (t: number) {
-      return 1 + a * Math.pow(2, -10 * t) * Math.sin(((t - s) * (2 * Math.PI)) / p);
-    };
-  },
-});
-
-addEaseFn({
-  name: "back",
-  fc: function (s) {
-    s = typeof s !== "undefined" ? s : 1.70158;
-    return function (t: number) {
-      return t * t * ((s + 1) * t - s);
-    };
-  },
-});
+export type EasingName =
+  | "linear"
+  | "linear-in"
+  | "linear-out"
+  | "linear-in-out"
+  | "linear-out-in"
+  | "quad"
+  | "quad-in"
+  | "quad-out"
+  | "quad-in-out"
+  | "quad-out-in"
+  | "cubic"
+  | "cubic-in"
+  | "cubic-out"
+  | "cubic-in-out"
+  | "cubic-out-in"
+  | "quart"
+  | "quart-in"
+  | "quart-out"
+  | "quart-in-out"
+  | "quart-out-in"
+  | "quint"
+  | "quint-in"
+  | "quint-out"
+  | "quint-in-out"
+  | "quint-out-in"
+  | "sin"
+  | "sin-in"
+  | "sin-out"
+  | "sin-in-out"
+  | "sin-out-in"
+  | "sine"
+  | "sine-in"
+  | "sine-out"
+  | "sine-in-out"
+  | "sine-out-in"
+  | "exp"
+  | "exp-in"
+  | "exp-out"
+  | "exp-in-out"
+  | "exp-out-in"
+  | "expo"
+  | "expo-in"
+  | "expo-out"
+  | "expo-in-out"
+  | "expo-out-in"
+  | "circle"
+  | "circle-in"
+  | "circle-out"
+  | "circle-in-out"
+  | "circle-out-in"
+  | "circ"
+  | "circ-in"
+  | "circ-out"
+  | "circ-in-out"
+  | "circ-out-in"
+  | "bounce"
+  | "bounce-in"
+  | "bounce-out"
+  | "bounce-in-out"
+  | "bounce-out-in"
+  | "poly"
+  | "poly-in"
+  | "poly-out"
+  | "poly-in-out"
+  | "poly-out-in"
+  | "elastic"
+  | "elastic-in"
+  | "elastic-out"
+  | "elastic-in-out"
+  | "elastic-out-in"
+  | "back"
+  | "back-in"
+  | "back-out"
+  | "back-in-out"
+  | "back-out-in";
