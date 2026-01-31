@@ -3,7 +3,7 @@ import { Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
 import { getDevicePixelRatio } from "../common/browser";
 
-import { Pin, Pinned, FitMode } from "./pin";
+import { Pin, Pinned, FitMode, SetPinType, SetPinKeys, GetPinKeys } from "./pin";
 import { Transition, TransitionOptions } from "./transition";
 
 // todo: why there are two iids (other in pin)?
@@ -167,9 +167,9 @@ export class Component implements Pinned {
     return this.getDevicePixelRatio() / getDevicePixelRatio();
   }
 
-  pin(key: string): any;
-  pin(key: string, value: any): this;
-  pin(obj: object): this;
+  pin(key: GetPinKeys): any;
+  pin(key: SetPinKeys, value: any): this;
+  pin(obj: SetPinType): this;
   pin(): Pin;
   pin(a?: object | string, b?: any) {
     if (typeof a === "object") {

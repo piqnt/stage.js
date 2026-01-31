@@ -662,3 +662,81 @@ type ScaleParams = {
     this.rotation(pin, 0);
   },
 };
+
+export interface SetPinType {
+  alpha?: number;
+  textureAlpha?: number;
+
+  width?: number;
+  height?: number;
+
+  scale?: number;
+  scaleX?: number;
+  scaleY?: number;
+
+  skew?: number;
+  skewX?: number;
+  skewY?: number;
+
+  rotation?: number;
+
+  pivot?: number;
+  pivotX?: number;
+  pivotY?: number;
+
+  offset?: number;
+  offsetX?: number;
+  offsetY?: number;
+
+  align?: number;
+  alignX?: number;
+  alignY?: number;
+
+  handle?: number;
+  handleX?: number;
+  handleY?: number;
+
+  resizeMode?: FitMode;
+  resizeWidth?: number;
+  resizeHeight?: number;
+
+  scaleMode?: FitMode;
+  scaleWidth?: number;
+  scaleHeight?: number;
+
+  matrix?: Matrix;
+}
+
+export interface GetPinType {
+  alpha: number;
+  textureAlpha: number;
+
+  width: number;
+  height: number;
+
+  boxWidth: number;
+  boxHeight: number;
+
+  scaleX: number;
+  scaleY: number;
+
+  skewX: number;
+  skewY: number;
+
+  rotation: number;
+
+  pivotX: number;
+  pivotY: number;
+
+  offsetX: number;
+  offsetY: number;
+
+  alignX: number;
+  alignY: number;
+
+  handleX: number;
+  handleY: number;
+}
+
+export type SetPinKeys = keyof SetPinType;
+export type GetPinKeys = keyof GetPinType;
