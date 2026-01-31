@@ -870,7 +870,7 @@ export class Component implements Pinned {
     return this._listeners[type];
   }
 
-  publish(name: string, args?: any) {
+  publish(name: string, args?: any[]) {
     const listeners = this.listeners(name);
     if (!listeners || !listeners.length) {
       return 0;
@@ -882,7 +882,7 @@ export class Component implements Pinned {
   }
 
   /** @hidden @deprecated @internal */
-  trigger(name: string, args?: any) {
+  trigger(name: string, args?: any[]) {
     this.publish(name, args);
     return this;
   }
