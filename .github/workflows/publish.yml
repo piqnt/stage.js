@@ -38,8 +38,8 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: npm run publish
-          version: npm run version
+          publish: npm run release
+          version: npm run bump
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true

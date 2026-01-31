@@ -49,8 +49,8 @@
     "pretty": "prettier --write .",
     "preflight": "npm run pretty && npm run lint",
     "change": "changeset",
-    "version": "changeset version",
-    "publish": "changeset publish",
+    "bump": "changeset version",
+    "release": "changeset publish",
     "typedoc": "typedoc --options typedoc.json && mv ./docs/pages/api/README.md ./docs/pages/api/index.md && ./node_modules/.bin/replace-in-files ./docs/pages/api/* --string '.md' --replacement ''"
   },
   "devDependencies": {
