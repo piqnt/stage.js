@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-alpha.21
+
+### Patch Changes
+
+- 46ff562: Fix publish
+
 ## 1.0.0-alpha.20
 
 ### Patch Changes
