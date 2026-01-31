@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-alpha.20
+
+### Patch Changes
+
+- 29870d6: Republish
+
 ## 1.0.0-alpha.19
 
 ### Patch Changes
