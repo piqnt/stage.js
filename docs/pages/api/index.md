@@ -22,7 +22,9 @@
 
 - [AtlasDefinition](/api/interfaces/AtlasDefinition)
 - [AtlasTextureDefinition](/api/interfaces/AtlasTextureDefinition)
+- [GetPinType](/api/interfaces/GetPinType)
 - [MatrixValue](/api/interfaces/MatrixValue)
+- [SetPinType](/api/interfaces/SetPinType)
 - [Vec2Value](/api/interfaces/Vec2Value)
 
 ## Type Aliases
@@ -30,7 +32,9 @@
 - [ComponentEventListener](/api/type-aliases/ComponentEventListener)
 - [ComponentTickListener](/api/type-aliases/ComponentTickListener)
 - [FitMode](/api/type-aliases/FitMode)
+- [GetPinKeys](/api/type-aliases/GetPinKeys)
 - [ResizableTextureMode](/api/type-aliases/ResizableTextureMode)
+- [SetPinKeys](/api/type-aliases/SetPinKeys)
 - [TextureSelectionInput](/api/type-aliases/TextureSelectionInput)
 - [TextureSelectionInputArray](/api/type-aliases/TextureSelectionInputArray)
 - [TextureSelectionInputFactory](/api/type-aliases/TextureSelectionInputFactory)

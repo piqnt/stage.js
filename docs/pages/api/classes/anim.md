@@ -716,7 +716,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **key**: `string`
+• **key**: keyof [`GetPinType`](/api/interfaces/GetPinType)
 
 ##### Returns
 
@@ -732,7 +732,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **key**: `string`
+• **key**: keyof [`SetPinType`](/api/interfaces/SetPinType)
 
 • **value**: `any`
 
@@ -750,7 +750,7 @@ Set cell spacing for layout.
 
 ##### Parameters
 
-• **obj**: `object`
+• **obj**: [`SetPinType`](/api/interfaces/SetPinType)
 
 ##### Returns
 
@@ -868,7 +868,7 @@ Set cell spacing for layout.
 
 • **name**: `string`
 
-• **args?**: `any`
+• **args?**: `any`[]
 
 #### Returns
 

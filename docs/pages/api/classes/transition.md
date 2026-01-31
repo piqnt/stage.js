@@ -84,20 +84,6 @@
 
 ***
 
-### ease()
-
-> **ease**(`easing`): [`Transition`](/api/classes/Transition)
-
-#### Parameters
-
-• **easing**: `string` \| `EasingFunction`
-
-#### Returns
-
-[`Transition`](/api/classes/Transition)
-
-***
-
 ### height()
 
 #### height(h)
