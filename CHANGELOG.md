@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.0-alpha.22
+
+### Patch Changes
+
+- Fix publish
+
+## 1.0.0-alpha.19
+
+### Patch Changes
+
+- f53c054: Add type for pin set/get keys
+- faa0337: Fix publish event args type
+- 1ea0afe: Refactor easing
+
 ## 1.0.0-alpha.18
 
 ### Patch Changes
