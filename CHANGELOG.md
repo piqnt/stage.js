@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-alpha.23
+
+### Patch Changes
+
+- a28be96: Update pin api doc
+
 ## 1.0.0-alpha.22
 
 ### Patch Changes
