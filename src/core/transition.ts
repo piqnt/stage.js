@@ -3,7 +3,7 @@ import { uid } from "../common/uid";
 
 import { Easing, EasingFunction, EasingName, EasingFunctionQuery, IDENTITY } from "./easing";
 import { Component } from "./component";
-import { Pinned } from "./pin";
+import { SetPinKeys, SetPinType } from "./pin";
 
 export type TransitionOptions = {
   duration?: number;
@@ -13,7 +13,7 @@ export type TransitionOptions = {
 
 export type TransitionEndListener = (this: Component) => void;
 
-export class Transition implements Pinned {
+export class Transition {
   /** @internal */ uid = "transition:" + uid();
 
   /** @internal */ _end: object;
@@ -148,9 +148,8 @@ export class Transition implements Pinned {
     return this;
   }
 
-  pin(key: string, value: any): this;
-  pin(obj: object): this;
-  pin(key: string): any;
+  pin(key: SetPinKeys, value: any): this;
+  pin(obj: SetPinType): this;
   pin(a?, b?) {
     if (typeof a === "object") {
       for (const attr in a) {
@@ -185,23 +184,15 @@ export class Transition implements Pinned {
   }
 
   width(w: number): this;
-  width(): number;
   width(w?: number) {
     // Pin shortcut, used by Transition and Component
-    if (typeof w === "undefined") {
-      return this.pin("width");
-    }
     this.pin("width", w);
     return this;
   }
 
   height(h: number): this;
-  height(): number;
   height(h?: number) {
     // Pin shortcut, used by Transition and Component
-    if (typeof h === "undefined") {
-      return this.pin("height");
-    }
     this.pin("height", h);
     return this;
   }

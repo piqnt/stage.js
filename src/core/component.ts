@@ -3,7 +3,7 @@ import { Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
 import { getDevicePixelRatio } from "../common/browser";
 
-import { Pin, Pinned, FitMode, SetPinType, SetPinKeys, GetPinKeys } from "./pin";
+import { Pin, FitMode, SetPinType, SetPinKeys, GetPinKeys } from "./pin";
 import { Transition, TransitionOptions } from "./transition";
 
 // todo: why there are two iids (other in pin)?
@@ -85,7 +85,7 @@ export function maximize() {
 // - frame loop and rendering
 // - events handling
 
-export class Component implements Pinned {
+export class Component {
   /** @internal */ uid = "component:" + uid();
 
   /** @internal */ _label = "";
@@ -188,14 +188,15 @@ export class Component implements Pinned {
   }
 
   fit(width: number, height: number, mode?: FitMode): this;
+  /** @hidden @deprecated */
   fit(fit: object): this;
+  /** @hidden @deprecated */
   fit(a, b?, c?) {
     if (typeof a === "object") {
-      c = b;
-      b = a.y;
-      a = a.x;
+      this._pin.fit(a.width ?? a.x, a.height ?? a.y, a.mode ?? b);
+    } else {
+      this._pin.fit(a, b, c);
     }
-    this._pin.fit(a, b, c);
     return this;
   }
 

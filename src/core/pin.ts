@@ -35,34 +35,6 @@ export function isValidFitMode(value: string) {
 
 /** @internal */ let iid = 0;
 
-/** @hidden */
-export interface Pinned {
-  pin(pin: object): this;
-  pin(key: string, value: any): this;
-  pin(key: string): any;
-
-  size(w: number, h: number): this;
-
-  width(): number;
-  width(w: number): this;
-
-  height(): number;
-  height(h: number): this;
-
-  offset(a: Vec2Value): this;
-  offset(a: number, b: number): this;
-
-  rotate(a: number): this;
-
-  skew(a: Vec2Value): this;
-  skew(a: number, b: number): this;
-
-  scale(a: Vec2Value): this;
-  scale(a: number, b: number): this;
-
-  alpha(a: number, ta?: number): this;
-}
-
 export class Pin {
   /** @internal */ uid = "pin:" + uid();
 
@@ -680,28 +652,46 @@ export interface SetPinType {
 
   rotation?: number;
 
+  /** Center of scale/skew/rotate  */
   pivot?: number;
+  /** Center of scale/skew/rotate  */
   pivotX?: number;
+  /** Center of scale/skew/rotate  */
   pivotY?: number;
 
+  /** Offset in parent coordination */
   offset?: number;
+  /** Offset in parent coordination */
   offsetX?: number;
+  /** Offset in parent coordination */
   offsetY?: number;
 
+  /** A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right  */
   align?: number;
+  /** A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right */
   alignX?: number;
+  /** A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right */
   alignY?: number;
 
+  /** A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right */
   handle?: number;
+  /** A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right */
   handleX?: number;
+  /** A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right */
   handleY?: number;
 
+  /** @hidden @deprecated Use component.fit() */
   resizeMode?: FitMode;
+  /** @hidden @deprecated Use component.fit() */
   resizeWidth?: number;
+  /** @hidden @deprecated Use component.fit() */
   resizeHeight?: number;
 
+  /** @hidden @deprecated Use component.fit() */
   scaleMode?: FitMode;
+  /** @hidden @deprecated Use component.fit() */
   scaleWidth?: number;
+  /** @hidden @deprecated Use component.fit() */
   scaleHeight?: number;
 
   matrix?: Matrix;
