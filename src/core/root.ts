@@ -52,6 +52,8 @@ export type Viewbox = {
   mode?: FitMode;
 };
 
+let DEFAULT_CANVAS_MOUNTED = false;
+
 export class Root extends Component {
   canvas: HTMLCanvasElement | null = null;
   dom: HTMLCanvasElement | null = null;
@@ -99,6 +101,13 @@ export class Root extends Component {
     }
 
     if (!this.canvas) {
+      if (DEFAULT_CANVAS_MOUNTED) {
+        throw new Error(
+          "Default canvas element is already mounted. Please provide a canvas element or an id of a canvas element to mount.",
+        );
+      }
+      DEFAULT_CANVAS_MOUNTED = true;
+
       console.debug && console.debug("Creating canvas element...");
       this.canvas = document.createElement("canvas");
       Object.assign(this.canvas.style, {
@@ -115,6 +124,11 @@ export class Root extends Component {
       const body = document.body;
       body.insertBefore(this.canvas, body.firstChild);
     }
+
+    if (this.canvas["__STAGE_MOUNTED"]) {
+      console.error("Canvas element is already mounted: ", this.canvas);
+    }
+    this.canvas["__STAGE_MOUNTED"] = true;
 
     this.dom = this.canvas;
 
@@ -180,7 +194,8 @@ export class Root extends Component {
         this.canvas.width = this.drawingWidth;
         this.canvas.height = this.drawingHeight;
 
-        console.debug && console.debug(
+        console.debug &&
+          console.debug(
             "Resize: [" +
               this.drawingWidth +
               ", " +
@@ -221,7 +236,7 @@ export class Root extends Component {
 
       if (this.drawingWidth > 0 && this.drawingHeight > 0) {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
-        this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);  
+        this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);
         if (this.debugDrawAxis > 0) {
           this.renderDebug(this.context);
         }
@@ -254,7 +269,7 @@ export class Root extends Component {
     context.lineTo(0, size);
     context.lineTo(+0.2 * size, 0.8 * size);
     context.lineTo(0, 0.8 * size);
-    context.strokeStyle = 'rgba(93, 173, 226)';
+    context.strokeStyle = "rgba(93, 173, 226)";
     context.lineJoin = "round";
     context.lineCap = "round";
     context.lineWidth = lineWidth;
@@ -267,7 +282,7 @@ export class Root extends Component {
     context.lineTo(size, 0);
     context.lineTo(0.8 * size, +0.2 * size);
     context.lineTo(0.8 * size, 0);
-    context.strokeStyle = 'rgba(236, 112, 99)';
+    context.strokeStyle = "rgba(236, 112, 99)";
     context.lineJoin = "round";
     context.lineCap = "round";
     context.lineWidth = lineWidth;
