@@ -1,59 +1,6 @@
 # Changelog
 
-## 1.0.0-alpha.24
-
-### Patch Changes
-
-- dc83179: Rename align row/column to direction
-- dc65682: Add async/await preload
-
-## 1.0.0-alpha.23
-
-### Patch Changes
-
-- a28be96: Update pin api doc
-
-## 1.0.0-alpha.22
-
-### Patch Changes
-
-- Fix publish
-
-## 1.0.0-alpha.19
-
-### Patch Changes
-
-- f53c054: Add type for pin set/get keys
-- faa0337: Fix publish event args type
-- 1ea0afe: Refactor easing
-
-## 1.0.0-alpha.18
-
-### Patch Changes
-
-- 90592c4: Update license header
-- 091ab81: Add publish action
-
-## 1.0.0-alpha.17
-
-### Patch Changes
-
-- dcbcf12: Rename Node to Component
-- b2dc48b: Fix aliasing legacy class names
-
-## 1.0.0-alpha.16
-
-### Patch Changes
-
-- 7cf63f6: Patch types
-
-## 1.0.0-alpha.14
-
-### Patch Changes
-
-- Use @changesets/cli
-
-## v1.0 alpha
+## 1.0.0
 
 - rewrite with typescript
 - change package type to module
@@ -63,6 +10,7 @@
 - added Stage.mount() to create a new app
 - added await Stage.atlas({ }) to preload images
 - added Component class as the base class
+- Rename Node to Component
 - removed Stage.internal namespace
 - removed cordova/fastcontext loader and build
 - removed script loader `preload(url)`
@@ -82,6 +30,12 @@
 - removed cutouts, sprites, factory fields from atlas definition
 - replaced Ease() with Ease.get()
 - scaleTo renamed to fit
+- Don't allow mounting with same canvas
+- Use @changesets/cli
+- Rename align row/column to direction
+- Fix publish event args type
+- Refactor easing
+- Add async/await preload
 
 #### v0.8.2
 
