@@ -1046,16 +1046,23 @@ export class Component {
   };
 
   row(align: number) {
-    this.align("row", align);
+    this.direction("row", align);
     return this;
   }
 
   column(align: number) {
-    this.align("column", align);
+    this.direction("column", align);
     return this;
   }
 
-  align(type: "row" | "column", align: number) {
+  /** @hidden @deprecated This is replaced with direction to avoid name collision with pin.align */
+  align(direction: "row" | "column", align: number) {
+    if (typeof direction === "string") {
+      return this.direction(direction, align);
+    }
+  }
+
+  direction(direction: "row" | "column", align: number) {
     this._padding = this._padding;
     this._spacing = this._spacing;
 
@@ -1083,13 +1090,13 @@ export class Component {
           const w = child.pin("boxWidth");
           const h = child.pin("boxHeight");
 
-          if (type == "column") {
+          if (direction == "column") {
             !first && (height += this._spacing);
             child.pin("offsetY") != height && child.pin("offsetY", height);
             width = Math.max(width, w);
             height = height + h;
             alignChildren && child.pin("alignX", align);
-          } else if (type == "row") {
+          } else if (direction == "row") {
             !first && (width += this._spacing);
             child.pin("offsetX") != width && child.pin("offsetX", width);
             width = width + w;
