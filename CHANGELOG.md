@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-alpha.24
+
+### Patch Changes
+
+- dc83179: Rename align row/column to direction
+- dc65682: Add async/await preload
+
 ## 1.0.0-alpha.23
 
 ### Patch Changes
