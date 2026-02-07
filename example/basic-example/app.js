@@ -1,13 +1,13 @@
 import Stage from "../../src";
 import imageUrl from "./sample.png";
 
-// // Add texture atlas
-// await Stage.atlas({
-//   image: imageUrl,
-//   textures: {
-//     box: { x: 0, y: 0, width: 30, height: 30 },
-//   },
-// });
+// Add texture atlas
+await Stage.atlas({
+  image: imageUrl,
+  textures: {
+    box: { x: 0, y: 0, width: 30, height: 30 },
+  },
+});
 
 // Create new app
 const stage = Stage.mount();
