@@ -7,10 +7,6 @@
 - [`Anim`](/api/classes/Anim)
 - [`Monotype`](/api/classes/Monotype)
 
-## Implements
-
-- `Pinned`
-
 ## Constructors
 
 ### new Component()
@@ -29,22 +25,6 @@
 
 ## Methods
 
-### align()
-
-> **align**(`type`, `align`): [`Component`](/api/classes/Component)
-
-#### Parameters
-
-• **type**: `"row"` \| `"column"`
-
-• **align**: `number`
-
-#### Returns
-
-[`Component`](/api/classes/Component)
-
-***
-
 ### alpha()
 
 > **alpha**(`a`, `ta`?): [`Component`](/api/classes/Component)
@@ -58,10 +38,6 @@
 #### Returns
 
 [`Component`](/api/classes/Component)
-
-#### Implementation of
-
-`Pinned.alpha`
 
 ***
 
@@ -165,6 +141,22 @@
 
 ***
 
+### direction()
+
+> **direction**(`direction`, `align`): [`Component`](/api/classes/Component)
+
+#### Parameters
+
+• **direction**: `"row"` \| `"column"`
+
+• **align**: `number`
+
+#### Returns
+
+[`Component`](/api/classes/Component)
+
+***
+
 ### empty()
 
 > **empty**(): [`Component`](/api/classes/Component)
@@ -189,38 +181,6 @@
 
 ***
 
-### fit()
-
-#### fit(width, height, mode)
-
-> **fit**(`width`, `height`, `mode`?): `this`
-
-##### Parameters
-
-• **width**: `number`
-
-• **height**: `number`
-
-• **mode?**: [`FitMode`](/api/type-aliases/FitMode)
-
-##### Returns
-
-`this`
-
-#### fit(fit)
-
-> **fit**(`fit`): `this`
-
-##### Parameters
-
-• **fit**: `object`
-
-##### Returns
-
-`this`
-
-***
-
 ### height()
 
 #### height(h)
@@ -235,10 +195,6 @@
 
 `this`
 
-##### Implementation of
-
-`Pinned.height`
-
 #### height()
 
 > **height**(): `number`
@@ -246,10 +202,6 @@
 ##### Returns
 
 `number`
-
-##### Implementation of
-
-`Pinned.height`
 
 ***
 
@@ -457,10 +409,6 @@ Set size to match largest child size.
 
 `this`
 
-##### Implementation of
-
-`Pinned.offset`
-
 #### offset(x, y)
 
 > **offset**(`x`, `y`): `this`
@@ -474,10 +422,6 @@ Set size to match largest child size.
 ##### Returns
 
 `this`
-
-##### Implementation of
-
-`Pinned.offset`
 
 ***
 
@@ -537,10 +481,6 @@ Set cell spacing for layout.
 
 `any`
 
-##### Implementation of
-
-`Pinned.pin`
-
 #### pin(key, value)
 
 > **pin**(`key`, `value`): `this`
@@ -555,10 +495,6 @@ Set cell spacing for layout.
 
 `this`
 
-##### Implementation of
-
-`Pinned.pin`
-
 #### pin(obj)
 
 > **pin**(`obj`): `this`
@@ -571,10 +507,6 @@ Set cell spacing for layout.
 
 `this`
 
-##### Implementation of
-
-`Pinned.pin`
-
 #### pin()
 
 > **pin**(): [`Pin`](/api/classes/Pin)
@@ -582,10 +514,6 @@ Set cell spacing for layout.
 ##### Returns
 
 [`Pin`](/api/classes/Pin)
-
-##### Implementation of
-
-`Pinned.pin`
 
 ***
 
@@ -689,10 +617,6 @@ Set cell spacing for layout.
 
 [`Component`](/api/classes/Component)
 
-#### Implementation of
-
-`Pinned.rotate`
-
 ***
 
 ### row()
@@ -723,10 +647,6 @@ Set cell spacing for layout.
 
 `this`
 
-##### Implementation of
-
-`Pinned.scale`
-
 #### scale(x, y)
 
 > **scale**(`x`, `y`): `this`
@@ -741,10 +661,6 @@ Set cell spacing for layout.
 
 `this`
 
-##### Implementation of
-
-`Pinned.scale`
-
 #### scale(s)
 
 > **scale**(`s`): `this`
@@ -756,10 +672,6 @@ Set cell spacing for layout.
 ##### Returns
 
 `this`
-
-##### Implementation of
-
-`Pinned.scale`
 
 ***
 
@@ -811,10 +723,6 @@ Set cell spacing for layout.
 
 [`Component`](/api/classes/Component)
 
-#### Implementation of
-
-`Pinned.size`
-
 ***
 
 ### skew()
@@ -831,10 +739,6 @@ Set cell spacing for layout.
 
 `this`
 
-##### Implementation of
-
-`Pinned.skew`
-
 #### skew(x, y)
 
 > **skew**(`x`, `y`): `this`
@@ -848,10 +752,6 @@ Set cell spacing for layout.
 ##### Returns
 
 `this`
-
-##### Implementation of
-
-`Pinned.skew`
 
 ***
 
@@ -906,8 +806,6 @@ Set cell spacing for row and column layout.
 ### toString()
 
 > **toString**(): `string`
-
-Returns a string representation of an object.
 
 #### Returns
 
@@ -1029,10 +927,6 @@ Returns a string representation of an object.
 
 `this`
 
-##### Implementation of
-
-`Pinned.width`
-
 #### width()
 
 > **width**(): `number`
@@ -1040,7 +934,3 @@ Returns a string representation of an object.
 ##### Returns
 
 `number`
-
-##### Implementation of
-
-`Pinned.width`

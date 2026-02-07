@@ -25,6 +25,7 @@ export interface AtlasDefinition {
   image?:
     | {
         src: string;
+        /** If image is stored with higher resolution */
         ratio?: number;
       }
     | {
@@ -33,6 +34,7 @@ export interface AtlasDefinition {
         ratio?: number;
       };
 
+  /** Point per unit of texture definition, that is grid size */
   ppu?: number;
   textures?: Record<
     string,

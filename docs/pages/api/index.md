@@ -66,6 +66,7 @@
 - [monotype](/api/functions/monotype)
 - [mount](/api/functions/mount)
 - [pause](/api/functions/pause)
+- [preload](/api/functions/preload)
 - [resume](/api/functions/resume)
 - [row](/api/functions/row)
 - [sprite](/api/functions/sprite)

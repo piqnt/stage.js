@@ -6,17 +6,23 @@
 
 > `optional` **align**: `number`
 
+A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right
+
 ***
 
 ### alignX?
 
 > `optional` **alignX**: `number`
 
+A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right
+
 ***
 
 ### alignY?
 
 > `optional` **alignY**: `number`
+
+A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right
 
 ***
 
@@ -30,17 +36,23 @@
 
 > `optional` **handle**: `number`
 
+A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right
+
 ***
 
 ### handleX?
 
 > `optional` **handleX**: `number`
 
+A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right
+
 ***
 
 ### handleY?
 
 > `optional` **handleY**: `number`
+
+A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right
 
 ***
 
@@ -60,11 +72,15 @@
 
 > `optional` **offset**: `number`
 
+Offset in parent coordination
+
 ***
 
 ### offsetX?
 
 > `optional` **offsetX**: `number`
+
+Offset in parent coordination
 
 ***
 
@@ -72,11 +88,15 @@
 
 > `optional` **offsetY**: `number`
 
+Offset in parent coordination
+
 ***
 
 ### pivot?
 
 > `optional` **pivot**: `number`
+
+Center of scale/skew/rotate
 
 ***
 
@@ -84,29 +104,15 @@
 
 > `optional` **pivotX**: `number`
 
+Center of scale/skew/rotate
+
 ***
 
 ### pivotY?
 
 > `optional` **pivotY**: `number`
 
-***
-
-### resizeHeight?
-
-> `optional` **resizeHeight**: `number`
-
-***
-
-### resizeMode?
-
-> `optional` **resizeMode**: [`FitMode`](/api/type-aliases/FitMode)
-
-***
-
-### resizeWidth?
-
-> `optional` **resizeWidth**: `number`
+Center of scale/skew/rotate
 
 ***
 
@@ -119,24 +125,6 @@
 ### scale?
 
 > `optional` **scale**: `number`
-
-***
-
-### scaleHeight?
-
-> `optional` **scaleHeight**: `number`
-
-***
-
-### scaleMode?
-
-> `optional` **scaleMode**: [`FitMode`](/api/type-aliases/FitMode)
-
-***
-
-### scaleWidth?
-
-> `optional` **scaleWidth**: `number`
 
 ***
 

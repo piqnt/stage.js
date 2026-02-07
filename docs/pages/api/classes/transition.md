@@ -1,9 +1,5 @@
 # Class: Transition
 
-## Implements
-
-- `Pinned`
-
 ## Constructors
 
 ### new Transition()
@@ -35,10 +31,6 @@
 #### Returns
 
 [`Transition`](/api/classes/Transition)
-
-#### Implementation of
-
-`Pinned.alpha`
 
 ***
 
@@ -86,33 +78,15 @@
 
 ### height()
 
-#### height(h)
-
 > **height**(`h`): `this`
 
-##### Parameters
+#### Parameters
 
 • **h**: `number`
 
-##### Returns
+#### Returns
 
 `this`
-
-##### Implementation of
-
-`Pinned.height`
-
-#### height()
-
-> **height**(): `number`
-
-##### Returns
-
-`number`
-
-##### Implementation of
-
-`Pinned.height`
 
 ***
 
@@ -140,10 +114,6 @@
 
 `this`
 
-##### Implementation of
-
-`Pinned.offset`
-
 #### offset(x, y)
 
 > **offset**(`x`, `y`): `this`
@@ -158,10 +128,6 @@
 
 `this`
 
-##### Implementation of
-
-`Pinned.offset`
-
 ***
 
 ### pin()
@@ -172,7 +138,7 @@
 
 ##### Parameters
 
-• **key**: `string`
+• **key**: keyof [`SetPinType`](/api/interfaces/SetPinType)
 
 • **value**: `any`
 
@@ -180,41 +146,17 @@
 
 `this`
 
-##### Implementation of
-
-`Pinned.pin`
-
 #### pin(obj)
 
 > **pin**(`obj`): `this`
 
 ##### Parameters
 
-• **obj**: `object`
+• **obj**: [`SetPinType`](/api/interfaces/SetPinType)
 
 ##### Returns
 
 `this`
-
-##### Implementation of
-
-`Pinned.pin`
-
-#### pin(key)
-
-> **pin**(`key`): `any`
-
-##### Parameters
-
-• **key**: `string`
-
-##### Returns
-
-`any`
-
-##### Implementation of
-
-`Pinned.pin`
 
 ***
 
@@ -240,10 +182,6 @@
 
 [`Transition`](/api/classes/Transition)
 
-#### Implementation of
-
-`Pinned.rotate`
-
 ***
 
 ### scale()
@@ -260,10 +198,6 @@
 
 `this`
 
-##### Implementation of
-
-`Pinned.scale`
-
 #### scale(x, y)
 
 > **scale**(`x`, `y`): `this`
@@ -278,10 +212,6 @@
 
 `this`
 
-##### Implementation of
-
-`Pinned.scale`
-
 #### scale(s)
 
 > **scale**(`s`): `this`
@@ -293,10 +223,6 @@
 ##### Returns
 
 `this`
-
-##### Implementation of
-
-`Pinned.scale`
 
 ***
 
@@ -314,10 +240,6 @@
 
 [`Transition`](/api/classes/Transition)
 
-#### Implementation of
-
-`Pinned.size`
-
 ***
 
 ### skew()
@@ -334,10 +256,6 @@
 
 `this`
 
-##### Implementation of
-
-`Pinned.skew`
-
 #### skew(x, y)
 
 > **skew**(`x`, `y`): `this`
@@ -351,10 +269,6 @@
 ##### Returns
 
 `this`
-
-##### Implementation of
-
-`Pinned.skew`
 
 ***
 
@@ -390,30 +304,12 @@
 
 ### width()
 
-#### width(w)
-
 > **width**(`w`): `this`
 
-##### Parameters
+#### Parameters
 
 • **w**: `number`
 
-##### Returns
+#### Returns
 
 `this`
-
-##### Implementation of
-
-`Pinned.width`
-
-#### width()
-
-> **width**(): `number`
-
-##### Returns
-
-`number`
-
-##### Implementation of
-
-`Pinned.width`

@@ -70,6 +70,8 @@ Use map
 
 > `optional` **ppu**: `number`
 
+Point per unit of texture definition, that is grid size
+
 ***
 
 ### ~~ratio?~~

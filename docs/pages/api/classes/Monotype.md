@@ -30,26 +30,6 @@
 
 ## Methods
 
-### align()
-
-> **align**(`type`, `align`): [`Monotype`](/api/classes/Monotype)
-
-#### Parameters
-
-• **type**: `"row"` \| `"column"`
-
-• **align**: `number`
-
-#### Returns
-
-[`Monotype`](/api/classes/Monotype)
-
-#### Inherited from
-
-[`Component`](/api/classes/Component).[`align`](/api/classes/Component#align)
-
-***
-
 ### alpha()
 
 > **alpha**(`a`, `ta`?): [`Monotype`](/api/classes/Monotype)
@@ -198,6 +178,26 @@
 
 ***
 
+### direction()
+
+> **direction**(`direction`, `align`): [`Monotype`](/api/classes/Monotype)
+
+#### Parameters
+
+• **direction**: `"row"` \| `"column"`
+
+• **align**: `number`
+
+#### Returns
+
+[`Monotype`](/api/classes/Monotype)
+
+#### Inherited from
+
+[`Component`](/api/classes/Component).[`direction`](/api/classes/Component#direction)
+
+***
+
 ### empty()
 
 > **empty**(): [`Monotype`](/api/classes/Monotype)
@@ -227,46 +227,6 @@
 #### Inherited from
 
 [`Component`](/api/classes/Component).[`first`](/api/classes/Component#first)
-
-***
-
-### fit()
-
-#### fit(width, height, mode)
-
-> **fit**(`width`, `height`, `mode`?): `this`
-
-##### Parameters
-
-• **width**: `number`
-
-• **height**: `number`
-
-• **mode?**: [`FitMode`](/api/type-aliases/FitMode)
-
-##### Returns
-
-`this`
-
-##### Inherited from
-
-[`Component`](/api/classes/Component).[`fit`](/api/classes/Component#fit)
-
-#### fit(fit)
-
-> **fit**(`fit`): `this`
-
-##### Parameters
-
-• **fit**: `object`
-
-##### Returns
-
-`this`
-
-##### Inherited from
-
-[`Component`](/api/classes/Component).[`fit`](/api/classes/Component#fit)
 
 ***
 
@@ -1121,8 +1081,6 @@ Set cell spacing for row and column layout.
 ### toString()
 
 > **toString**(): `string`
-
-Returns a string representation of an object.
 
 #### Returns
 
