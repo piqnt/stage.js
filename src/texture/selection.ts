@@ -140,6 +140,15 @@ const ATLAS_ARRAY: Atlas[] = [];
 // TODO: print subquery not found error
 // TODO: index textures
 
+const PRELOADING: Promise<void>[] = [];
+
+/**
+ * Register and load an atlas.
+ * If the atlas is already loaded, it is returned immediately.
+ * Otherwise, it returns a promise that resolves when the atlas is loaded.
+ *
+ * You can call this without awaiting the promise, and call `preload()` at the beginning of the app to ensure all atlases are loaded before they are used.
+ */
 export async function atlas(def: AtlasDefinition | Atlas): Promise<Atlas> {
   // todo: where is this used?
   let atlas: Atlas;
@@ -154,10 +163,25 @@ export async function atlas(def: AtlasDefinition | Atlas): Promise<Atlas> {
   }
   ATLAS_ARRAY.push(atlas);
 
-  await atlas.load();
+  const promise = atlas.load();
+  PRELOADING.push(promise);
+  await promise;
 
   return atlas;
 }
+
+/**
+ * Preloads all atlases. This is useful to call at the beginning of the app, so that all textures are loaded before they are used.
+ */
+export const preload = async (def: AtlasDefinition | Atlas): Promise<void> => {
+  await Promise.all(
+    PRELOADING.map((atlas: Promise<void>) =>
+      Promise.resolve(atlas)
+        .then((val: void) => {})
+        .catch((err: any) => {}),
+    ),
+  );
+};
 
 /**
  * When query argument is string, this function parses the query; looks up registered atlases; and returns a texture selection object.
