@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/stage.js/docs/:path*",
-      "destination": "/:path*"
-    }
-  ]
-}
