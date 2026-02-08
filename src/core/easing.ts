@@ -78,7 +78,7 @@ const initEasing = (query: string, params?: number[]): EasingFunction => {
         : 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
 
 /** @internal */ const poly =
-  (e: number): EasingFunction =>
+  (e: number = 3): EasingFunction =>
   (t: number) =>
     Math.pow(t, e);
 
