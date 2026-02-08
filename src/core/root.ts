@@ -59,11 +59,11 @@ export class Root extends Component {
   dom: HTMLCanvasElement | null = null;
   context: CanvasRenderingContext2D | null = null;
 
-  /** @internal */ pixelWidth = -1;
-  /** @internal */ pixelHeight = -1;
+  /** @internal */ clientWidth = -1;
+  /** @internal */ clientHeight = -1;
   /** @internal */ pixelRatio = 1;
-  /** @internal */ drawingWidth = 0;
-  /** @internal */ drawingHeight = 0;
+  /** @internal */ canvasWidth = 0;
+  /** @internal */ canvasHeight = 0;
 
   mounted = false;
   paused = false;
@@ -168,6 +168,62 @@ export class Root extends Component {
   /** @internal */ _lastFrameTime = 0;
   /** @internal */ _mo_touch: number | null = null; // monitor touch
 
+  resizeCanvas() {
+    const newClientWidth = this.canvas.clientWidth;
+    const newClientHeight = this.canvas.clientHeight;
+
+    // canvas display size is not changed
+    if (this.clientWidth === newClientWidth && this.clientHeight === newClientHeight) return;
+
+    this.clientWidth = newClientWidth;
+    this.clientHeight = newClientHeight;
+
+    const notStyled =
+      this.canvas.clientWidth === this.canvas.width &&
+      this.canvas.clientHeight === this.canvas.height;
+
+    let pixelRatio: number;
+
+    if (notStyled) {
+      // If element is not styled, changing canvas rendering size will change its display size,
+      // which creates a loop of resizing. So we ignore pixel ratio and keep current rendering size.
+      pixelRatio = 1;
+      this.canvasWidth = this.canvas.width;
+      this.canvasHeight = this.canvas.height;
+    } else {
+      pixelRatio = this.pixelRatio;
+      this.canvasWidth = this.clientWidth * pixelRatio;
+      this.canvasHeight = this.clientHeight * pixelRatio;
+
+      if (this.canvas.width !== this.canvasWidth || this.canvas.height !== this.canvasHeight) {
+        // canvas rendering size is changed
+        this.canvas.width = this.canvasWidth;
+        this.canvas.height = this.canvasHeight;
+      }
+    }
+
+    console.debug &&
+      console.debug(
+        "Resize: [" +
+          this.canvasWidth +
+          ", " +
+          this.canvasHeight +
+          "] = " +
+          pixelRatio +
+          " x [" +
+          this.clientWidth +
+          ", " +
+          this.clientHeight +
+          "]",
+      );
+
+    this.viewport({
+      width: this.canvasWidth,
+      height: this.canvasHeight,
+      ratio: pixelRatio,
+    });
+  }
+
   /** @internal */
   onFrame = (now: number) => {
     this.frameRequested = false;
@@ -177,45 +233,7 @@ export class Root extends Component {
     }
 
     this.requestFrame();
-
-    const newPixelWidth = this.canvas.clientWidth;
-    const newPixelHeight = this.canvas.clientHeight;
-
-    if (this.pixelWidth !== newPixelWidth || this.pixelHeight !== newPixelHeight) {
-      // viewport pixel size is not the same as last time
-      this.pixelWidth = newPixelWidth;
-      this.pixelHeight = newPixelHeight;
-
-      this.drawingWidth = newPixelWidth * this.pixelRatio;
-      this.drawingHeight = newPixelHeight * this.pixelRatio;
-
-      if (this.canvas.width !== this.drawingWidth || this.canvas.height !== this.drawingHeight) {
-        // canvas size doesn't math
-        this.canvas.width = this.drawingWidth;
-        this.canvas.height = this.drawingHeight;
-
-        console.debug &&
-          console.debug(
-            "Resize: [" +
-              this.drawingWidth +
-              ", " +
-              this.drawingHeight +
-              "] = " +
-              this.pixelRatio +
-              " x [" +
-              this.pixelWidth +
-              ", " +
-              this.pixelHeight +
-              "]",
-          );
-
-        this.viewport({
-          width: this.drawingWidth,
-          height: this.drawingHeight,
-          ratio: this.pixelRatio,
-        });
-      }
-    }
+    this.resizeCanvas();
 
     const last = this._lastFrameTime || now;
     const elapsed = now - last;
@@ -234,9 +252,9 @@ export class Root extends Component {
       this._mo_touch = this._ts_touch;
       this.sleep = false;
 
-      if (this.drawingWidth > 0 && this.drawingHeight > 0) {
+      if (this.canvasWidth > 0 && this.canvasHeight > 0) {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
-        this.context.clearRect(0, 0, this.drawingWidth, this.drawingHeight);
+        this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         if (this.debugDrawAxis > 0) {
           this.renderDebug(this.context);
         }
@@ -434,14 +452,17 @@ export class Root extends Component {
       const cameraX = camera?.e || 0;
       const cameraY = camera?.f || 0;
 
-      const scaleX = this.pin("scaleX");
-      const scaleY = this.pin("scaleY");
+      const pinScaleX = this.pin("scaleX");
+      const pinScaleY = this.pin("scaleY");
 
-      this.pin("scaleX", scaleX * cameraZoomX);
-      this.pin("scaleY", scaleY * cameraZoomY);
+      const scaleX = pinScaleX * cameraZoomX;
+      const scaleY = pinScaleY * cameraZoomY;
 
-      this.pin("offsetX", cameraX - viewboxX * scaleX * cameraZoomX);
-      this.pin("offsetY", cameraY - viewboxY * scaleY * cameraZoomY);
+      this.pin("scaleX", scaleX);
+      this.pin("scaleY", scaleY);
+
+      this.pin("offsetX", cameraX - viewboxX * scaleX);
+      this.pin("offsetY", cameraY - viewboxY * scaleY);
     } else if (viewport) {
       this.pin({
         width: viewport.width,
