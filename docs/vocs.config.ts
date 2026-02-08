@@ -104,7 +104,7 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
-          text: 'v1.0 - Work in Progress',
+          text: 'v1.0',
           link: '/news/v1.0',
         },
       ],

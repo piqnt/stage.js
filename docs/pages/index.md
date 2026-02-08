@@ -1,4 +1,6 @@
-![Stage.js](https://static.piqnt.com/stage.js/stage.png "Stage.js")
+<p align="center">
+  <img height="80px" width="240px" src="https://static.piqnt.com/stage.js/stage.svg" />
+</p>
 
 Stage.js is a lightweight and fast 2D rendering and layout library for web and mobile game development.
 
