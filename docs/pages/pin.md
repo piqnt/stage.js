@@ -111,18 +111,9 @@ component.alpha(alpha, textureAlpha);
 
 Fit to given size. Valid modes are:
 
-- `contain`: like `in`, but evenly pads component to fill the entire scaleWidth/Height
-- `cover`: like `out`, but evenly crops it to scaleWidth/Height
-- `in`: maximum scale which keeps component edges inside the scaleWidth/Height
-- `out`: minimum scale which keeps component edges outside scaleWidth/Height
+- `contain`: component contains within the provided size
+- `cover`: component covers the provided size
 
 ```javascript
-component.pin({
-  scaleMode: mode,
-  scaleWidth: width,
-  scaleHeight: height,
-});
-
-// Shortcut method:
 component.fit(width, height, mode);
 ```

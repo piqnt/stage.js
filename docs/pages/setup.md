@@ -12,8 +12,8 @@ const app = Stage.mount({
   canvas: document.getElementById("game-canvas"),
 });
 
-// Set viewbox for stage, see pinning for valid modes
-app.viewbox(width, height, (mode = "in-pad"));
+// Set viewbox for stage
+app.viewbox(width, height, "contain");
 
 // Listen to view port resize events
 app.on("viewport", function (viewport) {
@@ -35,8 +35,11 @@ app.resume();
 // Mount and start a new app
 let app = Stage.mount();
 
-// Create and preload a texture atlas
+// Create a texture atlas, call with await to ensure it's loaded
 Stage.atlas({ ... });
+
+// Preload all texture atlases, if you don't want to await each individually
+await Stage.preload({ ... });
 
 // Pause playing all applications
 Stage.pause();

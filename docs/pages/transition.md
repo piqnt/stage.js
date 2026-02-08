@@ -18,11 +18,11 @@ const transition = component.tween({
 transition.pin(pinning);
 
 // Set easing function for transition, it can be either a function or an identifier
-// defined as 'name[-mode][(params)]', for example 'quad' or 'poly-in-out(3)'
+// defined as 'name[-mode]', for example ease('quad') or ease('poly-in-out').
 // Names: linear, quad, cubic, quart, quint, poly(p), sin/sine,
 //        exp, circle/circ, bounce, elastic(a, p), back(s)
 // Modes: in, out, in-out, out-in
-transition.ease(easing);
+transition.ease(easing, ...params);
 
 // Set duration in milliseconds
 transition.duration(ms);
