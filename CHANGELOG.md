@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- 1746102: Fix unstyled canvas resizing loop
+
 ## 1.0.0
 
 - rewrite with typescript
