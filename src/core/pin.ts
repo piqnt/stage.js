@@ -652,11 +652,11 @@ export interface SetPinType {
 
   rotation?: number;
 
-  /** Center of scale/skew/rotate  */
+  /** Center of scale/skew/rotate, 0 is start, 1 is end  */
   pivot?: number;
-  /** Center of scale/skew/rotate  */
+  /** Center of scale/skew/rotate, 0 is start, 1 is end  */
   pivotX?: number;
-  /** Center of scale/skew/rotate  */
+  /** Center of scale/skew/rotate, 0 is start, 1 is end  */
   pivotY?: number;
 
   /** Offset in parent coordination */
@@ -666,18 +666,18 @@ export interface SetPinType {
   /** Offset in parent coordination */
   offsetY?: number;
 
-  /** A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right  */
+  /** A point on parent where this component is offset from, 0 is start, 1 is end  */
   align?: number;
-  /** A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right */
+  /** A point on parent where this component is offset from, 0 is start, 1 is end */
   alignX?: number;
-  /** A point on parent where this component is offset from, 0 is top/left, 1 is bottom/right */
+  /** A point on parent where this component is offset from, 0 is start, 1 is end */
   alignY?: number;
 
-  /** A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right */
+  /** A point on this component which is offset from parent, 0 is start, 1 is end */
   handle?: number;
-  /** A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right */
+  /** A point on this component which is offset from parent, 0 is start, 1 is end */
   handleX?: number;
-  /** A point on this component which is offset from parent, 0 is top/left, 1 is bottom/right */
+  /** A point on this component which is offset from parent, 0 is start, 1 is end */
   handleY?: number;
 
   /** @hidden @deprecated Use component.fit() */
