@@ -144,25 +144,30 @@ export class Component {
     return this._pin.absoluteMatrix();
   }
 
-  /** @hidden @deprecated */
+  /** @hidden @deprecated Use getLogicalPixelRatio */
   getPixelRatio() {
     // todo: remove this function
-    const m = this._parent?.matrix();
-    const pixelRatio = !m ? 1 : Math.max(Math.abs(m.a), Math.abs(m.b)) / getDevicePixelRatio();
-    return pixelRatio;
+    return this.getLogicalPixelRatio();
   }
 
-  /** @hidden This is not accurate before first tick */
+  /**
+   * @hidden
+   * Physical-pixel per unit of parent component.
+   * This is not accurate before first tick.
+   */
   getDevicePixelRatio() {
     // todo: parent matrix is not available in the first call
     const parentMatrix = this._parent?.matrix();
-    const pixelRatio = !parentMatrix
-      ? 1
-      : Math.max(Math.abs(parentMatrix.a), Math.abs(parentMatrix.b));
+    if (!parentMatrix) return 1;
+    const pixelRatio = Math.max(Math.abs(parentMatrix.a), Math.abs(parentMatrix.b));
     return pixelRatio;
   }
 
-  /** @hidden This is not accurate before first tick */
+  /**
+   * @hidden
+   * Logical-pixel per unit of parent component.
+   * This is not accurate before first tick.
+   */
   getLogicalPixelRatio() {
     return this.getDevicePixelRatio() / getDevicePixelRatio();
   }
