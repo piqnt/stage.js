@@ -1,10 +1,11 @@
 import stats from "../common/stats";
-import { Vec2Value } from "../common/matrix";
+import { Matrix, Vec2Value } from "../common/matrix";
 import { uid } from "../common/uid";
 import { getDevicePixelRatio } from "../common/browser";
 
 import { Pin, FitMode, SetPinType, SetPinKeys, GetPinKeys } from "./pin";
 import { Transition, TransitionOptions } from "./transition";
+import { renderAxis, renderPoint } from "./debug";
 
 // todo: why there are two iids (other in pin)?
 /** @internal */
@@ -129,6 +130,9 @@ export class Component {
   /** @internal */ _mo_seq: number;
   /** @internal */ _mo_seqAlign: number;
   /** @internal */ _mo_box: number;
+
+  /** @hidden Set to true to enable debug rendering */
+  _debug: boolean;
 
   constructor() {
     stats.create++;
@@ -661,6 +665,9 @@ export class Component {
     stats.component++;
 
     const m = this.matrix();
+
+    this.renderDebug(context, m);
+
     context.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
 
     // move this elsewhere!
@@ -1203,6 +1210,33 @@ export class Component {
   spacing(space: number) {
     this._spacing = space;
     return this;
+  }
+
+  renderDebug(ctx: CanvasRenderingContext2D, xf: Matrix) {
+    if (!this._debug) return;
+    const ppu = this.getLogicalPixelRatio();
+
+    ctx.lineWidth = 1 / ppu;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    renderAxis(ctx, 1);
+
+    const pin = this._pin;
+    if (pin._pivoted) {
+      ctx.strokeStyle = "orange";
+      renderPoint(ctx, pin._pivotX * pin._width, pin._pivotY * pin._height);
+    }
+
+    if (pin._aligned) {
+      ctx.strokeStyle = "green";
+      renderPoint(ctx, pin._alignX * pin._width, pin._alignY * pin._height);
+    }
+
+    if (pin._handled) {
+      ctx.strokeStyle = "yellow";
+      renderPoint(ctx, pin._handleX * pin._width, pin._handleY * pin._height);
+    }
   }
 }
 
