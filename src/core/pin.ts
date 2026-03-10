@@ -1,4 +1,4 @@
-import { Matrix, Vec2Value } from "../common/matrix";
+import { Matrix } from "../common/matrix";
 import { uid } from "../common/uid";
 
 import type { Component } from "./component";
@@ -34,6 +34,10 @@ export function isValidFitMode(value: string) {
 }
 
 /** @internal */ let iid = 0;
+
+/** @internal */ export function getIID() {
+  return iid++;
+}
 
 export class Pin {
   /** @internal */ uid = "pin:" + uid();
@@ -194,6 +198,7 @@ export class Pin {
     abs.reset(this.relativeMatrix());
 
     this._parent && abs.concat(this._parent._absoluteMatrix);
+    this._owner._xf && abs.concat(this._owner._xf);
 
     this._ts_matrix = ++iid;
 
@@ -342,6 +347,51 @@ export class Pin {
       }
     }
   }
+}
+
+/** @internal */
+const fitted = {};
+
+/** @internal */
+export function fit(
+  this: unknown,
+  inWidth: number,
+  inHeight: number,
+  outWidth: number | null,
+  outHeight: number | null,
+  mode?: FitMode,
+) {
+  if (mode === "contain") mode = "in-pad";
+  if (mode === "cover") mode = "out-crop";
+
+  let scaleX: number;
+  let scaleY: number;
+
+  let width: number;
+  let height: number;
+
+  if (typeof outWidth === "number") {
+    scaleX = outWidth / inWidth;
+    width = inWidth;
+  }
+  if (typeof outHeight === "number") {
+    scaleY = outHeight / inHeight;
+    height = inHeight;
+  }
+  if (typeof outWidth === "number" && typeof outHeight === "number" && typeof mode === "string") {
+    if (mode === "fill") {
+    } else if (mode === "out" || mode === "out-crop") {
+      scaleX = scaleY = Math.max(scaleX, scaleY);
+    } else if (mode === "in" || mode === "in-pad") {
+      scaleX = scaleY = Math.min(scaleX, scaleY);
+    }
+    if (mode === "out-crop" || mode === "in-pad") {
+      width = outWidth / scaleX;
+      height = outHeight / scaleY;
+    }
+  }
+
+  return { scaleX, scaleY, width, height };
 }
 
 /** @internal */ const getters = {

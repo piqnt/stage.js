@@ -4,7 +4,7 @@ import { Matrix } from "../common/matrix";
 import { renderAxis } from "./debug";
 import { Component } from "./component";
 import { Pointer } from "./pointer";
-import { FitMode, isValidFitMode } from "./pin";
+import { fit, FitMode, getIID, isValidFitMode } from "./pin";
 
 /** @internal */ const ROOTS: Root[] = [];
 
@@ -77,7 +77,6 @@ export class Root extends Component {
 
   /** @internal */ _viewport: Viewport;
   /** @internal */ _viewbox: Viewbox;
-  /** @internal */ _camera: Matrix;
 
   constructor() {
     super();
@@ -349,7 +348,7 @@ export class Root extends Component {
         height: height,
         ratio: typeof ratio === "number" ? ratio : 1,
       };
-      this.viewbox();
+      this.rescale();
       const data = Object.assign({}, this._viewport);
       this.visit({
         start: function (component) {
@@ -371,7 +370,6 @@ export class Root extends Component {
   viewbox(width?: number, height?: number, mode?: FitMode): this;
   viewbox(width?: number | Viewbox, height?: number, mode?: FitMode): this {
     // TODO: static/fixed viewbox
-    // TODO: use css object-fit values
     if (typeof width === "number" && typeof height === "number") {
       this._viewbox = {
         width,
@@ -389,9 +387,11 @@ export class Root extends Component {
     return this;
   }
 
+  /** @hidden */
   camera(matrix: Matrix) {
-    this._camera = matrix;
-    this.rescale();
+    this._xf = matrix.clone();
+    this._pin._ts_transform = getIID();
+    this.touch();
     return this;
   }
 
@@ -399,39 +399,23 @@ export class Root extends Component {
   rescale() {
     const viewbox = this._viewbox;
     const viewport = this._viewport;
-    const camera = this._camera;
     if (viewport && viewbox) {
-      const viewportWidth = viewport.width;
-      const viewportHeight = viewport.height;
       const viewboxMode = isValidFitMode(viewbox.mode) ? viewbox.mode : "in-pad";
-      const viewboxWidth = viewbox.width;
-      const viewboxHeight = viewbox.height;
-
+      const fitted = fit(
+        viewbox.width,
+        viewbox.height,
+        viewport.width,
+        viewport.height,
+        viewboxMode,
+      );
       this.pin({
-        width: viewboxWidth,
-        height: viewboxHeight,
+        width: fitted.width,
+        height: fitted.height,
+        scaleX: fitted.scaleX,
+        scaleY: fitted.scaleY,
+        offsetX: -(viewbox.x || 0) * fitted.scaleX,
+        offsetY: -(viewbox.y || 0) * fitted.scaleY,
       });
-      this.fit(viewportWidth, viewportHeight, viewboxMode);
-
-      const viewboxX = viewbox.x || 0;
-      const viewboxY = viewbox.y || 0;
-
-      const cameraZoomX = camera?.a || 1;
-      const cameraZoomY = camera?.d || 1;
-      const cameraX = camera?.e || 0;
-      const cameraY = camera?.f || 0;
-
-      const pinScaleX = this.pin("scaleX");
-      const pinScaleY = this.pin("scaleY");
-
-      const scaleX = pinScaleX * cameraZoomX;
-      const scaleY = pinScaleY * cameraZoomY;
-
-      this.pin("scaleX", scaleX);
-      this.pin("scaleY", scaleY);
-
-      this.pin("offsetX", cameraX - viewboxX * scaleX);
-      this.pin("offsetY", cameraY - viewboxY * scaleY);
     } else if (viewport) {
       this.pin({
         width: viewport.width,

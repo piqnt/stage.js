@@ -134,6 +134,9 @@ export class Component {
   /** @hidden Set to true to enable debug rendering */
   _debug: boolean;
 
+  /** @internal */
+  _xf: Matrix;
+
   constructor() {
     stats.create++;
     if (this instanceof Component) {
