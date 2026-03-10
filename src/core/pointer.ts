@@ -18,6 +18,12 @@ export const POINTER_START = "touchstart mousedown";
 /** @hidden @deprecated */
 export const POINTER_END = "touchend mouseup";
 
+export interface PointerEvent {
+  x: number;
+  y: number;
+  raw: UIEvent;
+}
+
 class EventPoint {
   x: number;
   y: number;
