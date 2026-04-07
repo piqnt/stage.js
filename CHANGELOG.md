@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.3
+
+### Patch Changes
+
+- de8eacc: Separate camera and viewbox implementation
+- 5f4ac70: Export pointer event type
+- d5fa149: Add rendering debug
+- bb29153: Clean up pixel-ration methods
+- 1771a43: Set default poly easing param
+
 ## 1.0.2
 
 ### Patch Changes
