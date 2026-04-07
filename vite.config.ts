@@ -3,7 +3,7 @@ import { defineConfig, normalizePath } from 'vite';
 import pagesPlugin from "vite-plugin-pages";
 import rollupLicensePlugin from "rollup-plugin-license";
 import typescriptPlugin from "vite-plugin-typescript";
-import dtsBundleGeneratorPlugin from 'vite-plugin-dts-bundle-generator';
+import dtsBundleGeneratorPlugin from 'unplugin-dts-bundle-generator/vite';
 
 export default defineConfig({
   define: {
